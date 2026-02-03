@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${course.title} + ' | SkillHub'">Course Details | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .course-header {
+            background-color: #1c1d1f;
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .course-meta {
+            max-width: 800px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="/home" class="logo">SkillHub</a>
+        <div class="nav-links">
+            <a href="/home">My Learning</a>
+        </div>
+    </nav>
+
+    <div class="course-header">
+        <div class="container">
+            <div class="course-meta">
+                <h1 th:text="${course.title}" style="font-size: 2.4rem; margin-bottom: 1rem;">Title</h1>
+                <p th:text="${course.description}" style="font-size: 1.1rem; margin-bottom: 1rem;">Description</p>
+                <p>Created by <span th:text="${course.instructor}"
+                        style="color: #cec0fc; text-decoration: underline;">Instructor</span></p>
+                <p style="margin-top: 10px;">Category: <span th:text="${course.category}">Category</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: 2rem;">
+        <div style="border: 1px solid #d1d7dc; padding: 2rem; max-width: 340px;">
+            <h2 th:text="'$' + ${course.price}" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">$19.99
+            </h2>
+            <button class="btn btn-primary full-width" style="height: 48px;">Buy this course</button>
+            <p style="text-align: center; margin-top: 10px; font-size: 12px;">30-Day Money-Back Guarantee</p>
+        </div>
+    </div>
+
+</body>
+
+</html>
