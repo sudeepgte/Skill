@@ -28,8 +28,8 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                Collections.emptyList() // Authorities/Roles can be added here
-        );
+                Collections.singletonList(
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority(user.getRole())));
     }
 
     public void saveUser(User user) {

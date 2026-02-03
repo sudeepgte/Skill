@@ -67,8 +67,26 @@
     <!-- Course Selection Section -->
     <div class="section-container">
         <div class="section-header">
-            <h2>A broad selection of courses</h2>
-            <p>Choose from 210,000 online video courses with new additions published every month</p>
+            <h2 th:if="${activeSection == null}">A broad selection of courses</h2>
+            <h2 th:if="${activeSection != null}">Selected Section</h2>
+            <p th:if="${activeSection == null}">Choose from 210,000 online video courses with new additions published
+                every month</p>
+        </div>
+
+        <!-- Section Categories -->
+        <div class="d-flex flex-wrap gap-2"
+            style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 20px; margin-bottom: 20px;">
+            <a href="/" class="category-tag"
+                style="padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 500; border: 1px solid #2d2f31;"
+                th:styleappend="${activeSection == null} ? 'background: #2d2f31; color: white;' : 'background: white; color: #2d2f31;'">
+                All Courses
+            </a>
+            <a th:each="section : ${sections}" th:href="@{/(sectionId=${section.id})}" class="category-tag"
+                style="padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 500; border: 1px solid #2d2f31;"
+                th:styleappend="${activeSection == section.id} ? 'background: #2d2f31; color: white;' : 'background: white; color: #2d2f31;'"
+                th:text="${section.name}">
+                Development
+            </a>
         </div>
 
         <!-- Carousel -->
@@ -92,7 +110,7 @@
                             </div>
                             <span class="reviews">(1,234)</span>
                         </div>
-                        <div class="price" th:text="'$' + ${course.price}">$19.99</div>
+                        <div class="price" th:text="'₹' + ${course.price}">₹19.99</div>
                     </div>
                 </a>
 

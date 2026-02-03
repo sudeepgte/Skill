@@ -28,16 +28,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationSuccessHandler successHandler)
+            throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/saveUser", "/login", "/css/**", "/js/**", "/images/**")
                         .permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login") // Submit URL
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler(successHandler)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

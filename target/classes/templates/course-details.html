@@ -4,15 +4,235 @@
 <head>
     <title th:text="${course.title} + ' | SkillHub'">Course Details | SkillHub</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff;
+        }
+
         .course-header {
             background-color: #1c1d1f;
             color: white;
-            padding: 3rem 0;
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .header-content {
+            max-width: 1184px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+        }
+
+        .header-text {
+            max-width: 700px;
+            padding-right: 20px;
+        }
+
+        .course-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .course-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
         }
 
         .course-meta {
-            max-width: 800px;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .rating-star {
+            color: #f4c150;
+            margin-right: 4px;
+        }
+
+        .instructor-link {
+            color: #cec0fc;
+            text-decoration: underline;
+        }
+
+        .last-updated {
+            color: white;
+            margin-left: 10px;
+        }
+
+        .lang-icon {
+            margin-right: 5px;
+        }
+
+        /* Sticky Sidebar */
+        .course-sidebar {
+            position: fixed;
+            top: 100px;
+            right: 10%;
+            width: 340px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+            border: 1px solid #d1d7dc;
+            display: none;
+            /* Hidden on mobile */
+        }
+
+        @media(min-width: 1080px) {
+            .course-sidebar {
+                display: block;
+            }
+        }
+
+        .sidebar-preview img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+        }
+
+        .sidebar-price {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #1c1d1f;
+        }
+
+        .btn-buy {
+            background-color: #a435f0;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-weight: 700;
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .btn-buy:hover {
+            background-color: #8710d8;
+        }
+
+        .guarantee {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6a6f73;
+            margin-top: 10px;
+        }
+
+        .includes-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .includes-list li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #1c1d1f;
+        }
+
+        .includes-list i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        /* Main Content Area */
+        .main-container {
+            max-width: 1184px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+        }
+
+        .main-left {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        /* What you'll learn box */
+        .learning-objectives {
+            border: 1px solid #d1d7dc;
+            padding: 20px;
+            margin: 30px 0;
+            background-color: #f9f9f9;
+        }
+
+        .learning-objectives h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .obj-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .obj-list li {
+            display: flex;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: #1c1d1f;
+        }
+
+        .obj-list i {
+            color: #1c1d1f;
+            margin-top: 4px;
+        }
+
+        .course-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .requirements-list {
+            list-style: disc;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .requirements-list li {
+            margin-bottom: 5px;
+            color: #1c1d1f;
+        }
+
+        .description-content {
+            color: #1c1d1f;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .description-content p {
+            margin-bottom: 10px;
+        }
+
+        .price-mobile {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        @media(min-width: 1080px) {
+            .price-mobile {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -21,31 +241,170 @@
 
     <nav class="navbar">
         <a href="/home" class="logo">SkillHub</a>
+        <div class="search-bar" style="margin-left: 20px; width: 400px;">
+            <form action="#"><input type="text" placeholder="Search for anything"></form>
+        </div>
         <div class="nav-links">
             <a href="/home">My Learning</a>
+            <a href="#"><i class="fas fa-shopping-cart"></i></a>
+            <div
+                style="background: #2d2f31; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                RB</div>
         </div>
     </nav>
 
-    <div class="course-header">
-        <div class="container">
-            <div class="course-meta">
-                <h1 th:text="${course.title}" style="font-size: 2.4rem; margin-bottom: 1rem;">Title</h1>
-                <p th:text="${course.description}" style="font-size: 1.1rem; margin-bottom: 1rem;">Description</p>
-                <p>Created by <span th:text="${course.instructor}"
-                        style="color: #cec0fc; text-decoration: underline;">Instructor</span></p>
-                <p style="margin-top: 10px;">Category: <span th:text="${course.category}">Category</span></p>
+    <!-- Sidebar (Desktop) -->
+    <div class="course-sidebar">
+        <div class="sidebar-preview">
+            <img th:src="${course.imageUrl}" alt="Course Preview">
+        </div>
+        <div class="sidebar-content">
+            <div class="sidebar-price" th:text="'₹' + ${course.price}">₹19.99</div>
+            <button class="btn-buy">Add to cart</button>
+            <button class="btn-buy" style="background-color: white; color: #1c1d1f; border: 1px solid #1c1d1f;">Buy
+                now</button>
+            <p class="guarantee">30-Day Money-Back Guarantee</p>
+
+            <div class="includes">
+                <p style="font-weight: 700; font-size: 0.9rem;">This course includes:</p>
+                <ul class="includes-list">
+                    <li><i class="fas fa-video"></i> <span
+                            th:text="${course.contentLength != null ? course.contentLength : '10 hours'} + ' on-demand video'"></span>
+                    </li>
+                    <li><i class="fas fa-file"></i> 5 articles</li>
+                    <li><i class="fas fa-download"></i> 10 downloadable resources</li>
+                    <li><i class="fas fa-mobile-alt"></i> Access on mobile and TV</li>
+                    <li><i class="fas fa-infinity"></i> Full lifetime access</li>
+                    <li><i class="fas fa-certificate"></i> Certificate of completion</li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <div class="container" style="margin-top: 2rem;">
-        <div style="border: 1px solid #d1d7dc; padding: 2rem; max-width: 340px;">
-            <h2 th:text="'$' + ${course.price}" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">$19.99
-            </h2>
-            <button class="btn btn-primary full-width" style="height: 48px;">Buy this course</button>
-            <p style="text-align: center; margin-top: 10px; font-size: 12px;">30-Day Money-Back Guarantee</p>
+    <!-- Header -->
+    <div class="course-header">
+        <div class="header-content">
+            <div class="header-text">
+                <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">
+                    <a href="/home" style="color: #cec0fc; text-decoration: none;">Courses</a> >
+                    <span th:text="${course.section.name}">Category</span>
+                </div>
+                <h1 class="course-title" th:text="${course.title}">Course Title</h1>
+                <p class="course-subtitle" th:text="${course.subtitle != null ? course.subtitle : course.description}">
+                    Short description goes here</p>
+
+                <div class="course-meta">
+                    <span
+                        style="background: #f4c150; color: #1c1d1f; padding: 2px 6px; font-weight: 700; font-size: 0.8rem;">Bestseller</span>
+                    <span style="color: #f4c150; font-weight: 700;">4.7</span>
+                    <span>
+                        <i class="fas fa-star rating-star"></i><i class="fas fa-star rating-star"></i><i
+                            class="fas fa-star rating-star"></i><i class="fas fa-star rating-star"></i><i
+                            class="fas fa-star-half-alt rating-star"></i>
+                    </span>
+                    <span style="text-decoration: underline; color: #cec0fc;">(1,234 ratings)</span>
+                    <span>10,500 students</span>
+                </div>
+
+                <div class="course-meta">
+                    <span>Created by <a href="#" class="instructor-link" th:text="${course.instructor}">Instructor
+                            Name</a></span>
+                </div>
+
+                <div class="course-meta" style="color: white;">
+                    <span><i class="fas fa-exclamation-circle"></i> Last updated <span
+                            th:text="${course.lastUpdated != null ? course.lastUpdated : '12/2023'}"></span></span>
+                    <span><i class="fas fa-globe lang-icon"></i> <span
+                            th:text="${course.language != null ? course.language : 'English'}">English</span></span>
+                </div>
+
+                <div class="price-mobile" th:text="'₹' + ${course.price}">₹19.99</div>
+                <button class="btn-buy price-mobile" style="margin-top: 10px;">Buy now</button>
+            </div>
         </div>
     </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="main-left">
+            <!-- Learning Objectives -->
+            <div class="learning-objectives">
+                <h2>What you'll learn</h2>
+                <ul class="obj-list">
+                    <li th:each="obj : ${#strings.arraySplit(course.learningObjectives != null ? course.learningObjectives : 'Master the core concepts', '
+')}">
+                        <i class="fas fa-check"></i> <span th:text="${obj}">Objective</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Course Content Placeholder -->
+            <div class="course-section">
+                <h2>Course content</h2>
+                <div style="font-size: 0.9rem; margin-bottom: 20px;">
+                    5 sections • 42 lectures • <span th:text="${course.contentLength}">10h 30m</span> total length
+                </div>
+                <!-- Logic to list lectures would go here, simplified for now -->
+                <div style="border: 1px solid #d1d7dc;">
+                    <button
+                        style="width: 100%; text-align: left; padding: 15px; background: #f7f9fa; border: none; border-bottom: 1px solid #d1d7dc; font-weight: 700; display: flex; justify-content: space-between;">
+                        <span>Introduction</span> <span>3 lectures • 12min</span>
+                    </button>
+                    <button
+                        style="width: 100%; text-align: left; padding: 15px; background: white; border: none; border-bottom: 1px solid #d1d7dc; font-weight: 700; display: flex; justify-content: space-between;">
+                        <span>Getting Started</span> <span>5 lectures • 45min</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="course-section">
+                <h2>Requirements</h2>
+                <ul class="requirements-list">
+                    <li th:each="req : ${#strings.arraySplit(course.requirements != null ? course.requirements : 'No prerequisites', '
+')}" th:text="${req}">Requirement</li>
+                </ul>
+            </div>
+
+            <!-- Description -->
+            <div class="course-section">
+                <h2>Description</h2>
+                <div class="description-content"
+                    th:utext="${course.longDescription != null ? course.longDescription : course.description}">
+                    Description goes here.
+                </div>
+            </div>
+
+            <!-- Instructor -->
+            <div class="course-section">
+                <h2>Instructor</h2>
+                <div style="display: flex; gap: 20px;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: #ccc; overflow: hidden;">
+                        <!-- Ideally instructor image -->
+                        <img src="https://via.placeholder.com/100" style="width: 100%;">
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; color: #a435f0; text-decoration: underline; margin-bottom: 5px;"
+                            th:text="${course.instructor}">Name</h3>
+                        <p style="color: #6a6f73; font-size: 0.9rem;">Course Instructor</p>
+                        <p style="margin-top: 10px; font-size: 0.95rem;">
+                            I am a passionate instructor with years of experience in the field. I love teaching and
+                            helping students achieve their goals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: #1c1d1f; color: white; padding: 30px; margin-top: 50px;">
+        <div class="container"
+            style="max-width: 1184px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; font-size: 1.2rem;">SkillHub</div>
+            <p style="font-size: 0.8rem; margin: 0;">&copy; 2024 SkillHub, Inc.</p>
+        </div>
+    </footer>
 
 </body>
 

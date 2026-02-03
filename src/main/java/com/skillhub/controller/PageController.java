@@ -19,17 +19,40 @@ public class PageController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.skillhub.service.SectionService sectionService;
+
+    @Autowired
+    private com.skillhub.repository.CourseRepository courseRepository;
+
     @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("courses", courseService.getAllCourses());
+    public String index(Model model,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long sectionId) {
+        model.addAttribute("sections", sectionService.getEnabledSections());
+        if (sectionId != null) {
+            com.skillhub.model.Section section = sectionService.getSectionById(sectionId);
+            model.addAttribute("courses", courseRepository.findBySection(section));
+            model.addAttribute("activeSection", sectionId);
+        } else {
+            model.addAttribute("courses", courseService.getAllCourses());
+        }
         return "index";
     }
 
     @GetMapping("/home")
-    public String home(Model model, Principal principal) {
+    public String home(Model model, Principal principal,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Long sectionId) {
         String email = principal.getName();
         model.addAttribute("user", userService.findByEmail(email));
-        model.addAttribute("courses", courseService.getAllCourses());
+        model.addAttribute("sections", sectionService.getEnabledSections());
+
+        if (sectionId != null) {
+            com.skillhub.model.Section section = sectionService.getSectionById(sectionId);
+            model.addAttribute("courses", courseRepository.findBySection(section));
+            model.addAttribute("activeSection", sectionId);
+        } else {
+            model.addAttribute("courses", courseService.getAllCourses());
+        }
         return "home";
     }
 }
