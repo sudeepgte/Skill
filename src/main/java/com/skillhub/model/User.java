@@ -19,7 +19,15 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // "USER", "ADMIN"
+    private String role; // "STUDENT", "INSTRUCTOR", "ADMIN"
+
+    // Instructor Profile fields
+    private String headline; // e.g. "Senior Java Developer"
+
+    @Column(length = 2000)
+    private String bio;
+
+    private String profileImageUrl;
 
     public User() {
     }
@@ -69,5 +77,29 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getHeadline() {
+        return headline;
+    }
+
+    public void setHeadline(String headline) {
+        this.headline = headline;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

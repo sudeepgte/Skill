@@ -3,7 +3,7 @@
 
 <head>
     <title th:text="${course.title} + ' | SkillHub'">Course Details | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
@@ -406,6 +406,38 @@
         </div>
     </footer>
 
+    <script>
+        document.querySelectorAll('.btn-buy').forEach(button => {
+            button.addEventListener('click', function () {
+                const courseId = [[${course.id}]];
+                
+                fetch(`/api/enrollments/${courseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Enrollment failed');
+                })
+                .then(data => {
+                    // Redirect to learning room
+                    window.location.href = `/course/${courseId}/learn`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Could not enrol via quick buy. Please try again or log in.');
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

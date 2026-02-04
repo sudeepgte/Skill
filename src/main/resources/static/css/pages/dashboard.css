@@ -1,0 +1,32 @@
+/* Dashboard Styles */
+
+.sidebar-nav {
+    width: 260px;
+    border-right: 1px solid #d1d7dc;
+    min-height: calc(100vh - 7.2rem);
+    background: white;
+}
+
+.nav-item {
+    display: block;
+    padding: 1.2rem 2.4rem;
+    color: var(--color-black);
+    font-weight: 700;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: #d1d7dc;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 3.2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2.4rem;
+    border: 1px solid #d1d7dc;
+    text-align: center;
+}

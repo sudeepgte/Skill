@@ -3,47 +3,76 @@
 
 <head>
     <title>Login | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Use style.css instead of outdated main.css -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
 </head>
 
 <body>
 
-    <nav class="navbar">
-        <a href="/" class="logo">SkillHub</a>
+    <!-- Simple Navbar/Header for Auth -->
+    <nav
+        style="height: 7.2rem; display: flex; align-items: center; padding: 0 2.4rem; border-bottom: 1px solid #e0e0e0;">
+        <a href="/" class="logo">
+            <span class="logo-text">SkillHub</span>
+        </a>
     </nav>
 
-    <div class="auth-container">
-        <h3>Log in to your account</h3>
-        <hr style="margin: 1rem 0; border: none; border-bottom: 1px solid #d1d7dc;">
+    <div class="auth-page-container">
+        <div class="auth-card">
+            <h3 class="auth-header">Log in to your account</h3>
 
-        <div th:if="${param.error}" class="alert">
-            Invalid email and password.
-        </div>
-        <div th:if="${param.logout}" class="alert alert-success">
-            You have been logged out.
-        </div>
-        <div th:if="${param.success}" class="alert alert-success">
-            Registration successful! Please login.
-        </div>
+            <!-- Social Login Placeholders -->
+            <button class="social-btn">
+                <i class="fab fa-google" style="color: #4285F4;"></i>
+                Continue with Google
+            </button>
+            <button class="social-btn">
+                <i class="fab fa-facebook" style="color: #1877F2;"></i>
+                Continue with Facebook
+            </button>
+            <button class="social-btn">
+                <i class="fab fa-apple"></i>
+                Continue with Apple
+            </button>
 
-        <form th:action="@{/login}" method="post">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="username" placeholder="Email" required>
+            <!-- Separator -->
+            <!-- We'll skip the complex separator CSS logic for now and just use margin, 
+                 or trust the style.css class I added if rendered correctly. -->
+            <div class="form-group" style="text-align: center; margin: 1rem 0; font-weight: 700; font-size: 1.2rem;">
+                <br>
+                <span>or</span>
             </div>
 
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Password" required>
+            <div th:if="${param.error}" class="alert"
+                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700;">
+                Invalid email or password.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success"
+                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
+                You have been logged out.
+            </div>
+            <div th:if="${param.success}" class="alert alert-success"
+                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
+                Registration successful! Please login.
             </div>
 
-            <button type="submit" class="btn btn-primary full-width">Log in</button>
-        </form>
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <input type="email" name="username" class="form-control" placeholder="Email" required>
+                </div>
 
-        <p style="text-align: center; margin-top: 1rem;">
-            Don't have an account? <a href="/register"
-                style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Sign up</a>
-        </p>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Log in</button>
+            </form>
+
+            <p style="text-align: center; margin-top: 2.4rem; font-size: 1.4rem;">
+                Don't have an account? <a href="/register"
+                    style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Sign up</a>
+            </p>
+        </div>
     </div>
 
 </body>

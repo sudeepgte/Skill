@@ -1,0 +1,12 @@
+/* Main CSS Entry Point */
+
+/* Base & Layout */
+@import 'base.css';
+@import 'layout.css';
+
+/* Components */
+@import 'components.css';
+
+/* Pages */
+@import 'pages/course.css';
+@import 'pages/dashboard.css';

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${course.title} + ' | SkillHub'">Course Title | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1c1d1f;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .learning-header {
+            height: 50px;
+            background: #2d2f31;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            border-bottom: 1px solid #3e4143;
+        }
+
+        .learning-header a {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .learning-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .video-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: black;
+            position: relative;
+        }
+
+        .video-placeholder {
+            text-align: center;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: white;
+            color: #2d2f31;
+            border-left: 1px solid #d1d7dc;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.6rem;
+            border-bottom: 1px solid #d1d7dc;
+            font-weight: 700;
+        }
+
+        .section-item {
+            border-bottom: 1px solid #d1d7dc;
+        }
+
+        .section-title {
+            padding: 1.2rem;
+            background: #f7f9fa;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lesson-list {
+            display: block;
+        }
+
+        .lesson-item {
+            padding: 1rem 1.6rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: #2d2f31;
+        }
+
+        .lesson-item:hover {
+            background: #d1d7dc;
+        }
+
+        .lesson-item.active {
+            background: #d1d7dc;
+            font-weight: 700;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid #2d2f31;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="learning-header">
+        <a href="/home"><i class="fas fa-chevron-left" style="margin-right: 1rem;"></i> Back to Dashboard</a>
+        <span style="margin: 0 1rem; color: #6a6f73;">|</span>
+        <span th:text="${course.title}">Course Title</span>
+    </div>
+
+    <div class="learning-container">
+        <!-- Video Area -->
+        <div class="video-area">
+            <!-- Placeholder for video player -->
+            <div class="video-placeholder">
+                <i class="fas fa-play-circle" style="font-size: 6rem; margin-bottom: 2rem;"></i>
+                <h2 id="lessonTitle" th:text="${currentLesson != null ? currentLesson.title : 'Select a lesson'}">Select
+                    a lesson</h2>
+                <p style="color: #d1d7dc;">Video content would play here.</p>
+            </div>
+        </div>
+
+        <!-- Curriculum Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">Course Content</div>
+
+            <div th:each="section : ${course.sections}" class="section-item">
+                <div class="section-title">
+                    <span th:text="${section.title}">Section 1</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="lesson-list">
+                    <a th:each="lesson : ${section.lectures}"
+                        th:href="@{/course/{id}/learn(id=${course.id}, lessonId=${lesson.id})}" class="lesson-item"
+                        th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? 'active'">
+                        <div class="checkbox"></div>
+                        <div>
+                            <div th:text="${lesson.title}">Lesson 1</div>
+                            <small style="color: #6a6f73;" th:text="${lesson.durationSeconds / 60} + 'm'">5m</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function markAsComplete(lectureId, element) {
+            fetch(`/api/enrollments/progress/${lectureId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Toggle visual state
+                        const item = element.closest('.lesson-item');
+                        const checkbox = item.querySelector('.checkbox');
+                        if (checkbox) checkbox.style.background = '#a435f0'; // turn purple
+                        // Optionally reload to update global progress or update via JS
+                        // location.reload(); // Simple but effective for progress bar update
+                    }
+                })
+                .catch(error => console.error('Error marking complete:', error));
+        }
+
+        // Attach event listeners to checkboxes or lesson items if needed
+        document.querySelectorAll('.checkbox').forEach(box => {
+            box.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Find lecture ID from the parent anchor href or data attribute
+                const link = this.closest('a');
+                if (link) {
+                    const urlParams = new URLSearchParams(link.href.split('?')[1]);
+                    const lectureId = urlParams.get('lessonId'); // Assuming lessonId param exists
+                    if (lectureId) {
+                        markAsComplete(lectureId, this);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -3,46 +3,62 @@
 
 <head>
     <title>Sign Up | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Use style.css -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
 </head>
 
 <body>
 
-    <nav class="navbar">
-        <a href="/" class="logo">SkillHub</a>
+    <!-- Simple Navbar -->
+    <nav
+        style="height: 7.2rem; display: flex; align-items: center; padding: 0 2.4rem; border-bottom: 1px solid #e0e0e0;">
+        <a href="/" class="logo">
+            <span class="logo-text">SkillHub</span>
+        </a>
     </nav>
 
-    <div class="auth-container">
-        <h3>Sign up and start learning</h3>
-        <hr style="margin: 1rem 0; border: none; border-bottom: 1px solid #d1d7dc;">
+    <div class="auth-page-container">
+        <div class="auth-card">
+            <h3 class="auth-header">Sign up and start learning</h3>
 
-        <div th:if="${param.error}" class="alert">
-            Email already registered.
+            <div th:if="${param.error}" class="alert"
+                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700;">
+                Email already in use.
+            </div>
+
+            <form th:action="@{/saveUser}" th:object="${user}" method="post">
+                <div class="form-group">
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+                </div>
+
+                <!-- Checkbox for offers (Visual only) -->
+                <div style="display: flex; gap: 0.8rem; margin-bottom: 1.6rem; align-items: flex-start;">
+                    <input type="checkbox" style="margin-top: 0.4rem;">
+                    <span class="text-xs">Send me special offers, personalized recommendations, and learning
+                        tips.</span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Sign up</button>
+            </form>
+
+            <div style="font-size: 1.2rem; text-align: center; margin-top: 1.6rem;">
+                By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.
+            </div>
+
+            <p
+                style="text-align: center; margin-top: 2.4rem; font-size: 1.4rem; border-top: 1px solid #d1d7dc; padding-top: 1.6rem;">
+                Already have an account? <a href="/login"
+                    style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Log in</a>
+            </p>
         </div>
-
-        <form th:action="@{/saveUser}" th:object="${user}" method="post">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" th:field="*{name}" placeholder="Full Name" required>
-            </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" th:field="*{email}" placeholder="Email" required>
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" th:field="*{password}" placeholder="Password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary full-width">Sign Up</button>
-        </form>
-
-        <p style="text-align: center; margin-top: 1rem;">
-            Already have an account? <a href="/login"
-                style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Log in</a>
-        </p>
     </div>
 
 </body>

@@ -3,7 +3,8 @@
 
 <head>
     <title>My Learning | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -15,114 +16,108 @@
             <span class="logo-text">SkillHub</span>
         </a>
 
-        <div class="nav-category">Categories</div>
+        <div class="categories-link">Categories</div>
 
-        <div class="search-bar">
-            <form action="#">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search for anything">
+        <div class="search-container">
+            <button class="search-icon-btn"><i class="fas fa-search"></i></button>
+            <form action="/home" style="width: 100%;">
+                <input type="text" name="query" class="search-input" placeholder="Search for anything"
+                    th:value="${searchQuery}">
             </form>
         </div>
 
-        <div class="nav-links">
-            <a href="#">My Learning</a>
-            <a href="#"><i class="far fa-heart"></i></a>
-            <a href="#"><i class="fas fa-shopping-cart"></i></a>
-            <a href="#"><i class="far fa-bell"></i></a>
+        <div class="nav-actions">
+            <!-- My Learning Link -->
+            <a href="#" class="nav-link">My Learning</a>
+
+            <!-- Icons -->
+            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="far fa-heart"></i></a>
+            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="fas fa-shopping-cart"></i></a>
+            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="far fa-bell"></i></a>
 
             <!-- User Avatar -->
-            <span
-                style="border-radius: 50%; background: #2d2f31; color: white; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700;"
-                th:text="${#strings.substring(user.name,0,1)}">U</span>
+            <div
+                style="width: 4rem; height: 4rem; background-color: var(--color-black); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+            </div>
 
+            <!-- Logout (simulated link/button) -->
             <form th:action="@{/logout}" method="post" style="display:inline;">
-                <button type="submit"
-                    style="background:none; border:none; cursor:pointer; margin-left:0.5rem; font-size:14px; text-decoration:underline;">Logout</button>
+                <button type="submit" class="btn btn-ghost text-sm"
+                    style="font-weight: 400; text-decoration: underline;">Logout</button>
             </form>
         </div>
     </nav>
 
-    <!-- Welcome Header -->
-    <div style="background-color: #2d2f31; color: white; padding: 4rem 1rem; margin-bottom: 2rem;">
-        <div class="section-container" style="margin: 0 auto; padding: 0;">
-            <h1 th:text="'Welcome back, ' + ${user.name}" style="color: white; font-family: 'Merriweather', serif;">
-                Welcome back, User</h1>
+    <!-- Welcome Header / Hero -->
+    <!-- Logged in hero is simpler, black background -->
+    <div style="background-color: var(--color-black); color: white; padding: 4.8rem 0;">
+        <div class="container">
+            <h1 style="color: white; font-family: 'Merriweather', serif; font-size: 3.2rem; margin-bottom: 0;"
+                th:text="'Welcome back, ' + ${user.name}">Welcome back, User</h1>
         </div>
     </div>
 
-    <!-- Section Categories -->
-    <div class="section-container" style="margin-bottom: 2rem;">
-        <div class="d-flex flex-wrap gap-2" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
-            <a href="/home" class="category-tag"
-                style="padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 500; border: 1px solid #2d2f31;"
-                th:styleappend="${activeSection == null} ? 'background: #2d2f31; color: white;' : 'background: white; color: #2d2f31;'">
-                All Courses
-            </a>
-            <a th:each="section : ${sections}" th:href="@{/home(sectionId=${section.id})}" class="category-tag"
-                style="padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 500; border: 1px solid #2d2f31;"
-                th:styleappend="${activeSection == section.id} ? 'background: #2d2f31; color: white;' : 'background: white; color: #2d2f31;'"
-                th:text="${section.name}">
-                Development
-            </a>
-        </div>
-    </div>
+    <!-- Tabs / Sections -->
+    <div class="container" style="padding-top: 3.2rem; padding-bottom: 3.2rem;">
 
-    <!-- Continue Learning / Course List -->
-    <div class="section-container">
-        <div class="section-header">
-            <h2 th:if="${activeSection == null}">All Courses</h2>
-            <h2 th:if="${activeSection != null}">Selected Section</h2>
+        <!-- Filter Pills -->
+        <div class="tags-container">
+            <a href="/home" class="tag-pill" th:classappend="${activeSection == null} ? 'active'">All Courses</a>
+            <a th:each="section : ${sections}" th:href="@{/home(sectionId=${section.id})}" class="tag-pill"
+                th:classappend="${activeSection == section.id} ? 'active'" th:text="${section.name}">Development</a>
         </div>
-        <!-- Empty State if no courses -->
+
+        <!-- Section Title -->
+        <div class="section-headline">
+            <span th:if="${activeSection == null}">Let's start learning</span>
+            <span th:if="${activeSection != null}">Category: <span th:text="${activeSection}"></span></span>
+        </div>
+
+        <!-- Empty State -->
         <div th:if="${#lists.isEmpty(courses)}"
-            style="background:#fff; height: 150px; display: flex; align-items: center; justify-content: center; border: 1px solid #d1d7dc; margin-bottom: 3rem; text-align: center;">
-            <div>
-                <p style="font-weight: 700; color: var(--text-main);">No courses found in this section.</p>
-                <a href="/home" style="color: var(--udemy-purple); font-weight: 700; text-decoration: none;">View all
-                    courses</a>
-            </div>
+            style="text-align: center; padding: 6.4rem 0; background-color: var(--color-gray-100); border: 1px solid var(--color-gray-200); margin-bottom: 4.8rem;">
+            <p class="text-bold" style="font-size: 1.9rem; margin-bottom: 1.6rem;">No courses found in this section.</p>
+            <a href="/home" class="btn btn-primary">Browse all courses</a>
         </div>
 
-        <!-- Recommended Carousel -->
-        <div class="section-container">
-            <div class="section-header">
-                <h2>Recommended for you</h2>
-            </div>
-
-            <div class="course-carousel-wrapper">
-                <button class="carousel-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                <div class="course-carousel">
-                    <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
-                        <div class="course-img-wrapper">
-                            <img th:src="${course.imageUrl}" alt="Course">
-                        </div>
-                        <div class="course-info">
-                            <h3 th:text="${course.title}">Course Title</h3>
-                            <div class="course-instructor" th:text="${course.instructor}">Instructor</div>
-                            <div class="rating">
-                                <span class="score">4.6</span>
-                                <div class="stars">
-                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                                        class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <span class="reviews">(854)</span>
-                            </div>
-                            <div class="price" th:text="'₹' + ${course.price}">₹19.99</div>
-                        </div>
-                    </a>
+        <!-- Course Grid -->
+        <div class="course-grid">
+            <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
+                <div class="course-image">
+                    <img th:src="${course.imageUrl}" alt="Course">
                 </div>
-                <button class="carousel-btn next-btn"><i class="fas fa-chevron-right"></i></button>
-            </div>
+                <h3 class="course-title" th:text="${course.title}">Course Title</h3>
+                <div class="course-author" th:text="${course.instructor}">Instructor</div>
+
+                <!-- Progress bar simulation for logged in user? (Optional) -->
+                <!-- <div style="width: 100%; height: 4px; background: #d1d7dc; margin-bottom: 0.8rem;"><div style="width: 40%; height: 100%; background: #a435f0;"></div></div> -->
+
+                <div class="course-rating">
+                    <span class="rating-number">4.7</span>
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+                <!-- Note: Logged in "My Learning" usually doesn't show price, but if this is "Recommended", it does. 
+                      Assuming this is 'Browse' or 'Recommended' view for now based on context. 
+                  -->
+                <div class="course-price" th:text="'₹' + ${course.price}">₹499</div>
+            </a>
         </div>
 
-        <footer>
-            <div class="container">
-                <div class="logo-text" style="color: white; margin-bottom: 1rem;">SkillHub</div>
-                <p>&copy; 2024 SkillHub, Inc.</p>
-            </div>
-        </footer>
+    </div>
 
-        <script th:src="@{/js/script.js}"></script>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-logo">SkillHub</div>
+            <p class="footer-copyright">&copy; 2024 SkillHub, Inc.</p>
+        </div>
+    </footer>
+
+    <script th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

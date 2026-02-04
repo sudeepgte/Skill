@@ -32,13 +32,16 @@ public class SecurityConfig {
             throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/saveUser", "/login", "/css/**", "/js/**", "/images/**")
+                        .requestMatchers("/", "/register", "/saveUser", "/login", "/css/**", "/js/**", "/images/**",
+                                "/course/**")
                         .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/instructor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
+                        .requestMatchers("/home").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login") // Submit URL
+                        .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll())
                 .logout(logout -> logout

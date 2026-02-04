@@ -1,0 +1,59 @@
+/* Course Detail & Learning Room Styles */
+
+.course-header-hero {
+    background-color: var(--color-black);
+    color: var(--color-white);
+    padding: 3.2rem 2.4rem;
+}
+
+.hero-layout {
+    display: flex;
+    gap: 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hero-main {
+    flex: 2;
+    padding-right: 2rem;
+}
+
+.hero-sidebar {
+    flex: 1;
+    min-width: 340px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: white;
+    border: 1px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2px;
+    color: var(--color-black);
+}
+
+.hero-sidebar-content {
+    padding: 2.4rem;
+    border: 1px solid #d1d7dc;
+}
+
+/* Learning Room */
+.learning-header {
+    height: 5rem;
+    background: #2d2f31;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    border-bottom: 1px solid #3e4143;
+    color: var(--color-white);
+}
+
+.sidebar-accordion {
+    border-bottom: 1px solid #d1d7dc;
+}
+
+.sidebar-header {
+    background: #f7f9fa;
+    padding: 1.6rem;
+    font-weight: 700;
+}

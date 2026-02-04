@@ -1,6 +1,8 @@
 package com.skillhub.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "courses")
@@ -11,54 +13,59 @@ public class Course {
     private Long id;
 
     private String title;
-
-    @Column(length = 1000)
+    private String subtitle; // Short description
+    @Column(length = 2000)
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "section_id")
-    private Section section;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    private String instructor;
+    @ManyToOne
+    @JoinColumn(name = "instructor_id")
+    private User instructor;
+
     private Double price;
-    private String imageUrl;
-
-    private String subtitle;
-
-    @Column(length = 5000)
-    private String longDescription;
+    private String imageUrl; // Thumbnail
 
     private String language;
-    private String level;
-    private String contentLength;
+    private String level; // Beginner, Intermediate, Expert
+
+    private boolean isPublished = false;
     private String lastUpdated;
 
-    @Column(length = 2000)
-    private String learningObjectives; // Newline separated
+    @Column(length = 4000)
+    private String learningObjectives; // New line separated
 
-    @Column(length = 2000)
-    private String requirements; // Newline separated
+    @Column(length = 4000)
+    private String requirements; // New line separated
+
+    @Column(length = 5000)
+    private String longDescription; // HTML content
+
+    private String contentLength; // e.g. "10h 30m"
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    private List<CourseSection> sections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
+    private List<Enrollment> enrollments;
+
+    // Transient fields for UI display (not stored in DB, calculated)
+    @Transient
+    private Double averageRating = 0.0;
+
+    @Transient
+    private Integer reviewCount = 0;
 
     public Course() {
     }
 
-    public Course(String title, String subtitle, String description, String longDescription, Section section,
-            String instructor, Double price, String imageUrl, String language, String level,
-            String contentLength, String lastUpdated, String learningObjectives, String requirements) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.description = description;
-        this.longDescription = longDescription;
-        this.section = section;
-        this.instructor = instructor;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.language = language;
-        this.level = level;
-        this.contentLength = contentLength;
-        this.lastUpdated = lastUpdated;
-        this.learningObjectives = learningObjectives;
-        this.requirements = requirements;
+    // Convenience Methods
+    public void addSection(CourseSection section) {
+        sections.add(section);
+        section.setCourse(this);
     }
 
     // Getters and Setters
@@ -94,27 +101,19 @@ public class Course {
         this.description = description;
     }
 
-    public String getLongDescription() {
-        return longDescription;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setLongDescription(String longDescription) {
-        this.longDescription = longDescription;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
-    public Section getSection() {
-        return section;
-    }
-
-    public void setSection(Section section) {
-        this.section = section;
-    }
-
-    public String getInstructor() {
+    public User getInstructor() {
         return instructor;
     }
 
-    public void setInstructor(String instructor) {
+    public void setInstructor(User instructor) {
         this.instructor = instructor;
     }
 
@@ -150,12 +149,12 @@ public class Course {
         this.level = level;
     }
 
-    public String getContentLength() {
-        return contentLength;
+    public boolean isPublished() {
+        return isPublished;
     }
 
-    public void setContentLength(String contentLength) {
-        this.contentLength = contentLength;
+    public void setPublished(boolean published) {
+        isPublished = published;
     }
 
     public String getLastUpdated() {
@@ -180,5 +179,53 @@ public class Course {
 
     public void setRequirements(String requirements) {
         this.requirements = requirements;
+    }
+
+    public String getLongDescription() {
+        return longDescription;
+    }
+
+    public void setLongDescription(String longDescription) {
+        this.longDescription = longDescription;
+    }
+
+    public String getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(String contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public List<CourseSection> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<CourseSection> sections) {
+        this.sections = sections;
+    }
+
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
+
+    public void setEnrollments(List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public Integer getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Integer reviewCount) {
+        this.reviewCount = reviewCount;
     }
 }
