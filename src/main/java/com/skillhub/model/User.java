@@ -1,6 +1,7 @@
 package com.skillhub.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -28,6 +29,10 @@ public class User {
     private String bio;
 
     private String profileImageUrl;
+
+    private boolean isBlocked = false;
+
+    private LocalDateTime lastLoginDate;
 
     public User() {
     }
@@ -101,5 +106,21 @@ public class User {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public LocalDateTime getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 }

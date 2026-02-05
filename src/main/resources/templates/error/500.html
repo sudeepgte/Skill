@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Error | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .error-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: #d1d7dc;
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            color: #2d2f31;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo"><span class="logo-text">SkillHub</span></a>
+    </nav>
+
+    <div class="container error-container">
+        <div class="error-code">500</div>
+        <h2 class="error-message">Something went wrong.</h2>
+        <p th:text="${error}" style="color: #6a6f73; margin-bottom: 2rem;">An unexpected error occurred.</p>
+        <a href="/" class="btn btn-primary">Return Home</a>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 SkillHub, Inc.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

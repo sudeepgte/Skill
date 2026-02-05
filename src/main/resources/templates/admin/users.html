@@ -20,6 +20,7 @@
                     <th style="padding: 10px; text-align: left;">Name</th>
                     <th style="padding: 10px; text-align: left;">Email</th>
                     <th style="padding: 10px; text-align: left;">Role</th>
+                    <th style="padding: 10px; text-align: left;">Status</th>
                     <th style="padding: 10px; text-align: left;">Actions</th>
                 </tr>
             </thead>
@@ -30,10 +31,31 @@
                     <td style="padding: 10px;" th:text="${user.email}">john@example.com</td>
                     <td style="padding: 10px;" th:text="${user.role}">STUDENT</td>
                     <td style="padding: 10px;">
-                        <form th:action="@{/admin/users/delete}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${user.id}">
-                            <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
-                        </form>
+                        <span th:if="${user.blocked}" style="color: red; font-weight: bold;">BLOCKED</span>
+                        <span th:unless="${user.blocked}" style="color: green;">Active</span>
+                        <br>
+                        <small style="color: #6a6f73;" th:if="${user.lastLoginDate != null}"
+                            th:text="${#temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm')}"></small>
+                    </td>
+                    <td style="padding: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <form th:if="${!user.blocked}" th:action="@{/admin/users/block}" method="post"
+                                style="display:inline;">
+                                <input type="hidden" name="id" th:value="${user.id}">
+                                <button class="btn btn-ghost text-sm" style="color: orange;">Block</button>
+                            </form>
+
+                            <form th:if="${user.blocked}" th:action="@{/admin/users/unblock}" method="post"
+                                style="display:inline;">
+                                <input type="hidden" name="id" th:value="${user.id}">
+                                <button class="btn btn-ghost text-sm" style="color: green;">Unblock</button>
+                            </form>
+
+                            <form th:action="@{/admin/users/delete}" method="post" style="display:inline;">
+                                <input type="hidden" name="id" th:value="${user.id}">
+                                <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </tbody>

@@ -42,7 +42,7 @@ public class PageController {
             model.addAttribute("courses", courseRepository.findByCategory(category));
             model.addAttribute("activeCategory", categoryId);
         } else {
-            model.addAttribute("courses", courseService.getAllCourses());
+            model.addAttribute("courses", courseService.getPublishedCourses());
         }
         return "index";
     }
@@ -62,7 +62,7 @@ public class PageController {
             model.addAttribute("courses", courseRepository.findByCategory(category));
             model.addAttribute("activeCategory", categoryId);
         } else {
-            model.addAttribute("courses", courseService.getAllCourses());
+            model.addAttribute("courses", courseService.getPublishedCourses());
         }
         return "home";
     }

@@ -51,17 +51,30 @@ public class DataInitializer {
             // 2. Create Categories
             if (categoryRepository.count() == 0) {
                 List<Category> categories = Arrays.asList(
-                        new Category("Development", "fas fa-code"),
-                        new Category("Business", "fas fa-chart-line"),
-                        new Category("Finance & Accounting", "fas fa-calculator"),
-                        new Category("IT & Software", "fas fa-laptop-code"),
-                        new Category("Office Productivity", "fas fa-file-excel"),
-                        new Category("Personal Development", "fas fa-user-edit"),
-                        new Category("Design", "fas fa-pen-nib"),
-                        new Category("Marketing", "fas fa-bullhorn"),
-                        new Category("Health & Fitness", "fas fa-heartbeat"),
-                        new Category("Music", "fas fa-music"));
+                        new Category("Development and IT", "fas fa-code"),
+                        new Category("Business Marketing", "fas fa-chart-line"),
+                        new Category("Office Productivity and Design", "fas fa-file-excel"),
+                        new Category("Music", "fas fa-music"),
+                        new Category("Health Fitness and Yoga", "fas fa-heartbeat"),
+                        new Category("Art, Craft and Painting", "fas fa-paint-brush"),
+                        new Category("Kids Learning and Speaking Course", "fas fa-child"),
+                        new Category("Language", "fas fa-language"),
+                        new Category("Photography", "fas fa-camera"));
                 categoryRepository.saveAll(categories);
+            } else {
+                // Rename legacy categories if they exist
+                updateCategoryName(categoryRepository, "Development", "Development and IT");
+                updateCategoryName(categoryRepository, "Business", "Business Marketing");
+                updateCategoryName(categoryRepository, "Office Productivity", "Office Productivity and Design");
+                updateCategoryName(categoryRepository, "Health & Fitness", "Health Fitness and Yoga");
+
+                // Remove unwanted legacy categories
+                deleteCategory(categoryRepository, "Finance & Accounting");
+                deleteCategory(categoryRepository, "IT & Software");
+                deleteCategory(categoryRepository, "Design");
+                deleteCategory(categoryRepository, "Marketing");
+                deleteCategory(categoryRepository, "Personal Development"); // Removing this as it was part of the old
+                                                                            // set
             }
 
             // 3. Create Demo Courses
@@ -155,5 +168,24 @@ public class DataInitializer {
         r.setRating(rating);
         r.setContent(comment);
         repo.save(r);
+    }
+
+    private void updateCategoryName(CategoryRepository repo, String oldName, String newName) {
+        Category cat = repo.findByName(oldName);
+        if (cat != null) {
+            cat.setName(newName);
+            repo.save(cat);
+        }
+    }
+
+    private void deleteCategory(CategoryRepository repo, String name) {
+        Category cat = repo.findByName(name);
+        if (cat != null) {
+            try {
+                repo.delete(cat);
+            } catch (Exception e) {
+                // Ignore if in use or other error, just best effort cleanup
+            }
+        }
     }
 }

@@ -25,6 +25,11 @@ public class Lecture {
     @JoinColumn(name = "section_id")
     private CourseSection section;
 
+    private Long viewCount = 0L;
+
+    @Column(columnDefinition = "boolean default true")
+    private boolean allowComments = true;
+
     public Lecture() {
     }
 
@@ -82,5 +87,21 @@ public class Lecture {
 
     public void setSection(CourseSection section) {
         this.section = section;
+    }
+
+    public Long getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public boolean isAllowComments() {
+        return allowComments;
+    }
+
+    public void setAllowComments(boolean allowComments) {
+        this.allowComments = allowComments;
     }
 }

@@ -1,6 +1,5 @@
 package com.skillhub.controller;
 
-import com.skillhub.model.Category;
 import com.skillhub.model.Course;
 import com.skillhub.model.User;
 import com.skillhub.service.CategoryService;

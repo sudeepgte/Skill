@@ -28,12 +28,29 @@
                     <td style="padding: 10px;" th:text="${course.id}">1</td>
                     <td style="padding: 10px;" th:text="${course.title}">Java Masterclass</td>
                     <td style="padding: 10px;" th:text="${course.instructor.name}">Jane Doe</td>
-                    <td style="padding: 10px;" th:text="${course.published ? 'Published' : 'Draft'}">Published</td>
                     <td style="padding: 10px;">
-                        <form th:action="@{/admin/courses/delete}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${course.id}">
-                            <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
-                        </form>
+                        <span th:if="${course.published}" style="color: green; font-weight: bold;">Published</span>
+                        <span th:unless="${course.published}" style="color: grey;">Draft</span>
+                    </td>
+                    <td style="padding: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <form th:if="${!course.published}" th:action="@{/admin/courses/publish}" method="post"
+                                style="display:inline;">
+                                <input type="hidden" name="id" th:value="${course.id}">
+                                <button class="btn btn-ghost text-sm" style="color: green;">Publish</button>
+                            </form>
+
+                            <form th:if="${course.published}" th:action="@{/admin/courses/unpublish}" method="post"
+                                style="display:inline;">
+                                <input type="hidden" name="id" th:value="${course.id}">
+                                <button class="btn btn-ghost text-sm" style="color: orange;">Unpublish</button>
+                            </form>
+
+                            <form th:action="@{/admin/courses/delete}" method="post" style="display:inline;">
+                                <input type="hidden" name="id" th:value="${course.id}">
+                                <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </tbody>

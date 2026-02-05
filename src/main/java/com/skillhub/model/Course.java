@@ -21,6 +21,8 @@ public class Course {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    private String subCategory;
+
     @ManyToOne
     @JoinColumn(name = "instructor_id")
     private User instructor;
@@ -48,6 +50,8 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     private List<CourseSection> sections = new ArrayList<>();
+
+    private Long viewCount = 0L;
 
     @OneToMany(mappedBy = "course")
     private List<Enrollment> enrollments;
@@ -107,6 +111,14 @@ public class Course {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public String getSubCategory() {
+        return subCategory;
+    }
+
+    public void setSubCategory(String subCategory) {
+        this.subCategory = subCategory;
     }
 
     public User getInstructor() {
@@ -227,5 +239,13 @@ public class Course {
 
     public void setReviewCount(Integer reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    public Long getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
     }
 }

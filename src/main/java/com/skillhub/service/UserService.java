@@ -51,6 +51,34 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    public void trackLogin(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setLastLoginDate(java.time.LocalDateTime.now());
+            userRepository.save(user);
+        }
+    }
+
+    public void blockUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setBlocked(true);
+            userRepository.save(user);
+        }
+    }
+
+    public void unblockUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setBlocked(false);
+            userRepository.save(user);
+        }
+    }
+
+    public long countActiveUsers24h() {
+        return userRepository.countByLastLoginDateAfter(java.time.LocalDateTime.now().minusHours(24));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);

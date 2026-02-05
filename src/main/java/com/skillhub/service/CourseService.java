@@ -23,6 +23,12 @@ public class CourseService {
         return courses;
     }
 
+    public List<Course> getPublishedCourses() {
+        List<Course> courses = courseRepository.findByIsPublishedTrue();
+        courses.forEach(this::populateCourseRatings);
+        return courses;
+    }
+
     public long countCourses() {
         return courseRepository.count();
     }
@@ -45,8 +51,36 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    public void createCourse(Course course, String instructorEmail) {
+        // Find instructor
+        // For now, we assume the logged-in admin is the instructor
+        // In a real multi-instructor app, this would be looked up
+        // Assuming the repository for user exists and we can find by email
+        // Logic to set instructor handled in Controller or here if we inject
+        // UserRepository
+        course.setPublished(false); // Default to draft
+        course.setViewCount(0L);
+        courseRepository.save(course);
+    }
+
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);
+    }
+
+    public void publishCourse(Long id) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            course.setPublished(true);
+            courseRepository.save(course);
+        }
+    }
+
+    public void unpublishCourse(Long id) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            course.setPublished(false);
+            courseRepository.save(course);
+        }
     }
 
     public List<Course> searchCourses(String query) {

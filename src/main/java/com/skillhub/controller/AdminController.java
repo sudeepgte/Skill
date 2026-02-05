@@ -21,15 +21,38 @@ public class AdminController {
     @Autowired
     private CourseService courseService;
 
+    @Autowired
+    private com.skillhub.repository.LectureRepository lectureRepository;
+
+    @Autowired
+    private com.skillhub.repository.ReportRepository reportRepository;
+
+    @Autowired
+    private com.skillhub.repository.CourseRepository courseRepository;
+
+    @Autowired
+    private com.skillhub.service.CategoryService categoryService;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // Analytics
-        long totalUsers = userService.countUsers(); // Need to implement these methods
+        long totalUsers = userService.countUsers();
         long totalCourses = courseService.countCourses();
+        long totalVideos = lectureRepository.count();
+        long activeUsersToday = userService.countActiveUsers24h();
+
+        // Most watched course
+        com.skillhub.model.Course mostWatched = courseRepository.findTopByOrderByViewCountDesc();
+
+        // Pending user reports
+        long pendingReports = reportRepository.findByStatus(com.skillhub.model.Report.ReportStatus.PENDING).size();
 
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("totalCourses", totalCourses);
-        // Add more stats if needed
+        model.addAttribute("totalVideos", totalVideos);
+        model.addAttribute("activeUsersToday", activeUsersToday);
+        model.addAttribute("mostWatchedCourse", mostWatched);
+        model.addAttribute("pendingReports", pendingReports);
 
         return "admin/dashboard";
     }
@@ -40,16 +63,22 @@ public class AdminController {
         return "admin/users";
     }
 
+    @PostMapping("/users/block")
+    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+        userService.blockUser(id);
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/unblock")
+    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+        userService.unblockUser(id);
+        return "redirect:/admin/users";
+    }
+
     @GetMapping("/courses")
     public String listCourses(Model model) {
         model.addAttribute("courses", courseService.getAllCourses());
         return "admin/courses";
-    }
-
-    @PostMapping("/users/delete")
-    public String deleteUser(Long id) {
-        userService.deleteUser(id);
-        return "redirect:/admin/users";
     }
 
     @PostMapping("/courses/delete")
@@ -57,4 +86,38 @@ public class AdminController {
         courseService.deleteCourse(id);
         return "redirect:/admin/courses";
     }
+
+    @PostMapping("/courses/publish")
+    public String publishCourse(Long id) {
+        courseService.publishCourse(id);
+        return "redirect:/admin/courses";
+    }
+
+    @PostMapping("/courses/unpublish")
+    public String unpublishCourse(Long id) {
+        courseService.unpublishCourse(id);
+        return "redirect:/admin/courses";
+    }
+
+    @GetMapping("/courses/create")
+    public String showCreateCourseForm(Model model) {
+        model.addAttribute("course", new com.skillhub.model.Course());
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "admin/course_form";
+    }
+
+    @PostMapping("/courses/save")
+    public String saveCourse(
+            @org.springframework.web.bind.annotation.ModelAttribute("course") com.skillhub.model.Course course,
+            java.security.Principal principal) {
+        // Set instructor to current logged in admin
+        com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
+        course.setInstructor(instructor);
+        course.setPublished(false); // Default to draft
+
+        courseService.saveCourse(course);
+        return "redirect:/admin/courses";
+    }
+
+    // Future placeholders for full management
 }
