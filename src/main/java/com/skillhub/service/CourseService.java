@@ -1,6 +1,7 @@
 package com.skillhub.service;
 
 import com.skillhub.model.Course;
+import com.skillhub.model.CourseSection;
 import com.skillhub.repository.CourseRepository;
 import com.skillhub.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,5 +99,33 @@ public class CourseService {
 
         course.setAverageRating(avgRating);
         course.setReviewCount(reviewCount);
+    }
+
+    @Autowired
+    private com.skillhub.repository.CourseSectionRepository courseSectionRepository;
+
+    @Autowired
+    private com.skillhub.repository.LectureRepository lectureRepository;
+
+    public void addSectionToCourse(Long courseId, String title) {
+        Course course = getCourseById(courseId);
+        if (course != null) {
+            CourseSection section = new CourseSection();
+            section.setTitle(title);
+            section.setCourse(course);
+            // Auto position at the end
+            section.setPosition(course.getSections().size() + 1);
+            courseSectionRepository.save(section);
+        }
+    }
+
+    public void addLectureToSection(Long sectionId, com.skillhub.model.Lecture lecture) {
+        CourseSection section = courseSectionRepository.findById(sectionId).orElse(null);
+        if (section != null) {
+            lecture.setSection(section);
+            // Auto position
+            lecture.setPosition(section.getLectures().size() + 1);
+            lectureRepository.save(lecture);
+        }
     }
 }

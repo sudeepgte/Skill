@@ -15,22 +15,30 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         .learning-header {
-            height: 50px;
+            height: 56px;
             background: #2d2f31;
             display: flex;
             align-items: center;
             padding: 0 1rem;
             border-bottom: 1px solid #3e4143;
+            color: #fff;
         }
 
         .learning-header a {
-            color: white;
+            color: #d1d7dc;
             text-decoration: none;
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .learning-header a:hover {
+            color: #fff;
         }
 
         .learning-container {
@@ -49,38 +57,40 @@
             position: relative;
         }
 
-        .video-placeholder {
-            text-align: center;
-        }
-
         .sidebar {
-            width: 350px;
-            background: white;
-            color: #2d2f31;
-            border-left: 1px solid #d1d7dc;
+            width: 400px;
+            background: #1c1d1f;
+            /* Dark background */
+            color: #d1d7dc;
+            border-left: 1px solid #3e4143;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
         .sidebar-header {
-            padding: 1.6rem;
-            border-bottom: 1px solid #d1d7dc;
+            padding: 1rem 1.6rem;
+            border-bottom: 1px solid #3e4143;
             font-weight: 700;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-item {
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid #3e4143;
         }
 
         .section-title {
-            padding: 1.2rem;
-            background: #f7f9fa;
+            padding: 1rem 1.6rem;
+            background: #2d2f31;
             cursor: pointer;
             font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #fff;
         }
 
         .lesson-list {
@@ -88,29 +98,46 @@
         }
 
         .lesson-item {
-            padding: 1rem 1.6rem;
+            padding: 0.8rem 1.6rem;
             display: flex;
             align-items: flex-start;
             gap: 1rem;
             cursor: pointer;
             text-decoration: none;
-            color: #2d2f31;
+            color: #d1d7dc;
+            transition: background 0.2s;
         }
 
         .lesson-item:hover {
-            background: #d1d7dc;
+            background: #3e4143;
+            color: #fff;
         }
 
         .lesson-item.active {
-            background: #d1d7dc;
-            font-weight: 700;
+            background: #3e4143;
+            font-weight: 600;
+            color: #fff;
+            border-left: 4px solid #fff;
+            /* Active indicator */
         }
 
         .checkbox {
-            width: 16px;
-            height: 16px;
-            border: 1px solid #2d2f31;
-            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d7dc;
+            /* Light border */
+            margin-top: 2px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* Proper tick mark when checked handling will be done in JS or server side check */
+
+        .lesson-time {
+            font-size: 0.8rem;
+            color: #a1a7b3;
+            margin-top: 4px;
+            display: block;
         }
     </style>
 </head>
@@ -123,81 +150,180 @@
         <span th:text="${course.title}">Course Title</span>
     </div>
 
-    <div class="learning-container">
-        <!-- Video Area -->
-        <div class="video-area">
-            <!-- Placeholder for video player -->
-            <div class="video-placeholder">
-                <i class="fas fa-play-circle" style="font-size: 6rem; margin-bottom: 2rem;"></i>
-                <h2 id="lessonTitle" th:text="${currentLesson != null ? currentLesson.title : 'Select a lesson'}">Select
-                    a lesson</h2>
-                <p style="color: #d1d7dc;">Video content would play here.</p>
-            </div>
+    .video-placeholder {
+    text-align: center;
+    color: #d1d7dc;
+    padding: 3rem;
+    }
+
+    .checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d7dc;
+    margin-top: 2px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    }
+
+    .lesson-item:hover .checkbox {
+    border-color: #fff;
+    }
+
+    .checkbox i {
+    font-size: 10px;
+    color: white;
+    display: none;
+    }
+
+    /* If we had server-side completion status, we would add .completed class */
+    .checkbox.checked {
+    background: #a435f0;
+    border-color: #a435f0;
+    }
+
+    .checkbox.checked i {
+    display: block;
+    }
+
+    .lesson-time {
+    font-size: 0.8rem;
+    color: #a1a7b3;
+    margin-top: 4px;
+    display: block;
+    }
+    </style>
+    </head>
+
+    <body>
+
+        <div class="learning-header">
+            <a href="/home"><i class="fas fa-chevron-left" style="margin-right: 1rem;"></i> Back</a>
+            <span style="margin: 0 1rem; color: #6a6f73;">|</span>
+            <span th:text="${course.title}" style="font-weight: 700; font-size: 1.1rem; color: white;">Course
+                Title</span>
         </div>
 
-        <!-- Curriculum Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">Course Content</div>
-
-            <div th:each="section : ${course.sections}" class="section-item">
-                <div class="section-title">
-                    <span th:text="${section.title}">Section 1</span>
-                    <i class="fas fa-chevron-down"></i>
+        <div class="learning-container">
+            <!-- Video Area -->
+            <div class="video-area">
+                <!-- Video Player -->
+                <div class="video-placeholder" th:if="${currentLesson == null}">
+                    <i class="fas fa-play-circle" style="font-size: 6rem; margin-bottom: 2rem; color: #d1d7dc;"></i>
+                    <h2>Select a lecture to start learning</h2>
                 </div>
-                <div class="lesson-list">
-                    <a th:each="lesson : ${section.lectures}"
-                        th:href="@{/course/{id}/learn(id=${course.id}, lessonId=${lesson.id})}" class="lesson-item"
-                        th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? 'active'">
-                        <div class="checkbox"></div>
-                        <div>
-                            <div th:text="${lesson.title}">Lesson 1</div>
-                            <small style="color: #6a6f73;" th:text="${lesson.durationSeconds / 60} + 'm'">5m</small>
+
+                <div th:if="${currentLesson != null}"
+                    style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+                    <div
+                        style="flex-grow: 1; display: flex; align-items: center; justify-content: center; background: black;">
+                        <!-- Simple HTML5 Video or Iframe Support -->
+                        <video
+                            th:if="${currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
+                            th:src="${currentLesson.videoUrl}" controls
+                            style="max-width: 100%; max-height: 100%; width: 100%; aspect-ratio: 16/9;">
+                            Your browser does not support the video tag.
+                        </video>
+
+                        <iframe
+                            th:if="${currentLesson.videoUrl != null && #strings.contains(currentLesson.videoUrl, 'youtube')}"
+                            th:src="${#strings.replace(currentLesson.videoUrl, 'watch?v=', 'embed/')}" width="100%"
+                            height="100%" frameborder="0" allowfullscreen>
+                        </iframe>
+
+                        <div th:if="${currentLesson.videoUrl == null}" class="video-placeholder">
+                            <i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                            <h2>Content not available</h2>
+                            <p>This lecture has no video content.</p>
                         </div>
-                    </a>
+                    </div>
+                    <div style="padding: 1.5rem 2rem; background: #1c1d1f; border-top: 1px solid #3e4143;">
+                        <h2 th:text="${currentLesson.title}" style="margin-bottom: 0.5rem; color: #fff;">Lecture Title
+                        </h2>
+                        <p style="color: #d1d7dc; font-size: 0.9rem;">Lecture content description if available.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Curriculum Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <span>Course Content</span>
+                    <i class="fas fa-times" style="cursor: pointer;"
+                        onclick="document.querySelector('.sidebar').style.display='none'"></i>
+                </div>
+
+                <div th:each="section : ${course.sections}" class="section-item">
+                    <div class="section-title">
+                        <span th:text="${section.title}">Section 1</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="lesson-list">
+                        <a th:each="lesson : ${section.lectures}"
+                            th:href="@{/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}" class="lesson-item"
+                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? 'active'">
+                            <div class="checkbox"
+                                onclick="event.preventDefault(); markAsComplete('${lesson.id}', this)">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <div th:text="${lesson.title}" style="font-size: 0.95rem;">Lesson 1</div>
+                                <span class="lesson-time"><i class="far fa-play-circle"
+                                        style="margin-right: 4px;"></i><span
+                                        th:text="${lesson.durationSeconds / 60} + 'm'">5m</span></span>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        function markAsComplete(lectureId, element) {
-            fetch(`/api/enrollments/progress/${lectureId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Toggle visual state
-                        const item = element.closest('.lesson-item');
-                        const checkbox = item.querySelector('.checkbox');
-                        if (checkbox) checkbox.style.background = '#a435f0'; // turn purple
-                        // Optionally reload to update global progress or update via JS
-                        // location.reload(); // Simple but effective for progress bar update
+        <script>
+            function markAsComplete(lectureId, element) {
+                // Prevent bubbling if called from onclick directly
+                if (window.event) window.event.stopPropagation();
+
+                // In a real app, this would toggle. For now, we set to complete.
+                fetch(`/api/enrollments/progress/${lectureId}/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
                 })
-                .catch(error => console.error('Error marking complete:', error));
-        }
+                    .then(response => {
+                        if (response.ok) {
+                            // Toggle visual state
+                            // The element passed might be the checkbox itself or the icon inside
+                            let checkbox = element;
+                            if (!checkbox.classList.contains('checkbox')) {
+                                checkbox = element.closest('.checkbox');
+                            }
 
-        // Attach event listeners to checkboxes or lesson items if needed
-        document.querySelectorAll('.checkbox').forEach(box => {
-            box.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+                            if (checkbox) {
+                                checkbox.classList.add('checked');
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error marking complete:', error));
+            }
 
-                // Find lecture ID from the parent anchor href or data attribute
-                const link = this.closest('a');
-                if (link) {
-                    const urlParams = new URLSearchParams(link.href.split('?')[1]);
-                    const lectureId = urlParams.get('lessonId'); // Assuming lessonId param exists
-                    if (lectureId) {
-                        markAsComplete(lectureId, this);
+            // Section toggle logic
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    const list = title.nextElementSibling;
+                    if (list.style.display === 'none') {
+                        list.style.display = 'block';
+                        title.querySelector('i').className = 'fas fa-chevron-down';
+                    } else {
+                        list.style.display = 'none';
+                        title.querySelector('i').className = 'fas fa-chevron-up';
                     }
-                }
+                });
             });
-        });
-    </script>
-</body>
+        </script>
+    </body>
 
 </html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Edit Course | SkillHub Instructor</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f9fa;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            color: #2d2f31;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #a435f0;
+            font-weight: 700;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #d1d7dc;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 700;
+            color: #6a6f73;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #2d2f31;
+            border-bottom: 2px solid #2d2f31;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Forms */
+        .card {
+            background: white;
+            border: 1px solid #d1d7dc;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #1c1d1f;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #2d2f31;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #a435f0;
+            color: white;
+        }
+
+        /* Curriculum Styles */
+        .section-item {
+            background: #f7f9fa;
+            border: 1px solid #d1d7dc;
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .lecture-list {
+            background: white;
+            border: 1px solid #d1d7dc;
+            padding: 1rem;
+        }
+
+        .lecture-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lecture-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <a href="/instructor/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Courses</a>
+                <h1 th:text="'Edit: ' + ${course.title}">Edit Course</h1>
+            </div>
+            <button class="btn btn-primary"
+                onclick="window.location.href='/course/' + [[${course.id}]] + '/learn'">Preview Course</button>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-btn active" onclick="switchTab('details')">Course Landing Page</div>
+            <div class="tab-btn" onclick="switchTab('curriculum')">Curriculum</div>
+        </div>
+
+        <!-- Details Tab -->
+        <div id="details" class="tab-content active">
+            <div class="card">
+                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="form-group">
+                        <label>Course Title</label>
+                        <input type="text" th:field="*{title}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subtitle</label>
+                        <input type="text" th:field="*{subtitle}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select th:field="*{category.id}">
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea th:field="*{description}" rows="5"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" th:field="*{price}" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thumbnail Image URL</label>
+                        <input type="text" th:field="*{imageUrl}">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Details</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Curriculum Tab -->
+        <div id="curriculum" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <h2>Curriculum</h2>
+                    <button class="btn btn-primary" onclick="showAddSectionForm()">+ Add Section</button>
+                </div>
+
+                <!-- Add Section Form (Hidden by default) -->
+                <div id="addSectionForm"
+                    style="display: none; background: #e6f2f5; padding: 1rem; margin-bottom: 1rem;">
+                    <h4>New Section</h4>
+                    <form th:action="@{/instructor/courses/{id}/sections/add(id=${course.id})}" method="post">
+                        <div class="form-group">
+                            <input type="text" name="title" placeholder="Enter section title" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Section</button>
+                        <button type="button" class="btn" onclick="hideAddSectionForm()">Cancel</button>
+                    </form>
+                </div>
+
+                <!-- Section List -->
+                <div th:each="section : ${course.sections}" class="section-item">
+                    <div class="section-header">
+                        <span th:text="'Section ' + ${sectionStat.count} + ': ' + ${section.title}">Section 1:
+                            Intro</span>
+                        <!-- Add Lecture Button -->
+                        <button class="btn btn-success" style="font-size: 0.8rem;"
+                            th:onclick="'showAddLectureForm(' + ${section.id} + ')'">+ Content</button>
+                    </div>
+
+                    <!-- Add Lecture Form (Hidden) -->
+                    <div th:id="'addLectureForm-' + ${section.id}"
+                        style="display: none; padding: 1rem; border-top: 1px solid #ddd;">
+                        <h5>Add Lecture to <span th:text="${section.title}"></span></h5>
+                        <form th:action="@{/instructor/sections/{id}/lectures/add(id=${section.id})}" method="post">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Video URL (YouTube or MP4)</label>
+                                <input type="text" name="videoUrl">
+                            </div>
+                            <div class="form-group">
+                                <label>Duration (Seconds)</label>
+                                <input type="number" name="durationSeconds" value="0">
+                            </div>
+                            <button type="submit" class="btn btn-success">Save Lecture</button>
+                            <button type="button" class="btn"
+                                th:onclick="'hideAddLectureForm(' + ${section.id} + ')'">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div class="lecture-list" th:if="${not #lists.isEmpty(section.lectures)}">
+                        <div th:each="lecture : ${section.lectures}" class="lecture-item">
+                            <div>
+                                <i class="fas fa-play-circle"></i>
+                                <span th:text="${lecture.title}">Lecture Title</span>
+                            </div>
+                            <small th:text="${lecture.durationSeconds} + 's'">120s</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            // Find btn logic could be better but sufficient for MVP
+            event.target.classList.add('active');
+        }
+
+        function showAddSectionForm() {
+            document.getElementById('addSectionForm').style.display = 'block';
+        }
+        function hideAddSectionForm() {
+            document.getElementById('addSectionForm').style.display = 'none';
+        }
+
+        function showAddLectureForm(sectionId) {
+            document.getElementById('addLectureForm-' + sectionId).style.display = 'block';
+        }
+        function hideAddLectureForm(sectionId) {
+            document.getElementById('addLectureForm-' + sectionId).style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
