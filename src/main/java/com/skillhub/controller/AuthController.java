@@ -23,6 +23,16 @@ public class AuthController {
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("isAdmin", false);
+        return "register";
+    }
+
+    @GetMapping("/register/admin")
+    public String registerAdmin(Model model) {
+        User user = new User();
+        user.setRole("ADMIN");
+        model.addAttribute("user", user);
+        model.addAttribute("isAdmin", true);
         return "register";
     }
 

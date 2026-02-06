@@ -19,7 +19,8 @@
 
     <div class="auth-page-container">
         <div class="auth-card">
-            <h3 class="auth-header">Sign up and start learning</h3>
+            <h3 class="auth-header" th:text="${isAdmin} ? 'Admin Sign Up' : 'Sign up and start learning'">Sign up and
+                start learning</h3>
 
             <div th:if="${param.error}" class="alert"
                 style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700;">
@@ -37,6 +38,20 @@
 
                 <div class="form-group">
                     <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+                </div>
+
+                <!-- Role Selection for normal registration -->
+                <div class="form-group" th:if="${!isAdmin}">
+                    <select th:field="*{role}" class="form-control" required>
+                        <option value="" disabled selected>Select Account Type</option>
+                        <option value="STUDENT">Student</option>
+                        <option value="INSTRUCTOR">Instructor</option>
+                    </select>
+                </div>
+
+                <!-- Hidden Role for Admin registration -->
+                <div th:if="${isAdmin}">
+                    <input type="hidden" name="role" value="ADMIN">
                 </div>
 
                 <!-- Checkbox for offers (Visual only) -->

@@ -122,17 +122,53 @@ public class AdminController {
     @Autowired
     private com.skillhub.service.FileStorageService fileStorageService;
 
+    @Autowired
+    private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
+
+    @GetMapping("/categories")
+    public String listCategories(Model model) {
+        model.addAttribute("categories", categoryService.getRootCategories());
+        model.addAttribute("allCategories", categoryService.getAllCategories());
+        model.addAttribute("newCategory", new com.skillhub.model.Category());
+        return "admin/categories";
+    }
+
+    @PostMapping("/categories/add")
+    public String addCategory(
+            @org.springframework.web.bind.annotation.ModelAttribute com.skillhub.model.Category category,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (category.getIcon() == null || category.getIcon().isEmpty()) {
+            category.setIcon("fas fa-folder");
+        }
+        categoryService.saveCategory(category);
+        redirectAttributes.addFlashAttribute("success", "Category created successfully!");
+        return "redirect:/admin/categories";
+    }
+
     @GetMapping("/upload")
-    public String showUploadForm() {
+    public String showUploadForm(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/upload";
     }
 
     @PostMapping("/upload")
     public String uploadVideo(
             @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            @org.springframework.web.bind.annotation.RequestParam("title") String title,
+            @org.springframework.web.bind.annotation.RequestParam("categoryId") Long categoryId,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        fileStorageService.store(file);
-        redirectAttributes.addFlashAttribute("success", "Video uploaded successfully!");
+
+        String filePath = fileStorageService.store(file);
+
+        com.skillhub.model.VideoResource video = new com.skillhub.model.VideoResource();
+        video.setTitle(title);
+        video.setFilePath(filePath);
+        video.setCategory(categoryService.getCategoryById(categoryId));
+        video.setUploadDate(java.time.LocalDateTime.now());
+
+        videoResourceRepository.save(video);
+
+        redirectAttributes.addFlashAttribute("success", "Video uploaded and categorized successfully!");
         return "redirect:/admin/upload";
     }
 
@@ -141,13 +177,24 @@ public class AdminController {
         return "admin/broadcast";
     }
 
+    @Autowired
+    private com.skillhub.service.NotificationService notificationService;
+
     @PostMapping("/broadcast")
     public String sendBroadcast(@org.springframework.web.bind.annotation.RequestParam String subject,
             @org.springframework.web.bind.annotation.RequestParam String message,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
         // Mock email sending
         System.out.println("BROADCAST EMAIL: Subject=" + subject + ", Message=" + message);
-        redirectAttributes.addFlashAttribute("success", "Email broadcast queued successfully!");
+
+        // Send System Notification to ALL users (Effective Broadcast)
+        java.util.List<com.skillhub.model.User> allUsers = userService.getAllUsers();
+        for (com.skillhub.model.User user : allUsers) {
+            notificationService.createNotification(user, subject, message, "INFO");
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Broadcast sent to " + allUsers.size() + " users!");
         return "redirect:/admin/broadcast";
     }
 }
