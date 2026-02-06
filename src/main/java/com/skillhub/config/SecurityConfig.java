@@ -32,8 +32,8 @@ public class SecurityConfig {
                         throws Exception {
                 http
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/register", "/saveUser", "/login", "/css/**",
-                                                                "/js/**", "/images/**",
+                                                .requestMatchers("/", "/register", "/register/admin", "/saveUser",
+                                                                "/login", "/css/**", "/js/**", "/images/**",
                                                                 "/course/**", "/error")
                                                 .permitAll()
                                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")

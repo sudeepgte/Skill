@@ -16,6 +16,13 @@ public class Category {
 
     private String icon; // FontAwesome icon class
 
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Category> subcategories;
+
     @OneToMany(mappedBy = "category")
     private List<Course> courses;
 
@@ -57,5 +64,21 @@ public class Category {
 
     public void setCourses(List<Course> courses) {
         this.courses = courses;
+    }
+
+    public Category getParent() {
+        return parent;
+    }
+
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
+
+    public List<Category> getSubcategories() {
+        return subcategories;
+    }
+
+    public void setSubcategories(List<Category> subcategories) {
+        this.subcategories = subcategories;
     }
 }

@@ -1,6 +1,7 @@
 package com.skillhub.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -13,7 +14,13 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final Path rootLocation = Paths.get("uploads");
+    private final Path rootLocation;
+
+    @Autowired
+    public FileStorageService(
+            @org.springframework.beans.factory.annotation.Value("${file.upload-dir}") String uploadDir) {
+        this.rootLocation = Paths.get(uploadDir);
+    }
 
     @PostConstruct
     public void init() {

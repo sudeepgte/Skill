@@ -24,4 +24,12 @@ public class CategoryService {
     public void saveCategory(Category category) {
         categoryRepository.save(category);
     }
+
+    public List<Category> getRootCategories() {
+        return categoryRepository.findByParentIsNull();
+    }
+
+    public void deleteCategory(Long id) {
+        categoryRepository.deleteById(id);
+    }
 }
