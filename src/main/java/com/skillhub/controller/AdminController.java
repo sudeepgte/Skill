@@ -119,5 +119,35 @@ public class AdminController {
         return "redirect:/admin/courses";
     }
 
-    // Future placeholders for full management
+    @Autowired
+    private com.skillhub.service.FileStorageService fileStorageService;
+
+    @GetMapping("/upload")
+    public String showUploadForm() {
+        return "admin/upload";
+    }
+
+    @PostMapping("/upload")
+    public String uploadVideo(
+            @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        fileStorageService.store(file);
+        redirectAttributes.addFlashAttribute("success", "Video uploaded successfully!");
+        return "redirect:/admin/upload";
+    }
+
+    @GetMapping("/broadcast")
+    public String showBroadcastForm() {
+        return "admin/broadcast";
+    }
+
+    @PostMapping("/broadcast")
+    public String sendBroadcast(@org.springframework.web.bind.annotation.RequestParam String subject,
+            @org.springframework.web.bind.annotation.RequestParam String message,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        // Mock email sending
+        System.out.println("BROADCAST EMAIL: Subject=" + subject + ", Message=" + message);
+        redirectAttributes.addFlashAttribute("success", "Email broadcast queued successfully!");
+        return "redirect:/admin/broadcast";
+    }
 }

@@ -27,7 +27,8 @@
                 <tr th:each="course : ${courses}" style="border-bottom: 1px solid #d1d7dc;">
                     <td style="padding: 10px;" th:text="${course.id}">1</td>
                     <td style="padding: 10px;" th:text="${course.title}">Java Masterclass</td>
-                    <td style="padding: 10px;" th:text="${course.instructor.name}">Jane Doe</td>
+                    <td style="padding: 10px;"
+                        th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}">Jane Doe</td>
                     <td style="padding: 10px;">
                         <span th:if="${course.published}" style="color: green; font-weight: bold;">Published</span>
                         <span th:unless="${course.published}" style="color: grey;">Draft</span>

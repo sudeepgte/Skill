@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Upload Video | Admin</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border: 1px solid #d1d7dc;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: #2d2f31;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #1c1d1f;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #2d2f31;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #a435f0;
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body style="background-color: #f7f9fa;">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="logo"><span class="logo-text">SkillHub Admin</span></a>
+    </nav>
+
+    <div class="container">
+        <a href="/admin/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        <div class="card">
+            <h1>Upload Video Resource</h1>
+            <p style="color: #6a6f73; margin-bottom: 2rem;">Upload videos to the library and assign them a category for
+                easy discovery.</p>
+
+            <div th:if="${success}" class="alert alert-success"
+                style="background: #e6f2f5; color: #1c1d1f; padding: 1rem; margin-bottom: 1rem;">
+                <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+            </div>
+
+            <form th:action="@{/admin/upload}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Video Title</label>
+                    <input type="text" name="title" placeholder="e.g. Intro to Python" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="categoryId" required>
+                        <option value="" disabled selected>Select a Category...</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Video File</label>
+                    <input type="file" name="file" accept="video/*" required
+                        style="border: 1px solid #d1d7dc; padding: 10px;">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Upload to Library</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

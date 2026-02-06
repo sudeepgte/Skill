@@ -40,6 +40,12 @@ public class CourseService {
         return courses;
     }
 
+    public List<Course> getCoursesByCategory(String categoryName) {
+        List<Course> courses = courseRepository.findByCategoryName(categoryName);
+        courses.forEach(this::populateCourseRatings);
+        return courses;
+    }
+
     public Course getCourseById(Long id) {
         Course course = courseRepository.findById(id).orElse(null);
         if (course != null) {

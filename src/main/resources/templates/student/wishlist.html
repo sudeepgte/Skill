@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Wishlist | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            background: #1c1d1f;
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .nav-tabs {
+            margin-top: 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-tab {
+            color: #d1d7dc;
+            text-decoration: none;
+            font-weight: 700;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: white;
+            border-bottom: 2px solid white;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .course-card {
+            background: white;
+            border: 1px solid #d1d7dc;
+            text-decoration: none;
+            color: #1c1d1f;
+            display: block;
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 157px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .course-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.4em;
+        }
+
+        .instructor-name {
+            font-size: 0.8rem;
+            color: #6a6f73;
+            margin-bottom: 0.5rem;
+        }
+
+        .course-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .remove-btn {
+            color: #a435f0;
+            cursor: pointer;
+            border: 1px solid #1c1d1f;
+            padding: 5px 10px;
+            text-align: center;
+            margin-top: 10px;
+            display: block;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar (Ideally fragment) -->
+    <nav class="navbar">
+        <div class="container"
+            style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
+            <a href="/home" class="logo"
+                style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
+            <div>
+                <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
+                <a href="/student/dashboard" class="btn btn-ghost" style="font-weight:700;">My Learning</a>
+                <div
+                    style="display:inline-block; width:30px; height:30px; background:black; color:white; border-radius:50%; text-align:center; line-height:30px; margin-left:10px;">
+                    U</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>My Learning</h1>
+            <div class="nav-tabs">
+                <a href="/student/dashboard" class="nav-tab">All Courses</a>
+                <a href="#" class="nav-tab active">Wishlist</a>
+                <a href="#" class="nav-tab">Archived</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container">
+
+        <div th:if="${#lists.isEmpty(wishlistItems)}" style="text-align: center; padding: 4rem;">
+            <h2>Your wishlist is empty</h2>
+            <p>Explore courses and save them for later.</p>
+            <a href="/home" class="btn btn-primary"
+                style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
+                Courses</a>
+        </div>
+
+        <div class="course-grid">
+            <div th:each="item : ${wishlistItems}" class="course-card">
+                <a th:href="@{/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
+                    <img th:src="${item.course.imageUrl}" class="card-img" alt="Course Thumbnail">
+                    <div class="card-body">
+                        <div class="course-title" th:text="${item.course.title}">Course Title</div>
+                        <div class="instructor-name" th:text="${item.course.instructor.name}">Instructor Name</div>
+                        <div class="course-price" th:text="'₹' + ${item.course.price}">₹499</div>
+
+                        <form th:action="@{/course/wishlist/remove}" method="post">
+                            <input type="hidden" name="courseId" th:value="${item.course.id}" />
+                            <button type="submit" class="remove-btn" style="width:100%; background:white;">Remove from
+                                Wishlist</button>
+                        </form>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -12,7 +12,7 @@ public class Review {
     private Long id;
 
     @Column(length = 1000)
-    private String content;
+    private String comment;
 
     private int rating; // 1 to 5
 
@@ -30,8 +30,8 @@ public class Review {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Review(String content, int rating, User user, Course course) {
-        this.content = content;
+    public Review(String comment, int rating, User user, Course course) {
+        this.comment = comment;
         this.rating = rating;
         this.user = user;
         this.course = course;
@@ -47,12 +47,12 @@ public class Review {
         this.id = id;
     }
 
-    public String getContent() {
-        return content;
+    public String getComment() {
+        return comment;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public int getRating() {

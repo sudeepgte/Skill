@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${categoryName} + ' Courses | SkillHub'">Courses | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+
+<body>
+    <div style="padding: 50px; text-align: center;">
+        <h1 th:text="${categoryName} + ' Courses'">Courses</h1>
+        <p>Course listing for this category will appear here.</p>
+        <!-- Real implementation would iterate over courses -->
+        <a href="/home">Back to Home</a>
+    </div>
+</body>
+
+</html>

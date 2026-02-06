@@ -15,4 +15,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Course findTopByOrderByViewCountDesc();
 
     List<Course> findByIsPublishedTrue();
+
+    List<Course> findByCategoryName(String name);
 }

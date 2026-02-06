@@ -82,44 +82,64 @@ public class DataInitializer {
                 User angela = userRepository.findByEmail("angela@skillhub.com");
                 User jose = userRepository.findByEmail("jose@skillhub.com");
 
-                Category dev = categoryRepository.findByName("Development");
-                Category business = categoryRepository.findByName("Business");
+                // Note: We renamed categories above, so look up by NEW names
+                Category dev = categoryRepository.findByName("Development and IT");
+                if (dev == null)
+                    dev = categoryRepository.findByName("Development"); // Fallback
+
+                Category business = categoryRepository.findByName("Business Marketing");
+                if (business == null)
+                    business = categoryRepository.findByName("Business"); // Fallback
+
+                // Helper to safely get a category or default to first one if missing to avoid
+                // internal errors during init
+                // Ideally handle this better, but for demo data init:
                 Category finance = categoryRepository.findByName("Finance & Accounting");
+                // Note: Finance was deleted in previous block if logic ran, so this might be
+                // null.
+                // Let's use "Business Marketing" for Finance course or recreate check.
+                // Actually, the user's logic DELETED "Finance & Accounting".
+                // So we should put the finance course in Business Marketing or skip it.
+                // Let's put it in Business Marketing.
+                if (finance == null)
+                    finance = business;
 
-                // Course 1: Web Dev
-                createCourse(courseRepository, angela, dev,
-                        "The Complete 2024 Web Development Bootcamp",
-                        "Become a Full-Stack Web Developer with just ONE course. HTML, CSS, Javascript, Node, React, MongoDB, Web3 and DApps",
-                        499.0, "https://img-c.udemycdn.com/course/480x270/1565838_e54e_18.jpg",
-                        true);
+                if (dev != null && business != null) {
+                    // Course 1: Web Dev
+                    createCourse(courseRepository, angela, dev,
+                            "The Complete 2024 Web Development Bootcamp",
+                            "Become a Full-Stack Web Developer with just ONE course. HTML, CSS, Javascript, Node, React, MongoDB, Web3 and DApps",
+                            499.0, "https://img-c.udemycdn.com/course/480x270/1565838_e54e_18.jpg",
+                            true);
 
-                // Course 2: Python
-                createCourse(courseRepository, jose, dev,
-                        "The Complete Python Bootcamp From Zero to Hero in Python",
-                        "Learn Python like a Professional! Start from the basics and go all the way to creating your own applications and games",
-                        599.0, "https://img-c.udemycdn.com/course/480x270/567828_67d0.jpg",
-                        true);
+                    // Course 2: Python
+                    createCourse(courseRepository, jose, dev,
+                            "The Complete Python Bootcamp From Zero to Hero in Python",
+                            "Learn Python like a Professional! Start from the basics and go all the way to creating your own applications and games",
+                            599.0, "https://img-c.udemycdn.com/course/480x270/567828_67d0.jpg",
+                            true);
 
-                // Course 3: Machine Learning
-                createCourse(courseRepository, jose, dev,
-                        "Machine Learning A-Z™: AI, Python & R + ChatGPT Prize [2024]",
-                        "Learn to create Machine Learning Algorithms in Python and R from two Data Science experts. Code templates included.",
-                        699.0, "https://img-c.udemycdn.com/course/480x270/950390_270f_3.jpg",
-                        true);
+                    // Course 3: Machine Learning
+                    createCourse(courseRepository, jose, dev,
+                            "Machine Learning A-Z™: AI, Python & R + ChatGPT Prize [2024]",
+                            "Learn to create Machine Learning Algorithms in Python and R from two Data Science experts. Code templates included.",
+                            699.0, "https://img-c.udemycdn.com/course/480x270/950390_270f_3.jpg",
+                            true);
 
-                // Course 4: Excel
-                createCourse(courseRepository, angela, business,
-                        "Microsoft Excel - Excel from Beginner to Advanced",
-                        "Excel with this A-Z Microsoft Excel Course. Microsoft Excel 2010, 2013, 2016, Excel 2019 and Office 365",
-                        399.0, "https://img-c.udemycdn.com/course/480x270/793796_0e89_2.jpg",
-                        true);
+                    // Course 4: Excel
+                    createCourse(courseRepository, angela, business,
+                            "Microsoft Excel - Excel from Beginner to Advanced",
+                            "Excel with this A-Z Microsoft Excel Course. Microsoft Excel 2010, 2013, 2016, Excel 2019 and Office 365",
+                            399.0, "https://img-c.udemycdn.com/course/480x270/793796_0e89_2.jpg",
+                            true);
 
-                // Course 5: Finance
-                createCourse(courseRepository, jose, finance,
-                        "The Complete Financial Analyst Course 2024",
-                        "Excel, Accounting, Financial Analysis, Financial Modeling, Valuation, Business Analysis, Python and more!",
-                        449.0, "https://img-c.udemycdn.com/course/480x270/648826_f0e5_4.jpg",
-                        true);
+                    // Course 5: Finance
+                    createCourse(courseRepository, jose, finance,
+                            "The Complete Financial Analyst Course 2024",
+                            "Excel, Accounting, Financial Analysis, Financial Modeling, Valuation, Business Analysis, Python and more!",
+                            449.0, "https://img-c.udemycdn.com/course/480x270/648826_f0e5_4.jpg",
+                            true);
+                }
             }
 
             // 4. Create Random Reviews
@@ -127,9 +147,11 @@ public class DataInitializer {
                 List<Course> courses = courseRepository.findAll();
                 User student = userRepository.findByEmail("student@skillhub.com");
 
-                for (Course c : courses) {
-                    createReview(reviewRepository, c, student, 5, "Amazing course!");
-                    createReview(reviewRepository, c, student, 4, "Great content but fast paced.");
+                if (student != null) {
+                    for (Course c : courses) {
+                        createReview(reviewRepository, c, student, 5, "Amazing course!");
+                        createReview(reviewRepository, c, student, 4, "Great content but fast paced.");
+                    }
                 }
             }
         };
@@ -166,7 +188,7 @@ public class DataInitializer {
         r.setCourse(course);
         r.setUser(user);
         r.setRating(rating);
-        r.setContent(comment);
+        r.setComment(comment); // Fixed: setContent -> setComment
         repo.save(r);
     }
 
