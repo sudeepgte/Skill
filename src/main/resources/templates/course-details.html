@@ -296,7 +296,7 @@
             <div class="header-text">
                 <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">
                     <a href="/home" style="color: #cec0fc; text-decoration: none;">Courses</a> >
-                    <span th:text="${course.section.name}">Category</span>
+                    <span th:text="${course.categoryName}">Category</span>
                 </div>
                 <h1 class="course-title" th:text="${course.title}">Course Title</h1>
                 <p class="course-subtitle" th:text="${course.subtitle != null ? course.subtitle : course.description}">
@@ -316,7 +316,7 @@
                 </div>
 
                 <div class="course-meta">
-                    <span>Created by <a href="#" class="instructor-link" th:text="${course.instructor}">Instructor
+                    <span>Created by <a href="#" class="instructor-link" th:text="${course.instructor.name}">Instructor
                             Name</a></span>
                 </div>
 
@@ -351,18 +351,21 @@
             <div class="course-section">
                 <h2>Course content</h2>
                 <div style="font-size: 0.9rem; margin-bottom: 20px;">
-                    5 sections • 42 lectures • <span th:text="${course.contentLength}">10h 30m</span> total length
+                    <span th:text="${course.sections.size()}">0</span> sections • <span
+                        th:text="${course.contentLength}">10h 30m</span> total length
                 </div>
-                <!-- Logic to list lectures would go here, simplified for now -->
+                <!-- Dynamic Sections -->
                 <div style="border: 1px solid #d1d7dc;">
-                    <button
+                    <button th:each="section : ${course.sections}"
                         style="width: 100%; text-align: left; padding: 15px; background: #f7f9fa; border: none; border-bottom: 1px solid #d1d7dc; font-weight: 700; display: flex; justify-content: space-between;">
-                        <span>Introduction</span> <span>3 lectures • 12min</span>
+                        <span th:text="${section.title}">Section Title</span>
+                        <span><span th:text="${section.lectures != null ? section.lectures.size() : 0}">0</span>
+                            lectures</span>
                     </button>
-                    <button
-                        style="width: 100%; text-align: left; padding: 15px; background: white; border: none; border-bottom: 1px solid #d1d7dc; font-weight: 700; display: flex; justify-content: space-between;">
-                        <span>Getting Started</span> <span>5 lectures • 45min</span>
-                    </button>
+                    <div th:if="${course.sections == null or course.sections.empty}"
+                        style="padding: 15px; text-align: center; color: #6a6f73;">
+                        No sections available yet.
+                    </div>
                 </div>
             </div>
 

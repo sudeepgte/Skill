@@ -12,6 +12,60 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Main CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <style>
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            min-width: 250px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border: 1px solid #d1d7dc;
+            padding: 10px 0;
+            border-radius: 4px;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            color: #1c1d1f;
+            padding: 12px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f7f9fa;
+            color: #5624d0;
+        }
+
+        .categories-link {
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .categories-link:hover {
+            color: #5624d0;
+        }
+    </style>
 </head>
 
 <body>
@@ -23,8 +77,14 @@
             <span class="logo-text">SkillHub</span>
         </a>
 
-        <!-- Categories -->
-        <div class="categories-link">Categories</div>
+        <!-- Categories Dropdown -->
+        <div class="dropdown">
+            <div class="categories-link">Categories</div>
+            <div class="dropdown-menu">
+                <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item"
+                    th:text="${cat.name}">Category</a>
+            </div>
+        </div>
 
         <!-- Search Bar -->
         <div class="search-container">
@@ -157,6 +217,8 @@
         </div>
     </div>
 
+    <!-- Uploaded Videos Section (Moved below) -->
+
     <!-- Trusted By -->
     <div class="trusted-by">
         <div class="container">
@@ -226,6 +288,39 @@
             </a>
         </div>
     </div>
+
+    <!-- Uploaded Videos Section (Moved) -->
+    <section class="section-padding" style="background-color: #f7f9fa;">
+        <div class="container">
+            <h2 class="section-title">Latest Videos</h2>
+            <div class="row">
+                <div class="col-md-3" th:each="video : ${videos}" style="margin-bottom: 2rem;">
+                    <div style="border: 1px solid #d1d7dc; border-radius: 4px; overflow: hidden; background: white;">
+                        <div
+                            style="background: #2d2f31; height: 160px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-play-circle" style="color: white; font-size: 3rem;"></i>
+                        </div>
+                        <div style="padding: 1rem;">
+                            <h3 th:text="${video.title}"
+                                style="font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; height: 2.4em; overflow: hidden;">
+                                Video Title</h3>
+                            <p th:text="${video.category.name}" style="color: #6a6f73; font-size: 0.8rem;">Category</p>
+                            <a th:if="${video.filePath != null and video.filePath.startsWith('http')}"
+                                th:href="${video.filePath}" target="_blank" class="btn btn-sm btn-outline-primary"
+                                style="margin-top: 0.5rem; width: 100%;">Watch Now</a>
+                            <a th:unless="${video.filePath != null and video.filePath.startsWith('http')}"
+                                th:href="@{'/uploads/' + ${video.filePath}}" target="_blank"
+                                class="btn btn-sm btn-outline-primary" style="margin-top: 0.5rem; width: 100%;">Watch
+                                Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12" th:if="${videos == null or videos.empty}">
+                    <p>No videos uploaded yet.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
 
 

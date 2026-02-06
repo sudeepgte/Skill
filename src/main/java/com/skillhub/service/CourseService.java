@@ -46,6 +46,12 @@ public class CourseService {
         return courses;
     }
 
+    public List<Course> getCoursesByCategory(com.skillhub.model.Category category) {
+        List<Course> courses = courseRepository.findByCategory(category);
+        courses.forEach(this::populateCourseRatings);
+        return courses;
+    }
+
     public Course getCourseById(Long id) {
         Course course = courseRepository.findById(id).orElse(null);
         if (course != null) {

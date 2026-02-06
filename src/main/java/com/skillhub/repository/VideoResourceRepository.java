@@ -8,5 +8,7 @@ import java.util.List;
 public interface VideoResourceRepository extends JpaRepository<VideoResource, Long> {
     List<VideoResource> findByCategory(Category category);
 
+    List<VideoResource> findByCategoryOrderByUploadDateDesc(Category category);
+
     List<VideoResource> findByOrderByUploadDateDesc();
 }

@@ -106,16 +106,44 @@ public class AdminController {
         return "admin/course_form";
     }
 
+    @GetMapping("/courses/edit")
+    public String editCourse(@org.springframework.web.bind.annotation.RequestParam Long id, Model model) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        model.addAttribute("course", course);
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "admin/course_form";
+    }
+
     @PostMapping("/courses/save")
     public String saveCourse(
             @org.springframework.web.bind.annotation.ModelAttribute("course") com.skillhub.model.Course course,
             java.security.Principal principal) {
-        // Set instructor to current logged in admin
-        com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
-        course.setInstructor(instructor);
-        course.setPublished(false); // Default to draft
 
-        courseService.saveCourse(course);
+        if (course.getId() != null) {
+            // Update existing course
+            com.skillhub.model.Course existing = courseService.getCourseById(course.getId());
+            if (existing != null) {
+                existing.setTitle(course.getTitle());
+                existing.setSubtitle(course.getSubtitle());
+                existing.setCategory(course.getCategory());
+                existing.setSubCategory(course.getSubCategory());
+                existing.setPrice(course.getPrice());
+                existing.setLevel(course.getLevel());
+                existing.setLanguage(course.getLanguage());
+                existing.setImageUrl(course.getImageUrl());
+                existing.setLongDescription(course.getLongDescription());
+                existing.setLearningObjectives(course.getLearningObjectives());
+                existing.setRequirements(course.getRequirements());
+                // Preserve instructor, published status, view count, etc.
+                courseService.saveCourse(existing);
+            }
+        } else {
+            // Create new course
+            com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
+            course.setInstructor(instructor);
+            course.setPublished(false); // Default to draft
+            courseService.saveCourse(course);
+        }
         return "redirect:/admin/courses";
     }
 
@@ -180,15 +208,9 @@ public class AdminController {
 
         videoResourceRepository.save(video);
 
-        redirectAttributes.addFlashAttribute("success", "Video resource added successfully!");
-        return "redirect:/admin/upload";
-    }
-
-    @Autowired
-    private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
-
-    private void saveVideoResource(com.skillhub.model.VideoResource video) {
-        videoResourceRepository.save(video);
+        redirectAttributes.addFlashAttribute("success",
+                "Video resource added successfully! You can find it on the home page.");
+        return "redirect:/admin/courses";
     }
 
     @GetMapping("/broadcast")

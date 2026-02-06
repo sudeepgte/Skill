@@ -12,7 +12,12 @@
         <a href="/admin/dashboard" class="logo"><span class="logo-text">SkillHub Admin</span></a>
     </nav>
     <div class="container" style="padding-top: 2rem;">
-        <h1>Manage Courses</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Manage Courses</h1>
+            <a href="/admin/courses/create" class="btn btn-primary"
+                style="background-color: #a435f0; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px;">Create
+                New Course</a>
+        </div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
             <thead>
                 <tr style="background: #2d2f31; color: white;">
@@ -24,6 +29,11 @@
                 </tr>
             </thead>
             <tbody>
+                <tr th:if="${courses.empty}">
+                    <td colspan="5" style="padding: 20px; text-align: center; color: #6a6f73;">
+                        No courses found. <a href="/admin/courses/create" style="color: #a435f0;">Create one now</a>.
+                    </td>
+                </tr>
                 <tr th:each="course : ${courses}" style="border-bottom: 1px solid #d1d7dc;">
                     <td style="padding: 10px;" th:text="${course.id}">1</td>
                     <td style="padding: 10px;" th:text="${course.title}">Java Masterclass</td>
@@ -34,7 +44,11 @@
                         <span th:unless="${course.published}" style="color: grey;">Draft</span>
                     </td>
                     <td style="padding: 10px;">
-                        <div style="display: flex; gap: 10px;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn btn-ghost text-sm"
+                                style="color: #007bff; text-decoration: none; font-weight: bold;">View</a>
+                            <a th:href="@{/admin/courses/edit(id=${course.id})}" class="btn btn-ghost text-sm"
+                                style="color: #a435f0; text-decoration: none; font-weight: bold;">Edit</a>
                             <form th:if="${!course.published}" th:action="@{/admin/courses/publish}" method="post"
                                 style="display:inline;">
                                 <input type="hidden" name="id" th:value="${course.id}">
