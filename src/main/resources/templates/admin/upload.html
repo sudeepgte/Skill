@@ -63,7 +63,7 @@
     </nav>
 
     <div class="container">
-        <a href="/admin/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <a th:href="@{/admin/dashboard}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 
         <div class="card">
             <h1>Upload Video Resource</h1>
@@ -91,10 +91,55 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Upload Type</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="font-weight: normal;">
+                            <input type="radio" name="uploadType" value="file" checked onchange="toggleUploadType()"
+                                style="width: auto;">
+                            Upload File
+                        </label>
+                        <label style="font-weight: normal;">
+                            <input type="radio" name="uploadType" value="youtube" onchange="toggleUploadType()"
+                                style="width: auto;">
+                            YouTube URL
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="fileGroup">
                     <label>Select Video File</label>
-                    <input type="file" name="file" accept="video/*" required
+                    <input type="file" name="file" accept="video/*" style="border: 1px solid #d1d7dc; padding: 10px;">
+                </div>
+
+                <div class="form-group" id="youtubeGroup" style="display: none;">
+                    <label>YouTube Video URL</label>
+                    <input type="text" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..."
                         style="border: 1px solid #d1d7dc; padding: 10px;">
                 </div>
+
+                <script>
+                    function toggleUploadType() {
+                        const type = document.querySelector('input[name="uploadType"]:checked').value;
+                        const fileGroup = document.getElementById('fileGroup');
+                        const youtubeGroup = document.getElementById('youtubeGroup');
+                        const fileInput = document.querySelector('input[name="file"]');
+                        const youtubeInput = document.querySelector('input[name="youtubeUrl"]');
+
+                        if (type === 'file') {
+                            fileGroup.style.display = 'block';
+                            youtubeGroup.style.display = 'none';
+                            fileInput.required = true;
+                            youtubeInput.required = false;
+                            youtubeInput.value = '';
+                        } else {
+                            fileGroup.style.display = 'none';
+                            youtubeGroup.style.display = 'block';
+                            fileInput.required = false;
+                            youtubeInput.required = true;
+                            fileInput.value = '';
+                        }
+                    }
+                </script>
 
                 <button type="submit" class="btn btn-primary">Upload to Library</button>
             </form>

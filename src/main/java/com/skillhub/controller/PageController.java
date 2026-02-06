@@ -44,7 +44,7 @@ public class PageController {
         } else {
             model.addAttribute("courses", courseService.getPublishedCourses());
         }
-        return "index";
+        return "main_index";
     }
 
     @GetMapping("/home")

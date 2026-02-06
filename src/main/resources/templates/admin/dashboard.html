@@ -98,10 +98,10 @@
 <body style="background-color: #f7f9fa;">
 
     <nav class="navbar">
-        <a href="/" class="logo"><span class="logo-text">SkillHub <span
+        <a th:href="@{/}" class="logo"><span class="logo-text">SkillHub <span
                     style="font-weight:300; font-size: 0.8em; opacity: 0.8;">Admin Console</span></span></a>
         <div class="nav-actions">
-            <a href="/home" class="btn btn-ghost">IsActive: <span style="color: #4CAF50;">●</span></a>
+            <a th:href="@{/home}" class="btn btn-ghost">IsActive: <span style="color: #4CAF50;">●</span></a>
             <form th:action="@{/logout}" method="post" style="display:inline;">
                 <button class="btn btn-ghost">Logout</button>
             </form>
@@ -131,7 +131,7 @@
                 <i class="fas fa-graduation-cap stat-icon"></i>
                 <div class="stat-title">Total Courses</div>
                 <div class="stat-value" th:text="${totalCourses}">0</div>
-                <a href="/admin/courses" style="font-size: 0.8rem; color: #a435f0;">Manage Courses &rarr;</a>
+                <a th:href="@{/admin/courses}" style="font-size: 0.8rem; color: #a435f0;">Manage Courses &rarr;</a>
             </div>
 
             <!-- Total Videos -->
@@ -195,20 +195,20 @@
         </div>
         <div class="quick-actions">
             <!-- User requested "Create course" so linking to course creation -->
-            <a href="/admin/courses" class="action-btn">
+            <a th:href="@{/admin/courses}" class="action-btn">
                 <!-- Fixed link for Manage Courses if needed, ensuring consistent specific links -->
                 <i class="fas fa-graduation-cap"></i> Manage Courses
             </a>
-            <a href="/admin/categories" class="action-btn">
+            <a th:href="@{/admin/categories}" class="action-btn">
                 <i class="fas fa-tags"></i> Categories
             </a>
-            <a href="/admin/users" class="action-btn">
+            <a th:href="@{/admin/users}" class="action-btn">
                 <i class="fas fa-user-shield"></i> Manage Users
             </a>
-            <a href="/admin/upload" class="action-btn">
+            <a th:href="@{/admin/upload}" class="action-btn">
                 <i class="fas fa-upload"></i> Upload Video
             </a>
-            <a href="/admin/broadcast" class="action-btn">
+            <a th:href="@{/admin/broadcast}" class="action-btn">
                 <i class="fas fa-envelope"></i> Broadcast Email
             </a>
         </div>

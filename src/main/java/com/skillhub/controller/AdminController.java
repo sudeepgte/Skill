@@ -123,17 +123,63 @@ public class AdminController {
     private com.skillhub.service.FileStorageService fileStorageService;
 
     @GetMapping("/upload")
-    public String showUploadForm() {
+    public String showUploadForm(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/upload";
     }
 
     @PostMapping("/upload")
     public String uploadVideo(
-            @org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            @org.springframework.web.bind.annotation.RequestParam(value = "file", required = false) org.springframework.web.multipart.MultipartFile file,
+            @org.springframework.web.bind.annotation.RequestParam(value = "youtubeUrl", required = false) String youtubeUrl,
+            @org.springframework.web.bind.annotation.RequestParam("title") String title,
+            @org.springframework.web.bind.annotation.RequestParam("categoryId") Long categoryId,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        fileStorageService.store(file);
-        redirectAttributes.addFlashAttribute("success", "Video uploaded successfully!");
+
+        if ((file == null || file.isEmpty()) && (youtubeUrl == null || youtubeUrl.trim().isEmpty())) {
+            redirectAttributes.addFlashAttribute("error", "Please provide a video file OR a YouTube URL.");
+            return "redirect:/admin/upload";
+        }
+
+        com.skillhub.model.VideoResource video = new com.skillhub.model.VideoResource();
+        video.setTitle(title);
+        video.setCategory(categoryService.getCategoryById(categoryId));
+
+        if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+            video.setFilePath(youtubeUrl);
+            video.setDescription("YouTube Video");
+        } else {
+            String path = fileStorageService.store(file);
+            video.setFilePath(path);
+            video.setDescription("Uploaded Video");
+        }
+
+        // We need to save the video resource to DB.
+        // AdminController didn't have VideoResourceRepository autowired, but we can see
+        // lectureRepository/courseRepository.
+        // Let's add VideoResourceRepository if not present or use a service.
+        // Looking at imports, we need to add the repository field first if we want to
+        // save it properly.
+        // But wait, the previous code didn't save to DB!? It only stored the file.
+        // File path: src/main/java/com/skillhub/controller/AdminController.java shows:
+        // fileStorageService.store(file);
+        // redirectAttributes.addFlashAttribute("success", "Video uploaded
+        // successfully!");
+        // return "redirect:/admin/upload";
+        // It WAS NOT SAVING to the database. I must fix this to make it show in the
+        // library.
+
+        saveVideoResource(video);
+
+        redirectAttributes.addFlashAttribute("success", "Video resource added successfully!");
         return "redirect:/admin/upload";
+    }
+
+    @Autowired
+    private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
+
+    private void saveVideoResource(com.skillhub.model.VideoResource video) {
+        videoResourceRepository.save(video);
     }
 
     @GetMapping("/broadcast")

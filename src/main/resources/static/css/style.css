@@ -3,8 +3,8 @@
    Based on Udemy's visual identity as of 2024
 */
 
-/* Google Fonts - Inter & Merriweather */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&display=swap');
+/* Google Fonts - Inter & Merriweather & Roboto Slab */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&family=Roboto+Slab:wght@700&display=swap');
 
 :root {
   /* Colors */
@@ -18,10 +18,12 @@
   --color-gray-300: #d1d7dc;
   --color-gray-400: #9aa0a6;
   --color-gray-500: #6a6f73;
-  --color-gray-700: #2d2f31;
+  --color-gray-700: #1c1d1f;
 
   --color-yellow-rating: #b4690e;
   --color-yellow-star: #e59819;
+  --color-bestseller-bg: #eceb98;
+  --color-bestseller-text: #3d3c0a;
 
   /* Spacing */
   --spacing-xs: 0.4rem;
@@ -32,8 +34,8 @@
   --spacing-xxl: 6.4rem;
 
   /* Layout */
-  --navbar-height: 72px;
-  --container-width: 1340px;
+  --navbar-height: 7.2rem;
+  --container-width: 134rem;
 }
 
 /* Reset & Base */
@@ -50,7 +52,6 @@ html {
 
 body {
   font-family: 'Inter', Helvetica, Arial, sans-serif;
-  /* Fallback to Arial */
   font-size: 1.6rem;
   line-height: 1.4;
   color: var(--color-black);
@@ -81,13 +82,13 @@ h6 {
 
 h1 {
   font-family: 'Merriweather', serif;
+  /* Or Roboto Slab */
   font-size: 3.2rem;
   letter-spacing: -0.05rem;
 }
 
 h2 {
   font-family: 'Merriweather', serif;
-  /* Changed to Merriweather to match inspection or Bold Serif style */
   font-size: 2.4rem;
   letter-spacing: -0.02rem;
 }
@@ -151,8 +152,6 @@ h3 {
 
 .btn-primary:hover {
   background-color: #3e4143;
-  /* Slight lighter black */
-  border-color: #3e4143;
 }
 
 .btn-outline {
@@ -162,7 +161,7 @@ h3 {
 }
 
 .btn-outline:hover {
-  background-color: #e6e6e6;
+  background-color: var(--color-gray-200);
   /* Slight gray hover */
 }
 
@@ -198,11 +197,146 @@ h3 {
   align-items: center;
   padding: 0 2.4rem;
   gap: 1.6rem;
-  /* Increased gap */
 }
 
-.navbar .logo {
-  flex-shrink: 0;
+.navbar .logo img {
+  height: 3.4rem;
+  width: auto;
+}
+
+/* Personal Plan Banner */
+/* Personal Plan Banner */
+.personal-plan-banner {
+  padding: 0;
+  margin-bottom: 6.4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.pp-container {
+  background-color: var(--color-black);
+  width: 100%;
+  max-width: 134rem;
+  margin: 0 auto;
+  /* Center alignment */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4.8rem;
+  padding: 4.8rem;
+  border-radius: 0.8rem;
+  /* Curved edges as requested */
+}
+
+.pp-content {
+  flex: 1;
+  max-width: 50%;
+}
+
+.pp-title {
+  font-family: 'Merriweather', serif;
+  font-size: 3.2rem;
+  font-weight: 700;
+  margin-bottom: 1.6rem;
+  color: var(--color-white);
+}
+
+.pp-desc {
+  font-size: 1.6rem;
+  margin-bottom: 3.2rem;
+  color: var(--color-white);
+  line-height: 1.5;
+}
+
+.pp-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  margin-bottom: 3.2rem;
+}
+
+.pp-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--color-white);
+  /* White text as requested */
+}
+
+.pp-feature-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  /* Circle background */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.pp-cta-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.btn-light {
+  background-color: transparent;
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  font-weight: 800;
+  height: 4.8rem;
+  padding: 0 2.4rem;
+}
+
+.btn-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-light:hover {
+  background-color: var(--color-gray-200);
+}
+
+.pp-price-text {
+  font-size: 1.4rem;
+  color: var(--color-white);
+  /* White text as requested */
+}
+
+/* Image Collage Area */
+.pp-image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-main-image {
+  max-width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .pp-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pp-content {
+    max-width: 100%;
+  }
+
+  .pp-image-container {
+    width: 100%;
+    display: none;
+    /* Hide on small screens for simplicity or adjust */
+  }
 }
 
 .navbar .logo-text {
@@ -216,6 +350,7 @@ h3 {
   font-weight: 400;
   color: var(--color-black);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .categories-link:hover {
@@ -227,6 +362,7 @@ h3 {
   flex-grow: 1;
   position: relative;
   max-width: 60rem;
+  /* Keeps it centered ish */
 }
 
 .search-input {
@@ -267,26 +403,25 @@ h3 {
   flex-shrink: 0;
 }
 
-/* Hero Section */
+/* Hero Section (Specific User Request) */
 .hero {
   position: relative;
   max-width: 1340px;
   margin: 0 auto;
+  margin-bottom: 3.2rem;
+}
+
+.hero-wrapper {
+  position: relative;
   height: 400px;
   overflow: hidden;
-  /* Ensure nothing spills out */
 }
 
 .hero-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
-  z-index: 0;
-  /* Behind everything */
+  object-position: center;
 }
 
 .hero-content-box {
@@ -298,37 +433,120 @@ h3 {
   width: 44rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 4px 12px rgba(0, 0, 0, .08);
   z-index: 10;
-  /* On top of image */
 }
 
 .hero-title {
   font-family: 'Merriweather', serif;
   font-size: 3.2rem;
   margin-bottom: 0.8rem;
+  line-height: 1.25;
 }
 
 .hero-desc {
   font-size: 1.6rem;
   margin-bottom: 1.6rem;
+  line-height: 1.4;
 }
 
-/* Course Grid */
-/* Use wrapper for horizontal scroll or grid? Udemy uses carousel usually, but Grid is safer for MVP */
+/* Udemy specific snippet styles mapped to cleaner CSS */
+.ud-heading-serif-xxl {
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
+  font-size: 3.2rem;
+  line-height: 1.25;
+  letter-spacing: -0.05rem;
+  margin-bottom: 0.8rem;
+}
+
+.ud-text-md {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1.4;
+}
+
+.hero-icon-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1000;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+/* Trusted By Section */
+.trusted-by {
+  background-color: var(--color-gray-100);
+  padding: 6.4rem 0;
+  text-align: center;
+  margin-bottom: 4.8rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.trusted-title {
+  color: var(--color-gray-500);
+  margin-bottom: 2.4rem;
+  font-weight: 400;
+  font-size: 1.6rem;
+}
+
+.trusted-logos {
+  display: flex;
+  justify-content: center;
+  gap: 4.8rem;
+  flex-wrap: wrap;
+  opacity: 0.5;
+  filter: grayscale(100%);
+  align-items: center;
+}
+
+.trusted-logo-text {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #444;
+}
+
+
+/* Course Section */
+.section-headline {
+  margin-bottom: 2.4rem;
+}
+
+.section-tabs {
+  margin-bottom: 2.4rem;
+  display: flex;
+  gap: 1.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.tab-link {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-gray-500);
+  padding: 0.5rem 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-link.active {
+  color: var(--color-black);
+  border-bottom: 2px solid var(--color-black);
+}
+
 .course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
   gap: 1.6rem;
-  /* Space between cards */
-  padding-bottom: 1.6rem;
 }
 
+/* Course Card */
 .course-card {
   display: flex;
   flex-direction: column;
   cursor: pointer;
   background: white;
-  transition: opacity 0.1s;
-  /* Ensure card has width in grid */
   width: 100%;
 }
 
@@ -344,17 +562,18 @@ h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.2s;
 }
 
 .course-card:hover .course-image img {
-  filter: brightness(0.9);
+  filter: brightness(0.95);
 }
 
 .course-title {
   font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 1.6rem;
-  line-height: 1.4;
+  line-height: 1.2;
   color: var(--color-black);
   margin-bottom: 0.4rem;
   display: -webkit-box;
@@ -362,8 +581,8 @@ h3 {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 4.4rem;
-  /* Reserve space for 2 lines */
+  min-height: 3.8rem;
+  line-clamp: 2;
 }
 
 .course-author {
@@ -392,13 +611,32 @@ h3 {
   font-size: 1.2rem;
   color: var(--color-yellow-star);
   display: flex;
-  gap: 2px;
+  gap: 1px;
+}
+
+.rating-count {
+  font-size: 1.2rem;
+  color: var(--color-gray-500);
 }
 
 .course-price {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.6rem;
   color: var(--color-black);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.bestseller-badge {
+  background-color: var(--color-bestseller-bg);
+  color: var(--color-bestseller-text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  display: inline-block;
+  width: max-content;
+  margin-top: 0.4rem;
 }
 
 /* Footer */
@@ -410,111 +648,131 @@ footer {
   border-top: 1px solid #3e4143;
 }
 
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 10rem;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-link {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 6.4rem;
+}
+
 /* Authentication Pages */
 .auth-page-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
+  min-height: calc(100vh - 7.2rem);
+  /* Full viewport height minus navbar */
   padding: 2.4rem;
+  background-color: var(--color-white);
 }
 
 .auth-card {
   width: 100%;
   max-width: 400px;
   padding: 0;
-  /* Clean look, minimal padding if any wrapper needed */
+  margin: 0 auto;
+  display: flex;
+  /* Ensure flex column layout for card content if needed, though block is fine usually */
+  flex-direction: column;
 }
 
 .auth-header {
-  text-align: left;
-  margin-bottom: 2.4rem;
+  font-family: 'Merriweather', serif;
   font-weight: 700;
   font-size: 1.6rem;
   color: var(--color-black);
-  border-bottom: 1px solid var(--color-gray-200);
+  margin-bottom: 2.4rem;
   padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--color-gray-200);
+  text-align: left;
+  /* Udemy headers are usually left-aligned or centered? User said "align this all" */
 }
 
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-group label {
-  display: none;
-  /* Udemy style often hides labels or uses placeholders effectively, keeping clean */
-}
-
-.form-control {
-  width: 100%;
-  height: 4.8rem;
-  padding: 1.2rem 1.6rem;
-  font-size: 1.6rem;
-  font-weight: 700;
-  /* Udemy input text is bold */
-  border: 1px solid var(--color-black);
-  border-radius: 0;
-  outline: none;
-  font-family: 'Inter', sans-serif;
-}
-
-.form-control:focus {
-  border-color: var(--color-purple);
-}
-
-.btn-full {
-  width: 100%;
-  height: 4.8rem;
-  font-weight: 700;
-}
-
-.auth-separator {
-  text-align: center;
-  margin: 1.6rem 0;
-  position: relative;
-}
-
-.auth-separator span {
-  background-color: var(--color-white);
-  padding: 0 0.8rem;
-  color: var(--color-gray-500);
-  font-size: 1.2rem;
-  position: relative;
-  z-index: 1;
-}
-
-.auth-separator::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  border-top: 1px solid var(--color-gray-300);
-  z-index: 0;
-}
-
+/* Social Buttons */
 .social-btn {
   width: 100%;
   height: 4.8rem;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  /* Icons usually left */
+  justify-content: center;
+  /* Center the text */
   padding: 0 1.6rem;
+  background-color: var(--color-white);
   border: 1px solid var(--color-black);
-  background: white;
   color: var(--color-black);
   font-weight: 700;
-  margin-bottom: 0.8rem;
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+  /* slightly more space */
   cursor: pointer;
+  position: relative;
+  font-family: 'Inter', sans-serif;
   text-decoration: none;
-  gap: 1.2rem;
+  /* Just in case */
+}
+
+.social-btn i {
+  position: absolute;
+  left: 1.6rem;
+  font-size: 2rem;
 }
 
 .social-btn:hover {
   background-color: var(--color-gray-100);
 }
 
-.social-btn i {
-  font-size: 2rem;
+/* Form Elements */
+.form-group {
+  margin-bottom: 0.8rem;
+  width: 100%;
+}
+
+.form-control {
+  width: 100%;
+  height: 4.8rem;
+  padding: 0 1.6rem;
+  font-size: 1.6rem;
+  border: 1px solid var(--color-black);
+  border-radius: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--color-black);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-black);
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 1.6rem;
+  height: 4.8rem;
+  font-weight: 700;
 }

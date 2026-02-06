@@ -14,7 +14,7 @@ public class Course {
 
     private String title;
     private String subtitle; // Short description
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne
@@ -36,13 +36,13 @@ public class Course {
     private boolean isPublished = false;
     private String lastUpdated;
 
-    @Column(length = 4000)
+    @Column(columnDefinition = "TEXT")
     private String learningObjectives; // New line separated
 
-    @Column(length = 4000)
+    @Column(columnDefinition = "TEXT")
     private String requirements; // New line separated
 
-    @Column(length = 5000)
+    @Column(columnDefinition = "LONGTEXT")
     private String longDescription; // HTML content
 
     private String contentLength; // e.g. "10h 30m"
