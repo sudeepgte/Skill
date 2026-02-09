@@ -28,23 +28,29 @@
         </div>
         <div class="navbar-center"></div>
         <div class="navbar-right">
-            <!-- User Dropdown with updated links -->
-            <div th:if="${user != null}" class="dropdown">
-                <div class="categories-link" style="display: flex; align-items: center; gap: 0.8rem;">
-                    <div
-                        style="background-color: #2d2f31; color: white; width: 3.2rem; height: 3.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                        <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+            <!-- Authenticated User Dropdown -->
+            <div th:if="${user != null}" style="display: flex; align-items: center;">
+                <a href="/profile?tab=courses" class="categories-link"
+                    style="margin-right: 1.6rem; text-decoration: none;">My Courses</a>
+
+                <div class="dropdown">
+                    <div class="categories-link" style="display: flex; align-items: center; gap: 0.8rem;">
+                        <div
+                            style="background-color: #2d2f31; color: white; width: 3.2rem; height: 3.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                        </div>
                     </div>
-                </div>
-                <div class="dropdown-menu" style="left: auto; right: 0;">
-                    <div style="padding: 1.2rem 2.4rem; border-bottom: 1px solid #d1d7dc;">
-                        <div style="font-weight: 700; color: #2d2f31;" th:text="${user.name}">User Name</div>
-                        <div style="font-size: 1.2rem; color: #6a6f73;" th:text="${user.email}">user@example.com</div>
+                    <div class="dropdown-menu" style="left: auto; right: 0;">
+                        <div style="padding: 1.2rem 2.4rem; border-bottom: 1px solid #d1d7dc;">
+                            <div style="font-weight: 700; color: #2d2f31;" th:text="${user.name}">User Name</div>
+                            <div style="font-size: 1.2rem; color: #6a6f73;" th:text="${user.email}">user@example.com
+                            </div>
+                        </div>
+                        <a href="/profile" class="dropdown-item">My Profile</a>
+                        <form th:action="@{/logout}" method="post"><button class="dropdown-item"
+                                style="border:none; background:none; width:100%; text-align:left; cursor:pointer;">Logout</button>
+                        </form>
                     </div>
-                    <a href="/profile" class="dropdown-item">My Profile</a>
-                    <form th:action="@{/logout}" method="post"><button class="dropdown-item"
-                            style="border:none; background:none; width:100%; text-align:left; cursor:pointer;">Logout</button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -182,37 +188,60 @@
         </div>
     </div>
 
+    <script th:src="@{/js/script.js}"></script>
     <script>
-        function openTab(evt, tabName) {
-            // Hide all elements with class="tab-pane"
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-pane");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove("active");
-            }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dropdown Logic
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                const trigger = dropdown.querySelector('.categories-link') || dropdown.querySelector('.dropdown-toggle');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                let timeoutId;
+                if (!trigger || !menu) return;
+                dropdown.addEventListener('mouseenter', () => {
+                    clearTimeout(timeoutId);
+                    menu.style.display = 'block';
+                    setTimeout(() => { menu.style.opacity = '1'; menu.style.transform = 'translateY(0)'; }, 10);
+                });
+                dropdown.addEventListener('mouseleave', () => {
+                    timeoutId = setTimeout(() => {
+                        menu.style.opacity = '0';
+                        menu.style.transform = 'translateY(-10px)';
+                        setTimeout(() => { if (menu.style.opacity === '0') menu.style.display = 'none'; }, 200);
+                    }, 300);
+                });
+                trigger.addEventListener('click', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    if (menu.style.display === 'block') menu.style.display = 'none';
+                    else { menu.style.display = 'block'; menu.style.opacity = '1'; menu.style.transform = 'translateY(0)'; }
+                });
+            });
 
-            // Remove "active" class from all buttons
-            tablinks = document.getElementsByClassName("profile-nav-btn");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
+            // Tab Logic
+            window.openTab = function (evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tab-pane");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                    tabcontent[i].classList.remove("active");
+                }
+                tablinks = document.getElementsByClassName("profile-nav-btn");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                document.getElementById(tabName).classList.add("active");
+                evt.currentTarget.className += " active";
+            };
 
-            // Show current tab and add proper class
-            document.getElementById(tabName).style.display = "block";
-            // small delay to allow display block to apply before opacity for animation (simplified here)
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.className += " active";
-        }
-
-        // Auto-switch tab based on URL param
-        document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
             if (tab === 'courses') {
-                document.querySelector("button[onclick*='courses-tab']").click();
+                const btn = document.querySelector("button[onclick*='courses-tab']");
+                if (btn) btn.click();
             } else if (tab === 'security') {
-                document.querySelector("button[onclick*='security-tab']").click();
+                const btn = document.querySelector("button[onclick*='security-tab']");
+                if (btn) btn.click();
             }
         });
     </script>
