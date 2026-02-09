@@ -100,10 +100,19 @@ public class AdminController {
     }
 
     @GetMapping("/courses/create")
-    public String showCreateCourseForm(Model model) {
-        model.addAttribute("course", new com.skillhub.model.Course());
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/course_form";
+    public String createDraftAndRedirect(java.security.Principal principal) {
+        com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
+
+        com.skillhub.model.Course course = new com.skillhub.model.Course();
+        course.setTitle("Untitled Course");
+        course.setInstructor(instructor);
+        course.setPublished(false);
+        course.setViewCount(0L);
+        course.setPrice(0.0); // Default to avoid null errors
+
+        courseService.saveCourse(course);
+
+        return "redirect:/admin/courses/edit?id=" + course.getId();
     }
 
     @GetMapping("/courses/edit")

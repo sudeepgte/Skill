@@ -1,0 +1,106 @@
+<div th:fragment="curriculum_content" id="curriculum-content">
+    <div class="section-title">Course Curriculum</div>
+    <div class="help-text" style="margin-bottom: 1.5rem;">Add sections and lectures to your course.</div>
+
+    <!-- Feedback Messages for AJAX -->
+    <div id="curriculum-feedback" style="display:none; margin-bottom: 1rem; padding: 10px; border-radius: 4px;"></div>
+
+    <!-- List Sections -->
+    <div th:each="section : ${course.sections}"
+        style="background: #f8f9fa; border: 1px solid #e1e4e8; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">
+                <i class="fas fa-folder-open" style="margin-right: 8px; color: #6a6f73;"></i>
+                <span th:text="${section.title}">Section Title</span>
+            </h3>
+            <form th:action="@{/admin/curriculum/sections/delete}" method="post"
+                onsubmit="return handleCurriculumAction(event, this);" style="display: inline;">
+                <input type="hidden" name="sectionId" th:value="${section.id}">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+                <button type="submit" style="color: #dc3545; background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- List Lectures -->
+        <div th:if="${not #lists.isEmpty(section.lectures)}" style="margin-left: 1rem; margin-bottom: 1rem;">
+            <div th:each="lecture : ${section.lectures}"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: white;">
+                <span>
+                    <i class="fas fa-play-circle" style="margin-right: 8px; color: #a435f0;"></i>
+                    <span th:text="${lecture.title}">Lecture Title</span>
+                    <span th:if="${lecture.preview}"
+                        style="font-size: 0.8em; background: #e6fcf5; color: #0ca678; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Preview</span>
+                </span>
+
+                <!-- Duration -->
+                <span style="color: #6a6f73; font-size: 0.85em; margin-right: 15px;">
+                    <span th:if="${lecture.durationSeconds != null}"
+                        th:with="mins=${lecture.durationSeconds / 60}, secs=${lecture.durationSeconds % 60}">
+                        <span th:text="${mins}">0</span>m <span th:text="${secs}">00</span>s
+                    </span>
+                </span>
+
+                <form th:action="@{/admin/curriculum/lectures/delete}" method="post"
+                    onsubmit="return handleCurriculumAction(event, this);" style="display: inline;">
+                    <input type="hidden" name="lectureId" th:value="${lecture.id}">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <button type="submit" style="color: #6a6f73; background: none; border: none; cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Lecture Form -->
+        <div style="margin-top: 1rem; padding: 1rem; background: #fff; border: 1px dashed #ccc;">
+            <h4 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 10px;">+ Add Lecture</h4>
+            <form th:action="@{/admin/curriculum/lectures/add}" method="post" enctype="multipart/form-data"
+                onsubmit="return handleCurriculumAction(event, this);">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+                <input type="hidden" name="sectionId" th:value="${section.id}">
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" name="title" class="form-control" placeholder="Lecture Title" required>
+                    <label style="display: flex; align-items: center; font-size: 0.9rem;">
+                        <input type="checkbox" name="isPreview" style="margin-right: 5px;"> Free Preview
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.8rem; color: #6a6f73; display:block;">Duration (Min)</label>
+                        <input type="number" name="durationMinutes" class="form-control" placeholder="0" min="0"
+                            value="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 0.8rem; color: #6a6f73; display:block;">Seconds</label>
+                        <input type="number" name="durationSeconds" class="form-control" placeholder="0" min="0"
+                            max="59" value="0">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <input type="file" name="videoFile" accept="video/*" class="form-control"
+                        style="margin-bottom: 5px;">
+                    <input type="text" name="youtubeUrl" class="form-control" placeholder="OR paste YouTube URL">
+                </div>
+
+                <button type="submit" class="btn-submit"
+                    style="padding: 8px 16px; font-size: 0.9rem; background-color: #2d2f31;">Add Lecture</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Section Form -->
+    <div style="background: #f0f2f5; padding: 1.5rem; border-radius: 4px; border: 2px dashed #ccc; text-align: center;">
+        <form th:action="@{/admin/curriculum/sections/add}" method="post" style="display: flex; gap: 10px;"
+            onsubmit="return handleCurriculumAction(event, this);">
+            <input type="hidden" name="courseId" th:value="${course.id}">
+            <input type="text" name="title" class="form-control" placeholder="New Section Title (e.g. Module 1)"
+                required>
+            <button type="submit" class="btn-submit" style="white-space: nowrap;">Add Section</button>
+        </form>
+    </div>
+</div>

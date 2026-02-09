@@ -126,7 +126,11 @@ public class CourseService {
             section.setTitle(title);
             section.setCourse(course);
             // Auto position at the end
-            section.setPosition(course.getSections().size() + 1);
+            if (course.getSections() != null) {
+                section.setPosition(course.getSections().size() + 1);
+            } else {
+                section.setPosition(1);
+            }
             courseSectionRepository.save(section);
         }
     }
@@ -136,8 +140,43 @@ public class CourseService {
         if (section != null) {
             lecture.setSection(section);
             // Auto position
-            lecture.setPosition(section.getLectures().size() + 1);
+            if (section.getLectures() != null) {
+                lecture.setPosition(section.getLectures().size() + 1);
+            } else {
+                lecture.setPosition(1);
+            }
             lectureRepository.save(lecture);
+        }
+    }
+
+    public void updateCourseStats(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course != null) {
+            // Use fresh repository stats
+            long totalLectures = lectureRepository.countByCourseId(courseId);
+            Long totalSecondsObj = lectureRepository.sumDurationByCourseId(courseId);
+            long totalSeconds = (totalSecondsObj != null) ? totalSecondsObj : 0;
+
+            // Format Duration
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            // Handle edge case where e.g. 59s -> 0m
+            if (totalSeconds > 0 && totalSeconds < 60) {
+                minutes = 1;
+            }
+
+            String timeString = "";
+            if (hours > 0) {
+                timeString += hours + "h ";
+            }
+            timeString += minutes + "m";
+
+            // Format: "X lectures • Yh Zm"
+            String finalContentLength = totalLectures + " lectures • " + timeString.trim();
+
+            course.setContentLength(finalContentLength);
+
+            courseRepository.save(course);
         }
     }
 }

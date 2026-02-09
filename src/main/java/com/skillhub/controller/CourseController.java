@@ -26,13 +26,30 @@ public class CourseController {
     @Autowired
     private com.skillhub.repository.ReviewRepository reviewRepository;
 
+    @Autowired
+    private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private com.skillhub.service.UserService userService;
+
     @GetMapping("/{id}")
-    public String getCourseDetails(@PathVariable Long id, Model model) {
+    public String getCourseDetails(@PathVariable Long id, Model model, Principal principal) {
         // Fetch entity
         com.skillhub.model.Course course = courseService.getCourseById(id);
 
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
+
+        // Check Enrollment Status
+        boolean isEnrolled = false;
+        if (principal != null) {
+            String email = principal.getName();
+            com.skillhub.model.User user = userService.findByEmail(email);
+            if (user != null) {
+                // Corrected method name: findByStudentAndCourse
+                isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
+            }
+        }
 
         // Fetch reviews
         java.util.List<com.skillhub.model.Review> reviews = reviewRepository
@@ -40,6 +57,7 @@ public class CourseController {
 
         model.addAttribute("course", courseDTO);
         model.addAttribute("reviews", reviews);
+        model.addAttribute("isEnrolled", isEnrolled);
         return "course-details";
     }
 
@@ -52,14 +70,10 @@ public class CourseController {
             return "redirect:/login";
         }
 
-        // Logic to verify enrollment would go here (or in service)
-        // For now assuming enrolled or public
-
         com.skillhub.model.Course course = courseService.getCourseById(id);
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
         // Use provided lectureId or find first/last played
-        // This logic should ideally be in a service
         Long targetLectureId = lectureId;
         if (targetLectureId == null) {
             // Default to first lecture of first section
@@ -69,8 +83,6 @@ public class CourseController {
         }
 
         // Pass current lesson for titles/video
-        // We'll need to find the specific lesson object in the DTO or Entity
-        // Simplification: Iterate to find it
         com.skillhub.dto.LectureDTO currentLesson = null;
         if (targetLectureId != null) {
             for (com.skillhub.dto.SectionDTO section : courseDTO.getSections()) {
@@ -92,9 +104,6 @@ public class CourseController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    private com.skillhub.service.UserService userService;
-
     @org.springframework.web.bind.annotation.PostMapping("/wishlist/add")
     public String addToWishlist(@RequestParam Long courseId, Principal principal,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
@@ -111,8 +120,6 @@ public class CourseController {
             redirectAttributes.addFlashAttribute("success", "Added to wishlist!");
         }
 
-        // return "redirect:/course/" + courseId;
-        // For better UX, redirect to where they came from or Wishlist
         return "redirect:/student/wishlist";
     }
 

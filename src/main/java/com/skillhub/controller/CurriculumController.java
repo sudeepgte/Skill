@@ -12,7 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.ui.Model;
 
 @Controller
 @RequestMapping("/admin/curriculum")
@@ -35,29 +35,32 @@ public class CurriculumController {
 
     @PostMapping("/sections/add")
     public String addSection(@RequestParam Long courseId, @RequestParam String title,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
         Course course = courseService.getCourseById(courseId);
         if (course != null) {
             CourseSection section = new CourseSection();
             section.setTitle(title);
             section.setCourse(course);
-            // Simple position logic: put at end
             section.setPosition(course.getSections().size() + 1);
-
             sectionRepository.save(section);
-            redirectAttributes.addFlashAttribute("success", "Section added successfully!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Course not found.");
+
+            // Refresh course to get updated list
+            courseService.updateCourseStats(courseId);
+            course = courseService.getCourseById(courseId);
         }
-        return "redirect:/admin/courses/edit?id=" + courseId;
+        model.addAttribute("course", course);
+        return "admin/fragments/curriculum :: curriculum_content";
     }
 
     @PostMapping("/sections/delete")
     public String deleteSection(@RequestParam Long sectionId, @RequestParam Long courseId,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
         sectionRepository.deleteById(sectionId);
-        redirectAttributes.addFlashAttribute("success", "Section deleted.");
-        return "redirect:/admin/courses/edit?id=" + courseId;
+        courseService.updateCourseStats(courseId);
+
+        Course course = courseService.getCourseById(courseId);
+        model.addAttribute("course", course);
+        return "admin/fragments/curriculum :: curriculum_content";
     }
 
     // --- Lectures ---
@@ -70,44 +73,47 @@ public class CurriculumController {
             @RequestParam(required = false) MultipartFile videoFile,
             @RequestParam(required = false) String youtubeUrl,
             @RequestParam(defaultValue = "false") boolean isPreview,
-            RedirectAttributes redirectAttributes) {
+            @RequestParam(required = false, defaultValue = "0") Integer durationMinutes,
+            @RequestParam(required = false, defaultValue = "0") Integer durationSeconds,
+            Model model) {
 
         CourseSection section = sectionRepository.findById(sectionId).orElse(null);
-        if (section == null) {
-            redirectAttributes.addFlashAttribute("error", "Section not found.");
-            return "redirect:/admin/courses/edit?id=" + courseId;
+        if (section != null) {
+            Lecture lecture = new Lecture();
+            lecture.setTitle(title);
+            lecture.setSection(section);
+            lecture.setPreview(isPreview);
+            // Fix position logic (get refreshed list size if possible, or simpler)
+            int pos = (section.getLectures() != null) ? section.getLectures().size() + 1 : 1;
+            lecture.setPosition(pos);
+
+            int totalSec = (durationMinutes * 60) + durationSeconds;
+            lecture.setDurationSeconds(totalSec);
+
+            if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+                lecture.setVideoUrl(youtubeUrl);
+            } else if (videoFile != null && !videoFile.isEmpty()) {
+                String path = fileStorageService.store(videoFile);
+                lecture.setVideoUrl(path);
+            }
+
+            lectureRepository.save(lecture);
+            courseService.updateCourseStats(courseId);
         }
 
-        Lecture lecture = new Lecture();
-        lecture.setTitle(title);
-        lecture.setSection(section);
-        lecture.setPreview(isPreview);
-        lecture.setPosition(section.getLectures().size() + 1);
-
-        // Handle Video Source
-        if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
-            lecture.setVideoUrl(youtubeUrl);
-        } else if (videoFile != null && !videoFile.isEmpty()) {
-            String path = fileStorageService.store(videoFile);
-            lecture.setVideoUrl(path);
-        } else {
-            // Allow creating lecture without video initially? Or error?
-            // For now, let's require one.
-            redirectAttributes.addFlashAttribute("error", "Please provide a video file or YouTube URL.");
-            return "redirect:/admin/courses/edit?id=" + courseId;
-        }
-
-        lectureRepository.save(lecture);
-        redirectAttributes.addFlashAttribute("success", "Lecture added successfully!");
-
-        return "redirect:/admin/courses/edit?id=" + courseId;
+        Course course = courseService.getCourseById(courseId);
+        model.addAttribute("course", course);
+        return "admin/fragments/curriculum :: curriculum_content";
     }
 
     @PostMapping("/lectures/delete")
     public String deleteLecture(@RequestParam Long lectureId, @RequestParam Long courseId,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
         lectureRepository.deleteById(lectureId);
-        redirectAttributes.addFlashAttribute("success", "Lecture deleted.");
-        return "redirect:/admin/courses/edit?id=" + courseId;
+        courseService.updateCourseStats(courseId);
+
+        Course course = courseService.getCourseById(courseId);
+        model.addAttribute("course", course);
+        return "admin/fragments/curriculum :: curriculum_content";
     }
 }

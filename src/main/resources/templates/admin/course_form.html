@@ -91,6 +91,11 @@
 
         <div style="margin-bottom: 2rem;">
             <h1 th:text="${course.id == null ? 'Create a New Course' : 'Edit Course'}">Create a New Course</h1>
+            <!-- NEW: Display simplified stats if available -->
+            <div th:if="${course.id != null}" style="color: #6a6f73; margin-top: 10px;">
+                <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections •
+                <span th:text="${course.contentLength != null ? course.contentLength : '0m'}">0m</span> total length
+            </div>
             <p style="color: #6a6f73;">Fill in the details below to create a new course. You can add sections and videos
                 after creating the course.</p>
         </div>
@@ -294,91 +299,8 @@
 
             <!-- COURSE CURRICULUM (Only for existing courses) -->
             <div class="form-section" th:if="${course.id != null}">
-                <div class="section-title">Course Curriculum</div>
-                <div class="help-text" style="margin-bottom: 1.5rem;">Add sections and lectures to your course.</div>
-
-                <!-- List Sections -->
-                <div th:each="section : ${course.sections}"
-                    style="background: #f8f9fa; border: 1px solid #e1e4e8; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">
-                            <i class="fas fa-folder-open" style="margin-right: 8px; color: #6a6f73;"></i>
-                            <span th:text="${section.title}">Section Title</span>
-                        </h3>
-                        <form th:action="@{/admin/curriculum/sections/delete}" method="post"
-                            onsubmit="return confirm('Delete this section and all its lectures?');"
-                            style="display: inline;">
-                            <input type="hidden" name="sectionId" th:value="${section.id}">
-                            <input type="hidden" name="courseId" th:value="${course.id}">
-                            <button type="submit"
-                                style="color: #dc3545; background: none; border: none; cursor: pointer;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- List Lectures -->
-                    <div th:if="${not #lists.isEmpty(section.lectures)}"
-                        style="margin-left: 1rem; margin-bottom: 1rem;">
-                        <div th:each="lecture : ${section.lectures}"
-                            style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: white;">
-                            <span>
-                                <i class="fas fa-play-circle" style="margin-right: 8px; color: #a435f0;"></i>
-                                <span th:text="${lecture.title}">Lecture Title</span>
-                                <span th:if="${lecture.preview}"
-                                    style="font-size: 0.8em; background: #e6fcf5; color: #0ca678; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Preview</span>
-                            </span>
-                            <form th:action="@{/admin/curriculum/lectures/delete}" method="post"
-                                onsubmit="return confirm('Delete this lecture?');" style="display: inline;">
-                                <input type="hidden" name="lectureId" th:value="${lecture.id}">
-                                <input type="hidden" name="courseId" th:value="${course.id}">
-                                <button type="submit"
-                                    style="color: #6a6f73; background: none; border: none; cursor: pointer;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Add Lecture Form -->
-                    <div style="margin-top: 1rem; padding: 1rem; background: #fff; border: 1px dashed #ccc;">
-                        <h4 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 10px;">+ Add Lecture</h4>
-                        <form th:action="@{/admin/curriculum/lectures/add}" method="post" enctype="multipart/form-data">
-                            <input type="hidden" name="courseId" th:value="${course.id}">
-                            <input type="hidden" name="sectionId" th:value="${section.id}">
-
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
-                                <input type="text" name="title" class="form-control" placeholder="Lecture Title"
-                                    required>
-                                <label style="display: flex; align-items: center; font-size: 0.9rem;">
-                                    <input type="checkbox" name="isPreview" style="margin-right: 5px;"> Free Preview
-                                </label>
-                            </div>
-
-                            <div style="margin-bottom: 10px;">
-                                <input type="file" name="videoFile" accept="video/*" class="form-control"
-                                    style="margin-bottom: 5px;">
-                                <input type="text" name="youtubeUrl" class="form-control"
-                                    placeholder="OR paste YouTube URL">
-                            </div>
-
-                            <button type="submit" class="btn-submit"
-                                style="padding: 8px 16px; font-size: 0.9rem; background-color: #2d2f31;">Add
-                                Lecture</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Add Section Form -->
-                <div
-                    style="background: #f0f2f5; padding: 1.5rem; border-radius: 4px; border: 2px dashed #ccc; text-align: center;">
-                    <form th:action="@{/admin/curriculum/sections/add}" method="post" style="display: flex; gap: 10px;">
-                        <input type="hidden" name="courseId" th:value="${course.id}">
-                        <input type="text" name="title" class="form-control"
-                            placeholder="New Section Title (e.g. Module 1)" required>
-                        <button type="submit" class="btn-submit" style="white-space: nowrap;">Add Section</button>
-                    </form>
+                <div id="curriculum-container">
+                    <div th:replace="~{admin/fragments/curriculum :: curriculum_content}"></div>
                 </div>
             </div>
 
@@ -393,16 +315,82 @@
             <!-- Actions -->
             <div style="text-align: right; margin-top: 2rem;">
                 <a href="/admin/dashboard" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit" form="courseForm">Create Course & Continue &rarr;</button>
+                <button type="submit" class="btn-submit" form="courseForm">Save Course & Continue &rarr;</button>
             </div>
 
         </div>
 
-        <footer>
-            <div class="container">
-                <p>&copy; 2024 SkillHub, Inc. Admin Console.</p>
-            </div>
-        </footer>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 SkillHub, Inc. Admin Console.</p>
+        </div>
+    </footer>
+
+    <!-- AJAX Curriculum Handling -->
+    <script>
+        function handleCurriculumAction(event, form) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute('action');
+            const feedback = document.getElementById('curriculum-feedback');
+
+            // Show loading state (optional)
+            if (feedback) {
+                feedback.style.display = 'block';
+                feedback.style.background = '#e2e6ea';
+                feedback.style.color = '#333';
+                feedback.textContent = 'Updating...';
+            }
+
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    // Determine if it's a redirect (full page) or fragment
+                    // Since we want to support both Controller modes, we check input.
+                    // But specifically for this fix, we expect a fragment.
+
+                    // Simple check: does it look like a full HTML page?
+                    if (html.includes('<html')) {
+                        // Fallback for full page reload if controller isn't updated yet
+                        window.location.reload();
+                    } else {
+                        // It's a fragment, replace content
+                        document.getElementById('curriculum-container').innerHTML = html;
+
+                        // Show success
+                        const newFeedback = document.getElementById('curriculum-feedback');
+                        if (newFeedback) {
+                            newFeedback.style.display = 'block';
+                            newFeedback.style.background = '#d4edda';
+                            newFeedback.style.color = '#155724';
+                            newFeedback.textContent = 'Updated successfully!';
+                            setTimeout(() => newFeedback.style.display = 'none', 3000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const newFeedback = document.getElementById('curriculum-feedback');
+                    if (newFeedback) {
+                        newFeedback.style.display = 'block';
+                        newFeedback.style.background = '#f8d7da';
+                        newFeedback.style.color = '#721c24';
+                        newFeedback.textContent = 'Error updating curriculum.';
+                    }
+                });
+
+            return false;
+        }
+    </script>
 </body>
 
 </html>
