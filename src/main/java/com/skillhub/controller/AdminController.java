@@ -117,6 +117,8 @@ public class AdminController {
     @PostMapping("/courses/save")
     public String saveCourse(
             @org.springframework.web.bind.annotation.ModelAttribute("course") com.skillhub.model.Course course,
+            @org.springframework.web.bind.annotation.RequestParam(value = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
+            @org.springframework.web.bind.annotation.RequestParam(value = "youtubeUrl", required = false) String youtubeUrl,
             java.security.Principal principal) {
 
         if (course.getId() != null) {
@@ -134,6 +136,15 @@ public class AdminController {
                 existing.setLongDescription(course.getLongDescription());
                 existing.setLearningObjectives(course.getLearningObjectives());
                 existing.setRequirements(course.getRequirements());
+
+                // Handle Video Update
+                if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+                    existing.setVideoUrl(youtubeUrl);
+                } else if (videoFile != null && !videoFile.isEmpty()) {
+                    String path = fileStorageService.store(videoFile);
+                    existing.setVideoUrl(path);
+                }
+
                 // Preserve instructor, published status, view count, etc.
                 courseService.saveCourse(existing);
             }
@@ -142,6 +153,15 @@ public class AdminController {
             com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
             course.setInstructor(instructor);
             course.setPublished(false); // Default to draft
+
+            // Handle Video Upload
+            if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
+                course.setVideoUrl(youtubeUrl);
+            } else if (videoFile != null && !videoFile.isEmpty()) {
+                String path = fileStorageService.store(videoFile);
+                course.setVideoUrl(path);
+            }
+
             courseService.saveCourse(course);
         }
         return "redirect:/admin/courses";

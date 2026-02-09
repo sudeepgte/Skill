@@ -139,6 +139,16 @@
                             fileInput.value = '';
                         }
                     }
+
+                    // File size validation
+                    document.querySelector('input[name="file"]').addEventListener('change', function () {
+                        const file = this.files[0];
+                        const maxSize = 2 * 1024 * 1024 * 1024; // 2GB
+                        if (file && file.size > maxSize) {
+                            alert('File is too large! Maximum size is 2GB.');
+                            this.value = ''; // Clear the input
+                        }
+                    });
                 </script>
 
                 <button type="submit" class="btn btn-primary">Upload to Library</button>
