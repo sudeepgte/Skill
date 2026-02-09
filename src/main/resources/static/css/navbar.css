@@ -68,14 +68,23 @@
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: calc(100% + 1rem);
-    left: 0;
-    background-color: var(--color-surface);
+    top: 100%;
+    /* Removed + 1rem gap */
+    padding-top: 1rem;
+    /* Add padding instead if spacing is needed visually, but keep hit-area continuous */
+    background-color: #ffffff;
+    /* Explicitly white for visibility */
     min-width: 280px;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Stronger shadow */
     border-radius: var(--radius-md);
-    border: 1px solid var(--color-border);
+    border: 1px solid #d1d7dc;
+    /* Clear border */
     padding: 1.2rem 0;
+    z-index: 1050;
+    /* Ensure it's on top */
+    opacity: 1;
+    /* Force opacity */
     animation: slideIn 0.2s ease-out;
 }
 
@@ -91,9 +100,9 @@
     }
 }
 
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
+/* .dropdown:hover .dropdown-menu {
+    display: block;   <-- Removed to prevent conflict with JS controlled state 
+} */
 
 .dropdown-item {
     color: var(--color-text-main);

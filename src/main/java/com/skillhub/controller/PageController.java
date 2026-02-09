@@ -29,8 +29,11 @@ public class PageController {
     private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
 
     @GetMapping("/")
-    public String index(Model model, @RequestParam(required = false) Long categoryId,
+    public String index(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
         model.addAttribute("categories", categoryService.getAllCategories());
 
         // Add videos to the model for the home page
@@ -49,7 +52,7 @@ public class PageController {
             model.addAttribute("courses", courseService.getPublishedCourses());
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         }
-        return "main_index"; // This maps to index.html (if view resolver is standard, check this)
+        return "main_index";
     }
 
     @GetMapping("/home")
@@ -72,7 +75,7 @@ public class PageController {
             model.addAttribute("courses", courseService.getPublishedCourses());
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         }
-        return "home";
+        return "main_index";
     }
 
     @GetMapping("/about")

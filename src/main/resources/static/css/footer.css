@@ -1,79 +1,36 @@
-/* Footer - Udemy Dark Style */
-footer {
+/* Simple Footer */
+.simple-footer {
     background-color: #1c1d1f;
-    /* Specific Dark Background */
-    color: #fff;
-    padding: 0;
-    margin-top: 6.4rem;
-    font-family: 'Inter', sans-serif;
+    /* Dark background */
+    color: white;
+    padding: 3.2rem 0;
+    border-top: 1px solid #3e4143;
 }
 
-.footer-companies-banner {
-    border-bottom: 1px solid #3e4143;
-    padding: 3.2rem 2.4rem;
+.footer-simple-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    /* Horizontally centered */
     align-items: center;
-    flex-wrap: wrap;
-    gap: 2.4rem;
-}
-
-.footer-companies-text {
-    font-weight: 700;
-    font-size: 1.9rem;
-}
-
-.footer-companies-logos {
-    display: flex;
     gap: 3.2rem;
-    opacity: 0.8;
-    filter: grayscale(100%) invert(1);
-    /* Make logos white */
-}
-
-.footer-content {
-    padding: 3.2rem 2.4rem;
-}
-
-.footer-links-row {
-    display: flex;
+    /* Even spacing */
     flex-wrap: wrap;
-    gap: 2.4rem;
-    margin-bottom: 4.8rem;
 }
 
-.footer-link-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    min-width: 20rem;
-}
-
-.footer-link {
-    color: #fff;
+.footer-simple-link {
+    color: white;
     font-size: 1.4rem;
-    font-weight: 400;
     text-decoration: none;
+    font-weight: 400;
 }
 
-.footer-link:hover {
+.footer-simple-link:hover {
     text-decoration: underline;
 }
 
-.footer-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 3.2rem;
-    border-top: 1px solid #3e4143;
-    /* Divider */
-}
-
-.footer-logo {
-    height: 3.2rem;
-}
-
-.footer-copyright {
-    font-size: 1.2rem;
-    color: #fff;
+@media (max-width: 768px) {
+    .footer-simple-content {
+        flex-direction: column;
+        gap: 1.6rem;
+    }
 }

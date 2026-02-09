@@ -59,10 +59,32 @@
         <!-- Nav Actions -->
         <div class="navbar-right">
             <!-- Auth Buttons -->
-            <div th:if="${user != null}" style="display: flex; align-items: center; gap: 1rem;">
-                <a href="/dashboard" class="btn btn-primary btn-icon" style="width: 4rem; height: 4rem; color: white;">
-                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-                </a>
+            <!-- Authenticated User Dropdown -->
+            <div th:if="${user != null}" class="dropdown">
+
+                <!-- My Courses Link (Moved to Navbar) -->
+                <a href="/profile?tab=courses" class="categories-link"
+                    style="margin-right: 1.6rem; text-decoration: none;">My Courses</a>
+
+                <div class="categories-link" style="display: flex; align-items: center; gap: 0.8rem; padding: 0.4rem;">
+                    <div
+                        style="width: 3.2rem; height: 3.2rem; background-color: #2d2f31; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem;">
+                        <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                    </div>
+                </div>
+                <div class="dropdown-menu" style="left: auto; right: 0; min-width: 200px;">
+                    <div style="padding: 1.2rem 2.4rem; border-bottom: 1px solid #d1d7dc;">
+                        <div style="font-weight: 700; color: #2d2f31;" th:text="${user.name}">User Name</div>
+                        <div style="font-size: 1.2rem; color: #6a6f73;" th:text="${user.email}">user@example.com</div>
+                    </div>
+                    <a href="/profile" class="dropdown-item">My Profile</a>
+                    <a href="/profile?tab=security" class="dropdown-item">Change Password</a>
+                    <div style="border-top: 1px solid #d1d7dc; margin-top: 0.4rem;"></div>
+                    <form th:action="@{/logout}" method="post" style="width: 100%;">
+                        <button type="submit" class="dropdown-item"
+                            style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-family: inherit;">Logout</button>
+                    </form>
+                </div>
             </div>
             <div th:unless="${user != null}" style="display: flex; align-items: center; gap: 1.2rem;">
                 <a href="/login" class="btn btn-outline btn-sm">Log in</a>
@@ -230,47 +252,71 @@
 
 
     <!-- Footer -->
-    <footer>
-        <!-- Companies Banner -->
-        <div class="footer-companies-banner container">
-            <div class="footer-companies-text">Choose <span style="color: #cec0fc;">SkillHub
-                </span> to build in-demand career skills.</div>
-
+    <footer class="simple-footer">
+        <div class="container footer-simple-content">
+            <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/contact" class="footer-simple-link">Contact Us</a>
+            <a href="/terms" class="footer-simple-link">Terms</a>
+            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
         </div>
-
-        <div class="footer-content container">
-            <div class="footer-links-row">
-                <div class="footer-link-col">
-                    <a href="#" class="footer-link">SkillHub Business</a>
-                    <a href="#" class="footer-link">Teach on SkillHub</a>
-                    <a href="#" class="footer-link">Get the app</a>
-                    <a href="/about" class="footer-link">About us</a>
-                    <a href="/contact" class="footer-link">Contact us</a>
-                </div>
-                <div class="footer-link-col">
-                    <a href="#" class="footer-link">Careers</a>
-                    <a href="#" class="footer-link">Blog</a>
-                    <a href="#" class="footer-link">Help and Support</a>
-                    <a href="#" class="footer-link">Affiliate</a>
-                    <a href="#" class="footer-link">Investors</a>
-                </div>
-                <div class="footer-link-col">
-                    <a href="/terms" class="footer-link">Terms</a>
-                    <a href="/privacy" class="footer-link">Privacy policy</a>
-                    <a href="#" class="footer-link">Cookie settings</a>
-                    <a href="#" class="footer-link">Sitemap</a>
-                    <a href="#" class="footer-link">Accessibility statement</a>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-
-                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
-            </div>
+        <div class="container">
+            <div class="footer-copyright" style="text-align: center; margin-top: 2rem;">&copy; 2024 SkillHub, Inc.</div>
         </div>
     </footer>
 
     <script th:src="@{/js/script.js}"></script>
+    <script>
+        // Profile Dropdown Logic (User Request: Controlled state, delay, no flicker)
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            dropdowns.forEach(dropdown => {
+                const trigger = dropdown.querySelector('.categories-link') || dropdown.querySelector('.dropdown-toggle'); // Adjust selector if needed
+                const menu = dropdown.querySelector('.dropdown-menu');
+                let timeoutId;
+
+                if (!trigger || !menu) return;
+
+                // Mouse Enter: Show
+                dropdown.addEventListener('mouseenter', () => {
+                    clearTimeout(timeoutId);
+                    menu.style.display = 'block';
+                    // Small delay to allow transition if needed, or just block
+                    setTimeout(() => {
+                        menu.style.opacity = '1';
+                        menu.style.transform = 'translateY(0)';
+                    }, 10);
+                });
+
+                // Mouse Leave: Hide with Delay
+                dropdown.addEventListener('mouseleave', () => {
+                    timeoutId = setTimeout(() => {
+                        menu.style.opacity = '0';
+                        menu.style.transform = 'translateY(-10px)';
+                        setTimeout(() => {
+                            if (menu.style.opacity === '0') { // Check if still hidden
+                                menu.style.display = 'none';
+                            }
+                        }, 200); // Wait for animation
+                    }, 300); // 300ms delay before starting close
+                });
+
+                // Click support (Toggle)
+                trigger.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent accidental navigation if it's a link
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'block';
+                    if (isVisible) {
+                        menu.style.display = 'none';
+                    } else {
+                        menu.style.display = 'block';
+                        menu.style.opacity = '1';
+                        menu.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

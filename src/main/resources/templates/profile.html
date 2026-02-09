@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>My Profile | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
+    <link rel="stylesheet" th:href="@{/css/profile.css}" href="../static/css/profile.css">
+</head>
+
+<body>
+
+    <!-- Main Navbar (Copied/Reused Structure for simplicity) -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/home" class="logo">
+                <span class="logo-text">SkillHub</span>
+            </a>
+            <!-- Categories Dropdown (Simplified) -->
+            <div class="dropdown">
+                <div class="categories-link">Categories <i class="fas fa-chevron-down"
+                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
+            </div>
+        </div>
+        <div class="navbar-center"></div>
+        <div class="navbar-right">
+            <!-- User Dropdown with updated links -->
+            <div th:if="${user != null}" class="dropdown">
+                <div class="categories-link" style="display: flex; align-items: center; gap: 0.8rem;">
+                    <div
+                        style="background-color: #2d2f31; color: white; width: 3.2rem; height: 3.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                    </div>
+                </div>
+                <div class="dropdown-menu" style="left: auto; right: 0;">
+                    <div style="padding: 1.2rem 2.4rem; border-bottom: 1px solid #d1d7dc;">
+                        <div style="font-weight: 700; color: #2d2f31;" th:text="${user.name}">User Name</div>
+                        <div style="font-size: 1.2rem; color: #6a6f73;" th:text="${user.email}">user@example.com</div>
+                    </div>
+                    <a href="/profile" class="dropdown-item">My Profile</a>
+                    <form th:action="@{/logout}" method="post"><button class="dropdown-item"
+                            style="border:none; background:none; width:100%; text-align:left; cursor:pointer;">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Unified Profile Container -->
+    <div class="container profile-container">
+
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+            <div class="profile-avatar-box">
+                <div class="profile-avatar-lg">
+                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                </div>
+                <div class="profile-name-lg" th:text="${user.name}">User Name</div>
+            </div>
+
+            <button class="profile-nav-btn active" onclick="openTab(event, 'profile-tab')">
+                <i class="fas fa-user"></i> Profile
+            </button>
+            <button class="profile-nav-btn" onclick="openTab(event, 'courses-tab')">
+                <i class="fas fa-play-circle"></i> My Courses
+            </button>
+            <button class="profile-nav-btn" onclick="openTab(event, 'security-tab')">
+                <i class="fas fa-shield-alt"></i> Security
+            </button>
+
+            <form th:action="@{/logout}" method="post"
+                style="margin-top: auto; padding-top: 1.2rem; border-top: 1px solid #e0e0e0;">
+                <button type="submit" class="profile-nav-btn" style="color: #6a6f73;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+
+        <!-- Content Area -->
+        <div class="profile-content">
+            <!-- Messages -->
+            <div th:if="${success}" class="alert alert-success"
+                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 2.4rem;">
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger"
+                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 2.4rem;">
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Tab 1: Profile -->
+            <div id="profile-tab" class="tab-pane active">
+                <h2
+                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
+                    Public Profile</h2>
+                <form th:action="@{/profile}" method="post">
+                    <div class="form-group" style="margin-bottom: 1.6rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Full Name</label>
+                        <input type="text" name="name" th:value="${user.name}" class="form-control" required
+                            style="height: 4.8rem; font-size: 1.6rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.6rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Email</label>
+                        <input type="email" name="email" th:value="${user.email}" class="form-control" required
+                            style="height: 4.8rem; font-size: 1.6rem; background-color: #f7f9fa;" readonly>
+                        <div style="font-size: 1.2rem; color: #6a6f73; margin-top: 0.4rem;">Email cannot be changed
+                            directly for security reasons. Contact support.</div>
+                    </div>
+                    <div style="margin-top: 3.2rem;">
+                        <button type="submit" class="btn btn-primary"
+                            style="background-color: #2d2f31; font-weight: 700; padding: 1.2rem 2.4rem;">Save
+                            Profile</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab 2: My Courses -->
+            <div id="courses-tab" class="tab-pane">
+                <h2
+                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
+                    My Courses</h2>
+
+                <div th:if="${enrollments != null and not #lists.isEmpty(enrollments)}">
+                    <div th:each="enrollment : ${enrollments}" class="my-course-card">
+                        <!-- Placeholder image if Course has no image url, assumed course structure -->
+                        <div class="my-course-img"
+                            style="background-color: #2d2f31; display:flex; align-items:center; justify-content:center; color:white;">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h3 style="font-size: 1.6rem; margin-bottom: 0.4rem;" th:text="${enrollment.course.title}">
+                                Course Title</h3>
+                            <a th:href="@{'/courses/view/' + ${enrollment.course.id}}"
+                                style="color: #5624d0; font-weight: 700; font-size: 1.4rem;">Go to Course</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${enrollments == null or #lists.isEmpty(enrollments)}"
+                    style="text-align: center; padding: 4.8rem 0;">
+                    <div style="font-size: 6rem; color: #d1d7dc; margin-bottom: 1.6rem;"><i
+                            class="fas fa-book-open"></i></div>
+                    <p style="font-size: 1.6rem;">You haven't enrolled in any courses yet.</p>
+                    <a href="/home" class="btn btn-primary" style="margin-top: 1.6rem; display:inline-block;">Browse
+                        Courses</a>
+                </div>
+            </div>
+
+            <!-- Tab 3: Security -->
+            <div id="security-tab" class="tab-pane">
+                <h2
+                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
+                    Change Password</h2>
+                <form th:action="@{/change-password}" method="post">
+                    <div class="form-group" style="margin-bottom: 1.6rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required
+                            style="height: 4.8rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.6rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required style="height: 4.8rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.6rem;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Confirm New
+                            Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required
+                            style="height: 4.8rem;">
+                    </div>
+                    <div style="margin-top: 3.2rem;">
+                        <button type="submit" class="btn btn-primary"
+                            style="background-color: #2d2f31; font-weight: 700; padding: 1.2rem 2.4rem;">Update
+                            Password</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all elements with class="tab-pane"
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-pane");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+
+            // Remove "active" class from all buttons
+            tablinks = document.getElementsByClassName("profile-nav-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show current tab and add proper class
+            document.getElementById(tabName).style.display = "block";
+            // small delay to allow display block to apply before opacity for animation (simplified here)
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.className += " active";
+        }
+
+        // Auto-switch tab based on URL param
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'courses') {
+                document.querySelector("button[onclick*='courses-tab']").click();
+            } else if (tab === 'security') {
+                document.querySelector("button[onclick*='security-tab']").click();
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
