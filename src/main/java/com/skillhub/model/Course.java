@@ -13,6 +13,7 @@ public class Course {
     private Long id;
 
     private String title;
+    @Column(name = "course_subtitle", columnDefinition = "LONGTEXT")
     private String subtitle; // Short description
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -36,6 +37,8 @@ public class Course {
     private boolean isPublished = false;
     private String lastUpdated;
 
+    private String videoUrl;
+
     @Column(columnDefinition = "TEXT")
     private String learningObjectives; // New line separated
 
@@ -55,6 +58,9 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Wishlist> wishlist = new ArrayList<>();
 
     // Transient fields for UI display (not stored in DB, calculated)
     @Transient
@@ -177,6 +183,14 @@ public class Course {
         this.lastUpdated = lastUpdated;
     }
 
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
     public String getLearningObjectives() {
         return learningObjectives;
     }
@@ -223,6 +237,14 @@ public class Course {
 
     public void setEnrollments(List<Enrollment> enrollments) {
         this.enrollments = enrollments;
+    }
+
+    public List<Wishlist> getWishlist() {
+        return wishlist;
+    }
+
+    public void setWishlist(List<Wishlist> wishlist) {
+        this.wishlist = wishlist;
     }
 
     public Double getAverageRating() {

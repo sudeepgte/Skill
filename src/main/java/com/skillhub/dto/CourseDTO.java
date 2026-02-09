@@ -21,6 +21,7 @@ public class CourseDTO {
     private String contentLength;
     private Double averageRating;
     private Integer reviewCount;
+    private String videoUrl;
     private List<SectionDTO> sections;
 
     public CourseDTO() {
@@ -177,5 +178,43 @@ public class CourseDTO {
 
     public void setSections(List<SectionDTO> sections) {
         this.sections = sections;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getEmbedUrl() {
+        if (videoUrl == null)
+            return null;
+        if (videoUrl.contains("youtube.com") || videoUrl.contains("youtu.be")) {
+            String videoId = "";
+            if (videoUrl.contains("youtu.be/")) {
+                videoId = videoUrl.substring(videoUrl.lastIndexOf("/") + 1);
+                if (videoId.contains("?")) {
+                    videoId = videoId.substring(0, videoId.indexOf("?"));
+                }
+            } else if (videoUrl.contains("v=")) {
+                int index = videoUrl.indexOf("v=");
+                videoId = videoUrl.substring(index + 2);
+                if (videoId.contains("&")) {
+                    videoId = videoId.substring(0, videoId.indexOf("&"));
+                }
+            } else if (videoUrl.contains("embed/")) {
+                videoId = videoUrl.substring(videoUrl.indexOf("embed/") + 6);
+                if (videoId.contains("?")) {
+                    videoId = videoId.substring(0, videoId.indexOf("?"));
+                }
+            }
+
+            if (!videoId.isEmpty()) {
+                return "https://www.youtube.com/embed/" + videoId;
+            }
+        }
+        return videoUrl;
     }
 }

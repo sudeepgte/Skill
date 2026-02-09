@@ -97,7 +97,7 @@
 
         <div th:object="${course}">
             <!-- Decoupled Main Form -->
-            <form id="courseForm" th:action="@{/admin/courses/save}" method="post"></form>
+            <form id="courseForm" th:action="@{/admin/courses/save}" method="post" enctype="multipart/form-data"></form>
             <!-- Hidden ID for Updates -->
             <input type="hidden" th:field="*{id}" form="courseForm">
 
@@ -209,19 +209,6 @@
                 </div>
             </div>
 
-            <!-- Course Media -->
-            <div class="form-section">
-                <div class="section-title">Course Media</div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Course Image URL</label>
-                    <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="https://..." required
-                        form="courseForm">
-                    <div class="help-text">Paste a direct link to a 16:9 image (e.g., Unsplash, Imgur, or hosted asset).
-                    </div>
-                </div>
-            </div>
-
             <!-- Descriptions & Objectives -->
             <div class="form-section">
                 <div class="section-title">Description & Intended Learners</div>
@@ -247,60 +234,44 @@
                 </div>
             </div>
 
-            <!-- Upload Video Section (Moved) -->
-            <div class="form-container"
-                style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); margin-bottom: 2rem; border: 1px solid #e1e4e8;">
-                <h2
-                    style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e1e4e8;">
-                    Upload Video Resource</h2>
-                <p style="color: #6a6f73; margin-bottom: 2rem;">Upload videos to the library. These will be visible on
-                    the home page.</p>
+            <!-- Course Media & Video (Preview/Promo) -->
+            <div class="form-section">
+                <div class="section-title">Course Promo Media</div>
+                <div class="help-text">This is the main promotional video shown to unsubscribed users.</div>
 
-                <form th:action="@{/admin/upload}" method="post" enctype="multipart/form-data">
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Video Title</label>
-                        <input type="text" name="title" placeholder="e.g. Intro to Python" required
-                            style="width: 100%; padding: 10px; border: 1px solid #2d2f31; border-radius: 0;">
+                <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
+                    <label class="form-label">Course Image URL</label>
+                    <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="https://..." required
+                        form="courseForm">
+                    <div class="help-text">Paste a direct link to a 16:9 image (e.g., Unsplash, Imgur, or hosted asset).
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label">Promo Video</label>
+                    <div class="help-text" style="margin-bottom: 10px;">Upload a video file OR provide a YouTube URL.
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Category</label>
-                        <select name="categoryId" required
-                            style="width: 100%; padding: 10px; border: 1px solid #2d2f31; border-radius: 0;">
-                            <option value="" disabled selected>Select a Category...</option>
-                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category
-                            </option>
-                        </select>
+                    <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                        <label style="font-weight: normal;">
+                            <input type="radio" name="uploadType" value="file" checked onchange="toggleUploadType()"
+                                form="courseForm" style="width: auto;">
+                            Upload File
+                        </label>
+                        <label style="font-weight: normal;">
+                            <input type="radio" name="uploadType" value="youtube" onchange="toggleUploadType()"
+                                form="courseForm" style="width: auto;">
+                            YouTube URL
+                        </label>
                     </div>
 
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Upload Type</label>
-                        <div style="display: flex; gap: 20px;">
-                            <label style="font-weight: normal;">
-                                <input type="radio" name="uploadType" value="file" checked onchange="toggleUploadType()"
-                                    style="width: auto;">
-                                Upload File
-                            </label>
-                            <label style="font-weight: normal;">
-                                <input type="radio" name="uploadType" value="youtube" onchange="toggleUploadType()"
-                                    style="width: auto;">
-                                YouTube URL
-                            </label>
-                        </div>
+                    <div id="fileGroup">
+                        <input type="file" name="videoFile" accept="video/*" class="form-control" form="courseForm">
                     </div>
 
-                    <div class="form-group" id="fileGroup" style="margin-bottom: 1.5rem;">
-                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Select Video
-                            File</label>
-                        <input type="file" name="file" accept="video/*"
-                            style="border: 1px solid #2d2f31; padding: 10px; width: 100%; border-radius: 0;">
-                    </div>
-
-                    <div class="form-group" id="youtubeGroup" style="display: none; margin-bottom: 1.5rem;">
-                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">YouTube Video
-                            URL</label>
+                    <div id="youtubeGroup" style="display: none;">
                         <input type="text" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..."
-                            style="border: 1px solid #2d2f31; padding: 10px; width: 100%; border-radius: 0;">
+                            class="form-control" form="courseForm">
                     </div>
 
                     <script>
@@ -308,29 +279,115 @@
                             const type = document.querySelector('input[name="uploadType"]:checked').value;
                             const fileGroup = document.getElementById('fileGroup');
                             const youtubeGroup = document.getElementById('youtubeGroup');
-                            const fileInput = document.querySelector('input[name="file"]');
-                            const youtubeInput = document.querySelector('input[name="youtubeUrl"]');
 
                             if (type === 'file') {
                                 fileGroup.style.display = 'block';
                                 youtubeGroup.style.display = 'none';
-                                fileInput.required = true;
-                                youtubeInput.required = false;
-                                youtubeInput.value = '';
                             } else {
                                 fileGroup.style.display = 'none';
                                 youtubeGroup.style.display = 'block';
-                                fileInput.required = false;
-                                youtubeInput.required = true;
-                                fileInput.value = '';
                             }
                         }
                     </script>
+                </div>
+            </div>
 
-                    <button type="submit" class="btn btn-primary"
-                        style="background-color: #2d2f31; color: white; padding: 12px 24px; border: none; font-weight: 700; cursor: pointer;">Upload
-                        to Library</button>
-                </form>
+            <!-- COURSE CURRICULUM (Only for existing courses) -->
+            <div class="form-section" th:if="${course.id != null}">
+                <div class="section-title">Course Curriculum</div>
+                <div class="help-text" style="margin-bottom: 1.5rem;">Add sections and lectures to your course.</div>
+
+                <!-- List Sections -->
+                <div th:each="section : ${course.sections}"
+                    style="background: #f8f9fa; border: 1px solid #e1e4e8; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">
+                            <i class="fas fa-folder-open" style="margin-right: 8px; color: #6a6f73;"></i>
+                            <span th:text="${section.title}">Section Title</span>
+                        </h3>
+                        <form th:action="@{/admin/curriculum/sections/delete}" method="post"
+                            onsubmit="return confirm('Delete this section and all its lectures?');"
+                            style="display: inline;">
+                            <input type="hidden" name="sectionId" th:value="${section.id}">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <button type="submit"
+                                style="color: #dc3545; background: none; border: none; cursor: pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- List Lectures -->
+                    <div th:if="${not #lists.isEmpty(section.lectures)}"
+                        style="margin-left: 1rem; margin-bottom: 1rem;">
+                        <div th:each="lecture : ${section.lectures}"
+                            style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: white;">
+                            <span>
+                                <i class="fas fa-play-circle" style="margin-right: 8px; color: #a435f0;"></i>
+                                <span th:text="${lecture.title}">Lecture Title</span>
+                                <span th:if="${lecture.preview}"
+                                    style="font-size: 0.8em; background: #e6fcf5; color: #0ca678; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Preview</span>
+                            </span>
+                            <form th:action="@{/admin/curriculum/lectures/delete}" method="post"
+                                onsubmit="return confirm('Delete this lecture?');" style="display: inline;">
+                                <input type="hidden" name="lectureId" th:value="${lecture.id}">
+                                <input type="hidden" name="courseId" th:value="${course.id}">
+                                <button type="submit"
+                                    style="color: #6a6f73; background: none; border: none; cursor: pointer;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Add Lecture Form -->
+                    <div style="margin-top: 1rem; padding: 1rem; background: #fff; border: 1px dashed #ccc;">
+                        <h4 style="font-size: 0.9rem; margin-top: 0; margin-bottom: 10px;">+ Add Lecture</h4>
+                        <form th:action="@{/admin/curriculum/lectures/add}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <input type="hidden" name="sectionId" th:value="${section.id}">
+
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                <input type="text" name="title" class="form-control" placeholder="Lecture Title"
+                                    required>
+                                <label style="display: flex; align-items: center; font-size: 0.9rem;">
+                                    <input type="checkbox" name="isPreview" style="margin-right: 5px;"> Free Preview
+                                </label>
+                            </div>
+
+                            <div style="margin-bottom: 10px;">
+                                <input type="file" name="videoFile" accept="video/*" class="form-control"
+                                    style="margin-bottom: 5px;">
+                                <input type="text" name="youtubeUrl" class="form-control"
+                                    placeholder="OR paste YouTube URL">
+                            </div>
+
+                            <button type="submit" class="btn-submit"
+                                style="padding: 8px 16px; font-size: 0.9rem; background-color: #2d2f31;">Add
+                                Lecture</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Add Section Form -->
+                <div
+                    style="background: #f0f2f5; padding: 1.5rem; border-radius: 4px; border: 2px dashed #ccc; text-align: center;">
+                    <form th:action="@{/admin/curriculum/sections/add}" method="post" style="display: flex; gap: 10px;">
+                        <input type="hidden" name="courseId" th:value="${course.id}">
+                        <input type="text" name="title" class="form-control"
+                            placeholder="New Section Title (e.g. Module 1)" required>
+                        <button type="submit" class="btn-submit" style="white-space: nowrap;">Add Section</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="form-section" th:if="${course.id == null}">
+                <div class="section-title">Course Curriculum</div>
+                <div style="color: #6a6f73; font-style: italic;">
+                    <i class="fas fa-info-circle"></i> Please create/save the course first to start adding sections and
+                    lectures.
+                </div>
             </div>
 
             <!-- Actions -->

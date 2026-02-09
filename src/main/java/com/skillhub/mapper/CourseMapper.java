@@ -39,7 +39,9 @@ public class CourseMapper {
         dto.setLearningObjectives(course.getLearningObjectives());
         dto.setRequirements(course.getRequirements());
         dto.setLongDescription(course.getLongDescription());
+        dto.setLongDescription(course.getLongDescription());
         dto.setContentLength(course.getContentLength());
+        dto.setVideoUrl(course.getVideoUrl());
 
         // Map transient fields if computed or set
         dto.setAverageRating(course.getAverageRating());
