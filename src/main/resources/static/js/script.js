@@ -21,6 +21,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Optional: Hero Carousel Auto-play logic could go here
-    // For now static hero image as per original simple design, but styled better.
-});
+    // --- Hero Image Carousel Logic ---
+    const track = document.querySelector('.carousel-track');
+    if (track) {
+        const slides = Array.from(track.children);
+        const nextButton = document.querySelector('.carousel-next');
+        const prevButton = document.querySelector('.carousel-prev');
+        const slideWidth = slides[0].getBoundingClientRect().width;
+
+        // Arrange slides next to one another
+        const setSlidePosition = (slide, index) => {
+            slide.style.left = slideWidth * index + 'px';
+        };
+        slides.forEach(setSlidePosition);
+
+        const moveToSlide = (track, currentSlide, targetSlide) => {
+            track.style.transform = 'translateX(-' + targetSlide.style.left + ')';
+            currentSlide.classList.remove('current-slide');
+            targetSlide.classList.add('current-slide');
+        }
+
+        // Initialize first slide as current
+        slides[0].classList.add('current-slide');
+
+        // Next Button
+        nextButton.addEventListener('click', e => {
+            const currentSlide = track.querySelector('.current-slide');
+            let nextSlide = currentSlide.nextElementSibling;
+            if (!nextSlide) {
+                nextSlide = slides[0]; // Loop back to start
+            }
+            moveToSlide(track, currentSlide, nextSlide);
+        });
+
+        // Prev Button
+        prevButton.addEventListener('click', e => {
+            const currentSlide = track.querySelector('.current-slide');
+            let prevSlide = currentSlide.previousElementSibling;
+            if (!prevSlide) {
+                prevSlide = slides[slides.length - 1]; // Loop to end
+            }
+            moveToSlide(track, currentSlide, prevSlide);
+        });
+
+        // Auto-Slide
+        setInterval(() => {
+            const currentSlide = track.querySelector('.current-slide');
+            let nextSlide = currentSlide.nextElementSibling;
+            if (!nextSlide) {
+                nextSlide = slides[0];
+            }
+            moveToSlide(track, currentSlide, nextSlide);
+        }, 5000); // 5 seconds
+    }

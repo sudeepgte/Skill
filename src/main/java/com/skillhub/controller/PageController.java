@@ -74,4 +74,40 @@ public class PageController {
         }
         return "home";
     }
+
+    @GetMapping("/about")
+    public String about(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "about";
+    }
+
+    @GetMapping("/contact")
+    public String contact(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "contact";
+    }
+
+    @GetMapping("/terms")
+    public String terms(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "terms";
+    }
+
+    @GetMapping("/privacy")
+    public String privacy(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "privacy";
+    }
 }

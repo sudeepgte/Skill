@@ -5,6 +5,9 @@
     <title>Sign Up | SkillHub</title>
     <!-- Use style.css -->
     <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
 </head>
 
 <body>
@@ -18,61 +21,67 @@
     </nav>
 
     <div class="auth-page-container">
-        <div class="auth-card">
-            <h3 class="auth-header" th:text="${isAdmin} ? 'Admin Sign Up' : 'Sign up and start learning'">Sign up and
-                start learning</h3>
-
-            <div th:if="${param.error}" class="alert"
-                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700;">
-                Email already in use.
+        <div class="container auth-split-container">
+            <!-- Left: Illustration -->
+            <div class="auth-illustration">
+                <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp"
+                    alt="Sign up to SkillHub" style="max-width: 380px;">
             </div>
 
-            <form th:action="@{/saveUser}" th:object="${user}" method="post">
-                <div class="form-group">
-                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
-                </div>
+            <!-- Right: Form -->
+            <div class="auth-form-side">
+                <h3 class="auth-header" th:text="${isAdmin} ? 'Admin Sign Up' : 'Sign up and start learning'">Sign up
+                    and start learning</h3>
 
-                <div class="form-group">
-                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
-                </div>
+                <form th:action="@{/saveUser}" th:object="${user}" method="post">
+                    <div class="form-group">
+                        <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
+                    </div>
 
-                <div class="form-group">
-                    <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
-                </div>
+                    <div class="form-group">
+                        <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                    </div>
 
-                <!-- Role Selection for normal registration -->
-                <div class="form-group" th:if="${!isAdmin}">
-                    <select th:field="*{role}" class="form-control" required>
-                        <option value="" disabled selected>Select Account Type</option>
-                        <option value="STUDENT">Student</option>
-                        <option value="INSTRUCTOR">Instructor</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <input type="password" th:field="*{password}" class="form-control" placeholder="Password"
+                            required>
+                    </div>
 
-                <!-- Hidden Role for Admin registration -->
-                <div th:if="${isAdmin}">
-                    <input type="hidden" name="role" value="ADMIN">
-                </div>
+                    <!-- Role Selection for normal registration -->
+                    <div class="form-group" th:if="${!isAdmin}">
+                        <select th:field="*{role}" class="form-control" required style="cursor: pointer;">
+                            <option value="" disabled selected>Select Account Type</option>
+                            <option value="STUDENT">Student</option>
+                            <option value="INSTRUCTOR">Instructor</option>
+                        </select>
+                    </div>
 
-                <!-- Checkbox for offers (Visual only) -->
-                <div style="display: flex; gap: 0.8rem; margin-bottom: 1.6rem; align-items: flex-start;">
-                    <input type="checkbox" style="margin-top: 0.4rem;">
-                    <span class="text-xs">Send me special offers, personalized recommendations, and learning
-                        tips.</span>
-                </div>
+                    <!-- Hidden Role for Admin registration -->
+                    <div th:if="${isAdmin}">
+                        <input type="hidden" name="role" value="ADMIN">
+                    </div>
 
-                <button type="submit" class="btn btn-primary btn-full">Sign up</button>
-            </form>
+                    <!-- Visual Checkbox from reference -->
+                    <div style="display: flex; gap: 0.8rem; margin-bottom: 1.6rem; align-items: flex-start;">
+                        <input type="checkbox" style="margin-top: 0.4rem; accent-color: var(--color-primary);">
+                        <span class="text-xs" style="color: var(--color-text-main);">Send me special offers,
+                            personalized recommendations, and learning tips.</span>
+                    </div>
 
-            <div style="font-size: 1.2rem; text-align: center; margin-top: 1.6rem;">
-                By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.
+                    <button type="submit" class="btn btn-primary btn-full">Sign up</button>
+
+                    <div
+                        style="font-size: 1.2rem; text-align: center; margin-top: 1.2rem; color: var(--color-text-secondary);">
+                        <div class="footer-link-col"></div>
+                        <!-- Removed Footer Links -->
+                    </div>
+
+                    <div style="margin-top: 2.4rem; text-align: center; font-size: 1.5rem;">
+                        Already have an account? <a href="/login"
+                            style="color: var(--color-primary); font-weight: 700; text-decoration: underline;">Log
+                            in</a>
+                    </div>
             </div>
-
-            <p
-                style="text-align: center; margin-top: 2.4rem; font-size: 1.4rem; border-top: 1px solid #d1d7dc; padding-top: 1.6rem;">
-                Already have an account? <a href="/login"
-                    style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Log in</a>
-            </p>
         </div>
     </div>
 

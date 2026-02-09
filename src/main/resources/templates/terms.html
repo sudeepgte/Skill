@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Terms of Use | SkillHub</title>
+    <!-- Use standard page layout -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Merriweather:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <style>
+        .legal-container {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 6.4rem 2rem;
+        }
+
+        .legal-title {
+            font-family: 'Merriweather', serif;
+            font-size: 3.6rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .legal-updated {
+            color: #6a6f73;
+            font-size: 1.4rem;
+            margin-bottom: 4rem;
+        }
+
+        .legal-content h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-top: 3.2rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .legal-content p {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin-bottom: 1.6rem;
+        }
+
+        .legal-content ul {
+            padding-left: 2rem;
+            margin-bottom: 1.6rem;
+            font-size: 1.6rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-left"><a href="/" class="logo"><span class="logo-text">SkillHub</span></a></div>
+    </nav>
+
+    <div class="legal-container">
+        <h1 class="legal-title">Terms of Use</h1>
+        <p class="legal-updated">Last Updated: February 6, 2026</p>
+
+        <div class="legal-content">
+            <p>Welcome to SkillHub. By accessing our website, you agree to these Terms of Use and our Privacy Policy.
+            </p>
+
+            <h2>1. Accounts</h2>
+            <p>You need an account for most activities on our platform. Keep your password safe, because you’re
+                responsible for all activity associated with your account. If you suspect someone else is using your
+                account, let us know by contacting our Support Team.</p>
+
+            <h2>2. Content Enrollment and Lifetime Access</h2>
+            <p>When you enroll in a course, you get a license from us to view it via the SkillHub Services and no other
+                use. Don’t try to transfer or resell courses in any way.</p>
+
+            <h2>3. Payments, Credits, and Refunds</h2>
+            <p>When you make a payment, you agree to use a valid payment method. If you aren’t happy with your content,
+                SkillHub offers a 30-day refund or credit for most content purchases.</p>
+
+            <h2>4. Content and Behavior Rules</h2>
+            <p>You may not access or use the Services or create an account for unlawful purposes. Your use of the
+                Services and behavior on our platform must comply with applicable local or national laws or regulations
+                of your country.</p>
+
+            <h2>5. SkillHub's Rights</h2>
+            <p>We own the SkillHub platform and Services, including the website, present or future apps and services,
+                and things like our logos, API, code, and content created by our employees. You can’t tamper with those
+                or use them without authorization.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content container">
+            <div class="footer-links-row">
+                <div class="footer-link-col">
+                    <a href="/about" class="footer-link">About us</a>
+                    <a href="/contact" class="footer-link">Contact us</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="/terms" class="footer-link">Terms</a>
+                    <a href="/privacy" class="footer-link">Privacy policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

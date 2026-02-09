@@ -4,7 +4,7 @@
 <head>
     <title>My Learning | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -12,28 +12,31 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/home" class="logo">
-            <span class="logo-text">SkillHub</span>
-        </a>
+        <div class="navbar-left">
+            <a href="/home" class="logo">
+                <span class="logo-text">SkillHub</span>
+            </a>
 
-        <div class="categories-link">Categories</div>
-
-        <div class="search-container">
-            <button class="search-icon-btn"><i class="fas fa-search"></i></button>
-            <form action="/home" style="width: 100%;">
-                <input type="text" name="query" class="search-input" placeholder="Search for anything"
-                    th:value="${searchQuery}">
-            </form>
+            <div class="categories-link">Categories</div>
         </div>
 
-        <div class="nav-actions">
-            <!-- My Learning Link -->
-            <a href="#" class="nav-link">My Learning</a>
+        <div class="navbar-center">
+            <div class="search-container">
+                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
+                <form action="/home" style="width: 100%;">
+                    <input type="text" name="query" class="search-input" placeholder="Search for anything"
+                        th:value="${searchQuery}">
+                </form>
+            </div>
+        </div>
 
-            <!-- Icons -->
-            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="far fa-heart"></i></a>
-            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="fas fa-shopping-cart"></i></a>
-            <a href="#" class="btn btn-ghost btn-icon" style="font-size: 2rem;"><i class="far fa-bell"></i></a>
+        <div class="navbar-right">
+            <!-- My Learning Link -->
+            <a href="#" class="categories-link">My Learning</a>
+
+            <!-- Icons (Cart Removed) -->
+            <a href="#" class="btn btn-ghost btn-icon"><i class="far fa-heart" style="font-size: 2rem;"></i></a>
+            <a href="#" class="btn btn-ghost btn-icon"><i class="far fa-bell" style="font-size: 2rem;"></i></a>
 
             <!-- User Avatar -->
             <div
@@ -41,7 +44,7 @@
                 <span th:text="${#strings.substring(user.name,0,1)}">U</span>
             </div>
 
-            <!-- Logout (simulated link/button) -->
+            <!-- Logout -->
             <form th:action="@{/logout}" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-ghost text-sm"
                     style="font-weight: 400; text-decoration: underline;">Logout</button>
@@ -49,12 +52,15 @@
         </div>
     </nav>
 
+
+
     <!-- Welcome Header / Hero -->
-    <!-- Logged in hero is simpler, black background -->
-    <div style="background-color: var(--color-black); color: white; padding: 4.8rem 0;">
+    <div
+        style="background: linear-gradient(to right, #2d2f31, #1c1d1f); color: white; padding: 4.8rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
         <div class="container">
-            <h1 style="color: white; font-family: 'Merriweather', serif; font-size: 3.2rem; margin-bottom: 0;"
+            <h1 style="color: white; font-family: 'Merriweather', serif; font-size: 3.2rem; margin-bottom: 0.8rem;"
                 th:text="'Welcome back, ' + ${user.name}">Welcome back, User</h1>
+            <p style="font-size: 1.6rem; opacity: 0.9;">Pick up where you left off</p>
         </div>
     </div>
 
@@ -87,23 +93,22 @@
                 <div class="course-image">
                     <img th:src="${course.imageUrl}" alt="Course">
                 </div>
-                <h3 class="course-title" th:text="${course.title}">Course Title</h3>
-                <div class="course-author" th:text="${course.instructor}">Instructor</div>
+                <div class="course-content">
+                    <h3 class="course-title" th:text="${course.title}">Course Title</h3>
+                    <div class="course-author" th:text="${course.instructor}">Instructor</div>
 
-                <!-- Progress bar simulation for logged in user? (Optional) -->
-                <!-- <div style="width: 100%; height: 4px; background: #d1d7dc; margin-bottom: 0.8rem;"><div style="width: 40%; height: 100%; background: #a435f0;"></div></div> -->
+                    <!-- Progress bar simulation for logged in user? (Optional) -->
+                    <!-- <div style="width: 100%; height: 4px; background: #d1d7dc; margin-bottom: 0.8rem;"><div style="width: 40%; height: 100%; background: #a435f0;"></div></div> -->
 
-                <div class="course-rating">
-                    <span class="rating-number">4.7</span>
-                    <div class="rating-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                            class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    <div class="course-rating">
+                        <span class="rating-number">4.7</span>
+                        <div class="rating-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
                     </div>
+                    <div class="course-price" th:text="'₹' + ${course.price}">₹499</div>
                 </div>
-                <!-- Note: Logged in "My Learning" usually doesn't show price, but if this is "Recommended", it does. 
-                      Assuming this is 'Browse' or 'Recommended' view for now based on context. 
-                  -->
-                <div class="course-price" th:text="'₹' + ${course.price}">₹499</div>
             </a>
         </div>
 
@@ -111,9 +116,51 @@
 
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <div class="footer-logo">SkillHub</div>
-            <p class="footer-copyright">&copy; 2024 SkillHub, Inc.</p>
+        <!-- Companies Banner -->
+        <div class="footer-companies-banner container">
+            <div class="footer-companies-text">Top companies choose <span style="color: #cec0fc;">SkillHub
+                    Business</span> to build in-demand career skills.</div>
+            <div class="footer-companies-logos">
+                <span style="font-weight: 700; font-size: 1.6rem;">Nasdaq</span>
+                <span style="font-weight: 700; font-size: 1.6rem;">Volkswagen</span>
+                <span style="font-weight: 700; font-size: 1.6rem;">Box</span>
+                <span style="font-weight: 700; font-size: 1.6rem;">NetApp</span>
+                <span style="font-weight: 700; font-size: 1.6rem;">Eventbrite</span>
+            </div>
+        </div>
+
+        <div class="footer-content container">
+            <div class="footer-links-row">
+                <div class="footer-link-col">
+                    <a href="#" class="footer-link">SkillHub Business</a>
+                    <a href="#" class="footer-link">Teach on SkillHub</a>
+                    <a href="#" class="footer-link">Get the app</a>
+                    <a href="/about" class="footer-link">About us</a>
+                    <a href="/contact" class="footer-link">Contact us</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="#" class="footer-link">Careers</a>
+                    <a href="#" class="footer-link">Blog</a>
+                    <a href="#" class="footer-link">Help and Support</a>
+                    <a href="#" class="footer-link">Affiliate</a>
+                    <a href="#" class="footer-link">Investors</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="/terms" class="footer-link">Terms</a>
+                    <a href="/privacy" class="footer-link">Privacy policy</a>
+                    <a href="#" class="footer-link">Cookie settings</a>
+                    <a href="#" class="footer-link">Sitemap</a>
+                    <a href="#" class="footer-link">Accessibility statement</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <a href="/" class="logo">
+                    <img src="https://www.udemy.com/staticx/udemy/images/v7/logo-udemy-inverted.svg" alt="SkillHub"
+                        style="height: 3.2rem;">
+                </a>
+                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+            </div>
         </div>
     </footer>
 

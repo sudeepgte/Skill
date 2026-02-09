@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>About Us | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+
+    <style>
+        .page-header {
+            background-color: #f7f9fa;
+            padding: 6.4rem 0;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 1.6rem;
+            color: #1c1d1f;
+        }
+
+        .page-header p {
+            font-size: 1.9rem;
+            max-width: 80rem;
+            margin: 0 auto;
+            line-height: 1.4;
+            color: #2d2f31;
+        }
+
+        .content-section {
+            padding: 6.4rem 0;
+        }
+
+        .mission-box {
+            max-width: 80rem;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .mission-box h2 {
+            font-size: 2.4rem;
+            margin-bottom: 2.4rem;
+            font-weight: 700;
+        }
+
+        .mission-box p {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 4.8rem;
+        }
+
+        .value-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            color: #a435f0;
+            margin-bottom: 1.6rem;
+        }
+
+        .value-item h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/" class="logo"><span class="logo-text">SkillHub</span></a>
+            <div class="dropdown">
+                <div class="categories-link">Categories <i class="fas fa-chevron-down"
+                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
+                <div class="dropdown-menu">
+                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item">
+                        <span th:text="${cat.name}">Category</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-center">
+            <div class="search-container">
+                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
+                <form action="/" style="width: 100%;">
+                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
+                </form>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <div th:if="${user != null}" style="display: flex; align-items: center; gap: 1rem;">
+                <a href="/dashboard" class="btn btn-primary btn-icon" style="width: 4rem; height: 4rem; color: white;">
+                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                </a>
+            </div>
+            <div th:unless="${user != null}" style="display: flex; align-items: center; gap: 1.2rem;">
+                <a href="/login" class="btn btn-outline btn-sm">Log in</a>
+                <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1>We share knowledge with the world</h1>
+            <p>SkillHub is a global destination for online learning, connecting people through knowledge.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-section">
+        <div class="container">
+            <div class="mission-box">
+                <h2>Changing learning for the better</h2>
+                <p>Whether you want to learn a new skill, train your team, or share what you know with the world, you’re
+                    in the right place. As a leader in online learning, we’re here to help you achieve your goals and
+                    transform your life.</p>
+                <p>We help organizations of all types and sizes prepare for the path ahead — wherever it leads. Our
+                    curated collection of business and technical courses help companies, governments, and nonprofits go
+                    further by placing learning at the center of their strategies.</p>
+
+                <div class="values-grid">
+                    <div class="value-item">
+                        <i class="fas fa-bullseye value-icon"></i>
+                        <h3>Work with purpose</h3>
+                        <p>We are dedicated to creating access to knowledge for everyone, everywhere.</p>
+                    </div>
+                    <div class="value-item">
+                        <i class="fas fa-users value-icon"></i>
+                        <h3>Community focused</h3>
+                        <p>We believe in the power of connecting learners and instructors to share opportunities.</p>
+                    </div>
+                    <div class="value-item">
+                        <i class="fas fa-lightbulb value-icon"></i>
+                        <h3>Always learning</h3>
+                        <p>We practice what we preach, constantly learning and improving our platform.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 6.4rem;">
+                    <a href="/" class="btn btn-primary">Start Learning Today</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content container">
+            <div class="footer-links-row">
+                <div class="footer-link-col">
+                    <a href="/about" class="footer-link">About us</a>
+                    <a href="/contact" class="footer-link">Contact us</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="#" class="footer-link">Careers</a>
+                    <a href="#" class="footer-link">Blog</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="/terms" class="footer-link">Terms</a>
+                    <a href="/privacy" class="footer-link">Privacy policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <a href="/" class="logo">
+                    <h2 style="color:white; margin:0;">SkillHub</h2>
+                </a>
+                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
