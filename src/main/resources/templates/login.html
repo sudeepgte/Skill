@@ -5,11 +5,14 @@
     <title>Login | SkillHub</title>
     <!-- Use style.css instead of outdated main.css -->
     <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
 </head>
 
 <body>
 
-    <!-- Simple Navbar/Header for Auth -->
+    <!-- Simple Navbar -->
     <nav
         style="height: 7.2rem; display: flex; align-items: center; padding: 0 2.4rem; border-bottom: 1px solid #e0e0e0;">
         <a href="/" class="logo">
@@ -18,60 +21,63 @@
     </nav>
 
     <div class="auth-page-container">
-        <div class="auth-card">
-            <h3 class="auth-header">Log in to your account</h3>
-
-            <!-- Social Login Placeholders -->
-            <button class="social-btn">
-                <i class="fab fa-google" style="color: #4285F4;"></i>
-                Continue with Google
-            </button>
-            <button class="social-btn">
-                <i class="fab fa-facebook" style="color: #1877F2;"></i>
-                Continue with Facebook
-            </button>
-            <button class="social-btn">
-                <i class="fab fa-apple"></i>
-                Continue with Apple
-            </button>
-
-            <!-- Separator -->
-            <!-- We'll skip the complex separator CSS logic for now and just use margin, 
-                 or trust the style.css class I added if rendered correctly. -->
-            <div class="form-group" style="text-align: center; margin: 1rem 0; font-weight: 700; font-size: 1.2rem;">
-                <br>
-                <span>or</span>
+        <div class="container auth-split-container">
+            <!-- Left: Illustration (Same as Register for consistency) -->
+            <div class="auth-illustration">
+                <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp"
+                    alt="Log in to SkillHub" style="max-width: 380px;">
             </div>
 
-            <div th:if="${param.error}" class="alert"
-                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700;">
-                Invalid email or password.
-            </div>
-            <div th:if="${param.logout}" class="alert alert-success"
-                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
-                You have been logged out.
-            </div>
-            <div th:if="${param.success}" class="alert alert-success"
-                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
-                Registration successful! Please login.
-            </div>
+            <!-- Right: Form -->
+            <div class="auth-form-side">
+                <h3 class="auth-header">Log in to your account</h3>
 
-            <form th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <input type="email" name="username" class="form-control" placeholder="Email" required>
+                <!-- Social Login Buttons (Top as per some layouts, or bottom? Reference showed Social at bottom, let's keep consistent with Register which has them at bottom for "Other options" or top for direct. 
+                     Udemy often has them at the bottom. Reference image for Register has "Other sign up options" at bottom. 
+                     I will follow Register layout: Form first, then Divider, then Social.) -->
+
+                <div th:if="${param.error}" class="alert"
+                    style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700; border: 1px solid #f1acab;">
+                    Invalid email or password.
+                </div>
+                <div th:if="${param.logout}" class="alert alert-success"
+                    style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
+                    You have been logged out.
+                </div>
+                <div th:if="${param.success}" class="alert alert-success"
+                    style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 1.6rem;">
+                    Registration successful! Please login.
                 </div>
 
-                <div class="form-group">
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <input type="email" name="username" class="form-control" placeholder="Email" required
+                            style="height: 4.8rem; font-weight: 700;">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="Password" required
+                            style="height: 4.8rem; font-weight: 700;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full" style="background-color: #a435f0;">Log
+                        in</button>
+
+                    <div style="text-align: center; margin-top: 1.2rem;">
+                        <span style="color: #a435f0; font-weight: 700; cursor: pointer;">or <a href="/forgot-password"
+                                style="color: #a435f0; text-decoration: none;">Forgot Password</a></span>
+                    </div>
+                </form>
+
+                <div class="divider">
+                    <span>Other log in options</span>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full">Log in</button>
-            </form>
-
-            <p style="text-align: center; margin-top: 2.4rem; font-size: 1.4rem;">
-                Don't have an account? <a href="/register"
-                    style="color: var(--primary-color); font-weight: 700; text-decoration: none;">Sign up</a>
-            </p>
+                <!-- Social Icons Row -->
+                <div class="footer-link-col">
+                </div>
+                <!-- Removed Footer Links for Clean Auth Page as per User Request -->
+            </div>
         </div>
     </div>
 

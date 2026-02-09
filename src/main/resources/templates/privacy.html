@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Privacy Policy | SkillHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Merriweather:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <style>
+        .legal-container {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 6.4rem 2rem;
+        }
+
+        .legal-title {
+            font-family: 'Merriweather', serif;
+            font-size: 3.6rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .legal-updated {
+            color: #6a6f73;
+            font-size: 1.4rem;
+            margin-bottom: 4rem;
+        }
+
+        .legal-content h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-top: 3.2rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .legal-content p {
+            font-size: 1.6rem;
+            line-height: 1.6;
+            margin-bottom: 1.6rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-left"><a href="/" class="logo"><span class="logo-text">SkillHub</span></a></div>
+    </nav>
+
+    <div class="legal-container">
+        <h1 class="legal-title">Privacy Policy</h1>
+        <p class="legal-updated">Last Updated: February 6, 2026</p>
+
+        <div class="legal-content">
+            <p>This Privacy Policy applies to personal data processed by SkillHub in our business, including on our
+                websites and other online or offline offerings.</p>
+
+            <h2>1. Data We Collect</h2>
+            <p>We collect certain data from you directly, like information you enter yourself, data about your
+                participation in courses, and data from third-party platforms you connect with SkillHub. We also collect
+                some data automatically, like information about your device and what parts of our Services you interact
+                with or spend time using.</p>
+
+            <h2>2. How We Use Your Data</h2>
+            <p>We use your data to provide our Services, communicate with you, troubleshoot issues, secure against fraud
+                and abuse, improve and update our Services, analyze how people use our Services, serve personalized
+                advertising, and as required by law or necessary for safety and integrity.</p>
+
+            <h2>3. Who We Share Data With</h2>
+            <p>We share certain data about you with instructors, other students, companies performing services for us,
+                SkillHub affiliates, our business partners, analytics and data enrichment providers, your social media
+                providers, companies helping us run promotions and surveys, and advertising companies who help us
+                promote our Services.</p>
+
+            <h2>4. Your Rights</h2>
+            <p>You have certain rights around the use of your data, including the ability to opt out of promotional
+                emails, cookies, and collection of your data by certain third parties. You can update or terminate your
+                account from within our Services, and can also contact us for individual rights requests about your
+                personal data.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content container">
+            <div class="footer-links-row">
+                <div class="footer-link-col">
+                    <a href="/about" class="footer-link">About us</a>
+                    <a href="/contact" class="footer-link">Contact us</a>
+                </div>
+                <div class="footer-link-col">
+                    <a href="/terms" class="footer-link">Terms</a>
+                    <a href="/privacy" class="footer-link">Privacy policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

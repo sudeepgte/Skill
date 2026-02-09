@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Contact Us | SkillHub</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+
+    <style>
+        .contact-container {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 6.4rem 2rem;
+            display: flex;
+            gap: 4rem;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-form {
+            flex: 1.5;
+            background: #fff;
+            padding: 3rem;
+            border: 1px solid #d1d7dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-header {
+            font-family: 'Merriweather', serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 1.6rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.6rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 1px solid #1c1d1f;
+            font-size: 1.6rem;
+        }
+
+        .submit-btn {
+            background-color: #a435f0;
+            color: white;
+            border: none;
+            padding: 1.2rem 2.4rem;
+            font-weight: 700;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar (Simplified Repeater) -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/" class="logo"><span class="logo-text">SkillHub</span></a>
+        </div>
+        <div class="navbar-right">
+            <div th:if="${user != null}" style="display: flex; align-items: center; gap: 1rem;">
+                <a href="/dashboard" class="btn btn-primary btn-icon" style="width: 4rem; height: 4rem; color: white;">
+                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                </a>
+            </div>
+            <div th:unless="${user != null}" style="display: flex; align-items: center; gap: 1.2rem;">
+                <a href="/login" class="btn btn-outline btn-sm">Log in</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="contact-container">
+        <div class="contact-info">
+            <h1 class="contact-header">Contact Us</h1>
+            <p style="font-size: 1.6rem; line-height: 1.6; margin-bottom: 2rem;">
+                Have questions? We're here to help. Send us a message and we'll respond as soon as possible.
+            </p>
+            <div style="font-size: 1.6rem;">
+                <p><strong>Email:</strong> support@skillhub.com</p>
+                <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                <p><strong>Address:</strong><br>123 Learning Way<br>Education City, CA 90210</p>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="Your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-input" placeholder="What is this about?">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-input" rows="5" placeholder="How can we help?"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content container">
+            <div class="footer-bottom">
+                <a href="/" class="logo">
+                    <h2 style="color:white; margin:0;">SkillHub</h2>
+                </a>
+                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
