@@ -659,7 +659,7 @@
         (function () {
             'use strict';
 
-            // Server-side login state from Thymeleaf
+            // Server-side login state from Thymeleaf (Integrated)
             const SERVER_LOGGED_IN = [[${ isLoggedIn }]];
             const SERVER_COURSE_ID = [[${ course.id }]];
 
@@ -695,11 +695,14 @@
 
                 // Check if course is already in wishlist
                 checkWishlistStatus();
+
+                // Expose modal showing for other parts of the page (like Enroll button)
+                window.showLoginModal = showLoginModal;
             }
 
             function handleWishlistClick(e) {
                 e.preventDefault();
-                e.stopPropagation(); // Stop bubbling
+                e.stopPropagation();
 
                 if (!isUserLoggedIn()) {
                     showLoginModal();
@@ -709,15 +712,23 @@
             }
 
             function isUserLoggedIn() {
-                // Primary check: Server-side session via Thymeleaf
+                // Priority: Server-side check
                 if (SERVER_LOGGED_IN) {
                     return true;
                 }
 
-                // Fallback checks (User's original logic)
-                if (localStorage.getItem(CONFIG.storageKey) ||
-                    sessionStorage.getItem(CONFIG.storageKey) ||
-                    getCookie(CONFIG.storageKey)) {
+                // Check localStorage
+                if (localStorage.getItem(CONFIG.storageKey)) {
+                    return true;
+                }
+
+                // Check sessionStorage
+                if (sessionStorage.getItem(CONFIG.storageKey)) {
+                    return true;
+                }
+
+                // Check cookies
+                if (getCookie(CONFIG.storageKey)) {
                     return true;
                 }
 
@@ -731,18 +742,38 @@
                 return null;
             }
 
+            function getCourseId() {
+                if (SERVER_COURSE_ID) return SERVER_COURSE_ID;
+                const wishlistBtn = document.getElementById('addToWishlistBtn');
+                if (wishlistBtn && wishlistBtn.dataset.courseId) {
+                    return wishlistBtn.dataset.courseId;
+                }
+
+                const urlMatch = window.location.pathname.match(/\/course\/(\d+)/);
+                if (urlMatch) {
+                    return urlMatch[1];
+                }
+                return null;
+            }
+
             function addToWishlist() {
                 const wishlistBtn = document.getElementById('addToWishlistBtn');
                 const courseId = getCourseId();
+
+                if (!courseId) {
+                    console.error('Course ID not found');
+                    return;
+                }
 
                 // Show loading state
                 const originalText = wishlistBtn.innerHTML;
                 wishlistBtn.disabled = true;
                 wishlistBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
-                // Get auth token (if applicable)
+                // Get auth token
                 const token = localStorage.getItem(CONFIG.storageKey) ||
-                    sessionStorage.getItem(CONFIG.storageKey);
+                    sessionStorage.getItem(CONFIG.storageKey) ||
+                    getCookie(CONFIG.storageKey);
 
                 // Make API request
                 fetch(CONFIG.apiEndpoint, {
@@ -766,12 +797,18 @@
                         return response.json();
                     })
                     .then(data => {
-                        if (data.success) {
-                            updateButtonState(true);
+                        if (data.success || data.message === "Course already in wishlist" || data.message === "Course added to wishlist") {
+                            // Success - update UI
+                            wishlistBtn.innerHTML = '<i class="fas fa-check"></i> Added to Wishlist';
+                            wishlistBtn.classList.add('in-wishlist');
+                            wishlistBtn.style.backgroundColor = '#5cb85c';
+                            wishlistBtn.style.borderColor = '#5cb85c';
+                            wishlistBtn.style.color = 'white';
+
+                            // Show success notification
                             showNotification('Course added to wishlist!', 'success');
-                            localStorage.setItem(`wishlist_${courseId}`, 'true');
-                        } else if (data.message === "Course already in wishlist") {
-                            updateButtonState(true);
+
+                            // Store wishlist status
                             localStorage.setItem(`wishlist_${courseId}`, 'true');
                         } else {
                             throw new Error(data.message || 'Unknown error');
@@ -783,16 +820,22 @@
                             wishlistBtn.disabled = false;
                             return;
                         }
+
                         console.error('Error:', error);
                         wishlistBtn.disabled = false;
                         wishlistBtn.innerHTML = originalText;
-                        showNotification(error.message || 'Failed to add to wishlist.', 'error');
+                        showNotification('Failed to add to wishlist. ' + error.message, 'error');
                     });
             }
 
-            function updateButtonState(inWishlist) {
+            function checkWishlistStatus() {
+                const courseId = getCourseId();
                 const wishlistBtn = document.getElementById('addToWishlistBtn');
-                if (inWishlist) {
+
+                if (!wishlistBtn || !courseId) return;
+
+                // Check if already in wishlist (from localStorage)
+                if (localStorage.getItem(`wishlist_${courseId}`) === 'true') {
                     wishlistBtn.innerHTML = '<i class="fas fa-check"></i> In Wishlist';
                     wishlistBtn.classList.add('in-wishlist');
                     wishlistBtn.style.backgroundColor = '#5cb85c';
@@ -802,23 +845,7 @@
                 }
             }
 
-            function getCourseId() {
-                if (SERVER_COURSE_ID) return SERVER_COURSE_ID;
-                const wishlistBtn = document.getElementById('addToWishlistBtn');
-                if (wishlistBtn && wishlistBtn.dataset.courseId) return wishlistBtn.dataset.courseId;
-                return 'unknown';
-            }
-
-            function checkWishlistStatus() {
-                const courseId = getCourseId();
-                if (localStorage.getItem(`wishlist_${courseId}`) === 'true') {
-                    updateButtonState(true);
-                }
-            }
-
             function createLoginModal() {
-                if (document.getElementById('loginModal')) return;
-
                 const modalHTML = `
                     <div id="loginModal" class="wishlist-login-modal">
                         <div class="wishlist-modal-content">
@@ -838,13 +865,19 @@
                 `;
 
                 document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                // Add styles
                 addModalStyles();
 
-                // Attach listeners
+                // Attach event listeners
                 document.getElementById('closeWishlistModal').addEventListener('click', hideLoginModal);
                 document.getElementById('cancelWishlistModal').addEventListener('click', hideLoginModal);
+
+                // Close on outside click
                 document.getElementById('loginModal').addEventListener('click', function (e) {
-                    if (e.target.id === 'loginModal') hideLoginModal();
+                    if (e.target.id === 'loginModal') {
+                        hideLoginModal();
+                    }
                 });
             }
 
@@ -852,21 +885,18 @@
                 const modal = document.getElementById('loginModal');
                 if (modal) {
                     modal.classList.add('show');
-                    document.body.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
                 } else {
-                    createLoginModal();
-                    setTimeout(() => document.getElementById('loginModal').classList.add('show'), 50);
+                    createLoginModal(); // Create if not exists (redundancy)
+                    setTimeout(() => document.getElementById('loginModal').classList.add('show'), 10);
                 }
             }
-
-            // Expose globally for Enrollment button
-            window.showLoginModal = showLoginModal;
 
             function hideLoginModal() {
                 const modal = document.getElementById('loginModal');
                 if (modal) {
                     modal.classList.remove('show');
-                    document.body.style.overflow = '';
+                    document.body.style.overflow = ''; // Restore scrolling
                 }
             }
 
@@ -874,9 +904,13 @@
                 const notification = document.createElement('div');
                 notification.className = `wishlist-notification wishlist-notification-${type}`;
                 notification.textContent = message;
+
                 document.body.appendChild(notification);
 
+                // Trigger animation
                 setTimeout(() => notification.classList.add('show'), 10);
+
+                // Remove after 3 seconds
                 setTimeout(() => {
                     notification.classList.remove('show');
                     setTimeout(() => notification.remove(), 300);
@@ -885,32 +919,174 @@
 
             function addModalStyles() {
                 if (document.getElementById('wishlistModalStyles')) return;
+
                 const styles = document.createElement('style');
                 styles.id = 'wishlistModalStyles';
                 styles.textContent = `
-                    .wishlist-login-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); animation: wishlistFadeIn 0.3s; }
-                    .wishlist-login-modal.show { display: flex; align-items: center; justify-content: center; }
-                    .wishlist-modal-content { background-color: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); animation: wishlistSlideIn 0.3s; }
-                    .wishlist-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-                    .wishlist-modal-header h2 { font-size: 1.5rem; color: #1c1d1f; margin: 0; }
-                    .wishlist-close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6a6f73; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-                    .wishlist-close-btn:hover { color: #1c1d1f; }
-                    .wishlist-modal-body p { margin-bottom: 1.5rem; color: #6a6f73; line-height: 1.5; }
-                    .wishlist-modal-actions { display: flex; gap: 1rem; }
-                    .wishlist-btn { flex: 1; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; display: block; }
-                    .wishlist-btn-primary { background-color: #a435f0; color: white; }
-                    .wishlist-btn-primary:hover { background-color: #8710d8; }
-                    .wishlist-btn-secondary { background-color: white; color: #1c1d1f; border: 2px solid #1c1d1f; }
-                    .wishlist-btn-secondary:hover { background-color: #f7f9fa; }
-                    .wishlist-notification { position: fixed; top: 20px; right: -400px; padding: 1rem 1.5rem; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10001; transition: right 0.3s ease-out; color: white; font-weight: 500; }
-                    .wishlist-notification.show { right: 20px; }
-                    .wishlist-notification-success { background-color: #5cb85c; }
-                    .wishlist-notification-error { background-color: #d9534f; }
-                    @keyframes wishlistFadeIn { from { opacity: 0; } to { opacity: 1; } }
-                    @keyframes wishlistSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                    .wishlist-login-modal {
+                        display: none;
+                        position: fixed;
+                        z-index: 10000;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.5);
+                        animation: wishlistFadeIn 0.3s;
+                    }
+
+                    .wishlist-login-modal.show {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .wishlist-modal-content {
+                        background-color: white;
+                        padding: 2rem;
+                        border-radius: 8px;
+                        max-width: 400px;
+                        width: 90%;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+                        animation: wishlistSlideIn 0.3s;
+                    }
+
+                    .wishlist-modal-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 1.5rem;
+                    }
+
+                    .wishlist-modal-header h2 {
+                        font-size: 1.5rem;
+                        color: #1c1d1f;
+                        margin: 0;
+                    }
+
+                    .wishlist-close-btn {
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: #6a6f73;
+                        padding: 0;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: color 0.2s;
+                    }
+
+                    .wishlist-close-btn:hover {
+                        color: #1c1d1f;
+                    }
+
+                    .wishlist-modal-body p {
+                        margin-bottom: 1.5rem;
+                        color: #6a6f73;
+                        line-height: 1.5;
+                    }
+
+                    .wishlist-modal-actions {
+                        display: flex;
+                        gap: 1rem;
+                    }
+
+                    .wishlist-btn {
+                        flex: 1;
+                        padding: 0.75rem 1.5rem;
+                        border: none;
+                        border-radius: 4px;
+                        font-size: 1rem;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        text-align: center;
+                        text-decoration: none;
+                        display: block;
+                    }
+
+                    .wishlist-btn-primary {
+                        background-color: #a435f0;
+                        color: white;
+                    }
+
+                    .wishlist-btn-primary:hover {
+                        background-color: #8710d8;
+                    }
+
+                    .wishlist-btn-secondary {
+                        background-color: white;
+                        color: #1c1d1f;
+                        border: 2px solid #1c1d1f;
+                    }
+
+                    .wishlist-btn-secondary:hover {
+                        background-color: #f7f9fa;
+                    }
+
+                    .wishlist-notification {
+                        position: fixed;
+                        top: 20px;
+                        right: -400px;
+                        padding: 1rem 1.5rem;
+                        border-radius: 4px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        z-index: 10001;
+                        transition: right 0.3s ease-out;
+                        color: white;
+                        font-weight: 500;
+                    }
+
+                    .wishlist-notification.show {
+                        right: 20px;
+                    }
+
+                    .wishlist-notification-success {
+                        background-color: #5cb85c;
+                    }
+
+                    .wishlist-notification-error {
+                        background-color: #d9534f;
+                    }
+
+                    @keyframes wishlistFadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+
+                    @keyframes wishlistSlideIn {
+                        from {
+                            transform: translateY(-50px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+                    }
+
+                    @media (max-width: 480px) {
+                        .wishlist-modal-content {
+                            width: 95%;
+                            padding: 1.5rem;
+                        }
+
+                        .wishlist-modal-actions {
+                            flex-direction: column;
+                        }
+
+                        .wishlist-btn {
+                            width: 100%;
+                        }
+                    }
                 `;
+
                 document.head.appendChild(styles);
             }
+
         })();
     </script>
 
