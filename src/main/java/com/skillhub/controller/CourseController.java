@@ -7,10 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.skillhub.dto.CourseDTO;
 import com.skillhub.mapper.CourseMapper;
-import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 
 @Controller
@@ -58,6 +58,8 @@ public class CourseController {
         model.addAttribute("course", courseDTO);
         model.addAttribute("reviews", reviews);
         model.addAttribute("isEnrolled", isEnrolled);
+        // NEW: expose login state
+        model.addAttribute("isLoggedIn", principal != null);
         return "course-details";
     }
 

@@ -331,13 +331,16 @@
     <!-- AJAX Curriculum Handling -->
     <script>
         function handleCurriculumAction(event, form) {
+            console.log("handleCurriculumAction called for form:", form);
             event.preventDefault();
 
             const formData = new FormData(form);
             const actionUrl = form.getAttribute('action');
             const feedback = document.getElementById('curriculum-feedback');
 
-            // Show loading state (optional)
+            console.log("Submitting to:", actionUrl);
+
+            // Show loading state
             if (feedback) {
                 feedback.style.display = 'block';
                 feedback.style.background = '#e2e6ea';
@@ -350,23 +353,28 @@
                 body: formData
             })
                 .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
+                    console.log("Response status:", response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Server returned ${response.status}: ${text}`);
+                        });
+                    }
                     return response.text();
                 })
                 .then(html => {
-                    // Determine if it's a redirect (full page) or fragment
-                    // Since we want to support both Controller modes, we check input.
-                    // But specifically for this fix, we expect a fragment.
-
-                    // Simple check: does it look like a full HTML page?
+                    console.log("Response received, length:", html.length);
                     if (html.includes('<html')) {
-                        // Fallback for full page reload if controller isn't updated yet
+                        console.log("Full page redirect detected, reloading...");
                         window.location.reload();
                     } else {
-                        // It's a fragment, replace content
-                        document.getElementById('curriculum-container').innerHTML = html;
+                        const container = document.getElementById('curriculum-container');
+                        if (container) {
+                            container.innerHTML = html;
+                        } else {
+                            console.error("curriculum-container not found!");
+                            window.location.reload();
+                        }
 
-                        // Show success
                         const newFeedback = document.getElementById('curriculum-feedback');
                         if (newFeedback) {
                             newFeedback.style.display = 'block';
@@ -378,14 +386,15 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Curriculum Action Error:', error);
                     const newFeedback = document.getElementById('curriculum-feedback');
                     if (newFeedback) {
                         newFeedback.style.display = 'block';
                         newFeedback.style.background = '#f8d7da';
                         newFeedback.style.color = '#721c24';
-                        newFeedback.textContent = 'Error updating curriculum.';
+                        newFeedback.textContent = 'Error: ' + error.message;
                     }
+                    alert("Error updating curriculum: " + error.message);
                 });
 
             return false;

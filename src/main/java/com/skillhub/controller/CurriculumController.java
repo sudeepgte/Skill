@@ -87,7 +87,9 @@ public class CurriculumController {
             int pos = (section.getLectures() != null) ? section.getLectures().size() + 1 : 1;
             lecture.setPosition(pos);
 
-            int totalSec = (durationMinutes * 60) + durationSeconds;
+            int min = (durationMinutes != null) ? durationMinutes : 0;
+            int sec = (durationSeconds != null) ? durationSeconds : 0;
+            int totalSec = (min * 60) + sec;
             lecture.setDurationSeconds(totalSec);
 
             if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
