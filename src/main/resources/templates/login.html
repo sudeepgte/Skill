@@ -12,17 +12,48 @@
 
 <body>
 
-    <!-- Simple Navbar -->
-    <nav
-        style="height: 7.2rem; display: flex; align-items: center; padding: 0 2.4rem; border-bottom: 1px solid #e0e0e0;">
-        <a href="/" class="logo">
-            <span class="logo-text">SkillHub</span>
-        </a>
+    <!-- Navbar (Full) -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/" class="logo">
+                <span class="logo-text">SkillHub</span>
+            </a>
+            <div class="dropdown">
+                <div class="categories-link">Categories <i class="fas fa-chevron-down"
+                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
+                <div class="dropdown-menu">
+                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item">
+                        <span th:text="${cat.name}">Category</span>
+                        <i class="fas fa-chevron-right" style="font-size: 1.2rem; opacity: 0.5;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-center">
+            <div class="search-container">
+                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
+                <form action="/" style="width: 100%;">
+                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
+                </form>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <div style="display: flex; align-items: center; gap: 1.2rem;">
+                <a href="/login" class="btn btn-outline btn-sm">Log in</a>
+                <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
+            </div>
+            <a href="#" class="btn btn-outline btn-icon"
+                style="width: 4rem; height: 4rem; padding: 0; border: 1px solid var(--color-black);">
+                <i class="fas fa-globe"></i>
+            </a>
+        </div>
     </nav>
 
-    <div class="auth-page-container">
+    <div class="auth-page-container" style="min-height: 60vh;">
         <div class="container auth-split-container">
-            <!-- Left: Illustration (Same as Register for consistency) -->
+            <!-- Left: Illustration -->
             <div class="auth-illustration">
                 <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp"
                     alt="Log in to SkillHub" style="max-width: 380px;">
@@ -31,10 +62,6 @@
             <!-- Right: Form -->
             <div class="auth-form-side">
                 <h3 class="auth-header">Log in to your account</h3>
-
-                <!-- Social Login Buttons (Top as per some layouts, or bottom? Reference showed Social at bottom, let's keep consistent with Register which has them at bottom for "Other options" or top for direct. 
-                     Udemy often has them at the bottom. Reference image for Register has "Other sign up options" at bottom. 
-                     I will follow Register layout: Form first, then Divider, then Social.) -->
 
                 <div th:if="${param.error}" class="alert"
                     style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 1.6rem; font-weight: 700; border: 1px solid #f1acab;">
@@ -72,15 +99,36 @@
                 <div class="divider">
                     <span>Other log in options</span>
                 </div>
-
-                <!-- Social Icons Row -->
-                <div class="footer-link-col">
-                </div>
-                <!-- Removed Footer Links for Clean Auth Page as per User Request -->
+                <div class="footer-link-col"></div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="simple-footer">
+        <div class="container footer-simple-content">
+            <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/contact" class="footer-simple-link">Contact Us</a>
+            <a href="/terms" class="footer-simple-link">Terms</a>
+            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
+        </div>
+        <div class="container">
+            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(dropdown => {
+                const trigger = dropdown.querySelector('.categories-link') || dropdown.querySelector('.dropdown-toggle');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                if (!trigger || !menu) return;
+                dropdown.addEventListener('mouseenter', () => { menu.style.display = 'block'; });
+                dropdown.addEventListener('mouseleave', () => { menu.style.display = 'none'; });
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -54,18 +54,15 @@
 
 
 
-    <!-- Welcome Header / Hero -->
-    <div
-        style="background: linear-gradient(to right, #2d2f31, #1c1d1f); color: white; padding: 4.8rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <div class="container">
-            <h1 style="color: white; font-family: 'Merriweather', serif; font-size: 3.2rem; margin-bottom: 0.8rem;"
-                th:text="'Welcome back, ' + ${user.name}">Welcome back, User</h1>
-            <p style="font-size: 1.6rem; opacity: 0.9;">Pick up where you left off</p>
-        </div>
-    </div>
+    <!-- Courses Section (Moved from below) -->
+    <div class="container" style="padding-top: 3.2rem; padding-bottom: 4.8rem;">
 
-    <!-- Tabs / Sections -->
-    <div class="container" style="padding-top: 3.2rem; padding-bottom: 3.2rem;">
+        <!-- Welcome Message -->
+        <div style="margin-bottom: 3.2rem;">
+            <h1 style="font-family: 'Merriweather', serif; font-size: 3.2rem; margin-bottom: 0.8rem; color: var(--color-text-main);"
+                th:text="'Welcome back, ' + ${user.name}">Welcome back, User</h1>
+            <p style="font-size: 1.6rem; color: var(--color-text-secondary);">Pick up where you left off</p>
+        </div>
 
         <!-- Filter Pills -->
         <div class="tags-container">
@@ -82,7 +79,7 @@
 
         <!-- Empty State -->
         <div th:if="${#lists.isEmpty(courses)}"
-            style="text-align: center; padding: 6.4rem 0; background-color: var(--color-gray-100); border: 1px solid var(--color-gray-200); margin-bottom: 4.8rem;">
+            style="text-align: center; padding: 6.4rem 0; background-color: var(--color-gray-100); border: 1px solid var(--color-gray-200); margin-bottom: 4.8rem; border-radius: var(--radius-sm);">
             <p class="text-bold" style="font-size: 1.9rem; margin-bottom: 1.6rem;">No courses found in this section.</p>
             <a href="/home" class="btn btn-primary">Browse all courses</a>
         </div>
@@ -91,27 +88,61 @@
         <div class="course-grid">
             <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
                 <div class="course-image">
-                    <img th:src="${course.imageUrl}" alt="Course">
+                    <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
                 </div>
                 <div class="course-content">
                     <h3 class="course-title" th:text="${course.title}">Course Title</h3>
                     <div class="course-author" th:text="${course.instructor}">Instructor</div>
-
-                    <!-- Progress bar simulation for logged in user? (Optional) -->
-                    <!-- <div style="width: 100%; height: 4px; background: #d1d7dc; margin-bottom: 0.8rem;"><div style="width: 40%; height: 100%; background: #a435f0;"></div></div> -->
-
                     <div class="course-rating">
                         <span class="rating-number">4.7</span>
                         <div class="rating-stars">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
                                 class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                         </div>
+                        <span class="rating-count">(3,240)</span>
                     </div>
                     <div class="course-price" th:text="'₹' + ${course.price}">₹499</div>
+                    <div class="bestseller-badge" th:if="${course.price > 400}">Bestseller</div>
                 </div>
             </a>
         </div>
+    </div>
 
+    <!-- Hero Section (Carousel) -->
+    <div class="hero-carousel-container">
+        <div class="hero-carousel-track" id="heroTrack">
+            <!-- Slide 1 -->
+            <div class="hero-slide">
+                <img th:src="@{/images/home/carousel_learning.webp}" alt="Learning" draggable="false">
+                <div class="hero-overlay">
+                    <h1 class="ud-heading-serif-xxl">Unlock Your Potential</h1>
+                    <p class="ud-text-md">Skills for your present (and your future). Get started with us.</p>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="hero-slide">
+                <img th:src="@{/images/home/carousel_tech.webp}" alt="Technology" draggable="false">
+                <div class="hero-overlay">
+                    <h1 class="ud-heading-serif-xxl">Future in Tech</h1>
+                    <p class="ud-text-md">Master the latest frameworks and technologies.</p>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="hero-slide">
+                <img th:src="@{/images/home/carousel_business.webp}" alt="Business" draggable="false">
+                <div class="hero-overlay">
+                    <h1 class="ud-heading-serif-xxl">Lead the Way</h1>
+                    <p class="ud-text-md">Business strategies for the modern world.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="hero-btn hero-prev" id="heroPrev"><i class="fas fa-chevron-left"></i></button>
+        <button class="hero-btn hero-next" id="heroNext"><i class="fas fa-chevron-right"></i></button>
+
+        <!-- Dots -->
+        <div class="hero-dots" id="heroDots"></div>
     </div>
 
     <!-- Footer -->

@@ -7,42 +7,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@300;400;700&display=swap');
 
 :root {
-  /* Modern Color Palette */
-  --color-primary: #5624d0;
-  /* Vibrant Deep Purple */
-  --color-primary-hover: #401b9c;
-  --color-secondary: #000000;
+  /* Modern Color Palette - Premium EdTech Look */
+  --color-primary: #a435f0;
+  /* Udemy Purple */
+  --color-primary-hover: #8710d8;
+  --color-secondary: #2d2f31;
+  /* Deep Black/Gray */
   --color-background: #ffffff;
   --color-surface: #ffffff;
   --color-surface-alt: #f7f9fa;
+  /* Light Gray Background */
+  --color-surface-hover: #e4e8eb;
 
   --color-text-main: #2d2f31;
   --color-text-secondary: #6a6f73;
   --color-text-light: #ffffff;
+  --color-text-muted: #888888;
 
   --color-border: #d1d7dc;
-  --color-border-hover: #1c1d1f;
+  --color-border-hover: #3e4143;
 
   --color-warning: #e59819;
+  /* Star Ratings */
   --color-danger: #b32d0f;
   --color-success: #198754;
+  --color-bestseller: #eceb98;
+  --color-bestseller-text: #3d3c0a;
 
-  /* Shadows - Soft & Modern */
+  /* Shadows - Layered & Smooth */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-  /* Subtle for cards */
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-  /* Hover states */
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
-  /* Modals / Dropdowns */
+  /* Subtle cards */
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  /* Hoover state */
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+  /* Popups / Modals */
+  --shadow-card-hover: 0 2px 8px 2px rgba(0, 0, 0, 0.1);
+
   --shadow-input: 0 0 0 1px #d1d7dc;
-  /* Input default */
-  --shadow-input-focus: 0 0 0 2px #5624d0;
-  /* Input focus ring */
+  --shadow-input-focus: 0 0 0 2px #a435f0;
 
   /* Radius */
+  --radius-xs: 0.2rem;
   --radius-sm: 0.4rem;
   --radius-md: 0.8rem;
   --radius-lg: 1.2rem;
+  --radius-xl: 2.4rem;
   --radius-full: 9999px;
 
   /* Spacing */
@@ -55,7 +64,13 @@
 
   /* Layout */
   --navbar-height: 7.2rem;
-  --container-width: 140rem;
+  --container-width: 134rem;
+  /* Slightly tighter for focus */
+
+  /* Transitions */
+  --transition-fast: 0.1s ease-in-out;
+  --transition-normal: 0.2s ease-in-out;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Reset & Base */

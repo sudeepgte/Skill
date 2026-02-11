@@ -1,220 +1,259 @@
-/* Hero Section - Udemy Style Polish */
-.hero {
+/* SkillHub Home Page - Modern Premium Design */
+
+/* --- Hero Section --- */
+.hero-carousel-container {
     position: relative;
     width: 100%;
-    max-width: 140rem;
-    margin: 0 auto;
+    /* Full viewport width option: 100vw; but stick to 100% of parent for now */
+    height: 480px;
+    /* Taller hero */
     margin-bottom: 4.8rem;
-    height: 400px;
-    /* Fixed height for Hero */
     overflow: hidden;
+    background-color: var(--color-surface-alt);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Removed old .hero-wrapper styles as they are replaced by carousel */
+.hero-carousel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Smooth slide */
+}
 
-.hero-bg {
+/* Hero Slide - Image & Overlay Wrapper */
+.hero-slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.hero-slide img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
+    object-position: center;
+    /* No filter here, we use overlay instead */
 }
 
-/* Hero Content Box - Polished to Blend */
-.hero-content-box {
+/* Dark Gradient Overlay */
+.hero-slide::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+    /* Subtle start, darker bottom */
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Hero Content - Transparent & Bold */
+.hero-overlay {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    left: 4.8rem;
-    background-color: transparent;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Center perfectly */
+    width: 80%;
+    /* Wider for centered Look */
+    text-align: center;
     padding: 0;
-    width: 60rem;
-    /* Increased width for larger text */
+    background-color: transparent;
+    /* No box */
     box-shadow: none;
     border-radius: 0;
     z-index: 10;
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-@keyframes fadeIn {
+@keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(-40%);
+        transform: translate(-50%, -40%);
     }
 
     to {
         opacity: 1;
-        transform: translateY(-50%);
+        transform: translate(-50%, -50%);
     }
 }
 
 .ud-heading-serif-xxl {
     font-family: 'Merriweather', serif;
-    font-weight: 700;
     font-size: 4.8rem;
-    /* Larger font size as requested */
+    font-weight: 900;
+    /* Extra Bold */
+    color: #ffffff;
     margin-bottom: 1.6rem;
-    color: white;
-    /* White text */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    /* Text shadow for readability */
     line-height: 1.1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    /* Strong shadow for readability */
 }
 
 .ud-text-md {
-    font-size: 1.8rem;
-    color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    line-height: 1.5;
-    font-weight: 500;
-    margin-bottom: 2.4rem;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 3.2rem;
+    line-height: 1.6;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    max-width: 70rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Category Tabs - Clean and Neat */
-.section-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.2rem;
-    margin-bottom: 2.4rem;
-}
-
-.tab-link {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    padding: 0;
-    margin-right: 1.6rem;
-    cursor: pointer;
-    text-decoration: none;
-    transition: color 0.1s;
-}
-
-.tab-link:hover {
-    color: var(--color-text-main);
-}
-
-.tab-link.active {
-    color: var(--color-text-main);
-    /* Active styling, could also be a border bottom */
-    border-bottom: 2px solid var(--color-text-main);
-}
-
-/* Carousel Section */
-/* Carousel Section - Now Hero Background */
-.carousel-section {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.carousel-track-container {
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-}
-
-.carousel-track {
-    display: flex;
-    height: 100%;
-    transition: transform 0.5s ease-in-out;
-}
-
-.carousel-slide {
-    min-width: 100%;
-    height: 100%;
-    /* Fill the container */
-    position: relative;
-}
-
-.carousel-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-.carousel-nav-btn {
+/* Minimalist Navigation Buttons */
+.hero-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: white;
-    color: var(--color-primary);
-    border: 1px solid var(--color-border);
-    width: 4rem;
-    height: 4rem;
+    width: 4.8rem;
+    height: 4.8rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     cursor: pointer;
     z-index: 20;
-    /* Above content box? Content box is 10. Maybe buttons should be accessible. */
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
     opacity: 0;
-    /* Hide by default, show on hover */
-    transition: opacity 0.3s;
+    /* Hidden by default */
 }
 
-.hero:hover .carousel-nav-btn {
+.hero-carousel-container:hover .hero-btn {
     opacity: 1;
 }
 
-.carousel-nav-btn:hover {
-    background-color: var(--color-surface-alt);
+.hero-btn:hover {
+    background-color: var(--color-secondary);
+    transform: translateY(-50%) scale(1.1);
 }
 
-.carousel-prev {
-    left: 2rem;
+.hero-prev {
+    left: 2.4rem;
 }
 
-.carousel-next {
-    right: 2rem;
+.hero-next {
+    right: 2.4rem;
 }
 
-/* Course Cards - Refined */
+
+/* --- Section Headers --- */
+.section-headline {
+    margin-bottom: 2.4rem;
+}
+
+.section-headline h2 {
+    font-family: 'Merriweather', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    letter-spacing: -0.05rem;
+}
+
+.section-headline p {
+    font-size: 1.6rem;
+    /* Standard readable size */
+    color: var(--color-text-secondary);
+    margin-top: 0.8rem;
+}
+
+
+/* --- Course Grid Layout (Replaces Carousel) --- */
+.course-grid-container {
+    padding: 0 0 2rem 0;
+    /* Space for shadow */
+}
+
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr));
-    gap: 1.6rem;
-    padding: 0.2rem;
+    /* Responsive Grid: Cards min 260px, auto-fill */
+    grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+    gap: 3.2rem 2.4rem;
+    /* Row gap, Col gap */
 }
 
+
+/* --- Course Card Design --- */
 .course-card {
     display: flex;
     flex-direction: column;
-    background: var(--color-surface);
-    border-radius: 0;
-    transition: opacity 0.2s;
+    background-color: transparent;
+    /* Clean look */
     border: none;
+    border-radius: 0;
+    /* Modern flat look or rounded? */
+    text-decoration: none;
     cursor: pointer;
+    position: relative;
+    transition: transform var(--transition-fast);
 }
 
-.course-card:hover .course-image img {
-    opacity: 0.8;
-    transform: none;
+.course-card:hover {
+    transform: translateY(-5px);
 }
 
+/* Image Wrapper with Hover Zoom */
 .course-image {
     width: 100%;
     aspect-ratio: 16/9;
-    border: 1px solid var(--color-border);
+    background-color: #d1d7dc;
+    /* Placeholder */
     margin-bottom: 0.8rem;
     overflow: hidden;
+    border-radius: var(--radius-md);
+    /* Rounded corners for image */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Subtle border */
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-normal);
+}
+
+.course-card:hover .course-image {
+    box-shadow: var(--shadow-card-hover);
+    /* Deep shadow on hover */
 }
 
 .course-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity 0.2s;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+.course-card:hover .course-image img {
+    transform: scale(1.08);
+    /* Cinematic Zoom */
+    filter: brightness(1.05);
+}
+
+/* Overlay Play Button (Optional) */
+.course-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s;
+}
+
+.course-card:hover .course-image::after {
+    background: rgba(0, 0, 0, 0.1);
+    /* Slight darken */
+}
+
+
+/* Card Content */
 .course-content {
-    padding: 0;
+    padding: 0.4rem 0;
 }
 
 .course-title {
@@ -223,12 +262,17 @@
     font-weight: 700;
     color: var(--color-text-main);
     margin-bottom: 0.4rem;
-    line-height: 1.2;
+    line-height: 1.4;
+
+    /* Truncate at 2 lines */
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* Standard property */
     -webkit-box-orient: vertical;
     overflow: hidden;
-    height: 3.9rem;
+    height: 4.4rem;
+    /* Fixed height for alignment */
 }
 
 .course-author {
@@ -244,71 +288,101 @@
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.8rem;
 }
 
 .rating-number {
     font-weight: 800;
     font-size: 1.4rem;
     color: #b4690e;
-    margin-right: 0.2rem;
+    line-height: 1;
 }
 
 .rating-stars {
-    color: #e59819;
-    font-size: 1.2rem;
     display: flex;
-    gap: 1px;
+    align-items: center;
+    color: var(--color-warning);
+    font-size: 1.2rem;
 }
 
 .rating-count {
     font-size: 1.2rem;
     color: var(--color-text-secondary);
-    margin-left: 0.4rem;
 }
 
 .course-price {
-    font-weight: 700;
+    font-family: 'Inter', sans-serif;
     font-size: 1.8rem;
-    color: var(--color-text-main);
-    letter-spacing: -0.2px;
-}
-
-.bestseller-badge {
-    background-color: #eceb98;
-    color: #3d3c0a;
-    font-size: 1.2rem;
     font-weight: 700;
+    color: var(--color-text-main);
+    letter-spacing: -0.02rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Badges */
+.bestseller-badge {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.2rem;
+    background-color: var(--color-bestseller);
+    color: var(--color-bestseller-text);
     padding: 0.4rem 0.8rem;
-    display: inline-block;
-    margin-top: 0.4rem;
-    position: relative;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: var(--radius-xs);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 5;
 }
 
-/* Trusted By Section */
-.trusted-by {
-    background-color: var(--color-surface-alt);
-    padding: 6.4rem 0;
-    margin: 4.8rem 0;
-}
 
-.trusted-title {
-    text-align: center;
-    color: var(--color-text-secondary);
-    font-weight: 500;
+/* --- Category Tabs (Filter) --- */
+.section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
     margin-bottom: 3.2rem;
 }
 
-.trusted-logos {
-    display: flex;
-    justify-content: center;
-    gap: 6rem;
-    opacity: 0.6;
-    filter: grayscale(100%);
-    transition: all 0.5s;
+.tab-link {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 1rem 1.6rem;
+    border-radius: var(--radius-full);
+    /* Pill shape */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
 }
 
-.trusted-logos:hover {
-    opacity: 0.9;
-    filter: grayscale(0%);
+.tab-link:hover {
+    color: var(--color-text-main);
+    background-color: var(--color-surface-hover);
+}
+
+.tab-link.active {
+    background-color: var(--color-text-main);
+    color: white;
+    border-color: var(--color-text-main);
+}
+
+
+/* --- Empty State --- */
+.empty-state {
+    text-align: center;
+    padding: 8rem 2rem;
+    background-color: var(--color-surface-alt);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1.6rem;
+    color: var(--color-border-hover);
 }

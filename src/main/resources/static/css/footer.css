@@ -1,36 +1,32 @@
-/* Simple Footer */
+/* Simple Footer (Original) */
 .simple-footer {
     background-color: #1c1d1f;
-    /* Dark background */
     color: white;
-    padding: 3.2rem 0;
+    padding: 30px;
+    margin-top: 50px;
     border-top: 1px solid #3e4143;
 }
 
 .footer-simple-content {
     display: flex;
     justify-content: center;
-    /* Horizontally centered */
-    align-items: center;
-    gap: 3.2rem;
-    /* Even spacing */
+    gap: 20px;
     flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .footer-simple-link {
     color: white;
-    font-size: 1.4rem;
     text-decoration: none;
-    font-weight: 400;
+    font-size: 0.9rem;
 }
 
 .footer-simple-link:hover {
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    .footer-simple-content {
-        flex-direction: column;
-        gap: 1.6rem;
-    }
+.footer-copyright {
+    color: #d1d7dc;
+    font-size: 0.8rem;
+    text-align: center;
 }
