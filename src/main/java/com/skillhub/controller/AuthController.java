@@ -15,8 +15,12 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.skillhub.service.CategoryService categoryService;
+
     @GetMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "login";
     }
 
@@ -24,6 +28,7 @@ public class AuthController {
     public String register(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("isAdmin", false);
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "register";
     }
 
@@ -33,6 +38,7 @@ public class AuthController {
         user.setRole("ADMIN");
         model.addAttribute("user", user);
         model.addAttribute("isAdmin", true);
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "register";
     }
 
