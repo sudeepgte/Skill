@@ -28,7 +28,7 @@
     <nav class="navbar">
         <div class="navbar-left">
             <!-- Logo -->
-            <a href="/" class="logo">
+            <a th:href="${user != null} ? '/home/user' : '/'" class="logo">
                 <span class="logo-text">SkillHub</span>
             </a>
 
@@ -37,7 +37,9 @@
                 <div class="categories-link">Categories <i class="fas fa-chevron-down"
                         style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
                 <div class="dropdown-menu">
-                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item">
+                    <a th:each="cat : ${categories}"
+                        th:href="${user != null} ? @{/home/user(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
+                        class="dropdown-item">
                         <span th:text="${cat.name}">Category</span>
                         <i class="fas fa-chevron-right" style="font-size: 1.2rem; opacity: 0.5;"></i>
                     </a>
@@ -49,7 +51,7 @@
         <div class="navbar-center">
             <div class="search-container">
                 <button class="search-icon-btn"><i class="fas fa-search"></i></button>
-                <form action="/" style="width: 100%;">
+                <form th:action="${user != null} ? '/home/user' : '/'" style="width: 100%;">
                     <input type="text" name="query" class="search-input" placeholder="Search for anything"
                         th:value="${searchQuery}">
                 </form>
@@ -172,18 +174,23 @@
         <!-- Categories Tabs -->
         <div class="section-tabs">
             <!-- Static Link for "All" -->
-            <a href="/" class="tab-link" th:classappend="${activeCategory == null} ? 'active' : ''">All Courses</a>
+            <a th:href="${user != null} ? '/home/user' : '/'" class="tab-link"
+                th:classappend="${activeCategory == null} ? 'active' : ''">All Courses</a>
 
             <!-- Dynamic Categories -->
-            <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="tab-link"
-                th:classappend="${activeCategory == cat.id} ? 'active' : ''" th:text="${cat.name}">Category Name</a>
+            <a th:each="cat : ${categories}"
+                th:href="${user != null} ? @{/home/user(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
+                class="tab-link" th:classappend="${activeCategory == cat.id} ? 'active' : ''"
+                th:text="${cat.name}">Category Name</a>
         </div>
 
         <!-- Course Grid -->
         <div class="course-grid">
             <!-- Loop courses -->
             <!-- Loop courses -->
-            <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
+            <a th:each="course : ${courses}"
+                th:href="${user != null} ? @{/user/course/{id}(id=${course.id})} : @{/course/{id}(id=${course.id})}"
+                class="course-card">
                 <div class="course-image">
                     <img th:src="${course.imageUrl != null ? course.imageUrl : 'https://img-c.udemycdn.com/course/480x270/851712_fc61_6.jpg'}"
                         src="https://img-c.udemycdn.com/course/480x270/851712_fc61_6.jpg" alt="Course">

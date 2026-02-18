@@ -14,7 +14,6 @@ import com.skillhub.mapper.CourseMapper;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/course")
 public class CourseController {
 
     @Autowired
@@ -32,7 +31,7 @@ public class CourseController {
     @Autowired
     private com.skillhub.service.UserService userService;
 
-    @GetMapping("/{id}")
+    @GetMapping({ "/course/{id}", "/user/course/{id}" })
     public String getCourseDetails(@PathVariable Long id, Model model, Principal principal) {
         // Fetch entity
         com.skillhub.model.Course course = courseService.getCourseById(id);
@@ -63,7 +62,7 @@ public class CourseController {
         return "course-details";
     }
 
-    @GetMapping("/{id}/learn")
+    @GetMapping({ "/course/{id}/learn", "/user/course/{id}/learn" })
     public String getLearningRoom(@PathVariable Long id,
             @RequestParam(required = false) Long lectureId,
             Model model,
@@ -86,6 +85,15 @@ public class CourseController {
 
         // Pass current lesson for titles/video
         com.skillhub.dto.LectureDTO currentLesson = null;
+
+        // DEBUG LOGGING
+        System.out.println("DEBUG: getLearningRoom courseId=" + id);
+        System.out.println(
+                "DEBUG: Entity Sections: " + (course.getSections() != null ? course.getSections().size() : "null"));
+        System.out.println(
+                "DEBUG: DTO Sections: " + (courseDTO.getSections() != null ? courseDTO.getSections().size() : "null"));
+        System.out.println("DEBUG: targetLectureId=" + targetLectureId);
+
         if (targetLectureId != null) {
             for (com.skillhub.dto.SectionDTO section : courseDTO.getSections()) {
                 for (com.skillhub.dto.LectureDTO lecture : section.getLectures()) {
@@ -94,8 +102,12 @@ public class CourseController {
                         break;
                     }
                 }
+                if (currentLesson != null)
+                    break; // Optimization: stop searching once found
             }
         }
+
+        System.out.println("DEBUG: currentLesson found? " + (currentLesson != null));
 
         model.addAttribute("course", courseDTO);
         model.addAttribute("currentLesson", currentLesson);
@@ -106,7 +118,7 @@ public class CourseController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
-    @org.springframework.web.bind.annotation.PostMapping("/wishlist/add")
+    @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/add")
     public String addToWishlist(@RequestParam Long courseId, Principal principal,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (principal == null) {
@@ -125,7 +137,7 @@ public class CourseController {
         return "redirect:/student/wishlist";
     }
 
-    @org.springframework.web.bind.annotation.PostMapping("/wishlist/remove")
+    @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/remove")
     public String removeFromWishlist(@RequestParam Long courseId, Principal principal) {
         if (principal == null) {
             return "redirect:/login";

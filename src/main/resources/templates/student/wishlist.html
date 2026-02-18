@@ -127,7 +127,7 @@
     <nav class="navbar">
         <div class="container"
             style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
-            <a href="/home" class="logo"
+            <a href="/home/user" class="logo"
                 style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
             <div>
                 <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
@@ -157,14 +157,14 @@
         <div th:if="${#lists.isEmpty(wishlistItems)}" style="text-align: center; padding: 4rem;">
             <h2>Your wishlist is empty</h2>
             <p>Explore courses and save them for later.</p>
-            <a href="/home" class="btn btn-primary"
+            <a href="/home/user" class="btn btn-primary"
                 style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
                 Courses</a>
         </div>
 
         <div class="course-grid">
             <div th:each="item : ${wishlistItems}" class="course-card">
-                <a th:href="@{/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
+                <a th:href="@{/user/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
                     <img th:src="${item.course.imageUrl}" class="card-img" alt="Course Thumbnail">
                     <div class="card-body">
                         <div class="course-title" th:text="${item.course.title}">Course Title</div>

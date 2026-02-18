@@ -10,7 +10,7 @@
     <div style="padding: 50px; text-align: center;">
         <h1>Shopping Cart</h1>
         <p>Your cart is empty.</p>
-        <a href="/home">Keep Shopping</a>
+        <a th:href="${user != null} ? '/home/user' : '/home'">Keep Shopping</a>
     </div>
 </body>
 

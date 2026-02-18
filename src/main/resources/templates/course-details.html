@@ -5,6 +5,9 @@
     <title th:text="${course.title} + ' | SkillHub'">Course Details | SkillHub</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -416,12 +419,12 @@
 <body>
 
     <nav class="navbar">
-        <a href="/home" class="logo">SkillHub</a>
+        <a th:href="${isLoggedIn} ? '/home/user' : '/home'" class="logo">SkillHub</a>
         <div class="search-bar" style="margin-left: 20px; width: 400px;">
             <form action="#"><input type="text" placeholder="Search for anything"></form>
         </div>
         <div class="nav-links">
-            <a href="/home">My Learning</a>
+            <a th:href="${isLoggedIn} ? '/home/user' : '/home'">My Learning</a>
             <a href="#"><i class="fas fa-shopping-cart"></i></a>
             <div
                 style="background: #2d2f31; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -510,7 +513,8 @@
         <div class="header-content">
             <div class="header-text">
                 <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">
-                    <a href="/home" style="color: #cec0fc; text-decoration: none;">Courses</a> >
+                    <a th:href="${isLoggedIn} ? '/home/user' : '/home'"
+                        style="color: #cec0fc; text-decoration: none;">Courses</a> >
                     <span th:text="${course.categoryName}">Category</span>
                 </div>
                 <h1 class="course-title" th:text="${course.title}">Course Title</h1>
@@ -775,11 +779,16 @@
                     sessionStorage.getItem(CONFIG.storageKey) ||
                     getCookie(CONFIG.storageKey);
 
+                // CSRF Token
+                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
                 // Make API request
                 fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken,
                         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: JSON.stringify({
@@ -1152,8 +1161,15 @@
 
             // Re-attach restriction listener
             const newVideo = document.getElementById('coursePreviewVideo');
-            if (newVideo && !isEnrolled) {
+
+            // Check path for free access
+            if (window.location.pathname.indexOf('/user/course/') !== -1) {
+                if (overlay) overlay.style.display = 'none';
+            } else if (newVideo && !isEnrolled) {
                 newVideo.addEventListener('timeupdate', function () {
+                    // Fail-safe: Allow free play on user/course path
+                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
+
                     if (this.currentTime >= 20) {
                         this.pause();
                         this.currentTime = 20;
@@ -1165,6 +1181,9 @@
                 });
 
                 newVideo.addEventListener('seeking', function () {
+                    // Fail-safe: Allow free play on user/course path
+                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
+
                     if (this.currentTime > 20) {
                         this.currentTime = 20;
                         this.pause();
@@ -1179,8 +1198,14 @@
             const videoDetails = document.getElementById('coursePreviewVideo');
             const overlay = document.getElementById('videoOverlay');
 
-            if (videoDetails && !isEnrolled) {
+            // Check path for free access
+            if (window.location.pathname.indexOf('/user/course/') !== -1) {
+                if (overlay) overlay.style.display = 'none';
+            } else if (videoDetails && !isEnrolled) {
                 videoDetails.addEventListener('timeupdate', function () {
+                    // Fail-safe: Allow free play on user/course path
+                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
+
                     if (this.currentTime >= 20) {
                         this.pause();
                         this.currentTime = 20;
@@ -1192,6 +1217,9 @@
                 });
 
                 videoDetails.addEventListener('seeking', function () {
+                    // Fail-safe: Allow free play on user/course path
+                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
+
                     if (this.currentTime > 20) {
                         this.currentTime = 20;
                         this.pause();
@@ -1220,9 +1248,16 @@
 
                     const courseId = [[${ course.id }]];
 
+                    // CSRF Token
+                    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
                     fetch(`/api/enrollments/${courseId}`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken
+                        }
                     })
                         .then(response => {
                             if (response.status === 401) {
@@ -1233,7 +1268,8 @@
                             throw new Error('Enrollment failed');
                         })
                         .then(data => {
-                            window.location.href = `/course/${courseId}/learn`;
+                            // Redirect to user learning path
+                            window.location.href = `/user/course/${courseId}/learn`;
                         })
                         .catch(error => console.error('Error:', error));
                 });

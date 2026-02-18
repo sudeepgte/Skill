@@ -5,325 +5,808 @@
     <title th:text="${course.title} + ' | SkillHub'">Course Title | SkillHub</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <style>
-        body {
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background: #1c1d1f;
-            color: white;
+        }
+
+        :root {
+            --bg-primary: #0f0f10;
+            --bg-secondary: #18191b;
+            --bg-tertiary: #222426;
+            --bg-hover: #2a2c2f;
+            --border: #2e3033;
+            --text-primary: #f0f0f0;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #7c3aed;
+            --accent-light: #8b5cf6;
+            --accent-glow: rgba(124, 58, 237, 0.35);
+            --success: #10b981;
+            --sidebar-width: 380px;
+            --header-height: 58px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
+        /* ─── HEADER ─── */
         .learning-header {
-            height: 56px;
-            background: #2d2f31;
+            height: var(--header-height);
+            background: var(--bg-secondary);
             display: flex;
             align-items: center;
-            padding: 0 1rem;
-            border-bottom: 1px solid #3e4143;
-            color: #fff;
+            padding: 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+            flex-shrink: 0;
+            z-index: 100;
         }
 
-        .learning-header a {
-            color: #d1d7dc;
+        .header-back {
+            color: var(--text-secondary);
             text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
         }
 
-        .learning-header a:hover {
-            color: #fff;
+        .header-back:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
-        .learning-container {
+        .header-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+        }
+
+        .header-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-progress {
             display: flex;
-            flex-grow: 1;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar-wrap {
+            width: 140px;
+            height: 5px;
+            background: var(--bg-hover);
+            border-radius: 999px;
             overflow: hidden;
         }
 
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        /* ─── LAYOUT ─── */
+        .learning-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ─── VIDEO AREA ─── */
         .video-area {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .video-wrapper {
+            flex: 1;
+            display: flex;
             align-items: center;
-            background: black;
+            justify-content: center;
+            background: #000;
             position: relative;
         }
 
-        .sidebar {
-            width: 400px;
-            background: #1c1d1f;
-            /* Dark background */
-            color: #d1d7dc;
-            border-left: 1px solid #3e4143;
-            overflow-y: auto;
+        .video-wrapper video,
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-placeholder {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .video-placeholder .play-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .video-placeholder h2 {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .video-placeholder p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .video-info {
+            padding: 1.25rem 2rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .video-info h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .video-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .btn-complete {
+            flex-shrink: 0;
+            padding: 0.55rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--accent);
+            color: var(--accent-light);
+            background: transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-complete:hover,
+        .btn-complete.done {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-complete.done {
+            border-color: var(--success);
+            background: var(--success);
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
         .sidebar-header {
-            padding: 1rem 1.6rem;
-            border-bottom: 1px solid #3e4143;
-            font-weight: 700;
-            color: #fff;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
         }
 
+        .sidebar-header span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.01em;
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 99px;
+        }
+
+        /* ─── SECTION ─── */
         .section-item {
-            border-bottom: 1px solid #3e4143;
+            border-bottom: 1px solid var(--border);
         }
 
         .section-title {
-            padding: 1rem 1.6rem;
-            background: #2d2f31;
+            padding: 0.85rem 1.5rem;
+            background: var(--bg-tertiary);
             cursor: pointer;
-            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #fff;
+            gap: 1rem;
+            user-select: none;
+            transition: background 0.15s;
         }
 
+        .section-title:hover {
+            background: var(--bg-hover);
+        }
+
+        .section-title-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .section-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .section-chevron {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            transition: transform 0.25s;
+        }
+
+        .section-item.collapsed .section-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* ─── LESSON ITEM ─── */
         .lesson-list {
-            display: block;
+            overflow: hidden;
+        }
+
+        .section-item.collapsed .lesson-list {
+            display: none;
         }
 
         .lesson-item {
-            padding: 0.8rem 1.6rem;
+            padding: 0.75rem 1.5rem;
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
+            gap: 0.85rem;
             cursor: pointer;
             text-decoration: none;
-            color: #d1d7dc;
-            transition: background 0.2s;
+            color: var(--text-secondary);
+            transition: background 0.15s;
+            border-left: 3px solid transparent;
+            position: relative;
         }
 
         .lesson-item:hover {
-            background: #3e4143;
-            color: #fff;
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
         .lesson-item.active {
-            background: #3e4143;
-            font-weight: 600;
-            color: #fff;
-            border-left: 4px solid #fff;
-            /* Active indicator */
+            background: rgba(124, 58, 237, 0.08);
+            border-left-color: var(--accent-light);
+            color: var(--text-primary);
         }
 
-        .checkbox {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #d1d7dc;
-            /* Light border */
-            margin-top: 2px;
+        /* Radio-style completion indicator */
+        .lesson-radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
             flex-shrink: 0;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            background: transparent;
             cursor: pointer;
+            position: relative;
         }
 
-        /* Proper tick mark when checked handling will be done in JS or server side check */
+        .lesson-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            transform: scale(0);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
-        .lesson-time {
-            font-size: 0.8rem;
-            color: #a1a7b3;
-            margin-top: 4px;
-            display: block;
+        .lesson-item:hover .lesson-radio {
+            border-color: var(--text-secondary);
+        }
+
+        .lesson-radio.watched {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .lesson-radio.watched::after {
+            transform: scale(1);
+        }
+
+        /* Currently playing indicator */
+        .lesson-radio.playing {
+            border-color: var(--accent-light);
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .lesson-radio.playing::after {
+            background: var(--accent-light);
+            transform: scale(1);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.75);
+            }
+        }
+
+        .lesson-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lesson-text .lesson-title {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .lesson-item.active .lesson-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .lesson-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.3rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Resume badge */
+        .resume-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: rgba(124, 58, 237, 0.18);
+            color: var(--accent-light);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast .toast-icon {
+            color: var(--success);
         }
     </style>
 </head>
 
 <body>
 
+    <!-- HEADER -->
     <div class="learning-header">
-        <a href="/home"><i class="fas fa-chevron-left" style="margin-right: 1rem;"></i> Back to Dashboard</a>
-        <span style="margin: 0 1rem; color: #6a6f73;">|</span>
-        <span th:text="${course.title}">Course Title</span>
+        <a href="/home" class="header-back">
+            <i class="fas fa-chevron-left"></i> Dashboard
+        </a>
+        <div class="header-divider"></div>
+        <span class="header-title" th:text="${course.title}">Course Title</span>
+
+        <div class="header-progress">
+            <span id="progressText">0% complete</span>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+            </div>
+        </div>
     </div>
 
-    .video-placeholder {
-    text-align: center;
-    color: #d1d7dc;
-    padding: 3rem;
-    }
+    <!-- MAIN -->
+    <div class="learning-container">
 
-    .checkbox {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #d1d7dc;
-    margin-top: 2px;
-    flex-shrink: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    }
+        <!-- VIDEO AREA -->
+        <div class="video-area">
+            <div class="video-wrapper">
 
-    .lesson-item:hover .checkbox {
-    border-color: #fff;
-    }
-
-    .checkbox i {
-    font-size: 10px;
-    color: white;
-    display: none;
-    }
-
-    /* If we had server-side completion status, we would add .completed class */
-    .checkbox.checked {
-    background: #a435f0;
-    border-color: #a435f0;
-    }
-
-    .checkbox.checked i {
-    display: block;
-    }
-
-    .lesson-time {
-    font-size: 0.8rem;
-    color: #a1a7b3;
-    margin-top: 4px;
-    display: block;
-    }
-    </style>
-    </head>
-
-    <body>
-
-        <div class="learning-header">
-            <a href="/home"><i class="fas fa-chevron-left" style="margin-right: 1rem;"></i> Back</a>
-            <span style="margin: 0 1rem; color: #6a6f73;">|</span>
-            <span th:text="${course.title}" style="font-weight: 700; font-size: 1.1rem; color: white;">Course
-                Title</span>
-        </div>
-
-        <div class="learning-container">
-            <!-- Video Area -->
-            <div class="video-area">
-                <!-- Video Player -->
+                <!-- No lesson selected -->
                 <div class="video-placeholder" th:if="${currentLesson == null}">
-                    <i class="fas fa-play-circle" style="font-size: 6rem; margin-bottom: 2rem; color: #d1d7dc;"></i>
-                    <h2>Select a lecture to start learning</h2>
+                    <div class="play-icon"><i class="fas fa-play"></i></div>
+                    <h2>Select a lecture to begin</h2>
+                    <p>Choose any lesson from the curriculum on the right.</p>
                 </div>
 
-                <div th:if="${currentLesson != null}"
-                    style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-                    <div
-                        style="flex-grow: 1; display: flex; align-items: center; justify-content: center; background: black;">
-                        <!-- Simple HTML5 Video or Iframe Support -->
-                        <video
-                            th:if="${currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
-                            th:src="${currentLesson.videoUrl}" controls
-                            style="max-width: 100%; max-height: 100%; width: 100%; aspect-ratio: 16/9;">
-                            Your browser does not support the video tag.
-                        </video>
+                <!-- Lesson selected - non-YouTube video -->
+                <video
+                    th:if="${currentLesson != null && currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
+                    th:src="${currentLesson.videoUrl}" controls id="mainVideo" style="width:100%;height:100%;">
+                    Your browser does not support the video tag.
+                </video>
 
-                        <iframe
-                            th:if="${currentLesson.videoUrl != null && #strings.contains(currentLesson.videoUrl, 'youtube')}"
-                            th:src="${#strings.replace(currentLesson.videoUrl, 'watch?v=', 'embed/')}" width="100%"
-                            height="100%" frameborder="0" allowfullscreen>
-                        </iframe>
+                <!-- Lesson selected - YouTube video -->
+                <iframe
+                    th:if="${currentLesson != null && currentLesson.videoUrl != null && #strings.contains(currentLesson.videoUrl, 'youtube')}"
+                    th:src="${#strings.replace(currentLesson.videoUrl, 'watch?v=', 'embed/')} + '?enablejsapi=1'"
+                    width="100%" height="100%" frameborder="0" allowfullscreen id="youtubePlayer">
+                </iframe>
 
-                        <div th:if="${currentLesson.videoUrl == null}" class="video-placeholder">
-                            <i class="fas fa-file-alt" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                            <h2>Content not available</h2>
-                            <p>This lecture has no video content.</p>
-                        </div>
-                    </div>
-                    <div style="padding: 1.5rem 2rem; background: #1c1d1f; border-top: 1px solid #3e4143;">
-                        <h2 th:text="${currentLesson.title}" style="margin-bottom: 0.5rem; color: #fff;">Lecture Title
-                        </h2>
-                        <p style="color: #d1d7dc; font-size: 0.9rem;">Lecture content description if available.</p>
-                    </div>
+                <!-- No video URL -->
+                <div class="video-placeholder" th:if="${currentLesson != null && currentLesson.videoUrl == null}">
+                    <div class="play-icon"><i class="fas fa-file-alt"></i></div>
+                    <h2>No video for this lecture</h2>
+                    <p>This lecture has no video content attached.</p>
                 </div>
             </div>
 
-            <!-- Curriculum Sidebar -->
-            <div class="sidebar">
-                <div class="sidebar-header">
-                    <span>Course Content</span>
-                    <i class="fas fa-times" style="cursor: pointer;"
-                        onclick="document.querySelector('.sidebar').style.display='none'"></i>
+            <!-- Video Info Bar -->
+            <div class="video-info" th:if="${currentLesson != null}">
+                <div>
+                    <h2 th:text="${currentLesson.title}">Lecture Title</h2>
+                    <p th:text="'Section · ' + ${currentLesson.durationSeconds / 60} + ' min'">Section · 5 min</p>
                 </div>
+                <button class="btn-complete" id="markCompleteBtn" th:attr="data-lecture-id=${currentLesson.id}"
+                    onclick="toggleComplete(this)">
+                    <i class="fas fa-check"></i>
+                    <span>Mark Complete</span>
+                </button>
+            </div>
+        </div>
 
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span>Course Content</span>
+                <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
+            </div>
+            <div class="sidebar-body">
                 <div th:each="section : ${course.sections}" class="section-item">
-                    <div class="section-title">
-                        <span th:text="${section.title}">Section 1</span>
-                        <i class="fas fa-chevron-down"></i>
+                    <div class="section-title" onclick="toggleSection(this)">
+                        <div>
+                            <div class="section-title-text" th:text="${section.title}">Section</div>
+                            <div class="section-meta" th:text="${#lists.size(section.lectures)} + ' lectures'">0
+                                lectures</div>
+                        </div>
+                        <i class="fas fa-chevron-down section-chevron"></i>
                     </div>
                     <div class="lesson-list">
                         <a th:each="lesson : ${section.lectures}"
-                            th:href="@{/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}" class="lesson-item"
-                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? 'active'">
-                            <div class="checkbox"
-                                onclick="event.preventDefault(); markAsComplete('${lesson.id}', this)">
-                                <i class="fas fa-check"></i>
+                            th:href="@{/user/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}"
+                            class="lesson-item"
+                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' active'"
+                            th:attr="data-lecture-id=${lesson.id}">
+
+                            <div class="lesson-radio"
+                                th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' playing'"
+                                th:attr="data-radio-id=${lesson.id}"
+                                onclick="event.preventDefault(); event.stopPropagation(); handleRadioClick(this, /*[[${lesson.id}]]*/ 0)">
                             </div>
-                            <div>
-                                <div th:text="${lesson.title}" style="font-size: 0.95rem;">Lesson 1</div>
-                                <span class="lesson-time"><i class="far fa-play-circle"
-                                        style="margin-right: 4px;"></i><span
-                                        th:text="${lesson.durationSeconds / 60} + 'm'">5m</span></span>
+
+                            <div class="lesson-text">
+                                <div class="lesson-title" th:text="${lesson.title}">Lesson Title</div>
+                                <div class="lesson-meta">
+                                    <i class="far fa-play-circle"></i>
+                                    <span th:text="${lesson.durationSeconds / 60} + ' min'">5 min</span>
+                                    <span class="resume-badge" th:attr="data-resume-badge=${lesson.id}"
+                                        style="display:none;">
+                                        <i class="fas fa-history" style="font-size:0.6rem;"></i> Resume
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            function markAsComplete(lectureId, element) {
-                // Prevent bubbling if called from onclick directly
-                if (window.event) window.event.stopPropagation();
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
+        <span id="toastMsg">Lecture marked as complete!</span>
+    </div>
 
-                // In a real app, this would toggle. For now, we set to complete.
-                fetch(`/api/enrollments/progress/${lectureId}/complete`, {
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const COURSE_ID = /*[[${course.id}]]*/ 0;
+        const CURRENT_LECTURE_ID = /*[[${currentLesson != null ? currentLesson.id : null}]]*/ null;
+        const STORAGE_PREFIX = 'skillhub_';
+
+        // CSRF Token
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        // ─── STORAGE HELPERS ───
+        function getProgress(lectureId) {
+            return parseFloat(localStorage.getItem(`${STORAGE_PREFIX}progress_${lectureId}`) || '0');
+        }
+        function setProgress(lectureId, time) {
+            localStorage.setItem(`${STORAGE_PREFIX}progress_${lectureId}`, time);
+        }
+        function isCompleted(lectureId) {
+            return localStorage.getItem(`${STORAGE_PREFIX}completed_${lectureId}`) === 'true';
+        }
+        function setCompleted(lectureId, val) {
+            localStorage.setItem(`${STORAGE_PREFIX}completed_${lectureId}`, val);
+        }
+
+        // ─── SECTION TOGGLE ───
+        function toggleSection(titleEl) {
+            const section = titleEl.closest('.section-item');
+            section.classList.toggle('collapsed');
+        }
+
+        // ─── TOAST ───
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('.toast-icon i');
+            document.getElementById('toastMsg').textContent = msg;
+            icon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-info-circle';
+            toast.querySelector('.toast-icon').style.color = isSuccess ? 'var(--success)' : 'var(--accent-light)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ─── RADIO / COMPLETION UI ───
+        function setRadioState(lectureId, state) {
+            // state: 'watched' | 'playing' | ''
+            const radio = document.querySelector(`[data-radio-id="${lectureId}"]`);
+            if (!radio) return;
+            radio.classList.remove('watched', 'playing');
+            if (state) radio.classList.add(state);
+        }
+
+        function handleRadioClick(radioEl, lectureId) {
+            if (isCompleted(lectureId)) {
+                // Unmark
+                setCompleted(lectureId, false);
+                radioEl.classList.remove('watched');
+                updateProgressBar();
+                fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        [csrfHeader]: csrfToken
                     }
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // Toggle visual state
-                            // The element passed might be the checkbox itself or the icon inside
-                            let checkbox = element;
-                            if (!checkbox.classList.contains('checkbox')) {
-                                checkbox = element.closest('.checkbox');
-                            }
+                }).catch(() => { });
+            } else {
+                markLectureComplete(lectureId);
+            }
+        }
 
-                            if (checkbox) {
-                                checkbox.classList.add('checked');
-                            }
-                        }
-                    })
-                    .catch(error => console.error('Error marking complete:', error));
+        function markLectureComplete(lectureId) {
+            if (isCompleted(lectureId)) return;
+            setCompleted(lectureId, true);
+            setRadioState(lectureId, lectureId == CURRENT_LECTURE_ID ? 'playing' : 'watched');
+            // If it's the current one, mark btn as done too
+            if (lectureId == CURRENT_LECTURE_ID) {
+                const btn = document.getElementById('markCompleteBtn');
+                if (btn) { btn.classList.add('done'); btn.querySelector('span').textContent = 'Completed!'; }
+            }
+            updateProgressBar();
+            showToast('Lecture marked as complete!');
+            fetch(`/api/enrollments/progress/${lectureId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            }).catch(() => { });
+        }
+
+        function toggleComplete(btn) {
+            const lectureId = btn.dataset.lectureId;
+            if (isCompleted(lectureId)) {
+                setCompleted(lectureId, false);
+                btn.classList.remove('done');
+                btn.querySelector('span').textContent = 'Mark Complete';
+                setRadioState(lectureId, 'playing');
+                updateProgressBar();
+                fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
+                    method: 'POST',
+                    headers: {
+                        [csrfHeader]: csrfToken
+                    }
+                }).catch(() => { });
+            } else {
+                markLectureComplete(lectureId);
+            }
+        }
+
+        // ─── PROGRESS BAR ───
+        function updateProgressBar() {
+            const allItems = document.querySelectorAll('[data-lecture-id]');
+            let total = 0, done = 0;
+            allItems.forEach(item => {
+                if (!item.dataset.lectureId) return;
+                total++;
+                if (isCompleted(item.dataset.lectureId)) done++;
+            });
+            const pct = total ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = pct + '% complete';
+            document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
+        }
+
+        // ─── VIDEO PROGRESS (Resume from where left off) ───
+        function initVideoResume() {
+            const video = document.getElementById('mainVideo');
+            if (!video || !CURRENT_LECTURE_ID) return;
+
+            const saved = getProgress(CURRENT_LECTURE_ID);
+            if (saved > 5) {
+                video.currentTime = saved;
+                showToast(`Resuming from ${Math.floor(saved / 60)}:${String(Math.floor(saved % 60)).padStart(2, '0')}`, false);
             }
 
-            // Section toggle logic
-            document.querySelectorAll('.section-title').forEach(title => {
-                title.addEventListener('click', () => {
-                    const list = title.nextElementSibling;
-                    if (list.style.display === 'none') {
-                        list.style.display = 'block';
-                        title.querySelector('i').className = 'fas fa-chevron-down';
-                    } else {
-                        list.style.display = 'none';
-                        title.querySelector('i').className = 'fas fa-chevron-up';
-                    }
-                });
+            // Save every 5 seconds
+            video.addEventListener('timeupdate', () => {
+                if (video.currentTime > 3) {
+                    setProgress(CURRENT_LECTURE_ID, video.currentTime);
+                }
+                // Auto-mark complete when 90% watched
+                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && video.currentTime / video.duration > 0.9) {
+                    markLectureComplete(CURRENT_LECTURE_ID);
+                }
             });
-        </script>
-    </body>
+
+            video.addEventListener('ended', () => {
+                setProgress(CURRENT_LECTURE_ID, 0); // Reset to beginning on complete
+                markLectureComplete(CURRENT_LECTURE_ID);
+            });
+
+            // Pause save
+            video.addEventListener('pause', () => {
+                setProgress(CURRENT_LECTURE_ID, video.currentTime);
+            });
+        }
+
+        // ─── RESUME BADGES in sidebar ───
+        function initResumeBadges() {
+            document.querySelectorAll('[data-resume-badge]').forEach(badge => {
+                const id = badge.dataset.resumeBadge;
+                const saved = getProgress(id);
+                if (saved > 5 && !isCompleted(id)) {
+                    badge.style.display = 'inline-flex';
+                }
+            });
+        }
+
+        // ─── ON LOAD ───
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply saved completion states to radio buttons
+            document.querySelectorAll('[data-radio-id]').forEach(radio => {
+                const id = radio.dataset.radioId;
+                if (id == CURRENT_LECTURE_ID) {
+                    // Playing state (unless already watched)
+                    if (isCompleted(id)) {
+                        radio.classList.add('watched');
+                    } else {
+                        radio.classList.add('playing');
+                    }
+                } else if (isCompleted(id)) {
+                    radio.classList.add('watched');
+                }
+            });
+
+            // Mark complete button state
+            if (CURRENT_LECTURE_ID && isCompleted(CURRENT_LECTURE_ID)) {
+                const btn = document.getElementById('markCompleteBtn');
+                if (btn) { btn.classList.add('done'); btn.querySelector('span').textContent = 'Completed!'; }
+            }
+
+            updateProgressBar();
+            initVideoResume();
+            initResumeBadges();
+        });
+        /*]]>*/
+    </script>
+</body>
 
 </html>

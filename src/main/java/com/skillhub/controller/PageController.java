@@ -55,7 +55,7 @@ public class PageController {
         return "main_index";
     }
 
-    @GetMapping("/home")
+    @GetMapping({ "/home", "/home/user" })
     public String home(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
         String email = principal.getName();
