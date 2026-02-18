@@ -649,15 +649,41 @@
     </div>
     </div>
 
-    <!-- Footer ... (unchanged) -->
+            <!-- Reviews List (Mockup logic if list not passed yet, assumes we need to fetch them) -->
+            <!-- We need to pass reviews to the model in CourseController -->
+            <div class="reviews-list">
+                <div th:each="review : ${reviews}" style="border-bottom: 1px solid #d1d7dc; padding: 20px 0;">
+                    <div style="display: flex; gap: 15px;">
+                        <div
+                            style="width: 40px; height: 40px; background: #1c1d1f; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            <span th:text="${#strings.substring(review.user.name,0,1)}">U</span>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700;" th:text="${review.user.name}">User Name</div>
+                            <div style="color: #6a6f73; font-size: 0.8rem; margin-bottom: 5px;">
+                                <span style="color: #f4c150; font-weight: 700; margin-right: 10px;"
+                                    th:text="${review.rating} + ' Stars'">5 Stars</span>
+                                <span th:text="${#temporals.format(review.createdAt, 'dd-MM-yyyy')}">Date</span>
+                            </div>
+                            <p style="color: #1c1d1f;" th:text="${review.comment}">Review content.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Footer -->
     <footer style="background: #1c1d1f; color: white; padding: 30px; margin-top: 50px;">
         <div class="container"
             style="max-width: 1184px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: 700; font-size: 1.2rem;">SkillHub</div>
-            <p style="font-size: 0.8rem; margin: 0;">&copy; 2024 SkillHub, Inc.</p>
+            <p style="font-size: 0.8rem; margin: 0; color: #64748b;">&copy; 2024 SkillHub, Inc.</p>
         </div>
     </footer>
 
+<<<<<<< HEAD
     <!-- Wishlist Script (User Provided & Adapted) -->
     <script th:inline="javascript">
         (function () {
@@ -1247,6 +1273,12 @@
                     }
 
                     const courseId = [[${ course.id }]];
+=======
+    <script>
+        document.querySelectorAll('.btn-buy').forEach(button => {
+            button.addEventListener('click', function () {
+                const courseId = [[${ course.id }]];
+>>>>>>> c6baf19e253c46e38b617b1a1f1d6bb258002579
 
                     // CSRF Token
                     const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');

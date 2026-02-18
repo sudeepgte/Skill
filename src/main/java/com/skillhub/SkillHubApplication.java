@@ -18,3 +18,4 @@ public class SkillHubApplication extends SpringBootServletInitializer {
     }
 
 }
+     

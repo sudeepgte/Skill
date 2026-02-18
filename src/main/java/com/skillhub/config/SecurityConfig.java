@@ -32,7 +32,7 @@ public class SecurityConfig {
                         throws Exception {
                 http
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/register", "/register/admin", "/saveUser",
+                                                .requestMatchers("/", "/register", "/register/admin", "/admin/register", "/saveUser",
                                                                 "/login", "/forgot-password", "/reset-password",
                                                                 "/css/**", "/js/**", "/images/**",
                                                                 "/course/**", "/error", "/uploads/**")
