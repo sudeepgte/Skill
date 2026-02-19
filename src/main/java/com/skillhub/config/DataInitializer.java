@@ -1,7 +1,7 @@
 package com.skillhub.config;
 
 import com.skillhub.model.Category;
-import com.skillhub.model.Course;
+
 import com.skillhub.model.User;
 import com.skillhub.repository.CategoryRepository;
 import com.skillhub.repository.CourseRepository;
@@ -30,21 +30,21 @@ public class DataInitializer {
             if (userRepository.count() == 0) {
                 // Admin
                 User admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
-                userRepository.save(admin);
+                userRepository.save(java.util.Objects.requireNonNull(admin));
 
                 // Instructors (Keep users, but they won't have courses by default)
                 User angela = newUser("Dr. Angela Yu", "angela@skillhub.com", "password", "INSTRUCTOR",
                         passwordEncoder);
                 angela.setHeadline("Developer and Lead Instructor");
-                userRepository.save(angela);
+                userRepository.save(java.util.Objects.requireNonNull(angela));
 
                 User jose = newUser("Jose Portilla", "jose@skillhub.com", "password", "INSTRUCTOR", passwordEncoder);
                 jose.setHeadline("Head of Data Science, Pierian Data");
-                userRepository.save(jose);
+                userRepository.save(java.util.Objects.requireNonNull(jose));
 
                 // Student
                 User student = newUser("Jane Smith", "student@skillhub.com", "password", "STUDENT", passwordEncoder);
-                userRepository.save(student);
+                userRepository.save(java.util.Objects.requireNonNull(student));
             }
 
             // 2. Create Categories
@@ -59,7 +59,7 @@ public class DataInitializer {
                         new Category("Kids Learning and Speaking Course", "fas fa-child"),
                         new Category("Language", "fas fa-language"),
                         new Category("Photography", "fas fa-camera"));
-                categoryRepository.saveAll(categories);
+                categoryRepository.saveAll(java.util.Objects.requireNonNull(categories));
             } else {
                 // Rename legacy categories if they exist
                 updateCategoryName(categoryRepository, "Development", "Development and IT");
@@ -73,21 +73,22 @@ public class DataInitializer {
                 deleteCategory(categoryRepository, "Design");
                 deleteCategory(categoryRepository, "Marketing");
                 deleteCategory(categoryRepository, "Personal Development");
-            // 3. FORCE CLEANUP: Delete ALL courses and reviews to ensure clean state as requested
-            // This ensures no pre-added or persistent demo courses appear
-            if (courseRepository.count() > 0) {
-                try {
-                    reviewRepository.deleteAll(); // Delete reviews first (FK constraint)
-                    courseRepository.deleteAll(); // Delete all courses
-                    System.out.println("--- FORCED CLEANUP: All courses and reviews deleted ---");
-                } catch (Exception e) {
-                    System.out.println("Cleanup error: " + e.getMessage());
+                // 3. FORCE CLEANUP: Delete ALL courses and reviews to ensure clean state as
+                // requested
+                // This ensures no pre-added or persistent demo courses appear
+                if (courseRepository.count() > 0) {
+                    try {
+                        reviewRepository.deleteAll(); // Delete reviews first (FK constraint)
+                        courseRepository.deleteAll(); // Delete all courses
+                        System.out.println("--- FORCED CLEANUP: All courses and reviews deleted ---");
+                    } catch (Exception e) {
+                        System.out.println("Cleanup error: " + e.getMessage());
+                    }
                 }
             }
-        }
 
-        // 4. NO REVIEWS OR COURSES CREATED
-    };
+            // 4. NO REVIEWS OR COURSES CREATED
+        };
     }
 
     private User newUser(String name, String email, String password, String role, PasswordEncoder encoder) {

@@ -36,14 +36,19 @@ public class CourseController {
         // Fetch entity
         com.skillhub.model.Course course = courseService.getCourseById(id);
 
+        if (course == null) {
+            return "redirect:/?error=CourseNotFound";
+        }
+
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
         // Check Enrollment Status
         boolean isEnrolled = false;
+        com.skillhub.model.User user = null;
         if (principal != null) {
             String email = principal.getName();
-            com.skillhub.model.User user = userService.findByEmail(email);
+            user = userService.findByEmail(email);
             if (user != null) {
                 // Corrected method name: findByStudentAndCourse
                 isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
@@ -57,6 +62,7 @@ public class CourseController {
         model.addAttribute("course", courseDTO);
         model.addAttribute("reviews", reviews);
         model.addAttribute("isEnrolled", isEnrolled);
+        model.addAttribute("user", user);
         // NEW: expose login state
         model.addAttribute("isLoggedIn", principal != null);
         return "course-details";
@@ -85,15 +91,6 @@ public class CourseController {
 
         // Pass current lesson for titles/video
         com.skillhub.dto.LectureDTO currentLesson = null;
-
-        // DEBUG LOGGING
-        System.out.println("DEBUG: getLearningRoom courseId=" + id);
-        System.out.println(
-                "DEBUG: Entity Sections: " + (course.getSections() != null ? course.getSections().size() : "null"));
-        System.out.println(
-                "DEBUG: DTO Sections: " + (courseDTO.getSections() != null ? courseDTO.getSections().size() : "null"));
-        System.out.println("DEBUG: targetLectureId=" + targetLectureId);
-
         if (targetLectureId != null) {
             for (com.skillhub.dto.SectionDTO section : courseDTO.getSections()) {
                 for (com.skillhub.dto.LectureDTO lecture : section.getLectures()) {
@@ -103,14 +100,14 @@ public class CourseController {
                     }
                 }
                 if (currentLesson != null)
-                    break; // Optimization: stop searching once found
+                    break;
             }
         }
 
-        System.out.println("DEBUG: currentLesson found? " + (currentLesson != null));
-
         model.addAttribute("course", courseDTO);
         model.addAttribute("currentLesson", currentLesson);
+        // Debug
+        // System.out.println("Course Sections: " + courseDTO.getSections().size());
 
         return "course/learning_room";
     }

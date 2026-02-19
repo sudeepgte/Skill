@@ -2,53 +2,94 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${course.title} + ' | SkillHub'">Course Details | SkillHub</title>
+    <title th:text="${course.title != null ? course.title + ' | SkillHub' : 'Course Details | SkillHub'}">Course Details
+        | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}" />
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- CSRF Token -->
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1c1d1f;
         }
 
-        /* ... (styles unchanged until custom accordion) ... */
-        .section-toggle {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .section-toggle:hover {
-            background: #e8eaec !important;
-        }
-
-        .lecture-item {
-            cursor: pointer;
-            transition: background 0.2s;
-            padding: 12px 20px;
-            border-bottom: 1px solid #d1d7dc;
-            /* Keep borders consistent */
+        /* Navbar Styles from User Request */
+        .navbar {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #d1d7dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
+            height: 72px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .lecture-item:hover {
-            background-color: #f1f1f1;
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1c1d1f;
+            text-decoration: none;
         }
 
-        .lecture-item:last-child {
-            border-bottom: none;
+        .search-bar form {
+            width: 100%;
         }
 
-        /* ... existing styles ... */
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #1c1d1f;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            outline: none;
+        }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #1c1d1f;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: #5624d0;
+        }
+
+        .user-avatar {
+            background: #2d2f31;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Course Header */
         .course-header {
             background-color: #1c1d1f;
             color: white;
-            padding: 2rem 0;
+            padding: 32px 0;
             position: relative;
         }
 
@@ -83,6 +124,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .rating-star {
@@ -95,11 +137,6 @@
             text-decoration: underline;
         }
 
-        .last-updated {
-            color: white;
-            margin-left: 10px;
-        }
-
         .lang-icon {
             margin-right: 5px;
         }
@@ -108,14 +145,14 @@
         .course-sidebar {
             position: fixed;
             top: 100px;
-            right: 10%;
+            right: calc((100% - 1184px) / 2 + 20px);
+            /* Align with content container */
             width: 340px;
             background: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
             z-index: 100;
             border: 1px solid #d1d7dc;
             display: none;
-            /* Hidden on mobile */
         }
 
         @media(min-width: 1080px) {
@@ -124,26 +161,18 @@
             }
         }
 
-        .sidebar-preview {
-            position: relative;
-            /* Added for overlay positioning */
+        @media(max-width: 1224px) {
+            .course-sidebar {
+                right: 20px;
+            }
         }
 
-        .sidebar-preview img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
+        .sidebar-preview {
+            position: relative;
         }
 
         .sidebar-content {
             padding: 20px;
-        }
-
-        .sidebar-price {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            color: #1c1d1f;
         }
 
         .btn-buy {
@@ -155,6 +184,7 @@
             border: none;
             margin-bottom: 10px;
             cursor: pointer;
+            font-size: 1rem;
         }
 
         .btn-buy:hover {
@@ -178,6 +208,8 @@
             margin-bottom: 8px;
             font-size: 0.9rem;
             color: #1c1d1f;
+            display: flex;
+            align-items: center;
         }
 
         .includes-list i {
@@ -190,7 +222,7 @@
         .main-container {
             max-width: 1184px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 32px 20px;
             display: flex;
         }
 
@@ -202,42 +234,50 @@
         /* What you'll learn box */
         .learning-objectives {
             border: 1px solid #d1d7dc;
-            padding: 20px;
-            margin: 30px 0;
-            background-color: #f9f9f9;
+            padding: 24px;
+            margin-bottom: 32px;
+            background-color: #fff;
         }
 
         .learning-objectives h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 24px;
+            margin-top: 0;
         }
 
         .obj-list {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 16px;
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .obj-list li {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             font-size: 0.95rem;
             color: #1c1d1f;
+            align-items: flex-start;
         }
 
         .obj-list i {
             color: #1c1d1f;
             margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .course-section {
+            margin-bottom: 32px;
         }
 
         .course-section h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-top: 30px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            color: #1c1d1f;
         }
 
         .requirements-list {
@@ -247,7 +287,7 @@
         }
 
         .requirements-list li {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #1c1d1f;
         }
 
@@ -263,8 +303,7 @@
 
         .price-mobile {
             display: block;
-            font-size: 1.5rem;
-            font-weight: 700;
+            width: 100%;
             margin-top: 10px;
         }
 
@@ -280,8 +319,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 200px;
-            /* Match video height */
+            height: 100%;
             background: rgba(0, 0, 0, 0.85);
             display: none;
             flex-direction: column;
@@ -289,129 +327,100 @@
             align-items: center;
             color: white;
             z-index: 10;
-            z-index: 10;
         }
 
-        /* Login Modal Styles */
+        /* Accordion Styles */
+        .section-toggle {
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            background: #f7f9fa;
+            border: none;
+            border-bottom: 1px solid #d1d7dc;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .section-toggle:first-child {
+            border-top: 1px solid #d1d7dc;
+        }
+
+        .section-toggle:hover {
+            background: #e8eaec;
+        }
+
+        .section-content {
+            border-left: 1px solid #d1d7dc;
+            border-right: 1px solid #d1d7dc;
+        }
+
+        .lecture-item {
+            cursor: pointer;
+            transition: background 0.2s;
+            padding: 12px 20px;
+            border-bottom: 1px solid #d1d7dc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+        }
+
+        .lecture-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .reviews-list .review-item {
+            border-bottom: 1px solid #d1d7dc;
+            padding: 24px 0;
+            display: flex;
+            gap: 16px;
+        }
+
+        .reviews-list .review-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Modal for Login/Review */
         .modal {
             display: none;
             position: fixed;
-            z-index: 10000;
-            /* High z-index to sit on top of everything */
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        .modal.show {
-            display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            animation: slideIn 0.3s;
-            position: relative;
-            /* Ensure content is positioned */
+        /* Review Form */
+        #reviewForm {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7f9fa;
+            border: 1px solid #d1d7dc;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h2 {
-            font-size: 1.5rem;
-            color: #1c1d1f;
-            margin: 0;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6a6f73;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-btn:hover {
-            color: #1c1d1f;
-        }
-
-        .modal-body p {
-            margin-bottom: 1.5rem;
-            color: #6a6f73;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .modal-actions .btn-modal {
-            flex: 1;
+        textarea {
+            width: 100%;
             padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-secondary-modal {
-            background-color: white;
-            color: #1c1d1f;
             border: 1px solid #1c1d1f;
+            margin-bottom: 10px;
+            font-family: inherit;
         }
 
-        .btn-primary-modal {
-            background-color: #a435f0;
-            color: white;
-            border: 1px solid #a435f0;
-        }
-
-        .btn-primary-modal:hover {
-            background-color: #8710d8;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        select {
+            padding: 10px;
+            border: 1px solid #1c1d1f;
+            margin-bottom: 10px;
+            font-family: inherit;
         }
     </style>
 </head>
@@ -419,16 +428,26 @@
 <body>
 
     <nav class="navbar">
-        <a th:href="${isLoggedIn} ? '/home/user' : '/home'" class="logo">SkillHub</a>
-        <div class="search-bar" style="margin-left: 20px; width: 400px;">
-            <form action="#"><input type="text" placeholder="Search for anything"></form>
+        <a href="/home" class="logo">SkillHub</a>
+        <div class="search-bar" style="margin-left: 20px; flex-grow: 1; max-width: 600px;">
+            <form action="/home" method="get">
+                <input type="text" name="query" placeholder="Search for anything">
+            </form>
         </div>
         <div class="nav-links">
-            <a th:href="${isLoggedIn} ? '/home/user' : '/home'">My Learning</a>
-            <a href="#"><i class="fas fa-shopping-cart"></i></a>
-            <div
-                style="background: #2d2f31; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                RB</div>
+            <th:block th:if="${isLoggedIn}">
+                <a href="/home">My Learning</a>
+                <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                <div class="user-avatar"
+                    th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'U'}">
+                    U
+                </div>
+            </th:block>
+            <th:block th:unless="${isLoggedIn}">
+                <a href="/login" style="padding: 10px 20px; border: 1px solid #1c1d1f; font-weight: bold;">Log in</a>
+                <a href="/register"
+                    style="padding: 10px 20px; background: #1c1d1f; color: white; font-weight: bold;">Sign up</a>
+            </th:block>
         </div>
     </nav>
 
@@ -436,33 +455,33 @@
     <div class="course-sidebar">
         <div class="sidebar-preview">
             <!-- Video Player Logic -->
-            <div id="videoContainer">
-                <div th:if="${course.videoUrl != null and !course.videoUrl.isEmpty()}">
+            <div id="videoContainer"
+                style="background: black; min-height: 190px; display: flex; align-items: center; justify-content: center;">
+                <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
                     <!-- Check if YouTube -->
-                    <iframe th:if="${course.videoUrl.contains('youtube.com') or course.videoUrl.contains('youtu.be')}"
-                        th:src="${course.embedUrl}" width="100%" height="200" frameborder="0"
+                    <iframe
+                        th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
+                        th:src="${course.embedUrl}" width="100%" height="190" frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen></iframe>
                     <!-- Else Local Video -->
                     <video id="coursePreviewVideo"
-                        th:unless="${course.videoUrl.contains('youtube.com') or course.videoUrl.contains('youtu.be')}"
-                        width="100%" height="200" controls>
+                        th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
+                        width="100%" height="190" controls>
                         <source th:src="@{${course.videoUrl}}" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
-                </div>
+                </th:block>
+                <!-- Fallback Image -->
+                <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
+                    th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt="Course Preview"
+                    style="width: 100%; height: 190px; object-fit: cover;" id="previewImage">
             </div>
 
-            <!-- Fallback Image -->
-            <img th:if="${course.videoUrl == null or course.videoUrl.isEmpty()}" th:src="${course.imageUrl}"
-                alt="Course Preview" style="display: block;" id="previewImage">
-
-            <!-- NEW: Video Restriction Overlay -->
+            <!-- Video Restriction Overlay -->
             <div id="videoOverlay">
                 <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; color: #a435f0;"></i>
                 <p style="font-weight: 700; margin-bottom: 5px;">Preview Ended</p>
-
-                <!-- Guest User -->
                 <div th:if="${!isLoggedIn}">
                     <p style="font-size: 0.9rem; margin-bottom: 15px; color: #ccc;">
                         Please <a href="/login"
@@ -470,8 +489,6 @@
                         continue.
                     </p>
                 </div>
-
-                <!-- Logged In User -->
                 <div th:if="${isLoggedIn}">
                     <p style="font-size: 0.8rem; margin-bottom: 15px; color: #ccc;">Enroll in this course to continue
                         watching.</p>
@@ -480,12 +497,9 @@
         </div>
 
         <div class="sidebar-content">
-            <!-- Price removed per request (Free) -->
-            <!-- Add to cart removed per request -->
-            <button class="btn-buy">Enroll for Free</button>
+            <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
 
             <!-- Wishlist Button -->
-            <!-- Replaced Form with AJAX Button -->
             <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
                 style="background-color: transparent; color: #1c1d1f; border: 1px solid #1c1d1f; margin-top: 10px;">
                 <i class="far fa-heart"></i> Add to Wishlist
@@ -493,7 +507,7 @@
             <p class="guarantee">30-Day Money-Back Guarantee</p>
 
             <div class="includes">
-                <p style="font-weight: 700; font-size: 0.9rem;">This course includes:</p>
+                <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">This course includes:</p>
                 <ul class="includes-list">
                     <li><i class="fas fa-video"></i> <span
                             th:text="${course.contentLength != null ? course.contentLength : '10 hours'} + ' on-demand video'"></span>
@@ -512,13 +526,17 @@
     <div class="course-header">
         <div class="header-content">
             <div class="header-text">
-                <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;">
-                    <a th:href="${isLoggedIn} ? '/home/user' : '/home'"
-                        style="color: #cec0fc; text-decoration: none;">Courses</a> >
-                    <span th:text="${course.categoryName}">Category</span>
+                <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
+                    <a href="/home" style="color: #cec0fc; text-decoration: none;">Courses</a>
+                    <span th:if="${course.categoryName != null}"> > <span
+                            th:text="${course.categoryName}">Category</span></span>
                 </div>
-                <h1 class="course-title" th:text="${course.title}">Course Title</h1>
-                <p class="course-subtitle" th:text="${course.subtitle != null ? course.subtitle : course.description}">
+
+                <h1 class="course-title" th:text="${course.title != null ? course.title : 'Untitled Course'}">Course
+                    Title</h1>
+
+                <p class="course-subtitle"
+                    th:text="${course.subtitle != null ? course.subtitle : (course.description != null ? course.description : '')}">
                     Short description goes here</p>
 
                 <div class="course-meta">
@@ -535,19 +553,20 @@
                 </div>
 
                 <div class="course-meta">
-                    <span>Created by <a href="#" class="instructor-link" th:text="${course.instructor.name}">Instructor
+                    <span>Created by <a href="#" class="instructor-link"
+                            th:text="${course.instructor != null and course.instructor.name != null ? course.instructor.name : 'Unknown Instructor'}">Instructor
                             Name</a></span>
                 </div>
 
                 <div class="course-meta" style="color: white;">
                     <span><i class="fas fa-exclamation-circle"></i> Last updated <span
-                            th:text="${course.lastUpdated != null ? course.lastUpdated : '12/2023'}"></span></span>
+                            th:text="${course.lastUpdated != null ? course.lastUpdated : 'Recently'}"></span></span>
                     <span><i class="fas fa-globe lang-icon"></i> <span
                             th:text="${course.language != null ? course.language : 'English'}">English</span></span>
                 </div>
 
-                <!-- Mobile Price Removed -->
-                <button class="btn-buy price-mobile" style="margin-top: 10px;">Enroll for Free</button>
+                <!-- Mobile Enroll Button -->
+                <button class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
             </div>
         </div>
     </div>
@@ -559,59 +578,71 @@
             <div class="learning-objectives">
                 <h2>What you'll learn</h2>
                 <ul class="obj-list">
-                    <li th:each="obj : ${#strings.arraySplit(course.learningObjectives != null ? course.learningObjectives : 'Master the core concepts', '
-')}">
-                        <i class="fas fa-check"></i> <span th:text="${obj}">Objective</span>
-                    </li>
+                    <th:block
+                        th:if="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
+                        <li th:each="obj : ${#strings.arraySplit(course.learningObjectives, '\n')}">
+                            <i class="fas fa-check"></i> <span th:text="${obj}">Objective</span>
+                        </li>
+                    </th:block>
+                    <th:block
+                        th:unless="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
+                        <li><i class="fas fa-check"></i><span>Master core concepts</span></li>
+                        <li><i class="fas fa-check"></i><span>Build real-world projects</span></li>
+                    </th:block>
                 </ul>
             </div>
 
-            <!-- Course Content Placeholder -->
+            <!-- Course Content -->
             <div class="course-section">
                 <h2>Course content</h2>
                 <div style="font-size: 0.9rem; margin-bottom: 20px;">
-                    <!-- Updated to use contentLength directly as formatted by backend service -->
-                    <span th:text="${course.sections.size()}">0</span> sections • <span
-                        th:text="${course.contentLength}">10 lectures • 5h 30m</span> total length
+                    <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections •
+                    <span th:text="${course.contentLength != null ? course.contentLength : '0h 0m'}">10 lectures • 5h
+                        30m</span> total length
                 </div>
-                <!-- Dynamic Sections with Accordion -->
-                <div style="border: 1px solid #d1d7dc; border-bottom: none;">
-                    <div th:each="section, sectionStat : ${course.sections}">
-                        <button class="section-toggle"
-                            style="width: 100%; text-align: left; padding: 15px; background: #f7f9fa; border: none; border-bottom: 1px solid #d1d7dc; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer;"
-                            th:onclick="'toggleSection(this)'">
-                            <div>
+
+                <!-- Dynamic Sections -->
+                <div style="border: 1px solid #d1d7dc; border-bottom: none;"
+                    th:if="${course.sections != null and !course.sections.empty}">
+                    <div th:each="section : ${course.sections}">
+                        <button class="section-toggle" onclick="toggleSection(this)">
+                            <div style="display:flex; align-items:center;">
                                 <i class="fas fa-chevron-down"
                                     style="margin-right: 10px; transition: transform 0.3s;"></i>
                                 <span th:text="${section.title}">Section Title</span>
                             </div>
-                            <span><span th:text="${section.lectures != null ? section.lectures.size() : 0}">0</span>
-                                lectures</span>
+                            <span>
+                                <span th:text="${section.lectures != null ? section.lectures.size() : 0}">0</span>
+                                lectures
+                            </span>
                         </button>
                         <!-- Content, hidden by default -->
-                        <div class="section-content" style="display: none; border-bottom: 1px solid #d1d7dc;">
-                            <div th:each="lecture : ${section.lectures}" class="lecture-item"
-                                th:attr="data-video-url=${lecture.videoUrl}"
-                                onclick="playPreview(this.getAttribute('data-video-url'))">
-                                <div style="display: flex; align-items: center;">
-                                    <i class="fas fa-play-circle" style="color: #6a6f73; margin-right: 10px;"></i>
-                                    <span th:text="${lecture.title}" style="color: #1c1d1f; font-size: 0.9rem;">Lecture
-                                        Title</span>
+                        <div class="section-content" style="display: none;">
+                            <th:block th:if="${section.lectures != null and !section.lectures.empty}">
+                                <div th:each="lecture : ${section.lectures}" class="lecture-item"
+                                    th:attr="data-video-url=${lecture.videoUrl}"
+                                    onclick="playPreview(this.getAttribute('data-video-url'))">
+                                    <div style="display: flex; align-items: center;">
+                                        <i class="fas fa-play-circle" style="color: #6a6f73; margin-right: 10px;"></i>
+                                        <span th:text="${lecture.title}"
+                                            style="color: #1c1d1f; font-size: 0.9rem;">Lecture Title</span>
+                                    </div>
+                                    <span style="font-size: 0.85rem; color: #6a6f73;"
+                                        th:if="${lecture.durationSeconds != null}"
+                                        th:text="${lecture.durationSeconds / 60} + ':' + ${lecture.durationSeconds % 60 < 10 ? '0' + (lecture.durationSeconds % 60) : (lecture.durationSeconds % 60)}">
+                                        10:00
+                                    </span>
                                 </div>
-                                <span style="font-size: 0.85rem; color: #6a6f73;"
-                                    th:if="${lecture.durationSeconds != null}"
-                                    th:text="${lecture.durationSeconds / 60} + ':' + ${lecture.durationSeconds % 60 < 10 ? '0' + (lecture.durationSeconds % 60) : (lecture.durationSeconds % 60)}">
-                                    10:00
-                                </span>
-                            </div>
-                            <div th:if="${section.lectures == null or section.lectures.empty}"
+                            </th:block>
+                            <div th:unless="${section.lectures != null and !section.lectures.empty}"
                                 style="padding: 15px; color: #666; font-size: 0.9rem;">
                                 No lectures in this section.
                             </div>
                         </div>
                     </div>
                 </div>
-                <div th:if="${course.sections == null or course.sections.empty}"
+
+                <div th:unless="${course.sections != null and !course.sections.empty}"
                     style="padding: 15px; text-align: center; color: #6a6f73; border: 1px solid #d1d7dc;">
                     No sections available yet.
                 </div>
@@ -621,8 +652,13 @@
             <div class="course-section">
                 <h2>Requirements</h2>
                 <ul class="requirements-list">
-                    <li th:each="req : ${#strings.arraySplit(course.requirements != null ? course.requirements : 'No prerequisites', '
-')}" th:text="${req}">Requirement</li>
+                    <th:block th:if="${course.requirements != null and !#strings.isEmpty(course.requirements)}">
+                        <li th:each="req : ${#strings.arraySplit(course.requirements, '\n')}" th:text="${req}">
+                            Requirement</li>
+                    </th:block>
+                    <th:block th:unless="${course.requirements != null and !#strings.isEmpty(course.requirements)}">
+                        <li>No prerequisites required.</li>
+                    </th:block>
                 </ul>
             </div>
 
@@ -634,509 +670,80 @@
                     Description goes here.
                 </div>
             </div>
-        </div>
 
-        <!-- Reviews Section ... (unchanged) -->
-        <div class="course-section" id="reviews-section">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top:30px;">
-                <h2 style="margin: 0;">Student Reviews</h2>
-                <button onclick="document.getElementById('reviewForm').style.display = 'block'" class="btn-buy"
-                    style="width: auto; padding: 10px 20px; margin: 0;">Write a Review</button>
-            </div>
-            <!-- ... forms and list ... -->
-        </div>
-    </div>
-    </div>
+            <!-- Reviews Section -->
+            <div class="course-section" id="reviews-section">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top:30px;">
+                    <h2 style="margin: 0;">Student Reviews</h2>
+                    <button onclick="toggleReviewForm()" class="btn-buy"
+                        style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f;">
+                        Write a Review
+                    </button>
+                </div>
 
-            <!-- Reviews List (Mockup logic if list not passed yet, assumes we need to fetch them) -->
-            <!-- We need to pass reviews to the model in CourseController -->
-            <div class="reviews-list">
-                <div th:each="review : ${reviews}" style="border-bottom: 1px solid #d1d7dc; padding: 20px 0;">
-                    <div style="display: flex; gap: 15px;">
-                        <div
-                            style="width: 40px; height: 40px; background: #1c1d1f; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                            <span th:text="${#strings.substring(review.user.name,0,1)}">U</span>
-                        </div>
-                        <div>
-                            <div style="font-weight: 700;" th:text="${review.user.name}">User Name</div>
-                            <div style="color: #6a6f73; font-size: 0.8rem; margin-bottom: 5px;">
-                                <span style="color: #f4c150; font-weight: 700; margin-right: 10px;"
-                                    th:text="${review.rating} + ' Stars'">5 Stars</span>
-                                <span th:text="${#temporals.format(review.createdAt, 'dd-MM-yyyy')}">Date</span>
+                <div id="reviewForm">
+                    <form th:action="@{/api/reviews}" method="post">
+                        <input type="hidden" name="courseId" th:value="${course.id}">
+                        <select name="rating">
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                        <textarea name="comment" rows="4" placeholder="Share your thoughts..."></textarea>
+                        <button type="submit" class="btn-buy" style="width: auto;">Submit Review</button>
+                    </form>
+                </div>
+
+                <div class="reviews-list">
+                    <th:block th:if="${reviews != null and !reviews.empty}">
+                        <div th:each="review : ${reviews}" class="review-item">
+                            <div
+                                style="width: 40px; height: 40px; background: #1c1d1f; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">
+                                <span
+                                    th:text="${review.user != null ? #strings.substring(review.user.name,0,1) : 'U'}">U</span>
                             </div>
-                            <p style="color: #1c1d1f;" th:text="${review.comment}">Review content.</p>
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 4px;"
+                                    th:text="${review.user != null ? review.user.name : 'Unknown User'}">User Name</div>
+                                <div style="color: #6a6f73; font-size: 0.8rem; margin-bottom: 8px;">
+                                    <span style="color: #f4c150; font-weight: 700; margin-right: 10px;"
+                                        th:text="${review.rating} + ' Stars'">5 Stars</span>
+                                    <span
+                                        th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'dd-MM-yyyy') : ''}">Date</span>
+                                </div>
+                                <p style="color: #1c1d1f; margin: 0; line-height: 1.5;" th:text="${review.comment}">
+                                    Review content.</p>
+                            </div>
                         </div>
+                    </th:block>
+                    <div th:if="${reviews == null or reviews.empty}" style="color: #6a6f73; font-style: italic;">
+                        No reviews yet. Be the first to verify!
                     </div>
                 </div>
             </div>
+
         </div>
-    </div>
     </div>
 
     <!-- Footer -->
-    <footer style="background: #1c1d1f; color: white; padding: 30px; margin-top: 50px;">
-        <div class="container"
+    <footer style="background: #1c1d1f; color: white; padding: 32px 20px; margin-top: 64px;">
+        <div
             style="max-width: 1184px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: 700; font-size: 1.2rem;">SkillHub</div>
-            <p style="font-size: 0.8rem; margin: 0; color: #64748b;">&copy; 2024 SkillHub, Inc.</p>
+            <p style="font-size: 0.9rem; margin: 0; color: #fff;">&copy; 2024 SkillHub, Inc.</p>
         </div>
     </footer>
 
-<<<<<<< HEAD
-    <!-- Wishlist Script (User Provided & Adapted) -->
     <script th:inline="javascript">
-        (function () {
-            'use strict';
-
-            // Server-side login state from Thymeleaf (Integrated)
-            const SERVER_LOGGED_IN = [[${ isLoggedIn }]];
-            const SERVER_COURSE_ID = [[${ course.id }]];
-
-            // Configuration
-            const CONFIG = {
-                loginUrl: '/login',
-                apiEndpoint: '/api/wishlist/add',
-                storageKey: 'userToken',
-            };
-
-            // Initialize when DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initWishlist);
-            } else {
-                initWishlist();
-            }
-
-            function initWishlist() {
-                const wishlistBtn = document.getElementById('addToWishlistBtn');
-
-                if (!wishlistBtn) {
-                    console.warn('Add to Wishlist button not found');
-                    return;
-                }
-
-                // Create modal if it doesn't exist
-                if (!document.getElementById('loginModal')) {
-                    createLoginModal();
-                }
-
-                // Attach event listener
-                wishlistBtn.addEventListener('click', handleWishlistClick);
-
-                // Check if course is already in wishlist
-                checkWishlistStatus();
-
-                // Expose modal showing for other parts of the page (like Enroll button)
-                window.showLoginModal = showLoginModal;
-            }
-
-            function handleWishlistClick(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (!isUserLoggedIn()) {
-                    showLoginModal();
-                } else {
-                    addToWishlist();
-                }
-            }
-
-            function isUserLoggedIn() {
-                // Priority: Server-side check
-                if (SERVER_LOGGED_IN) {
-                    return true;
-                }
-
-                // Check localStorage
-                if (localStorage.getItem(CONFIG.storageKey)) {
-                    return true;
-                }
-
-                // Check sessionStorage
-                if (sessionStorage.getItem(CONFIG.storageKey)) {
-                    return true;
-                }
-
-                // Check cookies
-                if (getCookie(CONFIG.storageKey)) {
-                    return true;
-                }
-
-                return false;
-            }
-
-            function getCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-                return null;
-            }
-
-            function getCourseId() {
-                if (SERVER_COURSE_ID) return SERVER_COURSE_ID;
-                const wishlistBtn = document.getElementById('addToWishlistBtn');
-                if (wishlistBtn && wishlistBtn.dataset.courseId) {
-                    return wishlistBtn.dataset.courseId;
-                }
-
-                const urlMatch = window.location.pathname.match(/\/course\/(\d+)/);
-                if (urlMatch) {
-                    return urlMatch[1];
-                }
-                return null;
-            }
-
-            function addToWishlist() {
-                const wishlistBtn = document.getElementById('addToWishlistBtn');
-                const courseId = getCourseId();
-
-                if (!courseId) {
-                    console.error('Course ID not found');
-                    return;
-                }
-
-                // Show loading state
-                const originalText = wishlistBtn.innerHTML;
-                wishlistBtn.disabled = true;
-                wishlistBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-
-                // Get auth token
-                const token = localStorage.getItem(CONFIG.storageKey) ||
-                    sessionStorage.getItem(CONFIG.storageKey) ||
-                    getCookie(CONFIG.storageKey);
-
-                // CSRF Token
-                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-                // Make API request
-                fetch(CONFIG.apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken,
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                    },
-                    body: JSON.stringify({
-                        courseId: parseInt(courseId)
-                    })
-                })
-                    .then(response => {
-                        if (response.status === 401) {
-                            showLoginModal();
-                            throw new Error('Unauthorized');
-                        }
-                        if (!response.ok) {
-                            return response.json().then(err => { throw new Error(err.message || 'Failed to add'); });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success || data.message === "Course already in wishlist" || data.message === "Course added to wishlist") {
-                            // Success - update UI
-                            wishlistBtn.innerHTML = '<i class="fas fa-check"></i> Added to Wishlist';
-                            wishlistBtn.classList.add('in-wishlist');
-                            wishlistBtn.style.backgroundColor = '#5cb85c';
-                            wishlistBtn.style.borderColor = '#5cb85c';
-                            wishlistBtn.style.color = 'white';
-
-                            // Show success notification
-                            showNotification('Course added to wishlist!', 'success');
-
-                            // Store wishlist status
-                            localStorage.setItem(`wishlist_${courseId}`, 'true');
-                        } else {
-                            throw new Error(data.message || 'Unknown error');
-                        }
-                    })
-                    .catch(error => {
-                        if (error.message === 'Unauthorized') {
-                            wishlistBtn.innerHTML = originalText;
-                            wishlistBtn.disabled = false;
-                            return;
-                        }
-
-                        console.error('Error:', error);
-                        wishlistBtn.disabled = false;
-                        wishlistBtn.innerHTML = originalText;
-                        showNotification('Failed to add to wishlist. ' + error.message, 'error');
-                    });
-            }
-
-            function checkWishlistStatus() {
-                const courseId = getCourseId();
-                const wishlistBtn = document.getElementById('addToWishlistBtn');
-
-                if (!wishlistBtn || !courseId) return;
-
-                // Check if already in wishlist (from localStorage)
-                if (localStorage.getItem(`wishlist_${courseId}`) === 'true') {
-                    wishlistBtn.innerHTML = '<i class="fas fa-check"></i> In Wishlist';
-                    wishlistBtn.classList.add('in-wishlist');
-                    wishlistBtn.style.backgroundColor = '#5cb85c';
-                    wishlistBtn.style.borderColor = '#5cb85c';
-                    wishlistBtn.style.color = 'white';
-                    wishlistBtn.disabled = true;
-                }
-            }
-
-            function createLoginModal() {
-                const modalHTML = `
-                    <div id="loginModal" class="wishlist-login-modal">
-                        <div class="wishlist-modal-content">
-                            <div class="wishlist-modal-header">
-                                <h2>Login Required</h2>
-                                <button class="wishlist-close-btn" id="closeWishlistModal">&times;</button>
-                            </div>
-                            <div class="wishlist-modal-body">
-                                <p>You need to be logged in to add courses to your wishlist.</p>
-                                <div class="wishlist-modal-actions">
-                                    <button class="wishlist-btn wishlist-btn-secondary" id="cancelWishlistModal">Cancel</button>
-                                    <a href="${CONFIG.loginUrl}" class="wishlist-btn wishlist-btn-primary">Login</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-                // Add styles
-                addModalStyles();
-
-                // Attach event listeners
-                document.getElementById('closeWishlistModal').addEventListener('click', hideLoginModal);
-                document.getElementById('cancelWishlistModal').addEventListener('click', hideLoginModal);
-
-                // Close on outside click
-                document.getElementById('loginModal').addEventListener('click', function (e) {
-                    if (e.target.id === 'loginModal') {
-                        hideLoginModal();
-                    }
-                });
-            }
-
-            function showLoginModal() {
-                const modal = document.getElementById('loginModal');
-                if (modal) {
-                    modal.classList.add('show');
-                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-                } else {
-                    createLoginModal(); // Create if not exists (redundancy)
-                    setTimeout(() => document.getElementById('loginModal').classList.add('show'), 10);
-                }
-            }
-
-            function hideLoginModal() {
-                const modal = document.getElementById('loginModal');
-                if (modal) {
-                    modal.classList.remove('show');
-                    document.body.style.overflow = ''; // Restore scrolling
-                }
-            }
-
-            function showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.className = `wishlist-notification wishlist-notification-${type}`;
-                notification.textContent = message;
-
-                document.body.appendChild(notification);
-
-                // Trigger animation
-                setTimeout(() => notification.classList.add('show'), 10);
-
-                // Remove after 3 seconds
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-
-            function addModalStyles() {
-                if (document.getElementById('wishlistModalStyles')) return;
-
-                const styles = document.createElement('style');
-                styles.id = 'wishlistModalStyles';
-                styles.textContent = `
-                    .wishlist-login-modal {
-                        display: none;
-                        position: fixed;
-                        z-index: 10000;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: rgba(0, 0, 0, 0.5);
-                        animation: wishlistFadeIn 0.3s;
-                    }
-
-                    .wishlist-login-modal.show {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-
-                    .wishlist-modal-content {
-                        background-color: white;
-                        padding: 2rem;
-                        border-radius: 8px;
-                        max-width: 400px;
-                        width: 90%;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-                        animation: wishlistSlideIn 0.3s;
-                    }
-
-                    .wishlist-modal-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 1.5rem;
-                    }
-
-                    .wishlist-modal-header h2 {
-                        font-size: 1.5rem;
-                        color: #1c1d1f;
-                        margin: 0;
-                    }
-
-                    .wishlist-close-btn {
-                        background: none;
-                        border: none;
-                        font-size: 1.5rem;
-                        cursor: pointer;
-                        color: #6a6f73;
-                        padding: 0;
-                        width: 30px;
-                        height: 30px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: color 0.2s;
-                    }
-
-                    .wishlist-close-btn:hover {
-                        color: #1c1d1f;
-                    }
-
-                    .wishlist-modal-body p {
-                        margin-bottom: 1.5rem;
-                        color: #6a6f73;
-                        line-height: 1.5;
-                    }
-
-                    .wishlist-modal-actions {
-                        display: flex;
-                        gap: 1rem;
-                    }
-
-                    .wishlist-btn {
-                        flex: 1;
-                        padding: 0.75rem 1.5rem;
-                        border: none;
-                        border-radius: 4px;
-                        font-size: 1rem;
-                        font-weight: bold;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                        text-align: center;
-                        text-decoration: none;
-                        display: block;
-                    }
-
-                    .wishlist-btn-primary {
-                        background-color: #a435f0;
-                        color: white;
-                    }
-
-                    .wishlist-btn-primary:hover {
-                        background-color: #8710d8;
-                    }
-
-                    .wishlist-btn-secondary {
-                        background-color: white;
-                        color: #1c1d1f;
-                        border: 2px solid #1c1d1f;
-                    }
-
-                    .wishlist-btn-secondary:hover {
-                        background-color: #f7f9fa;
-                    }
-
-                    .wishlist-notification {
-                        position: fixed;
-                        top: 20px;
-                        right: -400px;
-                        padding: 1rem 1.5rem;
-                        border-radius: 4px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                        z-index: 10001;
-                        transition: right 0.3s ease-out;
-                        color: white;
-                        font-weight: 500;
-                    }
-
-                    .wishlist-notification.show {
-                        right: 20px;
-                    }
-
-                    .wishlist-notification-success {
-                        background-color: #5cb85c;
-                    }
-
-                    .wishlist-notification-error {
-                        background-color: #d9534f;
-                    }
-
-                    @keyframes wishlistFadeIn {
-                        from { opacity: 0; }
-                        to { opacity: 1; }
-                    }
-
-                    @keyframes wishlistSlideIn {
-                        from {
-                            transform: translateY(-50px);
-                            opacity: 0;
-                        }
-                        to {
-                            transform: translateY(0);
-                            opacity: 1;
-                        }
-                    }
-
-                    @media (max-width: 480px) {
-                        .wishlist-modal-content {
-                            width: 95%;
-                            padding: 1.5rem;
-                        }
-
-                        .wishlist-modal-actions {
-                            flex-direction: column;
-                        }
-
-                        .wishlist-btn {
-                            width: 100%;
-                        }
-                    }
-                `;
-
-                document.head.appendChild(styles);
-            }
-
-        })();
-    </script>
-
-    <!-- Original Page Logic (Video, Accordion, Enrollment) -->
-    <script th:inline="javascript">
-        // Helper to get enroll status
-        const isEnrolled = [[${ isEnrolled }]];
-        const isLoggedIn = [[${ isLoggedIn }]];
-
-        // Accordion Logic
-        function toggleSection(button) {
-            const content = button.nextElementSibling;
-            const icon = button.querySelector('.fa-chevron-down');
-
-            if (content.style.display === 'none') {
+        /*<![CDATA[*/
+        function toggleSection(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.fa-chevron-down');
+
+            if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
                 icon.style.transform = 'rotate(180deg)';
             } else {
@@ -1145,168 +752,97 @@
             }
         }
 
-        // Play Preview Logic
-        function playPreview(videoUrl) {
-            if (!isLoggedIn) {
-                if (window.showLoginModal) {
-                    window.showLoginModal();
-                } else {
-                    window.location.href = '/login';
-                }
-                return;
-            }
+        function toggleReviewForm() {
+            const form = document.getElementById('reviewForm');
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
 
-            if (!videoUrl || videoUrl === 'null' || videoUrl.trim() === '') {
+        function playPreview(videoUrl) {
+            const container = document.getElementById('videoContainer');
+            const overlay = document.getElementById('videoOverlay');
+            if (overlay) overlay.style.display = 'none';
+
+            if (!videoUrl || videoUrl === 'null' || videoUrl === '') {
                 alert('No video available for this lecture.');
                 return;
             }
 
-            const container = document.getElementById('videoContainer');
-            const previewImage = document.getElementById('previewImage');
-            const overlay = document.getElementById('videoOverlay');
-
-            if (previewImage) previewImage.style.display = 'none';
-            overlay.style.display = 'none';
-
-            let htmlContent = '';
+            let html = '';
             if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
                 let embedUrl = videoUrl;
-                if (embedUrl.includes('watch?v=')) {
-                    const videoId = embedUrl.split('v=')[1].split('&')[0];
-                    embedUrl = 'https://www.youtube.com/embed/' + videoId;
+                if (videoUrl.includes('watch?v=')) {
+                    const vId = videoUrl.split('v=')[1].split('&')[0];
+                    embedUrl = 'https://www.youtube.com/embed/' + vId;
                 }
-                htmlContent = `<iframe src="${embedUrl}?autoplay=1" width="100%" height="200" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                html = '<iframe src="' + embedUrl + '?autoplay=1" width="100%" height="190" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
             } else {
-                htmlContent = `<video id="coursePreviewVideo" width="100%" height="200" controls autoplay>
-                        <source src="${videoUrl}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>`;
+                html = '<video width="100%" height="190" controls autoplay><source src="' + videoUrl + '" type="video/mp4"></video>';
             }
-
-            container.innerHTML = htmlContent;
-
-            // Re-attach restriction listener
-            const newVideo = document.getElementById('coursePreviewVideo');
-
-            // Check path for free access
-            if (window.location.pathname.indexOf('/user/course/') !== -1) {
-                if (overlay) overlay.style.display = 'none';
-            } else if (newVideo && !isEnrolled) {
-                newVideo.addEventListener('timeupdate', function () {
-                    // Fail-safe: Allow free play on user/course path
-                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
-
-                    if (this.currentTime >= 20) {
-                        this.pause();
-                        this.currentTime = 20;
-                        overlay.style.display = 'flex';
-                        if (document.fullscreenElement) document.exitFullscreen();
-                    } else {
-                        overlay.style.display = 'none';
-                    }
-                });
-
-                newVideo.addEventListener('seeking', function () {
-                    // Fail-safe: Allow free play on user/course path
-                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
-
-                    if (this.currentTime > 20) {
-                        this.currentTime = 20;
-                        this.pause();
-                        overlay.style.display = 'flex';
-                    }
-                });
-            }
+            container.innerHTML = html;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Video restriction logic for initial load
-            const videoDetails = document.getElementById('coursePreviewVideo');
-            const overlay = document.getElementById('videoOverlay');
-
-            // Check path for free access
-            if (window.location.pathname.indexOf('/user/course/') !== -1) {
-                if (overlay) overlay.style.display = 'none';
-            } else if (videoDetails && !isEnrolled) {
-                videoDetails.addEventListener('timeupdate', function () {
-                    // Fail-safe: Allow free play on user/course path
-                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
-
-                    if (this.currentTime >= 20) {
-                        this.pause();
-                        this.currentTime = 20;
-                        overlay.style.display = 'flex';
-                        if (document.fullscreenElement) document.exitFullscreen();
-                    } else {
-                        overlay.style.display = 'none';
-                    }
-                });
-
-                videoDetails.addEventListener('seeking', function () {
-                    // Fail-safe: Allow free play on user/course path
-                    if (window.location.pathname.indexOf('/user/course/') !== -1) return;
-
-                    if (this.currentTime > 20) {
-                        this.currentTime = 20;
-                        this.pause();
-                        overlay.style.display = 'flex';
-                    }
-                });
-            }
-
-            // Enrollment / Buy Button
-            document.querySelectorAll('.btn-buy').forEach(button => {
-                button.addEventListener('click', function (e) {
-                    if (this.getAttribute('onclick')) return;
-                    if (this.id === 'addToWishlistBtn') return; // Handled by Wishlist Script
-                    e.preventDefault();
-
-                    // Check login status first
-                    const isLoggedIn = [[${ isLoggedIn }]];
-                    if (!isLoggedIn) {
-                        if (window.showLoginModal) {
-                            window.showLoginModal();
-                        } else {
-                            window.location.href = '/login';
-                        }
-                        return;
-                    }
-
-                    const courseId = [[${ course.id }]];
-=======
-    <script>
+        // Enroll / Buy Button Logic
         document.querySelectorAll('.btn-buy').forEach(button => {
+            if (button.id === 'addToWishlistBtn') return; // Skip wishlist button
+
             button.addEventListener('click', function () {
-                const courseId = [[${ course.id }]];
->>>>>>> c6baf19e253c46e38b617b1a1f1d6bb258002579
+                const courseId = /*[[${course.id}]]*/ 0;
 
-                    // CSRF Token
-                    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+                // Use CSRF token if protected
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
 
-                    fetch(`/api/enrollments/${courseId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            [csrfHeader]: csrfToken
+                fetch('/api/enrollments/' + courseId, {
+                    method: 'POST',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.status === 401) {
+                            window.location.href = '/login';
+                            return;
                         }
+                        if (response.ok) return response.json();
+                        throw new Error('Enrollment failed');
                     })
-                        .then(response => {
-                            if (response.status === 401) {
-                                window.location.href = '/login';
-                                return;
-                            }
-                            if (response.ok) return response.json();
-                            throw new Error('Enrollment failed');
-                        })
-                        .then(data => {
-                            // Redirect to user learning path
-                            window.location.href = `/user/course/${courseId}/learn`;
-                        })
-                        .catch(error => console.error('Error:', error));
-                });
+                    .then(data => {
+                        window.location.href = '/course/' + courseId + '/learn';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Enrollment failed. Please try again.');
+                    });
             });
         });
+
+        // Wishlist Logic
+        document.getElementById('addToWishlistBtn')?.addEventListener('click', function () {
+            const courseId = this.getAttribute('data-course-id');
+            // Use CSRF token if protected
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }; // Controller expects param
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            fetch('/course/wishlist/add', {
+                method: 'POST',
+                headers: headers,
+                body: 'courseId=' + courseId
+            }).then(r => {
+                if (r.redirected && r.url.includes('login')) {
+                    window.location.href = '/login';
+                } else if (r.ok || r.redirected) {
+                    alert('Added to wishlist!');
+                    this.innerHTML = '<i class="fas fa-heart" style="color:red"></i> In Wishlist';
+                }
+            });
+        });
+        /*]]>*/
     </script>
 </body>
 

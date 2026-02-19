@@ -58,6 +58,9 @@ public class PageController {
     @GetMapping({ "/home", "/home/user" })
     public String home(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
         String email = principal.getName();
         model.addAttribute("user", userService.findByEmail(email));
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -68,9 +71,14 @@ public class PageController {
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         } else if (categoryId != null) {
             Category category = categoryService.getCategoryById(categoryId);
-            model.addAttribute("courses", courseService.getCoursesByCategory(category));
-            model.addAttribute("activeCategory", categoryId);
-            model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
+            if (category != null) {
+                model.addAttribute("courses", courseService.getCoursesByCategory(category));
+                model.addAttribute("activeCategory", categoryId);
+                model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
+            } else {
+                model.addAttribute("courses", courseService.getPublishedCourses());
+                model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
+            }
         } else {
             model.addAttribute("courses", courseService.getPublishedCourses());
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());

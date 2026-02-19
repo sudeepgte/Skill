@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class CourseService {
 
     @Autowired
@@ -56,6 +57,15 @@ public class CourseService {
         Course course = courseRepository.findById(id).orElse(null);
         if (course != null) {
             populateCourseRatings(course);
+            // Initialize sections and lectures
+            if (course.getSections() != null) {
+                course.getSections().size();
+                course.getSections().forEach(section -> {
+                    if (section.getLectures() != null) {
+                        section.getLectures().size();
+                    }
+                });
+            }
         }
         return course;
     }

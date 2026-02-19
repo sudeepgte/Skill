@@ -1,159 +1,271 @@
-/* Navbar - Modern & Centered Search */
+/* ─── NAVBAR ─── */
 .navbar {
-    height: var(--navbar-height);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 500;
     display: flex;
     align-items: center;
-    padding: 0 2.4rem;
-    gap: 2.4rem;
-    justify-content: space-between;
+    gap: 0;
+    height: 6rem;
+    padding: 0 1.6rem;
+    background: #fff;
+    border-bottom: 1px solid #d1d7dc;
 }
 
-.logo-text {
+.nav-logo {
     font-size: 2.4rem;
     font-weight: 800;
-    font-family: 'Merriweather', serif;
-    color: var(--color-primary);
+    color: #5624d0;
+    text-decoration: none;
+    flex-shrink: 0;
+    margin-right: 0.8rem;
     letter-spacing: -0.5px;
 }
 
-.navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 2.4rem;
-    flex-shrink: 0;
-}
-
-.navbar-center {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    max-width: 72rem;
-}
-
-.navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    flex-shrink: 0;
-}
-
-/* Categories Dropdown */
-.dropdown {
+/* Categories dropdown */
+.nav-dropdown {
     position: relative;
-    height: 100%;
+    flex-shrink: 0;
+}
+
+.nav-dropdown-trigger {
     display: flex;
     align-items: center;
-}
-
-.categories-link {
-    font-size: 1.5rem;
+    gap: 0.6rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.4rem;
     font-weight: 500;
-    color: var(--color-text-main);
+    color: #1c1d1f;
     cursor: pointer;
-    padding: 0.8rem 1.2rem;
-    border-radius: var(--radius-sm);
-    transition: background 0.2s;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    white-space: nowrap;
+    user-select: none;
+    transition: border-color 0.15s;
 }
 
-.categories-link:hover {
-    color: var(--color-primary);
-    background-color: rgba(0, 0, 0, 0.04);
+.nav-dropdown-trigger:hover {
+    border-color: #1c1d1f;
 }
 
-.dropdown-menu {
+.nav-dropdown-menu {
     display: none;
     position: absolute;
-    top: 100%;
-    /* Removed + 1rem gap */
-    padding-top: 1rem;
-    /* Add padding instead if spacing is needed visually, but keep hit-area continuous */
-    background-color: #ffffff;
-    /* Explicitly white for visibility */
-    min-width: 280px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    /* Stronger shadow */
-    border-radius: var(--radius-md);
+    top: calc(100% + 0.4rem);
+    left: 0;
+    background: #fff;
     border: 1px solid #d1d7dc;
-    /* Clear border */
-    padding: 1.2rem 0;
-    z-index: 1050;
-    /* Ensure it's on top */
-    opacity: 1;
-    /* Force opacity */
-    animation: slideIn 0.2s ease-out;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+    min-width: 22rem;
+    z-index: 600;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.nav-dropdown:hover .nav-dropdown-menu {
+    display: block;
 }
 
-/* .dropdown:hover .dropdown-menu {
-    display: block;   <-- Removed to prevent conflict with JS controlled state 
-} */
-
-.dropdown-item {
-    color: var(--color-text-main);
-    padding: 1.2rem 2.4rem;
-    font-size: 1.5rem;
-    font-weight: 400;
+.nav-dropdown-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.6rem;
+    font-size: 1.4rem;
+    color: #1c1d1f;
+    text-decoration: none;
+    transition: background 0.12s;
 }
 
-.dropdown-item:hover {
-    background-color: var(--color-surface-alt);
-    color: var(--color-primary);
-    padding-left: 2.8rem;
-    /* Slide effect */
+.nav-dropdown-item:hover {
+    background: #f7f9fa;
 }
 
-/* Search Bar - Centered & Modern */
-.search-container {
-    width: 100%;
+/* Search */
+.nav-search {
+    flex: 1;
+    max-width: 68rem;
+    margin: 0 1.2rem;
+    display: flex;
+    align-items: center;
+    border: 1px solid #1c1d1f;
+    border-radius: 10rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.nav-search-icon {
+    background: none;
+    border: none;
+    padding: 0 1.4rem;
+    cursor: pointer;
+    color: #1c1d1f;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.nav-search form {
+    display: flex;
+    flex: 1;
+}
+
+.nav-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1.4rem;
+    font-family: inherit;
+    padding: 0.9rem 1.6rem 0.9rem 0;
+    background: transparent;
+}
+
+/* Nav right */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.nav-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #1c1d1f;
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    transition: border-color 0.15s;
+}
+
+.nav-link:hover {
+    border-color: #1c1d1f;
+}
+
+.nav-btn-outline {
+    padding: 0.8rem 1.6rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1c1d1f;
+    text-decoration: none;
+    border: 1.5px solid #1c1d1f;
+    border-radius: 0.4rem;
+    transition: background 0.15s;
+}
+
+.nav-btn-outline:hover {
+    background: #f7f9fa;
+}
+
+.nav-btn-primary {
+    padding: 0.8rem 1.6rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    background: #5624d0;
+    text-decoration: none;
+    border: 1.5px solid #5624d0;
+    border-radius: 0.4rem;
+    transition: background 0.15s;
+}
+
+.nav-btn-primary:hover {
+    background: #401b9c;
+    border-color: #401b9c;
+}
+
+.nav-globe {
+    width: 3.8rem;
+    height: 3.8rem;
+    border: 1.5px solid #1c1d1f;
+    border-radius: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #1c1d1f;
+    cursor: pointer;
+    background: none;
+    transition: background 0.15s;
+}
+
+.nav-globe:hover {
+    background: #f7f9fa;
+}
+
+.nav-avatar {
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    background: #5624d0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.nav-user-dropdown {
     position: relative;
 }
 
-.search-input {
-    width: 100%;
-    height: 4.8rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    padding: 0 5.2rem;
-    font-size: 1.5rem;
-    background-color: var(--color-surface-alt);
-    transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
+.nav-user-dropdown:hover .nav-user-menu {
+    display: block;
 }
 
-.search-input:focus {
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-input-focus);
-    border-color: transparent;
-    outline: none;
-}
-
-.search-icon-btn {
+.nav-user-menu {
+    display: none;
     position: absolute;
-    left: 1.8rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-secondary);
+    top: calc(100% + 0.6rem);
+    right: 0;
+    min-width: 22rem;
+    background: #fff;
+    border: 1px solid #d1d7dc;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+    z-index: 600;
+}
+
+.nav-user-menu-header {
+    padding: 1.4rem 1.6rem;
+    border-bottom: 1px solid #d1d7dc;
+}
+
+.nav-user-menu-header .name {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #1c1d1f;
+}
+
+.nav-user-menu-header .email {
+    font-size: 1.2rem;
+    color: #6a6f73;
+}
+
+.nav-user-menu a,
+.nav-user-menu button {
+    display: block;
+    width: 100%;
+    padding: 1.1rem 1.6rem;
+    font-size: 1.4rem;
+    color: #1c1d1f;
+    text-decoration: none;
     background: none;
     border: none;
-    font-size: 1.8rem;
-    pointer-events: none;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.nav-user-menu a:hover,
+.nav-user-menu button:hover {
+    background: #f7f9fa;
+}
+
+.nav-user-menu-divider {
+    border-top: 1px solid #d1d7dc;
+    margin: 0.4rem 0;
 }
