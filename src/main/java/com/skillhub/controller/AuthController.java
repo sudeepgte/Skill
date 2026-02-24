@@ -19,9 +19,18 @@ public class AuthController {
     private com.skillhub.service.CategoryService categoryService;
 
     @GetMapping("/login")
-    public String login(Model model) {
+    public String login(Model model, jakarta.servlet.http.HttpServletRequest request) {
+        // Force session creation to avoid "Cannot create a session after the response
+        // has been committed"
+        // during Thymeleaf rendering of CSRF token
+        request.getSession(true);
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "login";
+        return "login-page";
+    }
+
+    @GetMapping("/login_test")
+    public String loginTest() {
+        return "login_test";
     }
 
     @GetMapping("/register")

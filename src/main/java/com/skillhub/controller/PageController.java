@@ -46,7 +46,8 @@ public class PageController {
         } else if (categoryId != null) {
             Category category = categoryService.getCategoryById(categoryId);
             model.addAttribute("courses", courseService.getCoursesByCategory(category));
-            model.addAttribute("activeCategory", categoryId);
+            model.addAttribute("activeCategory", category.getName()); // Changed from ID to Name
+            model.addAttribute("selectedCategoryId", categoryId); // Keep ID for highlighting tabs
             model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
         } else {
             model.addAttribute("courses", courseService.getPublishedCourses());
@@ -55,15 +56,36 @@ public class PageController {
         return "main_index";
     }
 
-    @GetMapping({ "/home", "/home/user" })
+    @GetMapping("/user/home")
     public String home(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
         if (principal == null) {
             return "redirect:/login";
         }
         String email = principal.getName();
-        model.addAttribute("user", userService.findByEmail(email));
+        com.skillhub.model.User user = userService.findByEmail(email);
+        model.addAttribute("user", user);
         model.addAttribute("categories", categoryService.getAllCategories());
+
+        // CERTIFICATE LOGIC
+        // Find latest earned certificate
+        com.skillhub.model.Enrollment latestCert = null;
+        // Find a course ready for exam (100% progress but no exam passed)
+        com.skillhub.model.Enrollment pendingCert = null;
+
+        if (user.getEnrollments() != null) {
+            for (com.skillhub.model.Enrollment e : user.getEnrollments()) {
+                if (e.isExamPassed()) {
+                    if (latestCert == null || e.getCertificateDate().isAfter(latestCert.getCertificateDate())) {
+                        latestCert = e;
+                    }
+                } else if (pendingCert == null && e.getProgressPercentage() >= 100.0) {
+                    pendingCert = e;
+                }
+            }
+        }
+        model.addAttribute("latestCert", latestCert);
+        model.addAttribute("pendingCert", pendingCert);
 
         if (query != null && !query.isEmpty()) {
             model.addAttribute("courses", courseService.searchCourses(query));
@@ -73,7 +95,8 @@ public class PageController {
             Category category = categoryService.getCategoryById(categoryId);
             if (category != null) {
                 model.addAttribute("courses", courseService.getCoursesByCategory(category));
-                model.addAttribute("activeCategory", categoryId);
+                model.addAttribute("activeCategory", category.getName()); // Changed from ID to Name
+                model.addAttribute("selectedCategoryId", categoryId); // Keep ID for highlighting tabs
                 model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
             } else {
                 model.addAttribute("courses", courseService.getPublishedCourses());

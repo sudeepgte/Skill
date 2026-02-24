@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="'Exam: ' + ${course.title} + ' | SkillHub'">Exam In Progress | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f7f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .exam-header {
+            background: #fff;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #d1d7dc;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .timer-badge {
+            background: #1c1d1f;
+            color: #fff;
+            padding: 0.8rem 1.6rem;
+            border-radius: 4px;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .exam-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .question-card {
+            background: #fff;
+            padding: 3rem;
+            border: 1px solid #d1d7dc;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .q-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #1c1d1f;
+            line-height: 1.5;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 1.2rem;
+            border: 1px solid #d1d7dc;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background 0.1s, border-color 0.1s;
+        }
+
+        .option-label:hover {
+            background: #f7f9fa;
+            border-color: #1c1d1f;
+        }
+
+        .option-input {
+            margin-top: 0.3rem;
+            margin-right: 1.2rem;
+            accent-color: #5624d0;
+            width: 1.8rem;
+            height: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .option-text {
+            font-size: 1.5rem;
+            color: #1c1d1f;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form id="examForm" th:action="@{/user/course/{id}/exam/submit(id=${course.id})}" method="post">
+        <!-- CRITICAL: CSRF Token -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <!-- Header -->
+        <div class="exam-header">
+            <div>
+                <h2 style="font-size: 1.6rem; margin:0; font-weight: 700; color: #1c1d1f;" th:text="${course.title}">
+                    Course Title</h2>
+                <span style="font-size: 1.3rem; color: #6a6f73;">Final Certification Exam</span>
+            </div>
+            <div class="timer-badge">
+                <i class="fa-regular fa-clock"></i> <span id="timer">40:00</span>
+            </div>
+        </div>
+
+        <!-- Questions -->
+        <div class="exam-container">
+            <div th:each="q, iterStat : ${questions}" class="question-card">
+                <div class="q-text" th:text="${iterStat.count} + '. ' + ${q.question}">1. Question text here?</div>
+
+                <div th:each="opt : ${q.options}"> <!-- Iterating over Map Entry (key, value) -->
+                    <label class="option-label">
+                        <input type="radio" th:name="'q_' + ${q.id}" th:value="${opt.key}" class="option-input"
+                            required>
+                        <span class="option-text" th:text="${opt.value}">Option Text</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="hero-cta-primary"
+                style="width: 100%; padding: 1.5rem; font-size: 1.8rem; margin-bottom: 4rem; cursor: pointer;">
+                Submit Exam
+            </button>
+        </div>
+    </form>
+
+    <script>
+        // Timer Logic
+        let timeLeft = 40 * 60; // 40 minutes in seconds
+        const timerElement = document.getElementById('timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                alert("Time is up! Submitting your exam.");
+                document.getElementById('examForm').submit();
+            } else if (timeLeft === 300) { // 5 minutes warning
+                timerElement.parentElement.style.backgroundColor = "#b32d0f";
+            }
+            timeLeft--;
+        }
+
+        const countdown = setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+
+        // Prevent accidental tab close
+        window.onbeforeunload = function () {
+            return "Are you sure you want to leave? Your exam progress will be lost.";
+        };
+
+        document.getElementById('examForm').onsubmit = function () {
+            window.onbeforeunload = null; // Disable warning on submit
+        };
+    </script>
+
+</body>
+
+</html>

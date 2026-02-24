@@ -13,7 +13,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-left">
-            <a href="/home" class="logo">
+            <a href="/user/home" class="logo">
                 <span class="logo-text">SkillHub</span>
             </a>
 
@@ -66,7 +66,7 @@
 
         <!-- Filter Pills -->
         <div class="tags-container">
-            <a href="/home" class="tag-pill" th:classappend="${activeSection == null} ? 'active'">All Courses</a>
+            <a href="/user/home" class="tag-pill" th:classappend="${activeSection == null} ? 'active'">All Courses</a>
             <a th:each="section : ${sections}" th:href="@{/home(sectionId=${section.id})}" class="tag-pill"
                 th:classappend="${activeSection == section.id} ? 'active'" th:text="${section.name}">Development</a>
         </div>
@@ -81,12 +81,12 @@
         <div th:if="${#lists.isEmpty(courses)}"
             style="text-align: center; padding: 6.4rem 0; background-color: var(--color-gray-100); border: 1px solid var(--color-gray-200); margin-bottom: 4.8rem; border-radius: var(--radius-sm);">
             <p class="text-bold" style="font-size: 1.9rem; margin-bottom: 1.6rem;">No courses found in this section.</p>
-            <a href="/home" class="btn btn-primary">Browse all courses</a>
+            <a href="/user/home" class="btn btn-primary">Browse all courses</a>
         </div>
 
         <!-- Course Grid -->
         <div class="course-grid">
-            <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
+            <a th:each="course : ${courses}" th:href="@{/user/course/{id}(id=${course.id})}" class="course-card">
                 <div class="course-image">
                     <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
                 </div>
@@ -113,7 +113,8 @@
         <div class="hero-carousel-track" id="heroTrack">
             <!-- Slide 1 -->
             <div class="hero-slide">
-                <img th:src="@{/images/home/carousel_learning.webp}" alt="Learning" draggable="false">
+                <img src="https://img.freepik.com/free-photo/hands-working-digital-device-network-graphic-overlay_53876-132150.jpg?semt=ais_user_personalization&w=740&q=80"
+                    alt="Learning" draggable="false">
                 <div class="hero-overlay">
                     <h1 class="ud-heading-serif-xxl">Unlock Your Potential</h1>
                     <p class="ud-text-md">Skills for your present (and your future). Get started with us.</p>
@@ -121,7 +122,8 @@
             </div>
             <!-- Slide 2 -->
             <div class="hero-slide">
-                <img th:src="@{/images/home/carousel_tech.webp}" alt="Technology" draggable="false">
+                <img src="https://png.pngtree.com/background/20250512/original/pngtree-a-laptop-and-code-on-the-screen-with-the-text-coding-picture-image_15993834.jpg"
+                    alt="Technology" draggable="false">
                 <div class="hero-overlay">
                     <h1 class="ud-heading-serif-xxl">Future in Tech</h1>
                     <p class="ud-text-md">Master the latest frameworks and technologies.</p>

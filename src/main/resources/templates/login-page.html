@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Login | SkillHub</title>
+    <!-- Font Awesome CDN (was missing — caused broken icon layout) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
+
+    <style>
+        /* ── Reset & Variables ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-black: #1c1d1f;
+            --color-purple: #a435f0;
+            --color-purple-dark: #8710d8;
+            --color-gray: #6a6f73;
+            --color-border: #d1d7dc;
+            --color-bg: #fff;
+            --font-main: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            color: var(--color-black);
+            background: var(--color-bg);
+            font-size: 1.4rem;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        /* 1rem = 10px */
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 113.6rem;
+            margin: 0 auto;
+            padding: 0 2.4rem;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border-radius: 0;
+            cursor: pointer;
+            border: none;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-sm {
+            padding: 0.8rem 1.6rem;
+            height: 4rem;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 1.2rem;
+            height: 4.8rem;
+        }
+
+        .btn-primary {
+            background: var(--color-purple);
+            color: #fff;
+            border: 1px solid var(--color-purple);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-purple-dark);
+            border-color: var(--color-purple-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-black);
+            border: 1px solid var(--color-black);
+        }
+
+        .btn-outline:hover {
+            background: #f7f9fa;
+        }
+
+        .btn-icon {
+            width: 4rem;
+            height: 4rem;
+            padding: 0;
+            font-size: 1.6rem;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            height: 6.4rem;
+            padding: 0 2.4rem;
+            border-bottom: 1px solid var(--color-border);
+            background: #fff;
+            gap: 1.6rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--color-black);
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+
+        .categories-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 1.4rem;
+            font-weight: 400;
+            cursor: pointer;
+            white-space: nowrap;
+            padding: 0.8rem 0;
+        }
+
+        .categories-link i {
+            font-size: 1.1rem;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            min-width: 22rem;
+            z-index: 200;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 1.6rem;
+            font-size: 1.4rem;
+            transition: background 0.1s;
+        }
+
+        .dropdown-item:hover {
+            background: #f7f9fa;
+        }
+
+        /* Search */
+        .navbar-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--color-black);
+            border-radius: 2.4rem;
+            overflow: hidden;
+            width: 100%;
+            height: 4rem;
+            background: #fff;
+        }
+
+        .search-icon-btn {
+            background: none;
+            border: none;
+            padding: 0 1.2rem;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: var(--color-black);
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            font-size: 1.4rem;
+            width: 100%;
+            padding-right: 1.2rem;
+            background: transparent;
+        }
+
+        .search-container form {
+            display: flex;
+            width: 100%;
+        }
+
+        /* Navbar right */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* ── Auth Page ── */
+        .auth-page-container {
+            min-height: calc(100vh - 6.4rem - 6rem);
+            display: flex;
+            align-items: center;
+            padding: 4rem 0;
+        }
+
+        .auth-split-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6rem;
+            width: 100%;
+        }
+
+        .auth-illustration {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .auth-illustration img {
+            max-width: 38rem;
+            width: 100%;
+        }
+
+        .auth-form-side {
+            flex: 1;
+            max-width: 40rem;
+        }
+
+        .auth-header {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--color-black);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 4.8rem;
+            padding: 0 1.6rem;
+            border: 1px solid var(--color-border);
+            font-size: 1.4rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.15s;
+            border-radius: 0;
+        }
+
+        .form-control:focus {
+            border-color: var(--color-black);
+        }
+
+        .alert {
+            padding: 1.6rem;
+            margin-bottom: 1.6rem;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin: 2rem 0 1.2rem;
+            font-size: 1.2rem;
+            color: var(--color-gray);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        /* ── Footer ── */
+        .simple-footer {
+            background: var(--color-black);
+            color: #fff;
+            padding: 2rem 2.4rem;
+        }
+
+        .footer-simple-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.6rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer-simple-link {
+            color: #fff;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: opacity 0.15s;
+        }
+
+        .footer-simple-link:hover {
+            opacity: 1;
+        }
+
+        .footer-copyright {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.6;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .auth-illustration {
+                display: none;
+            }
+
+            .auth-split-container {
+                padding: 0 1.6rem;
+            }
+
+            .auth-form-side {
+                max-width: 100%;
+            }
+
+            .categories-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/" class="logo">
+                <span class="logo-text">SkillHub</span>
+            </a>
+            <div class="dropdown">
+                <div class="categories-link">
+                    Categories <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-menu">
+                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" href="#"
+                        class="dropdown-item">
+                        <span th:text="${cat.name}">Category</span>
+                        <i class="fas fa-chevron-right" style="font-size:1.1rem; opacity:0.5;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-center">
+            <div class="search-container">
+                <button class="search-icon-btn" type="button"><i class="fas fa-search"></i></button>
+                <form action="/" style="width:100%;">
+                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
+                </form>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <a href="/login" class="btn btn-outline btn-sm">Log in</a>
+            <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
+            <a href="#" class="btn btn-outline btn-icon" title="Language">
+                <i class="fas fa-globe"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Auth Section -->
+    <div class="auth-page-container">
+        <div class="container auth-split-container">
+
+            <!-- Left: Illustration -->
+            <div class="auth-illustration">
+                <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp"
+                    alt="Log in to SkillHub">
+            </div>
+
+            <!-- Right: Form -->
+            <div class="auth-form-side">
+                <h3 class="auth-header">Log in to your account</h3>
+
+                <!-- Error / Success alerts (Thymeleaf driven) -->
+                <div th:if="${param.error}" class="alert"
+                    style="color:#6a1f1d; background:#f7dddc; border:1px solid #f1acab;">
+                    Invalid email or password.
+                </div>
+                <div th:if="${param.logout}" class="alert" style="color:#0f3e0f; background:#dff0d8;">
+                    You have been logged out.
+                </div>
+                <div th:if="${param.success}" class="alert" style="color:#0f3e0f; background:#dff0d8;">
+                    Registration successful! Please login.
+                </div>
+
+                <!-- Using manual action to avoid Thymeleaf CSRF crash issue -->
+                <form action="/login" method="post">
+                    <!-- Manually add CSRF if available, otherwise skip to avoid crash -->
+                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="form-group">
+                        <input type="email" name="username" class="form-control" placeholder="Email" required
+                            style="opacity: 1; visibility: visible; display: block;">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="Password" required
+                            style="opacity: 1; visibility: visible; display: block;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Log in</button>
+
+                    <div style="text-align:center; margin-top:1.2rem; font-size:1.4rem;">
+                        <a href="/forgot-password" style="color:var(--color-purple); font-weight:700;">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <div style="text-align:center; margin-top:1.2rem; font-size:1.4rem;">
+                        <span>Don't have an account? </span>
+                        <a href="/register" style="color:var(--color-purple); font-weight:700;">Sign up</a>
+                    </div>
+                </form>
+
+                <div class="divider"><span>Other log in options</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="simple-footer">
+        <div class="container footer-simple-content">
+            <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/contact" class="footer-simple-link">Contact Us</a>
+            <a href="/terms" class="footer-simple-link">Terms</a>
+            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
+        </div>
+        <div class="container">
+            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

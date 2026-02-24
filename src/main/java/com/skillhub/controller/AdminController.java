@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -97,6 +97,49 @@ public class AdminController {
     public String unpublishCourse(Long id) {
         courseService.unpublishCourse(id);
         return "redirect:/admin/courses";
+    }
+
+    @GetMapping("/courses/{id}/questions")
+    public String manageExamQuestions(@org.springframework.web.bind.annotation.PathVariable Long id, Model model) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course == null)
+            return "redirect:/admin/courses";
+
+        // Ensure you have autowired ExamQuestionRepository at the top of
+        // AdminController
+        // We will fetch from course object mapping directly
+        model.addAttribute("course", course);
+        model.addAttribute("questions", course.getExamQuestions());
+        return "admin/manage_questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/add")
+    public String addExamQuestion(@org.springframework.web.bind.annotation.PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestParam String questionText,
+            @org.springframework.web.bind.annotation.RequestParam String optionA,
+            @org.springframework.web.bind.annotation.RequestParam String optionB,
+            @org.springframework.web.bind.annotation.RequestParam String optionC,
+            @org.springframework.web.bind.annotation.RequestParam String optionD,
+            @org.springframework.web.bind.annotation.RequestParam String correctOption) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course != null) {
+            com.skillhub.model.ExamQuestion q = new com.skillhub.model.ExamQuestion(course, questionText, optionA,
+                    optionB, optionC, optionD, correctOption);
+            course.getExamQuestions().add(q);
+            courseService.saveCourse(course); // This cascades save to ExamQuestion
+        }
+        return "redirect:/admin/courses/" + id + "/questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/delete/{qid}")
+    public String deleteExamQuestion(@org.springframework.web.bind.annotation.PathVariable Long id,
+            @org.springframework.web.bind.annotation.PathVariable Long qid) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course != null) {
+            course.getExamQuestions().removeIf(q -> q.getId().equals(qid));
+            courseService.saveCourse(course); // Cascades delete
+        }
+        return "redirect:/admin/courses/" + id + "/questions";
     }
 
     @GetMapping("/courses/create")

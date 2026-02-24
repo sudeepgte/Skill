@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class EnrollmentService {
 
@@ -53,10 +55,60 @@ public class EnrollmentService {
         if (!progress.isCompleted()) {
             progress.setCompleted(true);
             progress.setCompletedAt(java.time.LocalDateTime.now());
-            lectureProgressRepository.save(progress);
+            lectureProgressRepository.saveAndFlush(progress);
 
             // Update Course Progress
             updateCourseProgress(user, lecture.getSection().getCourse());
+        }
+    }
+
+    @Transactional
+    public void markLectureAsIncomplete(User user, Long lectureId) {
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new RuntimeException("Lecture not found"));
+
+        LectureProgress progress = lectureProgressRepository.findByUserAndLecture(user, lecture)
+                .orElse(null);
+
+        if (progress != null && progress.isCompleted()) {
+            progress.setCompleted(false);
+            progress.setCompletedAt(null);
+            lectureProgressRepository.save(progress);
+
+            updateCourseProgress(user, lecture.getSection().getCourse());
+        }
+    }
+
+    /** Marks ALL lectures in a course as complete for the user (DB sync). */
+    @Transactional
+    public void markAllLecturesComplete(User user, Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
+                .orElseThrow(() -> new RuntimeException("Not enrolled"));
+
+        List<Lecture> lectures = lectureRepository.findByCourseId(courseId);
+        for (Lecture lecture : lectures) {
+            LectureProgress progress = lectureProgressRepository
+                    .findByUserAndLecture(user, lecture)
+                    .orElse(new LectureProgress(user, lecture));
+            if (!progress.isCompleted()) {
+                progress.setCompleted(true);
+                progress.setCompletedAt(java.time.LocalDateTime.now());
+                lectureProgressRepository.save(progress);
+            }
+        }
+        
+        lectureProgressRepository.flush();
+
+        // Recompute percentage
+        long total = lectures.size();
+        if (total > 0) {
+            long completed = lectureProgressRepository
+                    .countCompletedLecturesByCourse(user.getId(), courseId);
+            enrollment.setProgressPercentage(Math.min(100.0, (double) completed / total * 100.0));
+            enrollmentRepository.save(enrollment);
         }
     }
 
@@ -64,19 +116,17 @@ public class EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElseThrow(() -> new RuntimeException("User not enrolled in this course"));
 
-        // Calculate total lectures
-        long totalLectures = course.getSections().stream()
-                .mapToLong(section -> section.getLectures().size())
-                .sum();
+        // Use JPQL to count total lectures — avoids Hibernate lazy-loading returning
+        // wrong count
+        long totalLectures = lectureProgressRepository.countTotalLecturesByCourse(course.getId());
 
         if (totalLectures == 0)
             return;
 
-        // Calculate completed lectures
         long completedLectures = lectureProgressRepository
-                .countByUserAndLecture_Section_Course_IdAndIsCompletedTrue(user, course.getId());
+                .countCompletedLecturesByCourse(user.getId(), course.getId());
 
-        double percentage = (double) completedLectures / totalLectures * 100.0;
+        double percentage = Math.min(100.0, (double) completedLectures / totalLectures * 100.0);
         enrollment.setProgressPercentage(percentage);
         enrollmentRepository.save(enrollment);
     }

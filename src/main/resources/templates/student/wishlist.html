@@ -127,7 +127,7 @@
     <nav class="navbar">
         <div class="container"
             style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
-            <a href="/home/user" class="logo"
+            <a href="/user/home" class="logo"
                 style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
             <div>
                 <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
@@ -157,7 +157,7 @@
         <div th:if="${#lists.isEmpty(wishlistItems)}" style="text-align: center; padding: 4rem;">
             <h2>Your wishlist is empty</h2>
             <p>Explore courses and save them for later.</p>
-            <a href="/home/user" class="btn btn-primary"
+            <a href="/user/home" class="btn btn-primary"
                 style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
                 Courses</a>
         </div>
@@ -171,7 +171,7 @@
                         <div class="instructor-name" th:text="${item.course.instructor.name}">Instructor Name</div>
                         <div class="course-price" th:text="'₹' + ${item.course.price}">₹499</div>
 
-                        <form th:action="@{/course/wishlist/remove}" method="post">
+                        <form th:action="@{/user/course/wishlist/remove}" method="post">
                             <input type="hidden" name="courseId" th:value="${item.course.id}" />
                             <button type="submit" class="remove-btn" style="width:100%; background:white;">Remove from
                                 Wishlist</button>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="'Certificate: ' + ${course.title}">Certificate</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #2d2d2d;
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .certificate-container {
+            width: 1123px;
+            /* A4 Landscape width approx @ 96dpi */
+            height: 794px;
+            /* A4 Landscape height */
+            background: #fffcf5;
+            position: relative;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border: 20px solid #fff;
+            outline: 2px solid #c5a059;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-image:
+                radial-gradient(circle at center, transparent 0%, transparent 60%, rgba(197, 160, 89, 0.05) 100%),
+                url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNjNWEwNTkiIG9wYWNpdHk9IjAuMiIvPjwvc3ZnPg==');
+        }
+
+        /* Gold Border Frame */
+        .frame {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #c5a059;
+            pointer-events: none;
+        }
+
+        .frame::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid #c5a059;
+        }
+
+        /* Corner Ornaments */
+        .corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-color: #c5a059;
+            border-style: solid;
+        }
+
+        .tl {
+            top: 20px;
+            left: 20px;
+            border-width: 4px 0 0 4px;
+        }
+
+        .tr {
+            top: 20px;
+            right: 20px;
+            border-width: 4px 4px 0 0;
+        }
+
+        .bl {
+            bottom: 20px;
+            left: 20px;
+            border-width: 0 0 4px 4px;
+        }
+
+        .br {
+            bottom: 20px;
+            right: 20px;
+            border-width: 0 4px 4px 0;
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #1a1a1a;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .sub-header {
+            font-family: 'Lato', sans-serif;
+            font-size: 1.2rem;
+            color: #c5a059;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            font-weight: 700;
+        }
+
+        .certifies-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.5rem;
+            color: #666;
+            margin: 40px 0 20px;
+        }
+
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: #1c1d1f;
+            margin: 0;
+            border-bottom: 2px solid #c5a059;
+            padding: 0 40px 10px;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        .course-text {
+            font-size: 1.4rem;
+            color: #666;
+            margin: 30px 0 10px;
+        }
+
+        .course-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: #1a1a1a;
+            margin: 0 0 40px;
+            font-weight: 700;
+        }
+
+        .seal {
+            width: 120px;
+            height: 120px;
+            border: 4px solid #c5a059;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #c5a059;
+            font-weight: 900;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 1px;
+            font-size: 1.2rem;
+            text-align: center;
+            background: #fff;
+            box-shadow: 0 0 0 10px #fffcf5;
+            /* Mask lines behind seal */
+        }
+
+        .seal-inner {
+            width: 90px;
+            height: 90px;
+            border: 1px solid #c5a059;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signatures {
+            position: absolute;
+            bottom: 80px;
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 60px;
+        }
+
+        .sig-block {
+            text-align: center;
+        }
+
+        .sig-line {
+            width: 250px;
+            border-top: 1px solid #1a1a1a;
+            margin-top: 10px;
+        }
+
+        .sig-name {
+            font-family: 'Mrs Saint Delafield', cursive;
+            font-size: 2.5rem;
+            color: #1a1a1a;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Fallback font */
+        .sig-title {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .date-block {
+            position: absolute;
+            bottom: 40px;
+            font-size: 1rem;
+            color: #999;
+        }
+
+        .actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #5624d0;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .btn:hover {
+            background: #401b9c;
+        }
+
+        .btn-home {
+            background: #fff;
+            color: #1c1d1f;
+        }
+
+        @media print {
+            body {
+                background: none;
+                margin: 0;
+                display: block;
+            }
+
+            .certificate-container {
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                width: 100%;
+                height: 100%;
+                page-break-after: always;
+                transform: none;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+        }
+    </style>
+    <!-- Importing a cursive font for signature -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="certificate-container">
+        <!-- Decor -->
+        <div class="frame"></div>
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <!-- Content -->
+        <h1 class="header-title">Certificate of Completion</h1>
+        <div class="sub-header">SkillHub Academy</div>
+
+        <div class="certifies-text">This certificate is proudly presented to</div>
+
+        <h2 class="recipient-name" th:text="${user.name}">Recipient Name</h2>
+
+        <div class="course-text">for successfully completing the course</div>
+
+        <h3 class="course-title" th:text="${course.title}">Course Title Goes Here</h3>
+
+        <p style="font-size: 1.1rem; color: #666; max-width: 600px; margin-bottom: 60px;">
+            This candidate has demonstrated mastery of the subject matter by completing all required coursework and
+            passing the final certification exam.
+        </p>
+
+        <!-- Signatures -->
+        <div class="signatures">
+            <div class="sig-block">
+                <span class="sig-name" style="font-family: 'Great Vibes', cursive;">Sarah Mitchell</span>
+                <div class="sig-line"></div>
+                <div class="sig-title">Director of Learning</div>
+            </div>
+
+            <div class="sig-block">
+                <span class="sig-name" style="font-family: 'Great Vibes', cursive;">James Anderson</span>
+                <div class="sig-line"></div>
+                <div class="sig-title">Lead Instructor</div>
+            </div>
+        </div>
+
+        <!-- Seal -->
+        <div class="seal">
+            <div class="seal-inner">
+                SKILLHUB<br>VERIFIED
+            </div>
+        </div>
+
+        <div class="date-block">
+            Issued on <span th:text="${#temporals.format(certificateDate, 'MMMM d, yyyy')}">January 1, 2026</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/home}" class="btn btn-home"><i class="fa-solid fa-home"></i> Home</a>
+        <button onclick="window.print()" class="btn"><i class="fa-solid fa-download"></i> Download PDF</button>
+    </div>
+
+</body>
+
+</html>

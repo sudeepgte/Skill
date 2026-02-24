@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="'Exam: ' + ${course.title}">Exam Intro</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .exam-intro {
+            max-width: 800px;
+            margin: 6rem auto;
+            padding: 4rem;
+            background: #fff;
+            border: 1px solid #d1d7dc;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .hero-icon {
+            font-size: 6rem;
+            color: #5624d0;
+            margin-bottom: 2rem;
+        }
+
+        .rule-list {
+            text-align: left;
+            max-width: 500px;
+            margin: 2rem auto;
+            font-size: 1.6rem;
+            color: #1c1d1f;
+        }
+
+        .rule-list li {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar"
+        style="border-bottom: 1px solid #d1d7dc; display: flex; align-items: center; justify-content: space-between; padding: 0 2.4rem; height: 7.2rem; background: #fff;">
+        <div class="navbar-left" style="display: flex; align-items: center; gap: 2rem;">
+            <a href="/user/home" class="logo"
+                style="text-decoration: none; color: #1c1d1f; font-weight: 700; font-family: 'Merriweather', serif; font-size: 2.4rem;">
+                <span class="logo-text">SkillHub</span>
+            </a>
+        </div>
+
+        <div class="navbar-right" style="display: flex; align-items: center; gap: 2rem;">
+            <a href="/user/certifications" class="categories-link"
+                style="text-decoration: none; color: #1c1d1f; font-size: 1.4rem;">My Certifications</a>
+
+            <div
+                style="width: 4rem; height: 4rem; background-color: #1c1d1f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                <span>U</span>
+            </div>
+
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-ghost text-sm"
+                    style="font-weight: 400; text-decoration: underline; background: none; border: none; cursor: pointer; color: #1c1d1f; font-size: 1.4rem;">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="exam-intro">
+        <i class="fa-solid fa-graduation-cap hero-icon"></i>
+        <h1 style="font-family: 'Merriweather', serif; font-size: 2.8rem; margin-bottom: 1rem;">Final Certification Exam
+        </h1>
+        <h2 th:text="${course.title}" style="font-size: 1.8rem; color: #6a6f73; font-weight: 400; margin-bottom: 3rem;">
+            Course Title</h2>
+
+        <div style="background: #f7f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 3rem;">
+            <ul class="rule-list">
+                <li><i class="fa-regular fa-clock" style="width:25px"></i> <strong>40 Minutes</strong> time limit</li>
+                <li><i class="fa-solid fa-list-ol" style="width:25px"></i> <strong>20 Questions</strong> (Multiple
+                    Choice)</li>
+                <li><i class="fa-solid fa-award" style="width:25px"></i> <strong>70% Score</strong> required to pass
+                </li>
+            </ul>
+        </div>
+
+        <a th:href="@{/user/course/{id}/exam-simulation(id=${course.id})}" class="hero-cta-primary"
+            style="font-size: 1.8rem; padding: 1.5rem 4rem;">
+            Start Exam Now
+        </a>
+        <div style="margin-top: 2rem;">
+            <a th:href="@{/user/certifications}" style="color:#6a6f73; text-decoration: none;">Cancel</a>
+        </div>
+    </div>
+</body>
+
+</html>

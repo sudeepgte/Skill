@@ -62,6 +62,9 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wishlist> wishlist = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExamQuestion> examQuestions = new ArrayList<>();
+
     // Transient fields for UI display (not stored in DB, calculated)
     @Transient
     private Double averageRating = 0.0;
@@ -245,6 +248,14 @@ public class Course {
 
     public void setWishlist(List<Wishlist> wishlist) {
         this.wishlist = wishlist;
+    }
+
+    public List<ExamQuestion> getExamQuestions() {
+        return examQuestions;
+    }
+
+    public void setExamQuestions(List<ExamQuestion> examQuestions) {
+        this.examQuestions = examQuestions;
     }
 
     public Double getAverageRating() {

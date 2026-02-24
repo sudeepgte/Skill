@@ -116,6 +116,17 @@ public class User {
         isBlocked = blocked;
     }
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Enrollment> enrollments = new java.util.ArrayList<>();
+
+    public java.util.List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
+
+    public void setEnrollments(java.util.List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
+    }
+
     public LocalDateTime getLastLoginDate() {
         return lastLoginDate;
     }

@@ -496,7 +496,7 @@
 
     <!-- HEADER -->
     <div class="learning-header">
-        <a href="/home" class="header-back">
+        <a href="/user/home" class="header-back">
             <i class="fas fa-chevron-left"></i> Dashboard
         </a>
         <div class="header-divider"></div>
@@ -563,7 +563,7 @@
         <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <span>Course Content</span>
+                <span style="color: black;">Course Content</span>
                 <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
             </div>
             <div class="sidebar-body">
@@ -721,7 +721,7 @@
 
         // ─── PROGRESS BAR ───
         function updateProgressBar() {
-            const allItems = document.querySelectorAll('[data-lecture-id]');
+            const allItems = document.querySelectorAll('.lesson-item[data-lecture-id]');
             let total = 0, done = 0;
             allItems.forEach(item => {
                 if (!item.dataset.lectureId) return;
@@ -732,6 +732,20 @@
             document.getElementById('progressFill').style.width = pct + '%';
             document.getElementById('progressText').textContent = pct + '% complete';
             document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
+
+            // Auto-sync with backend if exactly 100%
+            if (pct >= 100 && total > 0) {
+                const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
+                const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
+                if (csrfHeaderEl && csrfTokenEl) {
+                    fetch(`/api/enrollments/sync/${COURSE_ID}`, {
+                        method: 'POST',
+                        headers: {
+                            [csrfHeaderEl.getAttribute('content')]: csrfTokenEl.getAttribute('content')
+                        }
+                    }).catch(() => { });
+                }
+            }
         }
 
         // ─── VIDEO PROGRESS (Resume from where left off) ───
@@ -751,7 +765,14 @@
                     setProgress(CURRENT_LECTURE_ID, video.currentTime);
                 }
                 // Auto-mark complete when 90% watched
-                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && video.currentTime / video.duration > 0.9) {
+                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration > 0.90)) {
+                    markLectureComplete(CURRENT_LECTURE_ID);
+                }
+            });
+
+            // Handle when a user skips near the end
+            video.addEventListener('seeked', () => {
+                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration > 0.90)) {
                     markLectureComplete(CURRENT_LECTURE_ID);
                 }
             });

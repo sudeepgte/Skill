@@ -40,7 +40,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                                 .requestMatchers("/instructor/**")
                                                 .hasAnyAuthority("INSTRUCTOR", "ADMIN")
-                                                .requestMatchers("/home").authenticated()
+                                                .requestMatchers("/user/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form
                                                 .loginPage("/login")

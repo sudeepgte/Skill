@@ -147,4 +147,38 @@ public class CourseController {
 
         return "redirect:/student/wishlist";
     }
+
+    @GetMapping("/user/course/{id}/exam")
+    public String getExamPage(@PathVariable Long id, Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+
+        // check if enrolled
+        if (enrollmentRepository.findByStudentAndCourse(user, course).isEmpty()) {
+            return "redirect:/user/course/" + id;
+        }
+
+        model.addAttribute("course", course);
+        return "course/exam";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/user/course/{id}/exam/pass")
+    public String passExam(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+
+        enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(enrollment -> {
+            enrollment.setExamPassed(true);
+            enrollment.setCertificateDate(java.time.LocalDateTime.now());
+            enrollmentRepository.save(enrollment);
+        });
+
+        return "redirect:/user/home?certificateData=earned";
+    }
 }

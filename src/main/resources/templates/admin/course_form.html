@@ -3,6 +3,9 @@
 
 <head>
     <title>Create New Course | SkillHub</title>
+    <!-- CSRF Tokens for AJAX -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -348,8 +351,17 @@
                 feedback.textContent = 'Updating...';
             }
 
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+            const headers = {};
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
             fetch(actionUrl, {
                 method: 'POST',
+                headers: headers,
                 body: formData
             })
                 .then(response => {

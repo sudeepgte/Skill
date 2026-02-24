@@ -26,6 +26,11 @@ public class Enrollment {
     @Column(name = "last_played_lecture_id")
     private Long lastPlayedLectureId; // For "Continue Watching" functionality
 
+    @Column(name = "is_exam_passed")
+    private Boolean isExamPassed = false; // Changed to Wrapper
+
+    private LocalDateTime certificateDate;
+
     public Enrollment() {
         this.enrolledAt = LocalDateTime.now();
         this.progressPercentage = 0;
@@ -84,5 +89,21 @@ public class Enrollment {
 
     public void setLastPlayedLectureId(Long lastPlayedLectureId) {
         this.lastPlayedLectureId = lastPlayedLectureId;
+    }
+
+    public boolean isExamPassed() {
+        return isExamPassed != null && isExamPassed;
+    }
+
+    public void setExamPassed(boolean examPassed) {
+        this.isExamPassed = examPassed;
+    }
+
+    public LocalDateTime getCertificateDate() {
+        return certificateDate;
+    }
+
+    public void setCertificateDate(LocalDateTime certificateDate) {
+        this.certificateDate = certificateDate;
     }
 }

@@ -428,7 +428,7 @@
 <body>
 
     <nav class="navbar">
-        <a href="/home" class="logo">SkillHub</a>
+        <a href="/user/home" class="logo">SkillHub</a>
         <div class="search-bar" style="margin-left: 20px; flex-grow: 1; max-width: 600px;">
             <form action="/home" method="get">
                 <input type="text" name="query" placeholder="Search for anything">
@@ -436,7 +436,7 @@
         </div>
         <div class="nav-links">
             <th:block th:if="${isLoggedIn}">
-                <a href="/home">My Learning</a>
+                <a href="/user/home">My Learning</a>
                 <a href="#"><i class="fas fa-shopping-cart"></i></a>
                 <div class="user-avatar"
                     th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'U'}">
@@ -497,7 +497,14 @@
         </div>
 
         <div class="sidebar-content">
-            <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
+            <th:block th:if="${isEnrolled}">
+                <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy"
+                    style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
+                    Now</a>
+            </th:block>
+            <th:block th:unless="${isEnrolled}">
+                <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
+            </th:block>
 
             <!-- Wishlist Button -->
             <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
@@ -527,7 +534,7 @@
         <div class="header-content">
             <div class="header-text">
                 <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
-                    <a href="/home" style="color: #cec0fc; text-decoration: none;">Courses</a>
+                    <a href="/user/home" style="color: #cec0fc; text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>
@@ -566,7 +573,14 @@
                 </div>
 
                 <!-- Mobile Enroll Button -->
-                <button class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
+                <th:block th:if="${isEnrolled}">
+                    <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy price-mobile"
+                        style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
+                        Now</a>
+                </th:block>
+                <th:block th:unless="${isEnrolled}">
+                    <button class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
+                </th:block>
             </div>
         </div>
     </div>
@@ -783,7 +797,7 @@
 
         // Enroll / Buy Button Logic
         document.querySelectorAll('.btn-buy').forEach(button => {
-            if (button.id === 'addToWishlistBtn') return; // Skip wishlist button
+            if (button.id === 'addToWishlistBtn' || button.tagName.toLowerCase() === 'a') return; // Skip wishlist and links
 
             button.addEventListener('click', function () {
                 const courseId = /*[[${course.id}]]*/ 0;

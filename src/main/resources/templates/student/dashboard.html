@@ -144,7 +144,7 @@
     <nav class="navbar">
         <div class="container"
             style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
-            <a href="/home/user" class="logo"
+            <a href="/user/home" class="logo"
                 style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
             <div>
                 <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
@@ -174,7 +174,7 @@
         <div th:if="${#lists.isEmpty(enrollments)}" style="text-align: center; padding: 4rem;">
             <h2>No enrolled courses yet</h2>
             <p>Start learning today!</p>
-            <a href="/home/user" class="btn btn-primary"
+            <a href="/user/home" class="btn btn-primary"
                 style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
                 Courses</a>
         </div>
