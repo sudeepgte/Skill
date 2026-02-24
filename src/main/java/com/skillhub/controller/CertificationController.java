@@ -138,14 +138,14 @@ public class CertificationController {
                 e.setCertificateDate(java.time.LocalDateTime.now());
                 enrollmentRepository.save(e);
             });
-            return "redirect:/user/certificate/" + id;
+            return "redirect:/user/course/" + id + "/certificate";
         } else {
             return "redirect:/user/certifications?fail=true&score=" + attempt.getScore();
         }
     }
 
     // ─── VIEW CERTIFICATE ────────────────────────────────────────────────────────
-    @GetMapping("/user/certificate/{id}")
+    @GetMapping({ "/user/certificate/{id}", "/user/course/{id}/certificate" })
     public String viewCertificate(@PathVariable Long id, Model model, Principal principal) {
         if (principal == null)
             return "redirect:/login";
@@ -161,6 +161,7 @@ public class CertificationController {
 
         model.addAttribute("user", user);
         model.addAttribute("course", course);
+        model.addAttribute("enrollObj", enrollment);
         model.addAttribute("certificateDate", enrollment.getCertificateDate());
         return "certificate/view";
     }
