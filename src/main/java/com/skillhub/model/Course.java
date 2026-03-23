@@ -12,6 +12,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 500)
     private String title;
     @Column(name = "course_subtitle", columnDefinition = "LONGTEXT")
     private String subtitle; // Short description
@@ -37,6 +38,7 @@ public class Course {
     private boolean isPublished = false;
     private String lastUpdated;
 
+    @Column(length = 1000)
     private String videoUrl;
 
     @Column(columnDefinition = "TEXT")
@@ -56,7 +58,7 @@ public class Course {
 
     private Long viewCount = 0L;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Enrollment> enrollments;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)

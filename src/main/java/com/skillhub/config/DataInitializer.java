@@ -23,6 +23,7 @@ public class DataInitializer {
             CategoryRepository categoryRepository,
             CourseRepository courseRepository,
             ReviewRepository reviewRepository,
+            com.skillhub.repository.EnrollmentRepository enrollmentRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
 
@@ -79,8 +80,9 @@ public class DataInitializer {
                 if (courseRepository.count() > 0) {
                     try {
                         reviewRepository.deleteAll(); // Delete reviews first (FK constraint)
+                        enrollmentRepository.deleteAll(); // Delete enrollments before courses
                         courseRepository.deleteAll(); // Delete all courses
-                        System.out.println("--- FORCED CLEANUP: All courses and reviews deleted ---");
+                        System.out.println("--- FORCED CLEANUP: All courses, reviews, and enrollments deleted ---");
                     } catch (Exception e) {
                         System.out.println("Cleanup error: " + e.getMessage());
                     }
