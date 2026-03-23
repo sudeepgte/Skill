@@ -81,6 +81,12 @@ public class AdminController {
         return "admin/courses";
     }
 
+    @GetMapping("/exams")
+    public String listExams(Model model) {
+        model.addAttribute("courses", courseService.getAllCourses());
+        return "admin/exams";
+    }
+
     @PostMapping("/courses/delete")
     public String deleteCourse(Long id) {
         courseService.deleteCourse(id);

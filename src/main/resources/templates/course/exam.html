@@ -83,29 +83,41 @@
 
     <div class="exam-container">
         <h1 th:text="'Final Exam: ' + ${course.title}">Final Exam</h1>
-        <p>This is a simulated final exam for the course. In a real scenario, you would answer multiple-choice questions
-            to prove your mastery of the subject.</p>
+        <p>This is the final assessment for the course. Please answer all questions to prove your mastery and earn your certificate.</p>
 
         <form th:action="@{/user/course/{id}/exam/pass(id=${course.id})}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <div class="question-box">
-                <div class="question-text">1. What is the primary purpose of this course?</div>
-                <label class="option"><input type="radio" name="q1" value="a" checked> To master the subject
-                    matter</label>
-                <label class="option"><input type="radio" name="q1" value="b"> To waste time</label>
-                <label class="option"><input type="radio" name="q1" value="c"> None of the above</label>
+            <div th:if="${course.examQuestions == null || course.examQuestions.empty}">
+                <div class="question-box" style="text-align: center; border-style: dashed;">
+                    <i class="fas fa-file-invoice" style="font-size: 3rem; color: #d1d7dc; margin-bottom: 2rem; display: block;"></i>
+                    <p style="font-size: 1.2rem; color: #6a6f73;">No assessment questions have been uploaded for this course yet.</p>
+                    <p style="font-size: 1.1rem; color: #6a6f73;">You can confirm your completion below to proceed.</p>
+                </div>
             </div>
 
-            <div class="question-box">
-                <div class="question-text">2. Which concept was covered in Section 1?</div>
-                <label class="option"><input type="radio" name="q2" value="a"> Rocket Science</label>
-                <label class="option"><input type="radio" name="q2" value="b" checked> Core Fundamentals</label>
-                <label class="option"><input type="radio" name="q2" value="c"> Cooking</label>
+            <div th:each="q, stat : ${course.examQuestions}" class="question-box">
+                <div class="question-text" th:text="${stat.count} + '. ' + ${q.questionText}">1. Question Title</div>
+                
+                <label class="option">
+                    <input type="radio" th:name="'q' + ${q.id}" value="A" required> 
+                    <span th:text="${q.optionA}">Option A</span>
+                </label>
+                <label class="option">
+                    <input type="radio" th:name="'q' + ${q.id}" value="B"> 
+                    <span th:text="${q.optionB}">Option B</span>
+                </label>
+                <label class="option">
+                    <input type="radio" th:name="'q' + ${q.id}" value="C"> 
+                    <span th:text="${q.optionC}">Option C</span>
+                </label>
+                <label class="option">
+                    <input type="radio" th:name="'q' + ${q.id}" value="D"> 
+                    <span th:text="${q.optionD}">Option D</span>
+                </label>
             </div>
 
-            <p style="font-size:1.4rem; color:#6a6f73;">By clicking Submit, you confirm that you have completed the
-                coursework.</p>
+            <p style="font-size:1.4rem; color:#6a6f73;">By clicking Submit, you confirm that you have completed the assessment to the best of your ability.</p>
 
             <button type="submit" class="btn-submit">Submit Exam & Get Certified</button>
         </form>
