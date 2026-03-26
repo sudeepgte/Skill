@@ -326,7 +326,7 @@
             <a href="/dashboard" class="nav-link">My Learning</a>
             <a th:href="@{/user/placement}" class="nav-link">Placement Prep</a>
             <a href="/user/certifications" class="nav-link" style="color:#5624d0; font-weight:700;">Certifications</a>
-            <span class="nav-link" th:text="${user.firstName}">User</span>
+            <span class="nav-link" th:text="${user.name}">User</span>
         </div>
     </nav>
 
@@ -395,8 +395,8 @@
                 <!-- Action Buttons -->
                 <div class="cert-actions"
                     th:attr="data-course-id=${enrollment.course.id}, data-pct=${progressMap[enrollment.course.id]['percent']}">
-                    <!-- If Exam Passed -->
-                    <a th:if="${enrollment.isExamPassed}"
+                    <!-- If Exam Passed OR Video Completion is 100% -->
+                    <a th:if="${enrollment.isExamPassed or progressMap[enrollment.course.id]['percent'] >= 99.9}"
                         th:href="@{/user/course/{id}/certificate(id=${enrollment.course.id})}" class="btn-cert">
                         <i class="fa-solid fa-download"></i> Download Certificate
                     </a>

@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -155,14 +156,36 @@ public class CertificationController {
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElseThrow(() -> new RuntimeException("Not enrolled"));
 
-        if (!enrollment.isExamPassed()) {
+        boolean isCompleted = false;
+        long totalLectures = lectureProgressRepository.countTotalLecturesByCourse(course.getId());
+        long completedLectures = 0;
+        if (totalLectures > 0) {
+            completedLectures = lectureProgressRepository.countCompletedLecturesByCourse(user.getId(), course.getId());
+            // Fallback to enrollment stored percentage if DB count is 0
+            if (completedLectures == 0 && enrollment.getProgressPercentage() >= 99.9) {
+                completedLectures = totalLectures;
+            }
+            if (completedLectures >= totalLectures) {
+                isCompleted = true;
+            }
+        }
+
+        if (!enrollment.isExamPassed() && !isCompleted) {
             return "redirect:/user/certifications";
+        }
+
+        // If it's completed but no certificate date, set it now
+        LocalDateTime certDate = enrollment.getCertificateDate();
+        if (certDate == null) {
+            certDate = LocalDateTime.now();
+            enrollment.setCertificateDate(certDate);
+            enrollmentRepository.save(enrollment);
         }
 
         model.addAttribute("user", user);
         model.addAttribute("course", course);
         model.addAttribute("enrollObj", enrollment);
-        model.addAttribute("certificateDate", enrollment.getCertificateDate());
+        model.addAttribute("certificateDate", certDate);
         return "certificate/view";
     }
 }
