@@ -70,20 +70,34 @@
 </head>
 
 <body>
-    <!-- Navbar (Simplified Repeater) -->
+    <!-- Navbar -->
     <nav class="navbar">
-        <div class="navbar-left">
-            <a href="/" class="logo"><span class="logo-text">SkillHub</span></a>
+        <a href="/" class="nav-logo">SkillHub</a>
+        <div class="nav-search">
+            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
+            <form action="/"><input type="text" name="query" placeholder="Search for anything"></form>
         </div>
-        <div class="navbar-right">
-            <div th:if="${user != null}" style="display: flex; align-items: center; gap: 1rem;">
-                <a href="/dashboard" class="btn btn-primary btn-icon" style="width: 4rem; height: 4rem; color: white;">
-                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-                </a>
-            </div>
-            <div th:unless="${user != null}" style="display: flex; align-items: center; gap: 1.2rem;">
-                <a href="/login" class="btn btn-outline btn-sm">Log in</a>
-            </div>
+        <div class="nav-right">
+            <th:block th:if="${user != null}">
+                <div class="nav-user-dropdown">
+                    <div class="nav-avatar"><span th:text="${#strings.substring(user.name,0,1)}">U</span></div>
+                    <div class="nav-user-menu">
+                        <div class="nav-user-menu-header">
+                            <div class="name" th:text="${user.name}">User Name</div>
+                            <div class="email" th:text="${user.email}">user@example.com</div>
+                        </div>
+                        <a href="/profile">My Profile</a>
+                        <a href="/profile?tab=courses">My Courses</a>
+                        <div class="nav-user-menu-divider"></div>
+                        <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:unless="${user != null}">
+                <a href="/login" class="nav-btn-outline">Log in</a>
+                <a href="/register" class="nav-btn-primary">Sign up</a>
+            </th:block>
+            <button class="nav-globe"><i class="fas fa-globe"></i></button>
         </div>
     </nav>
 
@@ -127,6 +141,7 @@
     <footer class="simple-footer">
         <div class="container footer-simple-content">
             <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/blog" class="footer-simple-link">Blog</a>
             <a href="/contact" class="footer-simple-link">Contact Us</a>
             <a href="/terms" class="footer-simple-link">Terms</a>
             <a href="/privacy" class="footer-simple-link">Privacy Policy</a>

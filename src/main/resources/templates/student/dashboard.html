@@ -3,206 +3,386 @@
 
 <head>
     <title>My Learning | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 62.5%; }
         body {
-            background-color: #f7f9fa;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.4rem;
+            color: #1c1d1f;
+            background: #f7f9fa;
         }
+        a { text-decoration: none; color: inherit; }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 0 2.4rem;
         }
 
+        /* ── Page Header ── */
         .page-header {
             background: #1c1d1f;
-            color: white;
-            padding: 3rem 0;
+            color: #fff;
+            padding: 3.2rem 0 0;
+        }
+
+        .page-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
             margin-bottom: 2rem;
         }
 
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .header-content h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 2.5rem;
-            margin: 0;
-        }
-
-        .nav-tabs {
-            margin-top: 2rem;
+        .header-tabs {
             display: flex;
-            gap: 2rem;
+            gap: 0;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            margin-top: 0.4rem;
         }
 
-        .nav-tab {
-            color: #d1d7dc;
+        .header-tab {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 1.4rem 2rem;
+            border-bottom: 3px solid transparent;
             text-decoration: none;
-            font-weight: 700;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
         }
 
-        .nav-tab.active {
-            color: white;
-            border-bottom: 2px solid white;
+        .header-tab:hover { color: #fff; }
+        .header-tab.active {
+            color: #fff;
+            border-bottom-color: #a435f0;
+        }
+
+        /* ── Main Content ── */
+        .main-content {
+            padding: 4rem 0 8rem;
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 8rem 2rem;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.8rem;
+            margin-top: 2rem;
+        }
+
+        .empty-state i {
+            font-size: 6rem;
+            color: #d1d7dc;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .empty-state h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1c1d1f;
+        }
+
+        .empty-state p {
+            font-size: 1.5rem;
+            color: #6a6f73;
+            margin-bottom: 2.4rem;
+        }
+
+        .btn-browse {
+            display: inline-block;
+            padding: 1.2rem 2.8rem;
+            background: #5624d0;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.5rem;
+            border-radius: 0.4rem;
+            transition: background 0.15s;
+        }
+
+        .btn-browse:hover { background: #401b9c; color: #fff; }
+
+        /* ── Course Grid ── */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-bottom: 2.4rem;
         }
 
         .course-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+            gap: 2.4rem;
+        }
+
+        @media (max-width: 640px) {
+            .course-grid { grid-template-columns: 1fr; }
         }
 
         .course-card {
-            background: white;
-            border: 1px solid #d1d7dc;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.8rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
             text-decoration: none;
             color: #1c1d1f;
-            display: block;
-            transition: box-shadow 0.2s;
-            position: relative;
+            transition: box-shadow 0.2s, transform 0.2s;
         }
 
         .course-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
         }
 
-        .card-img {
+        .card-img-wrapper {
             width: 100%;
-            height: 140px;
+            padding-top: 56.25%;
+            position: relative;
+            background: #e0e0e0;
+            overflow: hidden;
+        }
+
+        .card-img-wrapper img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            background: #eee;
+            transition: transform 0.3s;
+        }
+
+        .course-card:hover .card-img-wrapper img {
+            transform: scale(1.03);
         }
 
         .card-body {
-            padding: 1rem;
+            padding: 1.6rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .course-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            color: #1c1d1f;
+            line-height: 1.4;
+            margin-bottom: 0.6rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 2.4em;
-            /* Fixed height for consistency */
         }
 
         .instructor-name {
-            font-size: 0.8rem;
+            font-size: 1.2rem;
             color: #6a6f73;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.4rem;
+            flex: 1;
         }
 
-        .progress-bar {
-            height: 4px;
-            background: #d1d7dc;
-            margin-top: 1rem;
+        /* Progress */
+        .progress-wrapper {
+            margin-bottom: 1.4rem;
         }
 
-        .progress-fill {
+        .progress-bar-track {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
             height: 100%;
-            background: #a435f0;
-            width: 0%;
-            /* Default 0 */
+            background: linear-gradient(90deg, #5624d0, #a435f0);
+            border-radius: 3px;
+            transition: width 0.4s ease;
         }
 
         .progress-text {
-            font-size: 0.8rem;
-            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.6rem;
+            font-size: 1.2rem;
             color: #6a6f73;
         }
 
-        .start-btn {
+        /* CTA Button */
+        .card-cta {
             display: block;
             text-align: center;
-            margin-top: 1rem;
-            padding: 0.5rem;
-            border: 1px solid #1c1d1f;
+            padding: 1rem 1.6rem;
+            background: #1c1d1f;
+            color: #fff;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: #1c1d1f;
-            transition: background 0.1s;
+            border-radius: 0.4rem;
+            transition: background 0.15s;
         }
 
-        .start-btn:hover {
-            background: #f7f9fa;
+        .card-cta:hover { background: #3d3d3d; color: #fff; }
+
+        .card-cta.continue {
+            background: #5624d0;
         }
+
+        .card-cta.continue:hover { background: #401b9c; }
     </style>
 </head>
 
 <body>
 
-    <!-- Navbar (Ideally fragment) -->
+    <!-- ══ NAVBAR ══ -->
     <nav class="navbar">
-        <div class="container"
-            style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
-            <a href="/user/home" class="logo"
-                style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
-            <div>
-                <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
-                <a href="/student/dashboard" class="btn btn-ghost" style="font-weight:700;">My Learning</a>
-                <div
-                    style="display:inline-block; width:30px; height:30px; background:black; color:white; border-radius:50%; text-align:center; line-height:30px; margin-left:10px;">
-                    U</div>
-            </div>
+        <!-- Logo -->
+        <a th:href="@{/user/home}" class="nav-logo">SkillHub</a>
+
+        <!-- Search -->
+        <div class="nav-search">
+            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
+            <form th:action="@{/user/home}">
+                <input type="text" name="query" placeholder="Search for anything">
+            </form>
+        </div>
+
+        <!-- Right side -->
+        <div class="nav-right">
+            <a href="/student/dashboard" class="nav-link" style="font-weight:700; color:#5624d0;">My Learning</a>
+            <th:block th:if="${user != null}">
+                <div class="nav-user-dropdown">
+                    <div class="nav-avatar">
+                        <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                    </div>
+                    <div class="nav-user-menu">
+                        <div class="nav-user-menu-header">
+                            <div class="name" th:text="${user.name}">User Name</div>
+                            <div class="email" th:text="${user.email}">user@example.com</div>
+                        </div>
+                        <a href="/profile">My Profile</a>
+                        <a href="/profile?tab=courses">My Courses</a>
+                        <div class="nav-user-menu-divider"></div>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:unless="${user != null}">
+                <a href="/login" class="nav-btn-outline">Log in</a>
+                <a href="/register" class="nav-btn-primary">Sign up</a>
+            </th:block>
+            <button class="nav-globe"><i class="fas fa-globe"></i></button>
         </div>
     </nav>
 
-    <!-- Header -->
+    <!-- ══ PAGE HEADER ══ -->
     <div class="page-header">
-        <div class="header-content">
+        <div class="container">
             <h1>My Learning</h1>
-            <div class="nav-tabs">
-                <a href="#" class="nav-tab active">All Courses</a>
-                <a href="/student/wishlist" class="nav-tab">Wishlist</a>
-                <a href="#" class="nav-tab">Archived</a>
+            <div class="header-tabs">
+                <a href="/student/dashboard" class="header-tab active">All Courses</a>
+                <a href="/student/wishlist" class="header-tab">Wishlist</a>
+                <a href="#" class="header-tab">Archived</a>
             </div>
         </div>
     </div>
 
-    <!-- Content -->
-    <div class="container">
+    <!-- ══ CONTENT ══ -->
+    <div class="main-content">
+        <div class="container">
 
-        <div th:if="${#lists.isEmpty(enrollments)}" style="text-align: center; padding: 4rem;">
-            <h2>No enrolled courses yet</h2>
-            <p>Start learning today!</p>
-            <a href="/user/home" class="btn btn-primary"
-                style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
-                Courses</a>
-        </div>
-
-        <div class="course-grid">
-            <div th:each="enrollment : ${enrollments}" class="course-card">
-                <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}"
-                    style="text-decoration:none; color:inherit;">
-                    <img th:src="${enrollment.course.imageUrl}" class="card-img" alt="Course Thumbnail">
-                    <div class="card-body">
-                        <div class="course-title" th:text="${enrollment.course.title}">Complete Java Masterclass</div>
-                        <div class="instructor-name" th:text="${enrollment.course.instructor.name}">Instructor Name
-                        </div>
-
-                        <div class="progress-bar">
-                            <div class="progress-fill" th:style="'width:' + ${enrollment.progress} + '%'"></div>
-                        </div>
-                        <div class="progress-text">
-                            <span th:text="${enrollment.progress} + '% Complete'">0% Complete</span>
-                        </div>
-
-                        <div th:if="${enrollment.progress > 0}" class="start-btn">Continue Learning</div>
-                        <div th:if="${enrollment.progress == 0}" class="start-btn">Start Course</div>
-                    </div>
-                </a>
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(enrollments)}" class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <h2>No enrolled courses yet</h2>
+                <p>Explore thousands of courses and start learning something new today.</p>
+                <a href="/user/home" class="btn-browse">Browse Courses</a>
             </div>
+
+            <!-- Course Grid -->
+            <div th:unless="${#lists.isEmpty(enrollments)}">
+                <div class="section-title"
+                     th:text="${#lists.size(enrollments)} + ' Course' + (${#lists.size(enrollments) != 1} ? 's' : '')">
+                    0 Courses
+                </div>
+                <div class="course-grid">
+                    <a th:each="enrollment : ${enrollments}"
+                       th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}"
+                       class="course-card">
+
+                        <!-- Thumbnail -->
+                        <div class="card-img-wrapper">
+                            <img th:src="${enrollment.course.imageUrl != null ? enrollment.course.imageUrl : '/images/banner1.webp'}"
+                                 alt="Course Thumbnail"
+                                 onerror="this.src='/images/banner1.webp'">
+                        </div>
+
+                        <!-- Body -->
+                        <div class="card-body">
+                            <div class="course-title" th:text="${enrollment.course.title}">Course Title</div>
+                            <div class="instructor-name"
+                                 th:text="${enrollment.course.instructor != null ? enrollment.course.instructor.name : 'Instructor'}">
+                                Instructor
+                            </div>
+
+                            <!-- Progress -->
+                            <div class="progress-wrapper">
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill"
+                                         th:style="'width:' + (${enrollment.progress != null ? enrollment.progress : 0}) + '%'">
+                                    </div>
+                                </div>
+                                <div class="progress-text">
+                                    <span th:text="${enrollment.progress != null ? enrollment.progress : 0} + '% complete'">0% complete</span>
+                                    <span th:if="${enrollment.progress == 100}"
+                                          style="color:#5624d0; font-weight:700;">
+                                        <i class="fas fa-check-circle"></i> Done
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- CTA -->
+                            <span th:if="${enrollment.progress != null and enrollment.progress > 0 and enrollment.progress < 100}"
+                                  class="card-cta continue">Continue Learning</span>
+                            <span th:if="${enrollment.progress == null or enrollment.progress == 0}"
+                                  class="card-cta">Start Course</span>
+                            <span th:if="${enrollment.progress == 100}"
+                                  class="card-cta" style="background:#3db800;">Review Course</span>
+                        </div>
+
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="simple-footer">
+        <div class="container footer-simple-content">
+            <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/contact" class="footer-simple-link">Contact Us</a>
+            <a href="/terms" class="footer-simple-link">Terms</a>
+            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
+        </div>
+        <div class="container">
+            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
+        </div>
+    </footer>
 
 </body>
 

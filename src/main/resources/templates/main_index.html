@@ -310,6 +310,8 @@
             width: 100%;
             overflow: hidden;
             background: #1c1d1f;
+            isolation: isolate;
+            z-index: 1;
         }
 
         .hero-track {
@@ -357,9 +359,8 @@
             z-index: 2;
             max-width: 46rem;
             margin-left: 7%;
-            background: rgba(255, 255, 255, 0.97);
+            background: transparent;
             padding: 3.2rem 3.2rem 3.6rem;
-            box-shadow: 0 2px 40px rgba(0, 0, 0, 0.22);
         }
 
         .hero-content-box h1 {
@@ -367,15 +368,17 @@
             font-size: 3.2rem;
             font-weight: 700;
             line-height: 1.25;
-            color: #1c1d1f;
+            color: #fff;
             margin-bottom: 1.4rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.55);
         }
 
         .hero-content-box p {
             font-size: 1.5rem;
-            color: #3d3d3d;
+            color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
             margin-bottom: 2.4rem;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.45);
         }
 
         .hero-btns {
@@ -524,6 +527,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2.4rem 8rem;
+            position: relative;
+            isolation: isolate;
         }
 
         /* Section header */
@@ -1176,30 +1181,20 @@
         </div>
     </section>
 
-    <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-cols">
                 <div class="footer-col">
-                    <a href="#">SkillHub Business</a>
-                    <a href="#">Teach on SkillHub</a>
-                    <a href="#">Get the app</a>
-                    <a href="#">About us</a>
-                    <a href="#">Contact us</a>
+                    <a href="/about">About Us</a>
+                    <a href="/blog">Blog</a>
                 </div>
                 <div class="footer-col">
-                    <a href="#">Careers</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Help and Support</a>
-                    <a href="#">Affiliate</a>
-                    <a href="#">Investors</a>
+                    <a href="/contact">Contact Us</a>
                 </div>
                 <div class="footer-col">
-                    <a href="#">Terms</a>
-                    <a href="#">Privacy policy</a>
-                    <a href="#">Cookie settings</a>
-                    <a href="#">Sitemap</a>
-                    <a href="#">Accessibility statement</a>
+                    <a href="/terms">Terms</a>
+                    <a href="/privacy">Privacy Policy</a>
                 </div>
                 <div class="footer-col">
                     <button class="footer-lang-btn"><i class="fas fa-globe"></i> English</button>
@@ -1213,37 +1208,6 @@
     </footer>
 
     <script th:src="@{/js/script.js}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            /* ── CAROUSEL ── */
-            const track = document.getElementById('heroTrack');
-            const dotsWrap = document.getElementById('heroDots');
-            const slides = track ? [...track.querySelectorAll('.hero-slide')] : [];
-            let cur = 0, timer;
-
-            function goTo(n) {
-                cur = (n + slides.length) % slides.length;
-                track.style.transform = `translateX(-${cur * 100}%)`;
-                document.querySelectorAll('.hero-dot').forEach((d, i) =>
-                    d.classList.toggle('active', i === cur));
-            }
-            function resetTimer() { clearInterval(timer); timer = setInterval(() => goTo(cur + 1), 5500); }
-
-            if (slides.length) {
-                slides.forEach((_, i) => {
-                    const d = document.createElement('button');
-                    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
-                    d.onclick = () => { goTo(i); resetTimer(); };
-                    dotsWrap.appendChild(d);
-                });
-                document.getElementById('heroPrev').onclick = () => { goTo(cur - 1); resetTimer(); };
-                document.getElementById('heroNext').onclick = () => { goTo(cur + 1); resetTimer(); };
-                goTo(0); resetTimer();
-            }
-
-        });
-    </script>
 </body>
 
 </html>

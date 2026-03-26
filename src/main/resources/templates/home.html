@@ -5,6 +5,7 @@
     <title>My Learning | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -53,6 +54,45 @@
     </nav>
 
 
+
+    <!-- Hero Section (Carousel) -->
+    <div class="hero">
+        <div class="hero-track" id="heroTrack">
+            <!-- Slide 1 -->
+            <div class="hero-slide">
+                <img src="https://img.freepik.com/free-photo/hands-working-digital-device-network-graphic-overlay_53876-132150.jpg?semt=ais_user_personalization&w=740&q=80"
+                    alt="Learning" draggable="false">
+                <div class="hero-content-box">
+                    <h1>Unlock Your Potential</h1>
+                    <p>Skills for your present (and your future). Get started with us.</p>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="hero-slide">
+                <img src="https://png.pngtree.com/background/20250512/original/pngtree-a-laptop-and-code-on-the-screen-with-the-text-coding-picture-image_15993834.jpg"
+                    alt="Technology" draggable="false">
+                <div class="hero-content-box">
+                    <h1>Future in Tech</h1>
+                    <p>Master the latest frameworks and technologies.</p>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="hero-slide">
+                <img th:src="@{/images/home/carousel_business.webp}" alt="Business" draggable="false">
+                <div class="hero-content-box">
+                    <h1>Lead the Way</h1>
+                    <p>Business strategies for the modern world.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <button class="hero-arrow hero-prev" id="heroPrev"><i class="fas fa-chevron-left"></i></button>
+        <button class="hero-arrow hero-next" id="heroNext"><i class="fas fa-chevron-right"></i></button>
+
+        <!-- Dots -->
+        <div class="hero-dots" id="heroDots"></div>
+    </div>
 
     <!-- Courses Section (Moved from below) -->
     <div class="container" style="padding-top: 3.2rem; padding-bottom: 4.8rem;">
@@ -108,45 +148,6 @@
         </div>
     </div>
 
-    <!-- Hero Section (Carousel) -->
-    <div class="hero-carousel-container">
-        <div class="hero-carousel-track" id="heroTrack">
-            <!-- Slide 1 -->
-            <div class="hero-slide">
-                <img src="https://img.freepik.com/free-photo/hands-working-digital-device-network-graphic-overlay_53876-132150.jpg?semt=ais_user_personalization&w=740&q=80"
-                    alt="Learning" draggable="false">
-                <div class="hero-overlay">
-                    <h1 class="ud-heading-serif-xxl">Unlock Your Potential</h1>
-                    <p class="ud-text-md">Skills for your present (and your future). Get started with us.</p>
-                </div>
-            </div>
-            <!-- Slide 2 -->
-            <div class="hero-slide">
-                <img src="https://png.pngtree.com/background/20250512/original/pngtree-a-laptop-and-code-on-the-screen-with-the-text-coding-picture-image_15993834.jpg"
-                    alt="Technology" draggable="false">
-                <div class="hero-overlay">
-                    <h1 class="ud-heading-serif-xxl">Future in Tech</h1>
-                    <p class="ud-text-md">Master the latest frameworks and technologies.</p>
-                </div>
-            </div>
-            <!-- Slide 3 -->
-            <div class="hero-slide">
-                <img th:src="@{/images/home/carousel_business.webp}" alt="Business" draggable="false">
-                <div class="hero-overlay">
-                    <h1 class="ud-heading-serif-xxl">Lead the Way</h1>
-                    <p class="ud-text-md">Business strategies for the modern world.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation Buttons -->
-        <button class="hero-btn hero-prev" id="heroPrev"><i class="fas fa-chevron-left"></i></button>
-        <button class="hero-btn hero-next" id="heroNext"><i class="fas fa-chevron-right"></i></button>
-
-        <!-- Dots -->
-        <div class="hero-dots" id="heroDots"></div>
-    </div>
-
     <!-- Footer -->
     <footer>
         <!-- Companies Banner -->
@@ -165,25 +166,15 @@
         <div class="footer-content container">
             <div class="footer-links-row">
                 <div class="footer-link-col">
-                    <a href="#" class="footer-link">SkillHub Business</a>
-                    <a href="#" class="footer-link">Teach on SkillHub</a>
-                    <a href="#" class="footer-link">Get the app</a>
-                    <a href="/about" class="footer-link">About us</a>
-                    <a href="/contact" class="footer-link">Contact us</a>
+                    <a href="/about" class="footer-link">About Us</a>
+                    <a href="/blog" class="footer-link">Blog</a>
                 </div>
                 <div class="footer-link-col">
-                    <a href="#" class="footer-link">Careers</a>
-                    <a href="#" class="footer-link">Blog</a>
-                    <a href="#" class="footer-link">Help and Support</a>
-                    <a href="#" class="footer-link">Affiliate</a>
-                    <a href="#" class="footer-link">Investors</a>
+                    <a href="/contact" class="footer-link">Contact Us</a>
                 </div>
                 <div class="footer-link-col">
                     <a href="/terms" class="footer-link">Terms</a>
-                    <a href="/privacy" class="footer-link">Privacy policy</a>
-                    <a href="#" class="footer-link">Cookie settings</a>
-                    <a href="#" class="footer-link">Sitemap</a>
-                    <a href="#" class="footer-link">Accessibility statement</a>
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
                 </div>
             </div>
 

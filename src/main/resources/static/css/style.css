@@ -15,15 +15,20 @@
   --color-white: #ffffff;
   --color-gray-100: #f7f9fa;
   /* Backgrounds */
+  --color-surface: #ffffff;
+  --color-surface-alt: #f7f9fa;
   --color-gray-200: #e4e8eb;
   /* Borders */
+  --color-border: #d1d7dc;
   --color-gray-300: #d1d7dc;
   /* Borders strong */
   --color-gray-400: #9aa0a6;
   --color-gray-500: #6a6f73;
   /* Secondary Text */
+  --color-text-secondary: #6a6f73;
   --color-gray-700: #2d2f31;
   /* Primary Text */
+  --color-text-main: #2d2f31;
 
   --color-orange-rating: #e59819;
   --color-brown-rating-text: #b4690e;

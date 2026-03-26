@@ -3,76 +3,194 @@
 
 <head>
     <title>Manage Courses | SkillHub Admin</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 
-<body style="background-color: #f7f9fa;">
-    <nav class="navbar">
-        <a href="/admin/dashboard" class="logo"><span class="logo-text">SkillHub Admin</span></a>
-    </nav>
-    <div class="container" style="padding-top: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1>Manage Courses</h1>
-            <a href="/admin/courses/create" class="btn btn-primary"
-                style="background-color: #a435f0; color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px;">Create
-                New Course</a>
+<body>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
         </div>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
-            <thead>
-                <tr style="background: #2d2f31; color: white;">
-                    <th style="padding: 10px; text-align: left;">ID</th>
-                    <th style="padding: 10px; text-align: left;">Title</th>
-                    <th style="padding: 10px; text-align: left;">Instructor</th>
-                    <th style="padding: 10px; text-align: left;">Status</th>
-                    <th style="padding: 10px; text-align: left;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:if="${courses.empty}">
-                    <td colspan="5" style="padding: 20px; text-align: center; color: #6a6f73;">
-                        No courses found. <a href="/admin/courses/create" style="color: #a435f0;">Create one now</a>.
-                    </td>
-                </tr>
-                <tr th:each="course : ${courses}" style="border-bottom: 1px solid #d1d7dc;">
-                    <td style="padding: 10px;" th:text="${course.id}">1</td>
-                    <td style="padding: 10px;" th:text="${course.title}">Java Masterclass</td>
-                    <td style="padding: 10px;"
-                        th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}">Jane Doe</td>
-                    <td style="padding: 10px;">
-                        <span th:if="${course.published}" style="color: green; font-weight: bold;">Published</span>
-                        <span th:unless="${course.published}" style="color: grey;">Draft</span>
-                    </td>
-                    <td style="padding: 10px;">
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <a th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn btn-ghost text-sm"
-                                style="color: #007bff; text-decoration: none; font-weight: bold;">View</a>
-                            <a th:href="@{/admin/courses/edit(id=${course.id})}" class="btn btn-ghost text-sm"
-                                style="color: #a435f0; text-decoration: none; font-weight: bold;">Edit</a>
-                            <a th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn btn-ghost text-sm"
-                                style="color: #ff9800; text-decoration: none; font-weight: bold;">Exams</a>
-                            <form th:if="${!course.published}" th:action="@{/admin/courses/publish}" method="post"
-                                style="display:inline;">
-                                <input type="hidden" name="id" th:value="${course.id}">
-                                <button class="btn btn-ghost text-sm" style="color: green;">Publish</button>
-                            </form>
 
-                            <form th:if="${course.published}" th:action="@{/admin/courses/unpublish}" method="post"
-                                style="display:inline;">
-                                <input type="hidden" name="id" th:value="${course.id}">
-                                <button class="btn btn-ghost text-sm" style="color: orange;">Unpublish</button>
-                            </form>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
 
-                            <form th:action="@{/admin/courses/delete}" method="post" style="display:inline;">
-                                <input type="hidden" name="id" th:value="${course.id}">
-                                <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/courses" class="nav-item active">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+
+
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">Manage Courses</div>
+
+            <form class="topbar-search" action="/home" method="get">
+                <i class="fas fa-search"></i>
+                <input type="text" name="query" placeholder="Search courses...">
+            </form>
+
+            <div class="topbar-actions">
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${#strings.substring(user.name,0,1)}" th:if="${user != null}">A</span>
+                    <span th:unless="${user != null}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Courses</h1>
+                    <p>Manage, review, and publish course content.</p>
+                </div>
+                <a href="/admin/courses/create" class="btn-primary-admin">
+                    <i class="fas fa-plus"></i> Create New Course
+                </a>
+            </div>
+
+            <!-- Courses Table Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-graduation-cap" style="color:var(--success); margin-right:0.8rem;"></i> All Courses</span>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Instructor</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${courses.empty}">
+                                <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                    <i class="fas fa-box-open" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
+                                    No courses found. <a href="/admin/courses/create" style="color: var(--accent); font-weight: 600;">Create one now</a>.
+                                </td>
+                            </tr>
+                            <tr th:each="course : ${courses}">
+                                <td th:text="${course.id}" style="color: var(--text-muted);">1</td>
+                                <td style="font-weight: 600; color: var(--text);" th:text="${course.title}">Java Masterclass</td>
+                                <td th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}">Jane Doe</td>
+                                <td>
+                                    <span th:if="${course.published}" class="pill pill-green">Published</span>
+                                    <span th:unless="${course.published}" class="pill" style="background: var(--border); color: var(--text-muted);">Draft</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                                        <a th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--accent);">
+                                            <i class="fas fa-external-link-alt"></i> View
+                                        </a>
+                                        <a th:href="@{/admin/courses/edit(id=${course.id})}" class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: rgba(52,152,219,0.15); color: var(--accent);">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--warning);">
+                                            <i class="fas fa-file-alt"></i> Exams
+                                        </a>
+
+                                        <form th:if="${!course.published}" th:action="@{/admin/courses/publish}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${course.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--success);">
+                                                <i class="fas fa-check"></i> Publish
+                                            </button>
+                                        </form>
+
+                                        <form th:if="${course.published}" th:action="@{/admin/courses/unpublish}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${course.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: rgba(243,156,18,0.15); color: var(--warning);">
+                                                <i class="fas fa-eye-slash"></i> Unpublish
+                                            </button>
+                                        </form>
+
+                                        <form th:action="@{/admin/courses/delete}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${course.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: rgba(231,76,60,0.15); color: var(--danger);" onclick="return confirm('Delete this course permanently?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
     </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const sidebar  = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 
 </html>

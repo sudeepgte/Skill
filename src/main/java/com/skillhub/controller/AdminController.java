@@ -316,4 +316,45 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("success", "Broadcast sent to " + allUsers.size() + " users!");
         return "redirect:/admin/broadcast";
     }
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    @GetMapping("/profile")
+    public String adminProfile(Model model, java.security.Principal principal) {
+        if (principal != null) {
+            model.addAttribute("admin", userService.findByEmail(principal.getName()));
+        }
+        return "admin/profile";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@org.springframework.web.bind.annotation.RequestParam("oldPassword") String oldPassword,
+            @org.springframework.web.bind.annotation.RequestParam("newPassword") String newPassword,
+            @org.springframework.web.bind.annotation.RequestParam("confirmPassword") String confirmPassword,
+            java.security.Principal principal,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        com.skillhub.model.User admin = userService.findByEmail(principal.getName());
+
+        if (!passwordEncoder.matches(oldPassword, admin.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Incorrect current password.");
+            return "redirect:/admin/profile";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "New passwords do not match.");
+            return "redirect:/admin/profile";
+        }
+
+        admin.setPassword(passwordEncoder.encode(newPassword));
+        userService.updateUser(admin);
+
+        redirectAttributes.addFlashAttribute("success", "Password changed successfully.");
+        return "redirect:/admin/profile";
+    }
 }

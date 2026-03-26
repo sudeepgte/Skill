@@ -12,42 +12,39 @@
 
 <body>
 
-    <!-- Navbar (Full) -->
+    <!-- Navbar -->
     <nav class="navbar">
-        <div class="navbar-left">
-            <a href="/" class="logo">
-                <span class="logo-text">SkillHub</span>
-            </a>
-            <div class="dropdown">
-                <div class="categories-link">Categories <i class="fas fa-chevron-down"
-                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
-                <div class="dropdown-menu">
-                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item">
-                        <span th:text="${cat.name}">Category</span>
-                        <i class="fas fa-chevron-right" style="font-size: 1.2rem; opacity: 0.5;"></i>
-                    </a>
-                </div>
+        <!-- Logo -->
+        <a href="/" class="nav-logo">SkillHub</a>
+
+        <!-- Categories Dropdown -->
+        <div class="nav-dropdown">
+            <div class="nav-dropdown-trigger">
+                Categories <i class="fas fa-chevron-down" style="font-size:1rem;"></i>
+            </div>
+            <div class="nav-dropdown-menu">
+                <a th:each="cat : ${categories}"
+                    th:href="@{/(categoryId=${cat.id})}"
+                    class="nav-dropdown-item">
+                    <span th:text="${cat.name}">Category</span>
+                    <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
+                </a>
             </div>
         </div>
 
-        <div class="navbar-center">
-            <div class="search-container">
-                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
-                <form action="/" style="width: 100%;">
-                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
-                </form>
-            </div>
+        <!-- Search -->
+        <div class="nav-search">
+            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
+            <form action="/">
+                <input type="text" name="query" placeholder="Search for anything" th:value="${searchQuery}">
+            </form>
         </div>
 
-        <div class="navbar-right">
-            <div style="display: flex; align-items: center; gap: 1.2rem;">
-                <a href="/login" class="btn btn-outline btn-sm">Log in</a>
-                <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
-            </div>
-            <a href="#" class="btn btn-outline btn-icon"
-                style="width: 4rem; height: 4rem; padding: 0; border: 1px solid var(--color-black);">
-                <i class="fas fa-globe"></i>
-            </a>
+        <!-- Right side -->
+        <div class="nav-right">
+            <a href="/login" class="nav-btn-outline">Log in</a>
+            <a href="/register" class="nav-btn-primary">Sign up</a>
+            <button class="nav-globe"><i class="fas fa-globe"></i></button>
         </div>
     </nav>
 
@@ -110,7 +107,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
+     <!-- Footer -->
     <footer class="simple-footer">
         <div class="container footer-simple-content">
             <a href="/about" class="footer-simple-link">About Us</a>
@@ -123,18 +120,7 @@
         </div>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const dropdowns = document.querySelectorAll('.dropdown');
-            dropdowns.forEach(dropdown => {
-                const trigger = dropdown.querySelector('.categories-link') || dropdown.querySelector('.dropdown-toggle');
-                const menu = dropdown.querySelector('.dropdown-menu');
-                if (!trigger || !menu) return;
-                dropdown.addEventListener('mouseenter', () => { menu.style.display = 'block'; });
-                dropdown.addEventListener('mouseleave', () => { menu.style.display = 'none'; });
-            });
-        });
-    </script>
+
 
 </body>
 

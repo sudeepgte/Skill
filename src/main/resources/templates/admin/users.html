@@ -3,64 +3,183 @@
 
 <head>
     <title>Manage Users | SkillHub Admin</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 
-<body style="background-color: #f7f9fa;">
-    <nav class="navbar">
-        <a href="/admin/dashboard" class="logo"><span class="logo-text">SkillHub Admin</span></a>
-    </nav>
-    <div class="container" style="padding-top: 2rem;">
-        <h1>Manage Users</h1>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white;">
-            <thead>
-                <tr style="background: #2d2f31; color: white;">
-                    <th style="padding: 10px; text-align: left;">ID</th>
-                    <th style="padding: 10px; text-align: left;">Name</th>
-                    <th style="padding: 10px; text-align: left;">Email</th>
-                    <th style="padding: 10px; text-align: left;">Role</th>
-                    <th style="padding: 10px; text-align: left;">Status</th>
-                    <th style="padding: 10px; text-align: left;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="user : ${users}" style="border-bottom: 1px solid #d1d7dc;">
-                    <td style="padding: 10px;" th:text="${user.id}">1</td>
-                    <td style="padding: 10px;" th:text="${user.name}">John Doe</td>
-                    <td style="padding: 10px;" th:text="${user.email}">john@example.com</td>
-                    <td style="padding: 10px;" th:text="${user.role}">STUDENT</td>
-                    <td style="padding: 10px;">
-                        <span th:if="${user.blocked}" style="color: red; font-weight: bold;">BLOCKED</span>
-                        <span th:unless="${user.blocked}" style="color: green;">Active</span>
-                        <br>
-                        <small style="color: #6a6f73;" th:if="${user.lastLoginDate != null}"
-                            th:text="${#temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm')}"></small>
-                    </td>
-                    <td style="padding: 10px;">
-                        <div style="display: flex; gap: 10px;">
-                            <form th:if="${!user.blocked}" th:action="@{/admin/users/block}" method="post"
-                                style="display:inline;">
-                                <input type="hidden" name="id" th:value="${user.id}">
-                                <button class="btn btn-ghost text-sm" style="color: orange;">Block</button>
-                            </form>
+<body>
 
-                            <form th:if="${user.blocked}" th:action="@{/admin/users/unblock}" method="post"
-                                style="display:inline;">
-                                <input type="hidden" name="id" th:value="${user.id}">
-                                <button class="btn btn-ghost text-sm" style="color: green;">Unblock</button>
-                            </form>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
 
-                            <form th:action="@{/admin/users/delete}" method="post" style="display:inline;">
-                                <input type="hidden" name="id" th:value="${user.id}">
-                                <button class="btn btn-ghost text-sm" style="color: red;">Delete</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <a href="/admin/users" class="nav-item active">
+                <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/courses" class="nav-item">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+
+
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">Manage Users</div>
+
+            <form class="topbar-search" action="/home" method="get">
+                <i class="fas fa-search"></i>
+                <input type="text" name="query" placeholder="Search users...">
+            </form>
+
+            <div class="topbar-actions">
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${#strings.substring(user.name,0,1)}" th:if="${user != null}">A</span>
+                    <span th:unless="${user != null}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Users</h1>
+                    <p>Manage registered accounts and their access levels.</p>
+                </div>
+            </div>
+
+            <!-- Users Table Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-users" style="color:var(--accent); margin-right:0.8rem;"></i> All Users</span>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}">1</td>
+                                <td style="font-weight: 500;" th:text="${user.name}">John Doe</td>
+                                <td th:text="${user.email}">john@example.com</td>
+                                <td>
+                                    <span class="pill pill-blue" th:if="${user.role == 'STUDENT'}">Student</span>
+                                    <span class="pill pill-orange" th:if="${user.role == 'INSTRUCTOR'}">Instructor</span>
+                                    <span class="pill pill-dark" th:if="${user.role == 'ADMIN'}">Admin</span>
+                                </td>
+                                <td>
+                                    <span th:if="${user.blocked}" class="pill pill-red">BLOCKED</span>
+                                    <span th:unless="${user.blocked}" class="pill pill-green">Active</span>
+                                    <div style="margin-top:0.4rem; font-size:1.1rem; color:var(--text-muted);" th:if="${user.lastLoginDate != null}"
+                                        th:text="'Last login: ' + ${#temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm')}"></div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 1rem;">
+                                        <form th:if="${!user.blocked}" th:action="@{/admin/users/block}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${user.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--warning);">
+                                                <i class="fas fa-ban"></i> Block
+                                            </button>
+                                        </form>
+
+                                        <form th:if="${user.blocked}" th:action="@{/admin/users/unblock}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${user.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--success);">
+                                                <i class="fas fa-check"></i> Unblock
+                                            </button>
+                                        </form>
+
+                                        <form th:action="@{/admin/users/delete}" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" th:value="${user.id}">
+                                            <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--danger);" onclick="return confirm('Are you sure you want to delete this user?');">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
     </div>
+
+    <script>
+        // Mobile sidebar toggle
+        const sidebar  = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 
 </html>

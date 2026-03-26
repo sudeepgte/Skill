@@ -73,3 +73,36 @@
     font-size: 1.2rem;
     color: #6a6f73;
 }
+
+/* ─── SIMPLE FOOTER (auth pages) ─── */
+.simple-footer {
+    background: #1c1d1f;
+    color: #fff;
+    padding: 2rem 2.4rem;
+}
+
+.footer-simple-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.6rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.footer-simple-link {
+    color: #fff;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    text-decoration: none;
+    transition: opacity 0.15s;
+}
+
+.footer-simple-link:hover {
+    opacity: 1;
+}
+
+.footer-copyright {
+    text-align: center;
+    font-size: 1.2rem;
+    opacity: 0.6;
+}

@@ -107,133 +107,7 @@
             font-size: 1.6rem;
         }
 
-        /* ── Navbar ── */
-        .navbar {
-            display: flex;
-            align-items: center;
-            height: 6.4rem;
-            padding: 0 2.4rem;
-            border-bottom: 1px solid var(--color-border);
-            background: #fff;
-            gap: 1.6rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
 
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 1.6rem;
-            flex-shrink: 0;
-        }
-
-        .logo-text {
-            font-size: 2.4rem;
-            font-weight: 700;
-            color: var(--color-black);
-        }
-
-        /* Dropdown */
-        .dropdown {
-            position: relative;
-        }
-
-        .categories-link {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 1.4rem;
-            font-weight: 400;
-            cursor: pointer;
-            white-space: nowrap;
-            padding: 0.8rem 0;
-        }
-
-        .categories-link i {
-            font-size: 1.1rem;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #fff;
-            border: 1px solid var(--color-border);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            min-width: 22rem;
-            z-index: 200;
-        }
-
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.2rem 1.6rem;
-            font-size: 1.4rem;
-            transition: background 0.1s;
-        }
-
-        .dropdown-item:hover {
-            background: #f7f9fa;
-        }
-
-        /* Search */
-        .navbar-center {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--color-black);
-            border-radius: 2.4rem;
-            overflow: hidden;
-            width: 100%;
-            height: 4rem;
-            background: #fff;
-        }
-
-        .search-icon-btn {
-            background: none;
-            border: none;
-            padding: 0 1.2rem;
-            cursor: pointer;
-            font-size: 1.4rem;
-            color: var(--color-black);
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
-
-        .search-input {
-            border: none;
-            outline: none;
-            font-size: 1.4rem;
-            width: 100%;
-            padding-right: 1.2rem;
-            background: transparent;
-        }
-
-        .search-container form {
-            display: flex;
-            width: 100%;
-        }
-
-        /* Navbar right */
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            flex-shrink: 0;
-        }
 
         /* ── Auth Page ── */
         .auth-page-container {
@@ -319,38 +193,6 @@
             background: var(--color-border);
         }
 
-        /* ── Footer ── */
-        .simple-footer {
-            background: var(--color-black);
-            color: #fff;
-            padding: 2rem 2.4rem;
-        }
-
-        .footer-simple-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.6rem;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .footer-simple-link {
-            color: #fff;
-            font-size: 1.2rem;
-            opacity: 0.8;
-            transition: opacity 0.15s;
-        }
-
-        .footer-simple-link:hover {
-            opacity: 1;
-        }
-
-        .footer-copyright {
-            text-align: center;
-            font-size: 1.2rem;
-            opacity: 0.6;
-        }
-
         /* ── Responsive ── */
         @media (max-width: 768px) {
             .auth-illustration {
@@ -376,39 +218,37 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="navbar-left">
-            <a href="/" class="logo">
-                <span class="logo-text">SkillHub</span>
-            </a>
-            <div class="dropdown">
-                <div class="categories-link">
-                    Categories <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="dropdown-menu">
-                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" href="#"
-                        class="dropdown-item">
-                        <span th:text="${cat.name}">Category</span>
-                        <i class="fas fa-chevron-right" style="font-size:1.1rem; opacity:0.5;"></i>
-                    </a>
-                </div>
+        <!-- Logo -->
+        <a href="/" class="nav-logo">SkillHub</a>
+
+        <!-- Categories Dropdown -->
+        <div class="nav-dropdown">
+            <div class="nav-dropdown-trigger">
+                Categories <i class="fas fa-chevron-down" style="font-size:1rem;"></i>
+            </div>
+            <div class="nav-dropdown-menu">
+                <a th:each="cat : ${categories}"
+                    th:href="@{/(categoryId=${cat.id})}"
+                    class="nav-dropdown-item">
+                    <span th:text="${cat.name}">Category</span>
+                    <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
+                </a>
             </div>
         </div>
 
-        <div class="navbar-center">
-            <div class="search-container">
-                <button class="search-icon-btn" type="button"><i class="fas fa-search"></i></button>
-                <form action="/" style="width:100%;">
-                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
-                </form>
-            </div>
+        <!-- Search -->
+        <div class="nav-search">
+            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
+            <form action="/">
+                <input type="text" name="query" placeholder="Search for anything" th:value="${searchQuery}">
+            </form>
         </div>
 
-        <div class="navbar-right">
-            <a href="/login" class="btn btn-outline btn-sm">Log in</a>
-            <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
-            <a href="#" class="btn btn-outline btn-icon" title="Language">
-                <i class="fas fa-globe"></i>
-            </a>
+        <!-- Right side -->
+        <div class="nav-right">
+            <a href="/login" class="nav-btn-outline">Log in</a>
+            <a href="/register" class="nav-btn-primary">Sign up</a>
+            <button class="nav-globe"><i class="fas fa-globe"></i></button>
         </div>
     </nav>
 

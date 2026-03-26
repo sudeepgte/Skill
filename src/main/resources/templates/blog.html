@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Blog | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 62.5%; }
+        body { font-family: 'Inter', sans-serif; font-size: 1.4rem; color: #1c1d1f; background: #f7f9fa; }
+        a { text-decoration: none; color: inherit; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2.4rem; }
+
+        /* Header */
+        .blog-header {
+            background: #1c1d1f;
+            color: #fff;
+            padding: 6rem 0;
+            text-align: center;
+        }
+        .blog-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 3.6rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+        .blog-header p {
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.75);
+        }
+
+        /* Blog grid */
+        .blog-main { padding: 6rem 0 8rem; }
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.8rem;
+        }
+        @media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2,1fr); } }
+        @media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+
+        .blog-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.8rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .blog-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        .blog-card-img {
+            width: 100%;
+            height: 18rem;
+            object-fit: cover;
+            background: linear-gradient(135deg, #5624d0 0%, #a435f0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .blog-card-body { padding: 2rem; flex: 1; display: flex; flex-direction: column; }
+        .blog-tag {
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #5624d0;
+            background: #f0ebff;
+            padding: 0.3rem 1rem;
+            border-radius: 10rem;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .blog-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            color: #1c1d1f;
+        }
+        .blog-excerpt {
+            font-size: 1.4rem;
+            color: #6a6f73;
+            line-height: 1.6;
+            flex: 1;
+            margin-bottom: 1.6rem;
+        }
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            font-size: 1.2rem;
+            color: #6a6f73;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 1.4rem;
+        }
+        .blog-author-avatar {
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            background: #5624d0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-logo">SkillHub</a>
+        <div class="nav-search">
+            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
+            <form action="/"><input type="text" name="query" placeholder="Search for anything"></form>
+        </div>
+        <div class="nav-right">
+            <th:block th:if="${user != null}">
+                <div class="nav-user-dropdown">
+                    <div class="nav-avatar"><span th:text="${#strings.substring(user.name,0,1)}">U</span></div>
+                    <div class="nav-user-menu">
+                        <div class="nav-user-menu-header">
+                            <div class="name" th:text="${user.name}">User Name</div>
+                            <div class="email" th:text="${user.email}">user@example.com</div>
+                        </div>
+                        <a href="/profile">My Profile</a>
+                        <a href="/profile?tab=courses">My Courses</a>
+                        <div class="nav-user-menu-divider"></div>
+                        <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+                    </div>
+                </div>
+            </th:block>
+            <th:block th:unless="${user != null}">
+                <a href="/login" class="nav-btn-outline">Log in</a>
+                <a href="/register" class="nav-btn-primary">Sign up</a>
+            </th:block>
+            <button class="nav-globe"><i class="fas fa-globe"></i></button>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="blog-header">
+        <div class="container">
+            <h1>SkillHub Blog</h1>
+            <p>Learning tips, career advice, and insights from our expert instructors</p>
+        </div>
+    </div>
+
+    <!-- Blog Posts -->
+    <div class="blog-main">
+        <div class="container">
+            <div class="blog-grid">
+
+                <!-- Post 1 -->
+                <div class="blog-card">
+                    <div class="blog-card-img"><i class="fas fa-laptop-code"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">Technology</span>
+                        <div class="blog-title">10 Python Skills Every Developer Needs in 2024</div>
+                        <div class="blog-excerpt">From data manipulation to machine learning, these Python skills will set you apart in a competitive job market.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar">A</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Arjun Mehta</div>
+                                <div>March 15, 2024 · 6 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 2 -->
+                <div class="blog-card">
+                    <div class="blog-card-img" style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);"><i class="fas fa-briefcase"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">Career</span>
+                        <div class="blog-title">How to Land Your First Tech Job Without a CS Degree</div>
+                        <div class="blog-excerpt">A practical guide to building your portfolio, networking effectively, and acing technical interviews as a self-taught developer.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar" style="background:#0d6efd;">P</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Priya Sharma</div>
+                                <div>March 10, 2024 · 8 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 3 -->
+                <div class="blog-card">
+                    <div class="blog-card-img" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);"><i class="fas fa-brain"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">Learning</span>
+                        <div class="blog-title">The Science of Learning: How to Study Smarter, Not Harder</div>
+                        <div class="blog-excerpt">Discover evidence-based techniques like spaced repetition and active recall that dramatically improve retention and understanding.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar" style="background:#198754;">R</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Rahul Patel</div>
+                                <div>March 5, 2024 · 5 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 4 -->
+                <div class="blog-card">
+                    <div class="blog-card-img" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);"><i class="fas fa-chart-line"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">Business</span>
+                        <div class="blog-title">Top 5 Business Skills That Will Future-Proof Your Career</div>
+                        <div class="blog-excerpt">From data literacy to emotional intelligence, learn which business skills are in highest demand and how to develop them quickly.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar" style="background:#dc3545;">S</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Sneha Joshi</div>
+                                <div>Feb 28, 2024 · 7 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 5 -->
+                <div class="blog-card">
+                    <div class="blog-card-img" style="background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);"><i class="fas fa-paint-brush"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">Design</span>
+                        <div class="blog-title">UI/UX Design Trends You Can't Ignore in 2024</div>
+                        <div class="blog-excerpt">Glassmorphism, AI-assisted design, and micro-interactions — explore the design trends shaping digital products this year.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar" style="background:#0dcaf0; color:#1c1d1f;">K</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Kavya Nair</div>
+                                <div>Feb 22, 2024 · 4 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 6 -->
+                <div class="blog-card">
+                    <div class="blog-card-img" style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);"><i class="fas fa-robot"></i></div>
+                    <div class="blog-card-body">
+                        <span class="blog-tag">AI & ML</span>
+                        <div class="blog-title">Getting Started with Machine Learning: A Beginner's Roadmap</div>
+                        <div class="blog-excerpt">No PhD required. Here's a clear, step-by-step roadmap to go from zero to building your first machine learning model.</div>
+                        <div class="blog-meta">
+                            <div class="blog-author-avatar" style="background:#6f42c1;">V</div>
+                            <div>
+                                <div style="font-weight:600; color:#1c1d1f;">Vikram Das</div>
+                                <div>Feb 15, 2024 · 10 min read</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="simple-footer">
+        <div class="container footer-simple-content">
+            <a href="/about" class="footer-simple-link">About Us</a>
+            <a href="/blog" class="footer-simple-link">Blog</a>
+            <a href="/contact" class="footer-simple-link">Contact Us</a>
+            <a href="/terms" class="footer-simple-link">Terms</a>
+            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
+        </div>
+        <div class="container">
+            <div class="footer-copyright" style="text-align: center; margin-top: 2rem;">&copy; 2024 SkillHub, Inc.</div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

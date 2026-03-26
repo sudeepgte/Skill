@@ -144,4 +144,13 @@ public class PageController {
         model.addAttribute("categories", categoryService.getAllCategories());
         return "privacy";
     }
+
+    @GetMapping("/blog")
+    public String blog(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "blog";
+    }
 }
