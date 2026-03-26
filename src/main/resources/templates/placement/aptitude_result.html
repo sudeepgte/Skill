@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aptitude Result | SkillHub</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --fail: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 4rem;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 10px solid var(--primary);
+            position: relative;
+        }
+
+        .score-val {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+
+        .score-total {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            background: #4f46e5;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="result-card">
+        <h2 th:text="${percent >= 70 ? 'Amazing Job!' : 'Keep Practicing'}">Result</h2>
+        
+        <div class="score-circle" th:style="'border-color: ' + (${percent >= 70 ? '--success' : '--fail'})">
+            <span class="score-val" th:text="${score}">15</span>
+            <span class="score-total" th:text="'out of ' + ${total}">out of 20</span>
+        </div>
+
+        <p class="feedback" th:text="${percent >= 70 ? 'You are well-prepared for technical assessments.' : 'Don't worry, consistency is the key to mastering aptitude.'}">
+            Feedback message comes here.
+        </p>
+
+        <div class="btn-group">
+            <a th:href="@{/user/placement/aptitude}" class="btn btn-primary">Retake Test</a>
+            <a th:href="@{/user/placement}" class="btn btn-outline">Back to Placement Home</a>
+        </div>
+    </div>
+
+</body>
+</html>

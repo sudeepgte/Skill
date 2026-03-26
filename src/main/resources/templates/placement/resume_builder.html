@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resume Builder | SkillHub</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 2rem;
+        }
+
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 90vh;
+        }
+
+        .form-panel {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .preview-panel {
+            background: #d1d5db;
+            padding: 2rem;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .resume-paper {
+            background: white;
+            width: 210mm; /* A4 width */
+            min-height: 297mm;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: scale(0.65); /* Scale down preview for visibility */
+            transform-origin: top center;
+        }
+
+        h2 {
+            margin-bottom: 2rem;
+            font-weight: 800;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Resume Preview Styles */
+        .res-header { border-bottom: 2px solid #000; padding-bottom: 1rem; margin-bottom: 1.5rem;}
+        .res-name { font-size: 2.5rem; font-weight: 800; text-transform: uppercase; }
+        .res-contact { color: var(--text-muted); font-size: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;}
+        .res-section-title { font-size: 1.3rem; font-weight: 800; border-bottom: 1px solid #ccc; margin: 1.5rem 0 0.8rem; text-transform: uppercase;}
+        .res-body { white-space: pre-line; line-height: 1.6;}
+
+    </style>
+</head>
+<body>
+
+    <div class="builder-container">
+        <!-- FORM PANEL -->
+        <div class="form-panel">
+            <h2>Resume Details</h2>
+            <form th:action="@{/user/placement/resume/save}" method="POST" modelAttribute="resume">
+                <input type="hidden" name="id" th:value="${resume.id}"/>
+                
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="fullName" th:value="${resume.fullName}" id="in_name" placeholder="John Doe">
+                </div>
+
+                <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" name="email" th:value="${resume.email}" id="in_email" placeholder="john@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" th:value="${resume.phone}" id="in_phone" placeholder="+1234567890">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Address</label>
+                    <input type="text" name="address" th:value="${resume.address}" id="in_address" placeholder="New York, USA">
+                </div>
+
+                <div class="input-group">
+                    <label>Professional Summary</label>
+                    <textarea name="summary" th:text="${resume.summary}" id="in_summary" placeholder="Experienced developer with..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Education</label>
+                    <textarea name="education" th:text="${resume.education}" id="in_edu" placeholder="University Of California - BS CS"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Experience</label>
+                    <textarea name="experience" th:text="${resume.experience}" id="in_exp" placeholder="Software Engineer at Google..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Projects</label>
+                    <textarea name="projects" th:text="${resume.projects}" id="in_proj" placeholder="Project Name - Details..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Skills</label>
+                    <textarea name="skills" th:text="${resume.skills}" id="in_skills" placeholder="Java, Python, Spring Boot, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn-save">Save Portfolio</button>
+            </form>
+        </div>
+
+        <!-- PREVIEW PANEL -->
+        <div class="preview-panel">
+            <div class="resume-paper" id="resume_preview">
+                <div class="res-header">
+                    <div class="res-name" id="pr_name">John Doe</div>
+                    <div class="res-contact">
+                        <span id="pr_email">john@example.com</span> | 
+                        <span id="pr_phone">+1234567890</span> | 
+                        <span id="pr_address">New York, USA</span>
+                    </div>
+                </div>
+
+                <div class="res-section">
+                    <div class="res-section-title">Summary</div>
+                    <div class="res-body" id="pr_summary">Professional Summary text here...</div>
+                </div>
+
+                <div class="res-section">
+                    <div class="res-section-title">Education</div>
+                    <div class="res-body" id="pr_edu">University info here...</div>
+                </div>
+
+                <div class="res-section">
+                    <div class="res-section-title">Experience</div>
+                    <div class="res-body" id="pr_exp">Experience info here...</div>
+                </div>
+
+                <div class="res-section">
+                    <div class="res-section-title">Projects</div>
+                    <div class="res-body" id="pr_proj">Project details here...</div>
+                </div>
+
+                <div class="res-section">
+                    <div class="res-section-title">Skills</div>
+                    <div class="res-body" id="pr_skills">Skills list here...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputs = ['name', 'email', 'phone', 'address', 'summary', 'edu', 'exp', 'proj', 'skills'];
+        
+        inputs.forEach(id => {
+            const el = document.getElementById('in_' + id);
+            const previewEl = document.getElementById('pr_' + id);
+            
+            // Initial load
+            if(el && previewEl) previewEl.innerText = el.value || previewEl.innerText;
+
+            el.addEventListener('input', (e) => {
+                previewEl.innerText = e.target.value;
+            });
+        });
+    </script>
+</body>
+</html>

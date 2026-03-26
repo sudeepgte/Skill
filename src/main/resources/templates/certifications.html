@@ -166,6 +166,7 @@
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -323,8 +324,9 @@
         <a href="/" class="nav-logo">SkillHub</a>
         <div class="nav-right">
             <a href="/dashboard" class="nav-link">My Learning</a>
+            <a th:href="@{/user/placement}" class="nav-link">Placement Prep</a>
             <a href="/user/certifications" class="nav-link" style="color:#5624d0; font-weight:700;">Certifications</a>
-            <span class="nav-link" th:text="${user.name}">User</span>
+            <span class="nav-link" th:text="${user.firstName}">User</span>
         </div>
     </nav>
 

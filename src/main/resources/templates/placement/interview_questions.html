@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Interview Questions | SkillHub</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            padding: 1rem 5%;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .category-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .cat-chip {
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .cat-chip:hover {
+            color: var(--text-main);
+            border-color: var(--primary);
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .question-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: scale(1.01);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            cursor: pointer;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .cat-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .answer-box {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            line-height: 1.7;
+            display: none;
+        }
+
+        .answer-box.visible {
+            display: block;
+        }
+
+        .toggle-btn {
+            color: var(--primary);
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 5rem 0;
+            color: var(--text-muted);
+        }
+        .btn-back {
+            text-decoration:none;
+            color: var(--text-muted);
+            display:flex;
+            align-items:center;
+            gap:0.5rem;
+            margin-bottom: 1rem;
+        }
+        .btn-back:hover { color:white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a th:href="@{/}" class="logo">SkillHub</a>
+        <a th:href="@{/user/placement}" class="cat-chip" style="border:none">Back to Preparation</a>
+    </header>
+
+    <div class="container">
+        <a th:href="@{/user/placement}" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+        <div class="header-section">
+            <h1 th:text="${category != null ? category + ' Interview Prep' : 'Interview Preparation'}">Interview Prep</h1>
+        </div>
+
+        <div class="category-nav">
+            <a th:href="@{/user/placement/interview}" class="cat-chip" th:classappend="${category == null ? 'active' : ''}">All</a>
+            <a th:href="@{/user/placement/interview(category='Java')}" class="cat-chip" th:classappend="${category == 'Java' ? 'active' : ''}">Java</a>
+            <a th:href="@{/user/placement/interview(category='Python')}" class="cat-chip" th:classappend="${category == 'Python' ? 'active' : ''}">Python</a>
+            <a th:href="@{/user/placement/interview(category='MySQL')}" class="cat-chip" th:classappend="${category == 'MySQL' ? 'active' : ''}">SQL</a>
+            <a th:href="@{/user/placement/interview(category='HR')}" class="cat-chip" th:classappend="${category == 'HR' ? 'active' : ''}">HR</a>
+            <a th:href="@{/user/placement/interview(category='Web')}" class="cat-chip" th:classappend="${category == 'Web' ? 'active' : ''}">Frontend</a>
+        </div>
+
+        <div th:if="${questions.empty}" class="empty-state">
+             <i class="fas fa-search fa-3x" style="margin-bottom:1rem"></i>
+             <p>Select a category or check back later for more questions.</p>
+        </div>
+
+        <div class="question-list">
+            <div th:each="q : ${questions}" class="question-card">
+                <div class="question-header" onclick="toggleAnswer(this)">
+                    <div>
+                        <span class="cat-badge" th:text="${q.category}">Category</span>
+                        <div class="question-text" th:text="${q.question}">The question text goes here</div>
+                    </div>
+                    <i class="fas fa-chevron-down toggle-btn"></i>
+                </div>
+                <div class="answer-box">
+                    <strong style="color:var(--text-main)">Suggested Answer:</strong><br>
+                    <p th:text="${q.answer}" style="white-space: pre-line;">The detailed answer goes here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(header) {
+            const card = header.parentElement;
+            const answer = card.querySelector('.answer-box');
+            const icon = card.querySelector('.toggle-btn');
+            
+            answer.classList.toggle('visible');
+            icon.classList.toggle('rotated');
+        }
+    </script>
+</body>
+</html>

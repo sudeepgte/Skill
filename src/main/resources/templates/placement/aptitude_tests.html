@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aptitude Test | SkillHub</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            padding: 1rem 5%;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .q-num {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .q-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+        }
+
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            border-radius: 15px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 2rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .test-timer {
+            position: fixed;
+            top: 100px;
+            right: 5%;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .timer-val {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a th:href="@{/}" class="logo">SkillHub</a>
+        <div class="test-title" th:text="${category != null ? category + ' Aptitude' : 'General Aptitude'}">General Aptitude</div>
+    </header>
+
+    <div class="test-timer">
+        <div>Time Left</div>
+        <div class="timer-val" id="timer">10:00</div>
+    </div>
+
+    <div class="container">
+        <div class="test-header">
+            <h1>Aptitude Test</h1>
+            <p>Answer the following questions to test your skills.</p>
+        </div>
+
+        <form th:action="@{/user/placement/aptitude/submit}" method="POST" id="aptitudeForm">
+            <div th:each="q, i : ${questions}" class="question-card">
+                <span class="q-num" th:text="'Question ' + ${i.count}">Question 1</span>
+                <div class="q-text" th:text="${q.question}">The question text here?</div>
+
+                <div class="options-grid">
+                    <label class="option-item">
+                        <input type="radio" th:name="'q_' + ${q.id}" value="A" required>
+                        <span th:text="${q.optionA}">Option A</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" th:name="'q_' + ${q.id}" value="B">
+                        <span th:text="${q.optionB}">Option B</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" th:name="'q_' + ${q.id}" value="C">
+                        <span th:text="${q.optionC}">Option C</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" th:name="'q_' + ${q.id}" value="D">
+                        <span th:text="${q.optionD}">Option D</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Submit Assessment</button>
+        </form>
+    </div>
+
+    <script>
+        let timeLeft = 600; // 10 minutes
+        const timerEl = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                document.getElementById('aptitudeForm').submit();
+            }
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            timeLeft--;
+        }, 1000);
+    </script>
+</body>
+</html>

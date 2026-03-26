@@ -4,21 +4,37 @@
 <head>
     <title>My Learning | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-size: 62.5%; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             font-size: 1.4rem;
             color: #1c1d1f;
             background: #f7f9fa;
         }
-        a { text-decoration: none; color: inherit; }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
         .container {
             max-width: 1200px;
@@ -44,13 +60,13 @@
         .header-tabs {
             display: flex;
             gap: 0;
-            border-top: 1px solid rgba(255,255,255,0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             margin-top: 0.4rem;
             padding-left: 2.4rem;
         }
 
         .header-tab {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.4rem;
             font-weight: 600;
             padding: 1.4rem 2rem;
@@ -59,7 +75,10 @@
             transition: color 0.15s, border-color 0.15s;
         }
 
-        .header-tab:hover { color: #fff; }
+        .header-tab:hover {
+            color: #fff;
+        }
+
         .header-tab.active {
             color: #fff;
             border-bottom-color: #a435f0;
@@ -76,7 +95,9 @@
         }
 
         @media (max-width: 1024px) {
-            .dashboard-layout { grid-template-columns: 1fr; }
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* ── Course Card ── */
@@ -109,7 +130,7 @@
 
         .course-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
         }
 
         .card-img-wrapper {
@@ -120,7 +141,10 @@
 
         .card-img-wrapper img {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
@@ -188,7 +212,7 @@
             border: 1px solid #d1d7dc;
             border-radius: 0.8rem;
             padding: 2.4rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
         }
 
         .widget-title {
@@ -210,10 +234,14 @@
             border-bottom: 1px solid #f7f9fa;
         }
 
-        .notification-item:last-child { border: 0; margin: 0; }
+        .notification-item:last-child {
+            border: 0;
+            margin: 0;
+        }
 
         .note-icon {
-            width: 3.2rem; height: 3.2rem;
+            width: 3.2rem;
+            height: 3.2rem;
             border-radius: 50%;
             background: #f3e8ff;
             color: #a435f0;
@@ -224,9 +252,24 @@
             flex-shrink: 0;
         }
 
-        .note-content h4 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .note-content p { font-size: 1.2rem; color: #6a6f73; line-height: 1.4; margin: 0; }
-        .note-time { font-size: 1rem; color: #afb3b6; margin-top: 0.4rem; }
+        .note-content h4 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .note-content p {
+            font-size: 1.2rem;
+            color: #6a6f73;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .note-time {
+            font-size: 1rem;
+            color: #afb3b6;
+            margin-top: 0.4rem;
+        }
 
         .stat-row {
             display: flex;
@@ -236,7 +279,10 @@
             font-size: 1.4rem;
         }
 
-        .stat-value { font-weight: 700; color: #a435f0; }
+        .stat-value {
+            font-weight: 700;
+            color: #a435f0;
+        }
 
         /* ── Empty State ── */
         .empty-state {
@@ -247,9 +293,23 @@
             border-radius: 0.8rem;
         }
 
-        .empty-state i { font-size: 4rem; color: #d1d7dc; margin-bottom: 1.6rem; display: block; }
-        .empty-state h3 { font-size: 1.8rem; margin-bottom: 0.8rem; }
-        .empty-state p { color: #6a6f73; margin-bottom: 2.4rem; }
+        .empty-state i {
+            font-size: 4rem;
+            color: #d1d7dc;
+            margin-bottom: 1.6rem;
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .empty-state p {
+            color: #6a6f73;
+            margin-bottom: 2.4rem;
+        }
+
         .btn-primary {
             display: inline-block;
             background: #a435f0;
@@ -265,30 +325,23 @@
 
     <!-- ══ NAVBAR ══ -->
     <nav class="navbar">
-        <a th:href="@{/user/home}" class="nav-logo">SkillHub</a>
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form th:action="@{/user/home}">
-                <input type="text" name="query" placeholder="Search for anything">
-            </form>
-        </div>
-        <div class="nav-right">
-            <a href="/student/dashboard" class="nav-link" style="font-weight:700; color:#a435f0;">My Learning</a>
-            <th:block th:if="${student != null}">
-                <div class="nav-user-dropdown">
-                    <div class="nav-avatar">
-                        <span th:text="${#strings.substring(student.name,0,1)}">U</span>
-                    </div>
-                </div>
-            </th:block>
+        <a href="/user/home"
+            style="text-decoration:none; color:var(--dark); font-weight:800; font-size:1.5rem;">SkillHub</a>
+        <div class="nav-links">
+            <a href="/user/home" class="nav-link">Explore</a>
+            <a href="/student/dashboard" class="nav-link" th:style="${activeTab == 'courses' ? 'color:var(--primary)' : ''}">My Learning</a>
+            <a href="/student/dashboard?tab=placement" class="nav-link" th:style="${activeTab == 'placement' ? 'color:var(--primary)' : ''}">Placement Prep</a>
+            <a href="/profile" class="nav-link">Profile</a>
+            <div class="user-avatar" th:text="${#strings.substring(student.name, 0, 1)}">U</div>
         </div>
     </nav>
 
     <!-- ══ PAGE HEADER ══ -->
     <div class="page-header">
-        <h1>My Learning</h1>
+        <h1 th:text="${activeTab == 'placement' ? 'Placement Preparation' : 'My Learning'}">My Learning</h1>
         <div class="header-tabs">
-            <a href="/student/dashboard" class="header-tab active">All Courses</a>
+            <a href="/student/dashboard" class="header-tab" th:classappend="${activeTab == 'courses' ? 'active' : ''}">All Courses</a>
+            <a href="/student/dashboard?tab=placement" class="header-tab" th:classappend="${activeTab == 'placement' ? 'active' : ''}">Placement Prep</a>
             <a href="/student/wishlist" class="header-tab">Wishlist</a>
             <a href="/user/certifications" class="header-tab">Certifications</a>
         </div>
@@ -296,57 +349,131 @@
 
     <!-- ══ MAIN LAYOUT ══ -->
     <div class="dashboard-layout">
-        
-        <!-- Left Column: Courses -->
+
+        <!-- Left Column: Content -->
         <main>
-            <h2 class="section-title"><i class="fas fa-play-circle"></i> Enrolled Courses</h2>
+            <!-- TAB: COURSES -->
+            <div th:if="${activeTab == 'courses'}">
+                <div class="section-title">
+                    <i class="fas fa-play-circle" style="color:#a435f0"></i> Enrolled Courses
+                </div>
 
-            <!-- Empty State -->
-            <div th:if="${#lists.isEmpty(enrollments)}" class="empty-state">
-                <i class="fas fa-book-open"></i>
-                <h3>No courses yet</h3>
-                <p>Start your learning journey by enrolling in a course.</p>
-                <a href="/user/home" class="btn-primary">Browse Courses</a>
-            </div>
+                <div th:if="${#lists.isEmpty(enrollments)}" class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h3>No courses yet</h3>
+                    <p>Start your learning journey by enrolling in a course.</p>
+                    <a href="/user/home" class="btn-primary">Browse Courses</a>
+                </div>
 
-            <!-- Course Grid -->
-            <div class="course-grid">
-                <div th:each="enrollment : ${enrollments}" class="course-card">
-                    <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}">
-                        <div class="card-img-wrapper">
-                            <img th:src="${enrollment.course.imageUrl}" alt="Course" onerror="this.src='/images/placeholder.jpg'">
-                        </div>
-                        <div class="card-body">
-                            <h3 class="course-title" th:text="${enrollment.course.title}">Course Title</h3>
-                            <p class="instructor-name" th:text="${enrollment.course.instructor.name}">Instructor</p>
-                            
-                            <div class="progress-container">
-                                <div class="progress-text">
-                                    <span th:text="${progressCountMap.get(enrollment.id)}">0/0 completed</span>
-                                    <span th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 0, 0) + '%'}">0%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" th:style="'width:' + ${enrollment.progressPercentage} + '%'"></div>
+                <div class="course-grid">
+                    <div th:each="enrollment : ${enrollments}" class="course-card">
+                        <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}">
+                            <div class="card-img-wrapper">
+                                <img th:src="${enrollment.course.imageUrl}" alt="Course img">
+                            </div>
+                            <div class="card-body">
+                                <h3 class="course-title" th:text="${enrollment.course.title}">Course Title</h3>
+                                <p class="instructor-name" th:text="${enrollment.course.instructor.name}">Instructor</p>
+                                
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span th:text="${progressCountMap.get(enrollment.id)}">0/0 completed</span>
+                                        <span th:text="${enrollment.progressPercentage + '%'}">0%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" th:style="'width:' + ${enrollment.progressPercentage} + '%'"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <i class="fas fa-lightbulb" style="color:#a435f0"></i> Recommended For You
+                </div>
+                <div class="course-grid">
+                    <div th:each="course : ${recommendedCourses}" class="course-card">
+                        <a th:href="@{/courses/view/{id}(id=${course.id})}">
+                            <div class="card-img-wrapper">
+                                <img th:src="${course.imageUrl}" alt="Course img">
+                            </div>
+                            <div class="card-body">
+                                <h3 class="course-title" th:text="${course.title}">Course Title</h3>
+                                <p class="instructor-name" th:text="${course.instructor.name}">Instructor</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Recommendations -->
-            <h2 class="section-title"><i class="fas fa-star"></i> Recommended For You</h2>
-            <div class="course-grid">
-                <div th:each="course : ${recommendedCourses}" class="course-card">
-                    <a th:href="@{/course/{id}(id=${course.id})}">
-                        <div class="card-img-wrapper">
-                            <img th:src="${course.imageUrl}" alt="Course">
-                        </div>
-                        <div class="card-body">
-                            <h3 class="course-title" th:text="${course.title}">Course Title</h3>
-                            <p class="instructor-name" th:text="${course.instructor.name}">Instructor</p>
-                        </div>
+            <!-- TAB: PLACEMENT -->
+            <div th:if="${activeTab == 'placement'}">
+                <style>
+                    .p-section { background: white; border: 1px solid #d1d7dc; border-radius: 8px; padding: 3rem; margin-bottom: 3.2rem; }
+                    .quest-card { border-bottom: 1px solid #f7f9fa; padding: 1.6rem 0; }
+                    .quest-card:last-child { border-bottom:none; }
+                    .btn-reveal { background: none; border: none; color: #a435f0; font-weight: 700; cursor: pointer; padding: 0.8rem 0; font-family: 'Inter', sans-serif; font-size: 1.4rem; }
+                    .answer { display: none; padding: 1.6rem; background: #f7f9fa; border-radius: 4px; border-left: 4px solid #a435f0; margin-top: 1rem; color: #6a6f73; line-height: 1.6; }
+                    .p-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem; }
+                    .p-nav-card { background: white; border: 1px solid #d1d7dc; padding: 2.4rem; border-radius: 8px; text-align: center; transition: all 0.2s; }
+                    .p-nav-card:hover { border-color: #a435f0; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+                    .p-nav-card i { font-size: 2.4rem; color: #a435f0; margin-bottom: 1.2rem; display: block; }
+                </style>
+
+                <div class="p-grid">
+                    <a href="#interview-sec" class="p-nav-card">
+                        <i class="fas fa-comments"></i>
+                        <span style="font-weight:700;">Interview Prep</span>
                     </a>
+                    <a href="#aptitude-sec" class="p-nav-card">
+                        <i class="fas fa-brain"></i>
+                        <span style="font-weight:700;">Aptitude Tests</span>
+                    </a>
+                    <a href="#resume-sec" class="p-nav-card">
+                        <i class="fas fa-file-invoice"></i>
+                        <span style="font-weight:700;">Resume Builder</span>
+                    </a>
+                </div>
+
+                <!-- Interview Questions -->
+                <div id="interview-sec" class="p-section">
+                    <h3 class="section-title"><i class="fas fa-comments" style="color:#a435f0"></i> Interview Questions Bank</h3>
+                    <div th:each="q : ${interviewQuestions}" class="quest-card">
+                        <div style="font-weight:700; font-size:1.6rem; margin-bottom:0.8rem; font-family: 'Merriweather', serif;" th:text="${q.question}">Question</div>
+                        <button class="btn-reveal" onclick="this.nextElementSibling.style.display == 'block' ? this.nextElementSibling.style.display = 'none' : this.nextElementSibling.style.display = 'block'">View Suggested Answer <i class="fas fa-chevron-down"></i></button>
+                        <div class="answer" th:text="${q.answer}">Answer</div>
+                    </div>
+                </div>
+
+                <!-- Aptitude -->
+                <div id="aptitude-sec" class="p-section">
+                    <h3 class="section-title"><i class="fas fa-brain" style="color:#a435f0"></i> Mock Aptitude assessments</h3>
+                    <p style="color:#6a6f73; margin-bottom:2.4rem; font-size:1.5rem;">Test your logic, quantitative, and verbal skills with timed mock tests.</p>
+                    <a th:href="@{/user/placement/aptitude}" class="btn-primary" style="padding: 1.4rem 3rem;">Start New Test</a>
+                </div>
+
+                <!-- Resume Builder -->
+                <div id="resume-sec" class="p-section">
+                    <h3 class="section-title"><i class="fas fa-magic" style="color:#a435f0"></i> Resume Builder</h3>
+                    <form th:action="@{/user/placement/resume/save}" method="POST" style="display:grid; grid-template-columns: 1fr 1fr; gap:3rem;">
+                        <input type="hidden" name="id" th:value="${resume.id}"/>
+                        <div style="display:flex; flex-direction:column; gap:1.6rem;">
+                            <input type="text" name="fullName" th:value="${resume.fullName}" placeholder="Full Name" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; font-size:1.4rem;">
+                            <input type="email" name="email" th:value="${resume.email}" placeholder="Email Address" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; font-size:1.4rem;">
+                            <textarea name="summary" th:text="${resume.summary}" placeholder="Professional Summary" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; min-height:10rem; font-family:inherit;font-size:1.4rem;"></textarea>
+                            <textarea name="skills" th:text="${resume.skills}" placeholder="Skills (comma separated)" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; min-height:10rem; font-family:inherit;font-size:1.4rem;"></textarea>
+                            <button type="submit" class="btn-primary" style="border:none; cursor:pointer; width:100%;">Save & Update Resume</button>
+                        </div>
+                        <div style="background:#f7f9fa; padding:2.4rem; border-radius:4px; border:1px solid #d1d7dc;">
+                            <h2 style="font-family:'Merriweather', serif; font-size:2rem; margin-bottom:0.4rem;" th:text="${resume.fullName}">Name</h2>
+                            <p style="color:#6a6f73; font-size:1.2rem; margin-bottom:2rem; border-bottom:2px solid #1c1d1f; padding-bottom:1rem;" th:text="${resume.email}">Email</p>
+                            <h4 style="text-transform:uppercase; font-size:1.1rem; letter-spacing:1px; margin-bottom:0.8rem; color:#1c1d1f;">Profile Summary</h4>
+                            <p style="font-size:1.3rem; line-height:1.6; margin-bottom:2rem;" th:text="${resume.summary}">Summary...</p>
+                            <h4 style="text-transform:uppercase; font-size:1.1rem; letter-spacing:1px; margin-bottom:0.8rem; color:#1c1d1f;">Core Competencies</h4>
+                            <p style="font-size:1.3rem; line-height:1.6;" th:text="${resume.skills}">Skills...</p>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -364,13 +491,18 @@
                     <span>Certificates Earned</span>
                     <span class="stat-value" th:text="${#lists.size(certificates)}">0</span>
                 </div>
+                <!-- Placement Button -->
+                <a href="/student/dashboard?tab=placement" class="btn-primary" style="width:100%; text-align:center; padding: 1.4rem; margin-top:1rem;">
+                    <i class="fas fa-rocket"></i> Prepare for Placement
+                </a>
             </div>
 
             <!-- Notifications -->
             <div class="widget">
                 <h3 class="widget-title"><i class="fas fa-bell"></i> Recent Alerts</h3>
                 <div class="notification-list">
-                    <div th:if="${#lists.isEmpty(notifications)}" style="text-align:center; color:#6a6f73; padding: 1rem 0; font-size:1.2rem;">
+                    <div th:if="${#lists.isEmpty(notifications)}"
+                        style="text-align:center; color:#6a6f73; padding: 1rem 0; font-size:1.2rem;">
                         No new notifications
                     </div>
                     <div th:each="note : ${notifications}" class="notification-item">
@@ -378,7 +510,8 @@
                         <div class="note-content">
                             <h4 th:text="${note.title != null ? note.title : 'Update'}">Update</h4>
                             <p th:text="${note.message}">Message</p>
-                            <div class="note-time" th:text="${#temporals.format(note.createdAt, 'dd MMM, HH:mm')}">Time</div>
+                            <div class="note-time" th:text="${#temporals.format(note.createdAt, 'dd MMM, HH:mm')}">Time
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -388,10 +521,12 @@
     </div>
 
     <footer class="simple-footer">
-        <div class="container" style="text-align: center; padding: 4rem 0; border-top: 1px solid #d1d7dc; color: #6a6f73; font-size: 1.2rem;">
+        <div class="container"
+            style="text-align: center; padding: 4rem 0; border-top: 1px solid #d1d7dc; color: #6a6f73; font-size: 1.2rem;">
             &copy; 2026 SkillHub Course Platform. All rights reserved.
         </div>
     </footer>
 
 </body>
+
 </html>
