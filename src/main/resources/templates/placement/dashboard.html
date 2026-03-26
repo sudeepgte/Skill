@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Placement Preparation | SkillHub</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent),
+                              radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.15), transparent);
+        }
+
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            padding: 1rem 5%;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a th:href="@{/}" class="logo">SkillHub</a>
+        <div class="user-nav">
+             <a th:href="@{/user/certifications}" class="btn btn-outline" style="border:none">Dashboard</a>
+             <span>Welcome, <b th:text="${user.name}">User</b></span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Level up your Career</h1>
+            <p>Everything you need to crack your dream job in one place.</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Interview Prep -->
+            <div class="feature-card">
+                <div>
+                    <div class="icon-box">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Interview Preparation</h3>
+                    <p>Master the most commonly asked technical and HR interview questions. Categorized by technologies and job roles.</p>
+                </div>
+                <a th:href="@{/user/placement/interview}" class="btn btn-primary">Browse Questions <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Aptitude Tests -->
+            <div class="feature-card">
+                <div>
+                    <div class="icon-box">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Aptitude Training</h3>
+                    <p>Sharpen your problem-solving skills with customized aptitude tests. Quantitative, Logical, and Verbal reasoning.</p>
+                </div>
+                <a th:href="@{/user/placement/aptitude}" class="btn btn-primary">Start Test <i class="fas fa-play"></i></a>
+            </div>
+
+            <!-- Resume Builder -->
+            <div class="feature-card">
+                <div>
+                    <div class="icon-box">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Resume Builder</h3>
+                    <p>Create a professional, recruiter-friendly resume in minutes. Choose from ATS-friendly templates designed for success.</p>
+                </div>
+                <a th:href="@{/user/placement/resume}" class="btn btn-primary">Build Resume <i class="fas fa-magic"></i></a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.util.List;
 
@@ -28,13 +29,21 @@ public class StudentController {
     private com.skillhub.repository.NotificationRepository notificationRepository;
 
     @Autowired
+    private com.skillhub.service.PlacementService placementService;
+
+    @Autowired
+    private com.skillhub.service.CategoryService categoryService;
+
+    @Autowired
     private com.skillhub.repository.CourseRepository courseRepository;
 
     @Autowired
     private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
+    public String dashboard(@RequestParam(required = false) String tab, 
+                           @RequestParam(required = false) String category,
+                           Model model, Principal principal) {
         String email = principal.getName();
         User student = userService.findByEmail(email);
 
@@ -68,12 +77,21 @@ public class StudentController {
         // Fetch certificates (courses where exam passed)
         List<Enrollment> certificates = enrollments.stream().filter(Enrollment::isExamPassed).collect(java.util.stream.Collectors.toList());
 
+        // Placement Data
+        if ("placement".equals(tab)) {
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("interviewQuestions", placementService.getAllInterviewQuestions());
+            model.addAttribute("aptitudeQuestions", placementService.getRandomAptitudeQuestions(10));
+            model.addAttribute("resume", placementService.getResumeByUser(student));
+        }
+
         model.addAttribute("enrollments", enrollments);
         model.addAttribute("notifications", notifications);
         model.addAttribute("recommendedCourses", recommendedCourses);
         model.addAttribute("student", student);
         model.addAttribute("progressCountMap", progressCountMap);
         model.addAttribute("certificates", certificates);
+        model.addAttribute("activeTab", tab != null ? tab : "courses");
         
         return "student/dashboard";
     }
