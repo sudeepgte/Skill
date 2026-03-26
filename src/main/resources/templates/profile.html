@@ -5,254 +5,309 @@
     <title>My Profile | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
-    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
-    <link rel="stylesheet" th:href="@{/css/profile.css}" href="../static/css/profile.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        :root {
+            --primary: #a435f0;
+            --dark: #1c1d1f;
+            --light: #f7f9fa;
+            --border: #d1d7dc;
+            --text: #2d2f31;
+            --muted: #6a6f73;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-lg {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--dark);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .content-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-save {
+            background: var(--dark);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cert-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .cert-card i {
+            font-size: 2rem;
+            color: #ff9800;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
 
 <body>
 
-    <!-- Main Navbar (Copied/Reused Structure for simplicity) -->
-    <nav class="navbar">
-        <div class="navbar-left">
-            <a href="/user/home" class="logo">
-                <span class="logo-text">SkillHub</span>
-            </a>
-            <!-- Categories Dropdown (Simplified) -->
-            <div class="dropdown">
-                <div class="categories-link">Categories <i class="fas fa-chevron-down"
-                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
-            </div>
-        </div>
-        <div class="navbar-center"></div>
-        <div class="navbar-right">
-            <!-- Authenticated User Dropdown -->
-            <div th:if="${user != null}" style="display: flex; align-items: center;">
-                <a href="/profile?tab=courses" class="categories-link"
-                    style="margin-right: 1.6rem; text-decoration: none;">My Courses</a>
-
-                <div class="dropdown">
-                    <div class="categories-link" style="display: flex; align-items: center; gap: 0.8rem;">
-                        <div
-                            style="background-color: #2d2f31; color: white; width: 3.2rem; height: 3.2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                            <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-                        </div>
-                    </div>
-                    <div class="dropdown-menu" style="left: auto; right: 0;">
-                        <div style="padding: 1.2rem 2.4rem; border-bottom: 1px solid #d1d7dc;">
-                            <div style="font-weight: 700; color: #2d2f31;" th:text="${user.name}">User Name</div>
-                            <div style="font-size: 1.2rem; color: #6a6f73;" th:text="${user.email}">user@example.com
-                            </div>
-                        </div>
-                        <a href="/profile" class="dropdown-item">My Profile</a>
-                        <form th:action="@{/logout}" method="post"><button class="dropdown-item"
-                                style="border:none; background:none; width:100%; text-align:left; cursor:pointer;">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    <nav style="background: white; border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <a href="/user/home" style="text-decoration:none; color:var(--dark); font-weight:800; font-size:1.5rem;">SkillHub</a>
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <a href="/student/dashboard" style="text-decoration:none; color:var(--text); font-weight:600;">Back to Dashboard</a>
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--dark); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;" th:text="${#strings.substring(user.name, 0, 1)}">U</div>
         </div>
     </nav>
 
-    <!-- Unified Profile Container -->
-    <div class="container profile-container">
-
-        <!-- Sidebar -->
-        <div class="profile-sidebar">
-            <div class="profile-avatar-box">
-                <div class="profile-avatar-lg">
-                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-                </div>
-                <div class="profile-name-lg" th:text="${user.name}">User Name</div>
+    <div class="profile-container">
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="avatar-lg" th:text="${#strings.substring(user.name, 0, 1)}">U</div>
+                <h3 th:text="${user.name}">User Name</h3>
+                <p style="color: var(--muted); font-size: 0.9rem;" th:text="${user.role}">Role</p>
             </div>
-
-            <button class="profile-nav-btn active" onclick="openTab(event, 'profile-tab')">
-                <i class="fas fa-user"></i> Profile
-            </button>
-            <button class="profile-nav-btn" onclick="openTab(event, 'courses-tab')">
-                <i class="fas fa-play-circle"></i> My Courses
-            </button>
-            <button class="profile-nav-btn" onclick="openTab(event, 'security-tab')">
-                <i class="fas fa-shield-alt"></i> Security
-            </button>
-
-            <form th:action="@{/logout}" method="post"
-                style="margin-top: auto; padding-top: 1.2rem; border-top: 1px solid #e0e0e0;">
-                <button type="submit" class="profile-nav-btn" style="color: #6a6f73;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="profile">
+                    <i class="fas fa-user-circle"></i> View Profile
                 </button>
-            </form>
-        </div>
+                <button class="nav-item" data-tab="certificates">
+                    <i class="fas fa-certificate"></i> My Certificates
+                </button>
+                <button class="nav-item" data-tab="security">
+                    <i class="fas fa-lock"></i> Security
+                </button>
+                <form th:action="@{/logout}" method="post" style="width:100%;">
+                    <button type="submit" class="nav-item" style="color: #d32f2f;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </nav>
+        </aside>
 
-        <!-- Content Area -->
-        <div class="profile-content">
-            <!-- Messages -->
-            <div th:if="${success}" class="alert alert-success"
-                style="color: #0f3e0f; background-color: #dff0d8; padding: 1.6rem; margin-bottom: 2.4rem;">
-                <span th:text="${success}"></span>
-            </div>
-            <div th:if="${error}" class="alert alert-danger"
-                style="color: #6a1f1d; background-color: #f7dddc; padding: 1.6rem; margin-bottom: 2.4rem;">
-                <span th:text="${error}"></span>
-            </div>
+        <main class="content-card">
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-            <!-- Tab 1: Profile -->
-            <div id="profile-tab" class="tab-pane active">
-                <h2
-                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
-                    Public Profile</h2>
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content active">
+                <h2 style="margin-top: 0;">Profile Information</h2>
                 <form th:action="@{/profile}" method="post">
-                    <div class="form-group" style="margin-bottom: 1.6rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Full Name</label>
-                        <input type="text" name="name" th:value="${user.name}" class="form-control" required
-                            style="height: 4.8rem; font-size: 1.6rem;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" th:value="${user.name}" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.6rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Email</label>
-                        <input type="email" name="email" th:value="${user.email}" class="form-control" required
-                            style="height: 4.8rem; font-size: 1.6rem; background-color: #f7f9fa;" readonly>
-                        <div style="font-size: 1.2rem; color: #6a6f73; margin-top: 0.4rem;">Email cannot be changed
-                            directly for security reasons. Contact support.</div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" th:value="${user.email}" class="form-control" readonly style="background:#f0f2f5;">
+                        <small style="color:var(--muted);">Email cannot be changed.</small>
                     </div>
-                    <div style="margin-top: 3.2rem;">
-                        <button type="submit" class="btn btn-primary"
-                            style="background-color: #2d2f31; font-weight: 700; padding: 1.2rem 2.4rem;">Save
-                            Profile</button>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" th:value="${user.phone}" class="form-control" placeholder="+1 234 567 890">
                     </div>
+                    <div class="form-group">
+                        <label>Headline</label>
+                        <input type="text" name="headline" th:value="${user.headline}" class="form-control" placeholder="e.g. Software Engineer Student">
+                    </div>
+                    <div class="form-group">
+                        <label>Skills (Comma separated)</label>
+                        <input type="text" name="skills" th:value="${user.skills}" class="form-control" placeholder="Java, Spring Boot, React...">
+                    </div>
+                    <div class="form-group">
+                        <label>Biography</label>
+                        <textarea name="bio" class="form-control" rows="4" th:text="${user.bio}" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-save">Save Changes</button>
                 </form>
             </div>
 
-            <!-- Tab 2: My Courses -->
-            <div id="courses-tab" class="tab-pane">
-                <h2
-                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
-                    My Courses</h2>
-
-                <div th:if="${enrollments != null and not #lists.isEmpty(enrollments)}">
-                    <div th:each="enrollment : ${enrollments}" class="my-course-card">
-                        <!-- Placeholder image if Course has no image url, assumed course structure -->
-                        <div class="my-course-img"
-                            style="background-color: #2d2f31; display:flex; align-items:center; justify-content:center; color:white;">
-                            <i class="fas fa-play"></i>
+            <!-- Certificates Tab -->
+            <div id="certificates" class="tab-content">
+                <h2 style="margin-top: 0;">My Certificates</h2>
+                <p th:if="${#lists.isEmpty(certificates)}" style="color: var(--muted);">Complete a course exam to earn certificates.</p>
+                <div class="cert-grid">
+                    <div th:each="cert : ${certificates}" class="cert-card">
+                        <i class="fas fa-award"></i>
+                        <div>
+                            <h4 style="margin: 0;" th:text="${cert.course.title}">Course Title</h4>
+                            <p style="font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0;">Completed on: <span th:text="${#temporals.format(cert.certificateDate, 'dd MMM yyyy')}">Date</span></p>
                         </div>
-                        <div style="flex-grow: 1;">
-                            <h3 style="font-size: 1.6rem; margin-bottom: 0.4rem;" th:text="${enrollment.course.title}">
-                                Course Title</h3>
-                            <a th:href="@{'/courses/view/' + ${enrollment.course.id}}"
-                                style="color: #5624d0; font-weight: 700; font-size: 1.4rem;">Go to Course</a>
-                        </div>
+                        <a href="#" style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 0.9rem;">View Certificate</a>
                     </div>
-                </div>
-
-                <div th:if="${enrollments == null or #lists.isEmpty(enrollments)}"
-                    style="text-align: center; padding: 4.8rem 0;">
-                    <div style="font-size: 6rem; color: #d1d7dc; margin-bottom: 1.6rem;"><i
-                            class="fas fa-book-open"></i></div>
-                    <p style="font-size: 1.6rem;">You haven't enrolled in any courses yet.</p>
-                    <a href="/user/home" class="btn btn-primary" style="margin-top: 1.6rem; display:inline-block;">Browse
-                        Courses</a>
                 </div>
             </div>
 
-            <!-- Tab 3: Security -->
-            <div id="security-tab" class="tab-pane">
-                <h2
-                    style="font-size: 2.4rem; margin-bottom: 1.6rem; border-bottom: 1px solid #d1d7dc; padding-bottom: 1rem;">
-                    Change Password</h2>
+            <!-- Security Tab -->
+            <div id="security" class="tab-content">
+                <h2 style="margin-top: 0;">Password & Security</h2>
                 <form th:action="@{/change-password}" method="post">
-                    <div class="form-group" style="margin-bottom: 1.6rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Current Password</label>
-                        <input type="password" name="currentPassword" class="form-control" required
-                            style="height: 4.8rem;">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.6rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">New Password</label>
-                        <input type="password" name="newPassword" class="form-control" required style="height: 4.8rem;">
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 1.6rem;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 0.8rem;">Confirm New
-                            Password</label>
-                        <input type="password" name="confirmPassword" class="form-control" required
-                            style="height: 4.8rem;">
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required>
                     </div>
-                    <div style="margin-top: 3.2rem;">
-                        <button type="submit" class="btn btn-primary"
-                            style="background-color: #2d2f31; font-weight: 700; padding: 1.2rem 2.4rem;">Update
-                            Password</button>
-                    </div>
+                    <button type="submit" class="btn-save">Update Password</button>
                 </form>
             </div>
-
-        </div>
+        </main>
     </div>
 
-    <script th:src="@{/js/script.js}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Dropdown Logic
-            const dropdowns = document.querySelectorAll('.dropdown');
-            dropdowns.forEach(dropdown => {
-                const trigger = dropdown.querySelector('.categories-link') || dropdown.querySelector('.dropdown-toggle');
-                const menu = dropdown.querySelector('.dropdown-menu');
-                let timeoutId;
-                if (!trigger || !menu) return;
-                dropdown.addEventListener('mouseenter', () => {
-                    clearTimeout(timeoutId);
-                    menu.style.display = 'block';
-                    setTimeout(() => { menu.style.opacity = '1'; menu.style.transform = 'translateY(0)'; }, 10);
-                });
-                dropdown.addEventListener('mouseleave', () => {
-                    timeoutId = setTimeout(() => {
-                        menu.style.opacity = '0';
-                        menu.style.transform = 'translateY(-10px)';
-                        setTimeout(() => { if (menu.style.opacity === '0') menu.style.display = 'none'; }, 200);
-                    }, 300);
-                });
-                trigger.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (menu.style.display === 'block') menu.style.display = 'none';
-                    else { menu.style.display = 'block'; menu.style.opacity = '1'; menu.style.transform = 'translateY(0)'; }
-                });
+    <script th:inline="javascript">
+        document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update buttons
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
             });
-
-            // Tab Logic
-            window.openTab = function (evt, tabName) {
-                var i, tabcontent, tablinks;
-                tabcontent = document.getElementsByClassName("tab-pane");
-                for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
-                    tabcontent[i].classList.remove("active");
-                }
-                tablinks = document.getElementsByClassName("profile-nav-btn");
-                for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].className = tablinks[i].className.replace(" active", "");
-                }
-                document.getElementById(tabName).style.display = "block";
-                document.getElementById(tabName).classList.add("active");
-                evt.currentTarget.className += " active";
-            };
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const tab = urlParams.get('tab');
-            if (tab === 'courses') {
-                const btn = document.querySelector("button[onclick*='courses-tab']");
-                if (btn) btn.click();
-            } else if (tab === 'security') {
-                const btn = document.querySelector("button[onclick*='security-tab']");
-                if (btn) btn.click();
-            }
         });
+
+        // Initialize from URL or default
+        const activeTab = /*[[${activeTab}]]*/ 'profile';
+        if(activeTab) {
+            const btn = document.querySelector(`.nav-item[data-tab="${activeTab}"]`);
+            if(btn) btn.click();
+        }
     </script>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
-        </div>
-    </footer>
-
 </body>
-
 </html>

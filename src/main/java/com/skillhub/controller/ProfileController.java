@@ -26,7 +26,7 @@ public class ProfileController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/profile")
-    public String showProfile(Model model, Principal principal) {
+    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "profile") String tab, Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -36,16 +36,26 @@ public class ProfileController {
         // Fetch enrollments for My Courses tab
         java.util.List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
         model.addAttribute("enrollments", enrollments);
+        
+        // Fetch certificates (Enrolled courses where exam is passed)
+        java.util.List<com.skillhub.model.Enrollment> certificates = enrollments.stream()
+                .filter(com.skillhub.model.Enrollment::isExamPassed)
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("certificates", certificates);
+        model.addAttribute("activeTab", tab);
 
         return "profile";
     }
 
     @PostMapping("/profile")
     public String updateProfile(@RequestParam("name") String name,
-            @RequestParam("email") String email,
-            @RequestParam(value = "phone", required = false) String phone,
-            Principal principal,
-            RedirectAttributes redirectAttributes) {
+                                @RequestParam("email") String email,
+                                @RequestParam(value = "phone", required = false) String phone,
+                                @RequestParam(value = "skills", required = false) String skills,
+                                @RequestParam(value = "bio", required = false) String bio,
+                                @RequestParam(value = "headline", required = false) String headline,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -55,10 +65,7 @@ public class ProfileController {
             return "redirect:/login";
         }
 
-        // Basic validation - check if email is changed and unique if necessary,
-        // but for simplicity here we assume email update might need re-login or
-        // verification.
-        // If email is changed, check if it already exists for another user.
+        // Basic validation
         if (!user.getEmail().equals(email)) {
             User existing = userService.findByEmail(email);
             if (existing != null) {
@@ -69,21 +76,14 @@ public class ProfileController {
 
         user.setName(name);
         user.setEmail(email);
-        // user.setPhone(phone); // Assuming User model has phone field. If not, will
-        // check.
-        // Checking User model... The view_file previously didn't show User model
-        // content.
-        // I'll assume standard fields. If setPhone fails, I'll need to remove it or add
-        // it to User.
-        // Safe bet: stick to name and email first, or check User model.
-        // Prompt says: Full Name, Email, Phone (optional).
+        user.setPhone(phone);
+        user.setSkills(skills);
+        user.setBio(bio);
+        user.setHeadline(headline);
 
         userService.updateUser(user);
 
-        // If email changed, we might need to update the Principal/Authentication, but
-        // that's complex.
-        // For now, let's update the DB. User might need to re-login if Spring Security
-        // relies on email as username.
+        // Handle email change re-auth if needed
         if (!principal.getName().equals(email)) {
             redirectAttributes.addFlashAttribute("success", "Profile updated. Please log in with your new email.");
             return "redirect:/logout";

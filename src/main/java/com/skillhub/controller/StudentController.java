@@ -24,14 +24,36 @@ public class StudentController {
     @Autowired
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
+    @Autowired
+    private com.skillhub.repository.NotificationRepository notificationRepository;
+
+    @Autowired
+    private com.skillhub.repository.CourseRepository courseRepository;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
         String email = principal.getName();
         User student = userService.findByEmail(email);
 
         List<Enrollment> enrollments = enrollmentRepository.findByStudent(student);
+        List<com.skillhub.model.Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(student);
+        
+        // Basic Recommendation: Fetch all published courses and exclude enrolled ones
+        List<com.skillhub.model.Course> allCourses = courseRepository.findByIsPublishedTrue();
+        List<com.skillhub.model.Course> enrolledCourses = enrollments.stream()
+                .map(Enrollment::getCourse)
+                .collect(java.util.stream.Collectors.toList());
+        
+        List<com.skillhub.model.Course> recommendedCourses = allCourses.stream()
+                .filter(c -> !enrolledCourses.contains(c))
+                .limit(4) // Show top 4
+                .collect(java.util.stream.Collectors.toList());
 
         model.addAttribute("enrollments", enrollments);
+        model.addAttribute("notifications", notifications);
+        model.addAttribute("recommendedCourses", recommendedCourses);
+        model.addAttribute("student", student);
+        
         return "student/dashboard";
     }
 
