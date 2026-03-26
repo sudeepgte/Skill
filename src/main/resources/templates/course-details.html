@@ -428,7 +428,7 @@
 <body>
 
     <nav class="navbar">
-        <a href="/user/home" class="logo">SkillHub</a>
+        <a th:href="${isLoggedIn} ? '/user/home' : '/'" class="logo">SkillHub</a>
         <div class="search-bar" style="margin-left: 20px; flex-grow: 1; max-width: 600px;">
             <form action="/home" method="get">
                 <input type="text" name="query" placeholder="Search for anything">
@@ -534,7 +534,7 @@
         <div class="header-content">
             <div class="header-text">
                 <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
-                    <a href="/user/home" style="color: #cec0fc; text-decoration: none;">Courses</a>
+                    <a th:href="${isLoggedIn} ? '/user/home' : '/'" style="color: #cec0fc; text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>

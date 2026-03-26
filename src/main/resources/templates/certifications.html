@@ -408,7 +408,7 @@
                     <!-- Not 100% video completed -->
                     <div th:if="${!enrollment.isExamPassed and progressMap[enrollment.course.id]['percent'] < 99.9}"
                         style="display:flex; width:100%; gap:10px;">
-                        <a th:href="@{/user/course/{id}(id=${enrollment.course.id})}" class="btn-continue"
+                        <a th:href="@{/course/{id}(id=${enrollment.course.id})}" class="btn-continue"
                             style="flex: 1; padding: 1.2rem 1rem; font-size: 1.2rem;">
                             Continue Learning
                         </a>

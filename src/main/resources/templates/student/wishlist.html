@@ -164,14 +164,14 @@
 
         <div class="course-grid">
             <div th:each="item : ${wishlistItems}" class="course-card">
-                <a th:href="@{/user/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
+                <a th:href="@{/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
                     <img th:src="${item.course.imageUrl}" class="card-img" alt="Course Thumbnail">
                     <div class="card-body">
                         <div class="course-title" th:text="${item.course.title}">Course Title</div>
                         <div class="instructor-name" th:text="${item.course.instructor.name}">Instructor Name</div>
                         <div class="course-price" th:text="'₹' + ${item.course.price}">₹499</div>
 
-                        <form th:action="@{/user/course/wishlist/remove}" method="post">
+                        <form th:action="@{/course/wishlist/remove}" method="post">
                             <input type="hidden" name="courseId" th:value="${item.course.id}" />
                             <button type="submit" class="remove-btn" style="width:100%; background:white;">Remove from
                                 Wishlist</button>
