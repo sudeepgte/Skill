@@ -84,7 +84,7 @@ public class DataInitializer {
 
                 com.skillhub.model.Course javaCourse = new com.skillhub.model.Course();
                 javaCourse.setTitle("Complete Java Masterclass 2026");
-                javaCourse.setHeadline("Learn Java Programming with real projects");
+                javaCourse.setSubtitle("Learn Java Programming with real projects");
                 javaCourse.setInstructor(angela);
                 javaCourse.setCategory(devCat);
                 javaCourse.setPrice(49.99);
@@ -94,7 +94,7 @@ public class DataInitializer {
 
                 com.skillhub.model.Course springCourse = new com.skillhub.model.Course();
                 springCourse.setTitle("Spring Boot Microservices");
-                springCourse.setHeadline("Master the most popular Java framework");
+                springCourse.setSubtitle("Master the most popular Java framework");
                 springCourse.setInstructor(angela);
                 springCourse.setCategory(devCat);
                 springCourse.setPrice(59.99);
@@ -112,6 +112,8 @@ public class DataInitializer {
                     // 5. Add a notification
                     com.skillhub.model.Notification note = new com.skillhub.model.Notification();
                     note.setUser(student);
+                    note.setTitle("Welcome");
+                    note.setType("INFO");
                     note.setMessage("Welcome to SkillHub! You have been enrolled in the Java Masterclass.");
                     note.setCreatedAt(java.time.LocalDateTime.now());
                     notificationRepository.save(note);
