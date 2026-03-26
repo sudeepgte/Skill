@@ -26,6 +26,9 @@ public class CourseController {
     private com.skillhub.repository.ReviewRepository reviewRepository;
 
     @Autowired
+    private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
+
+    @Autowired
     private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
 
     @Autowired
@@ -115,6 +118,20 @@ public class CourseController {
 
         model.addAttribute("course", courseDTO);
         model.addAttribute("currentLesson", currentLesson);
+
+        // Fetch completed lecture IDs for this user/course
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        java.util.List<Long> completedLectureIds = lectureProgressRepository.findByUser(user).stream()
+            .filter(com.skillhub.model.LectureProgress::isCompleted)
+            .map(lp -> lp.getLecture().getId())
+            .filter(lectureIdVal -> {
+                // Only include lectures from THIS course
+                return course.getSections().stream()
+                    .flatMap(s -> s.getLectures().stream())
+                    .anyMatch(l -> l.getId().equals(lectureIdVal));
+            })
+            .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("completedLectureIds", completedLectureIds);
         // Debug
         // System.out.println("Course Sections: " + courseDTO.getSections().size());
 

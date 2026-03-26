@@ -30,6 +30,9 @@ public class StudentController {
     @Autowired
     private com.skillhub.repository.CourseRepository courseRepository;
 
+    @Autowired
+    private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
         String email = principal.getName();
@@ -49,10 +52,28 @@ public class StudentController {
                 .limit(4) // Show top 4
                 .collect(java.util.stream.Collectors.toList());
 
+        // Calculate dynamic progress count strings (e.g., "1/5 completed")
+        java.util.Map<Long, String> progressCountMap = new java.util.HashMap<>();
+        for (Enrollment enrollment : enrollments) {
+            long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
+            long completed = lectureProgressRepository.countCompletedLecturesByCourse(student.getId(), enrollment.getCourse().getId());
+            
+            if (total > 0 && completed == total) {
+                progressCountMap.put(enrollment.getId(), "Completed \u2714\ufe0f");
+            } else {
+                progressCountMap.put(enrollment.getId(), completed + "/" + total + " completed");
+            }
+        }
+
+        // Fetch certificates (courses where exam passed)
+        List<Enrollment> certificates = enrollments.stream().filter(Enrollment::isExamPassed).collect(java.util.stream.Collectors.toList());
+
         model.addAttribute("enrollments", enrollments);
         model.addAttribute("notifications", notifications);
         model.addAttribute("recommendedCourses", recommendedCourses);
         model.addAttribute("student", student);
+        model.addAttribute("progressCountMap", progressCountMap);
+        model.addAttribute("certificates", certificates);
         
         return "student/dashboard";
     }

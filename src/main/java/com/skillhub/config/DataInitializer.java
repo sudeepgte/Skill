@@ -90,6 +90,35 @@ public class DataInitializer {
                 javaCourse.setPrice(49.99);
                 javaCourse.setImageUrl("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800");
                 javaCourse.setPublished(true);
+                javaCourse = courseRepository.save(javaCourse);
+
+                // Add a Section
+                com.skillhub.model.CourseSection section = new com.skillhub.model.CourseSection();
+                section.setTitle("Java Fundamentals");
+                section.setCourse(javaCourse);
+                section.setPosition(1);
+                
+                // Note: Need SectionRepository if saving separately, or cascade save from Course
+                // Assuming Course has List<CourseSection> sections with CascadeType.ALL
+                javaCourse.addSection(section);
+
+                // Add Lectures
+                com.skillhub.model.Lecture l1 = new com.skillhub.model.Lecture();
+                l1.setTitle("What is Java?");
+                l1.setVideoUrl("https://www.youtube.com/watch?v=eIrMb66zuIc");
+                l1.setSection(section);
+                l1.setDurationSeconds(300);
+                l1.setPosition(1);
+                section.addLecture(l1);
+
+                com.skillhub.model.Lecture l2 = new com.skillhub.model.Lecture();
+                l2.setTitle("Setting up the Environment");
+                l2.setVideoUrl("https://www.youtube.com/watch?v=eIrMb66zuIc");
+                l2.setSection(section);
+                l2.setDurationSeconds(600);
+                l2.setPosition(2);
+                section.addLecture(l2);
+
                 courseRepository.save(javaCourse);
 
                 com.skillhub.model.Course springCourse = new com.skillhub.model.Course();

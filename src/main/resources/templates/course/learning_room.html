@@ -620,7 +620,15 @@
         /*<![CDATA[*/
         const COURSE_ID = /*[[${course.id}]]*/ 0;
         const CURRENT_LECTURE_ID = /*[[${currentLesson != null ? currentLesson.id : null}]]*/ null;
+        const COMPLETED_LECTURE_IDS = /*[[${completedLectureIds}]]*/ []; 
         const STORAGE_PREFIX = 'skillhub_';
+
+        // ─── INITIALIZE COMPLETION FROM BACKEND ───
+        if (COMPLETED_LECTURE_IDS && Array.isArray(COMPLETED_LECTURE_IDS)) {
+            COMPLETED_LECTURE_IDS.forEach(id => {
+                localStorage.setItem(`${STORAGE_PREFIX}completed_${id}`, 'true');
+            });
+        }
 
         // CSRF Token
         const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
