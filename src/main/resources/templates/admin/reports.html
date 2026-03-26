@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Reports Management | SkillHub</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .report-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #d1d7dc;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-PENDING {
+            background: #fff4e5;
+            color: #b4690e;
+        }
+
+        .status-RESOLVED {
+            background: #e6fcf5;
+            color: #087f5b;
+        }
+
+        .status-DISMISSED {
+            background: #f1f3f5;
+            color: #495057;
+        }
+
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .reports-table th,
+        .reports-table td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .reports-table th {
+            background: #f8f9fa;
+            color: #6a6f73;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body style="background-color: #f7f9fa;">
+
+    <nav class="navbar">
+        <a th:href="@{/admin/dashboard}" class="logo">
+            <span class="logo-text">SkillHub <span style="font-weight:300; font-size: 0.8em; opacity: 0.8;">Admin Console</span></span>
+        </a>
+        <div class="nav-actions">
+            <a th:href="@{/admin/dashboard}" class="btn btn-ghost">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Content & User Reports</h1>
+            <p style="color: #6a6f73;" th:text="${reports.size()} + ' reports found'"></p>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reports)}" style="text-align: center; padding: 4rem; background: white; border-radius: 8px;">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: #4CAF50; opacity: 0.3;"></i>
+            <h2 style="margin-top: 1.5rem;">All clear!</h2>
+            <p>No reports currently pending review.</p>
+        </div>
+
+        <table class="reports-table" th:unless="${#lists.isEmpty(reports)}">
+            <thead>
+                <tr>
+                    <th>Reporter</th>
+                    <th>Reported Item</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="report : ${reports}">
+                    <td>
+                        <div style="font-weight: 600;" th:text="${report.reporter.name}">User Name</div>
+                        <div style="font-size: 0.8rem; color: #6a6f73;" th:text="${report.reporter.email}">email@example.com</div>
+                    </td>
+                    <td>
+                        <span th:if="${report.reportedUser != null}">
+                            <i class="fas fa-user" style="color: #a435f0;"></i> 
+                            <span th:text="${report.reportedUser.name}">User</span>
+                        </span>
+                        <span th:if="${report.reportedCourse != null}">
+                            <i class="fas fa-book" style="color: #4CAF50;"></i> 
+                            <span th:text="${report.reportedCourse.title}">Course</span>
+                        </span>
+                    </td>
+                    <td th:text="${report.reason}">Spam</td>
+                    <td th:text="${#temporals.format(report.createdAt, 'MMM dd, yyyy')}">Oct 20, 2024</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${report.status}" th:text="${report.status}">PENDING</span>
+                    </td>
+                    <td>
+                        <div th:if="${report.status.name() == 'PENDING'}" style="display: flex; gap: 5px;">
+                            <form th:action="@{/admin/reports/status}" method="post">
+                                <input type="hidden" name="id" th:value="${report.id}">
+                                <input type="hidden" name="status" value="RESOLVED">
+                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;">Resolve</button>
+                            </form>
+                            <form th:action="@{/admin/reports/status}" method="post">
+                                <input type="hidden" name="id" th:value="${report.id}">
+                                <input type="hidden" name="status" value="DISMISSED">
+                                <button type="submit" class="btn btn-ghost" style="padding: 4px 10px; font-size: 0.75rem;">Dismiss</button>
+                            </form>
+                        </div>
+                        <span th:unless="${report.status.name() == 'PENDING'}" style="color: #6a6f73; font-size: 0.8rem;">Actioned</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>

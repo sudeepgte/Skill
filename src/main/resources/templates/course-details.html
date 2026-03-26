@@ -437,7 +437,7 @@
         <div class="nav-links">
             <th:block th:if="${isLoggedIn}">
                 <a href="/user/home">My Learning</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i></a>
+                <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
                 <div class="user-avatar"
                     th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'U'}">
                     U

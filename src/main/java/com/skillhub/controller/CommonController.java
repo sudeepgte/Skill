@@ -9,6 +9,12 @@ public class CommonController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.skillhub.service.CourseService courseService;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.skillhub.service.UserService userService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.skillhub.repository.WishlistRepository wishlistRepository;
+
     @GetMapping("/teaching")
     public String teaching() {
         return "common/teaching";
@@ -23,8 +29,14 @@ public class CommonController {
     }
 
     @GetMapping("/cart")
-    public String cart() {
-        return "student/cart"; // Create this or use placeholder
+    public String cart(java.security.Principal principal, org.springframework.ui.Model model) {
+        if (principal != null) {
+            com.skillhub.model.User user = userService.findByEmail(principal.getName());
+            java.util.List<com.skillhub.model.Wishlist> items = wishlistRepository.findByUser(user);
+            model.addAttribute("cartItems", items);
+            model.addAttribute("user", user);
+        }
+        return "student/cart";
     }
 
     @GetMapping("/pricing")

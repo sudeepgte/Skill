@@ -11,4 +11,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByStudent(User student);
 
     Optional<Enrollment> findByStudentAndCourse(User student, Course course);
+
+    long countByEnrolledAtAfter(java.time.LocalDateTime date);
 }

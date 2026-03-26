@@ -316,4 +316,21 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("success", "Broadcast sent to " + allUsers.size() + " users!");
         return "redirect:/admin/broadcast";
     }
+
+    @GetMapping("/reports")
+    public String listReports(Model model) {
+        model.addAttribute("reports", reportRepository.findAll());
+        return "admin/reports";
+    }
+
+    @PostMapping("/reports/status")
+    public String updateReportStatus(@org.springframework.web.bind.annotation.RequestParam Long id, 
+                                   @org.springframework.web.bind.annotation.RequestParam com.skillhub.model.Report.ReportStatus status) {
+        reportRepository.findById(id).ifPresent(report -> {
+            report.setStatus(status);
+            reportRepository.save(report);
+        });
+        return "redirect:/admin/reports";
+    }
+
 }

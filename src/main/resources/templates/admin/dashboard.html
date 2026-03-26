@@ -145,11 +145,12 @@
             </div>
 
             <!-- Pending Reports -->
-            <div class="stat-card" th:style="${pendingReports > 0 ? 'border-color: #dc3545;' : ''}">
+            <div class="stat-card" th:style="${pendingReports > 0 ? 'border-color: #dc3545;' : ''}"
+                style="cursor: pointer;" onclick="window.location.href='/admin/reports'">
                 <i class="fas fa-flag stat-icon" th:style="${pendingReports > 0 ? 'color: #dc3545;' : ''}"></i>
                 <div class="stat-title">Pending Reports</div>
                 <div class="stat-value" th:text="${pendingReports}">0</div>
-                <a href="#" style="font-size: 0.8rem; color: #dc3545;" th:if="${pendingReports > 0}">Review Now
+                <a th:href="@{/admin/reports}" style="font-size: 0.8rem; color: #dc3545;" th:if="${pendingReports > 0}">Review Now
                     &rarr;</a>
             </div>
         </div>
@@ -214,6 +215,9 @@
             </a>
             <a th:href="@{/admin/broadcast}" class="action-btn">
                 <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+            <a th:href="@{/admin/stats}" class="action-btn">
+                <i class="fas fa-chart-line"></i> System Analytics
             </a>
         </div>
 
