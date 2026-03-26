@@ -36,10 +36,14 @@ public class FileStorageService {
             if (file.isEmpty()) {
                 throw new RuntimeException("Failed to store empty file.");
             }
+            System.out.println("STORING FILE: " + file.getOriginalFilename() + " (" + file.getSize() + " bytes)");
             String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/" + filename;
+            String savedPath = "/uploads/" + filename;
+            System.out.println("FILE SAVED AT: " + savedPath);
+            return savedPath;
         } catch (IOException e) {
+            System.err.println("STORAGE ERROR: " + e.getMessage());
             throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
         }
     }

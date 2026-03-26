@@ -10,4 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndRole(String email, String role);
 
     long countByLastLoginDateAfter(java.time.LocalDateTime date);
+
+    long countByRole(String role);
 }

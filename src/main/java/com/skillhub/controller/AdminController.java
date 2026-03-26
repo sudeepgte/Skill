@@ -222,7 +222,7 @@ public class AdminController {
 
             courseService.saveCourse(course);
         }
-        return "redirect:/admin/courses";
+        return "redirect:/admin/courses/edit?id=" + course.getId();
     }
 
     @Autowired
@@ -287,8 +287,8 @@ public class AdminController {
         videoResourceRepository.save(video);
 
         redirectAttributes.addFlashAttribute("success",
-                "Video resource added successfully! You can find it on the home page.");
-        return "redirect:/admin/courses";
+                "Video resource added successfully! You can find it in the Video Library.");
+        return "redirect:/library";
     }
 
     @GetMapping("/broadcast")
@@ -356,5 +356,21 @@ public class AdminController {
 
         redirectAttributes.addFlashAttribute("success", "Password changed successfully.");
         return "redirect:/admin/profile";
+    }
+
+    @GetMapping("/reports")
+    public String listReports(Model model) {
+        model.addAttribute("reports", reportRepository.findAll());
+        return "admin/reports";
+    }
+
+    @PostMapping("/reports/status")
+    public String updateReportStatus(@org.springframework.web.bind.annotation.RequestParam Long id, 
+                                   @org.springframework.web.bind.annotation.RequestParam com.skillhub.model.Report.ReportStatus status) {
+        reportRepository.findById(id).ifPresent(report -> {
+            report.setStatus(status);
+            reportRepository.save(report);
+        });
+        return "redirect:/admin/reports";
     }
 }

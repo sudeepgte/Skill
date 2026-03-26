@@ -29,9 +29,9 @@ public class User {
     private String bio;
 
     private String profileImageUrl;
-
+    private String phone;
+    private String skills; // Comma separated skills
     private boolean isBlocked = false;
-
     private LocalDateTime lastLoginDate;
 
     public User() {
@@ -106,6 +106,22 @@ public class User {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getSkills() {
+        return skills;
+    }
+
+    public void setSkills(String skills) {
+        this.skills = skills;
     }
 
     public boolean isBlocked() {

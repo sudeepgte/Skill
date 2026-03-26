@@ -4,14 +4,162 @@
 <head>
     <title>Shopping Cart | SkillHub</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .cart-container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 20px;
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid #d1d7dc;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .item-img {
+            width: 140px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: #1c1d1f;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: #a435f0;
+            font-size: 1.1rem;
+        }
+
+        .summary-card {
+            background: #f7f9fa;
+            border: 1px solid #d1d7dc;
+            padding: 2rem;
+            border-radius: 4px;
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .checkout-btn {
+            background: #a435f0;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .checkout-btn:hover {
+            background: #8710d8;
+        }
+
+        @media (max-width: 768px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
-<body>
-    <div style="padding: 50px; text-align: center;">
-        <h1>Shopping Cart</h1>
-        <p>Your cart is empty.</p>
-        <a th:href="${user != null} ? '/user/home' : '/home'">Keep Shopping</a>
+<body style="background-color: #fff;">
+
+    <nav class="navbar" style="height: 72px; padding: 0 20px;">
+        <div class="container"
+            style="display: flex; justify-content: space-between; align-items: center; width:100%; max-width: 1100px; margin: 0 auto;">
+            <a th:href="${user != null} ? '/user/home' : '/'" class="logo"
+                style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
+            <div th:if="${user != null}" style="display:flex; align-items:center; gap: 20px;">
+                <a href="/user/home" style="text-decoration:none; color:#2d2f31; font-weight: 500;">My Learning</a>
+                <div
+                    style="width:35px; height:35px; background:#2d2f31; color:white; border-radius:50%; display:grid; place-items:center; font-weight:700;">
+                    <span th:text="${#strings.substring(user.name,0,1)}">U</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cart-container">
+        <h1 class="cart-title">Shopping Cart</h1>
+
+        <div th:if="${#lists.isEmpty(cartItems)}" style="text-align: center; padding: 4rem;">
+            <img src="https://img-c.udemycdn.com/product/100x100/empty-cart.jpg" alt="Empty Cart"
+                style="width:150px; opacity:0.8;">
+            <p style="margin-top: 20px; color: #6a6f73;">Your cart is empty. Keep shopping to find a course!</p>
+            <a th:href="${user != null} ? '/user/home' : '/'" class="checkout-btn"
+                style="display:inline-block; width:auto; text-decoration:none; margin-top:10px;">Keep Shopping</a>
+        </div>
+
+        <div class="cart-layout" th:unless="${#lists.isEmpty(cartItems)}">
+            <div class="cart-items-list">
+                <div th:each="item : ${cartItems}" class="cart-item">
+                    <img th:src="${item.course.imageUrl}" class="item-img" alt="Thumbnail">
+                    <div class="item-info">
+                        <a th:href="@{/user/course/{id}(id=${item.course.id})}" class="item-title"
+                            th:text="${item.course.title}">Course Title</a>
+                        <p style="font-size: 0.85rem; color:#6a6f73; margin: 5px 0;"
+                            th:text="'By ' + ${item.course.instructor.name}">Instructor</p>
+                        <div style="display:flex; gap: 15px; margin-top: 10px;">
+                            <form th:action="@{/course/wishlist/remove}" method="post">
+                                <input type="hidden" name="courseId" th:value="${item.course.id}" />
+                                <button type="submit"
+                                    style="background:none; border:none; color:#a435f0; font-size: 0.85rem; cursor:pointer;">Remove</button>
+                            </form>
+                            <a th:href="@{/student/wishlist}"
+                                style="text-decoration:none; color:#a435f0; font-size: 0.85rem;">Save for Later</a>
+                        </div>
+                    </div>
+                    <div class="item-price" th:text="'₹' + ${item.course.price}">₹499</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <p style="font-weight: 700; color: #6a6f73; font-size: 0.9rem; margin-bottom: 10px;">Total:</p>
+                <div style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;"
+                    th:with="total=${#aggregates.sum(cartItems.![course.price])}">
+                    <span th:text="'₹' + ${total}">₹0</span>
+                </div>
+                <button class="checkout-btn">Checkout Now</button>
+                <p style="font-size: 0.8rem; color: #6a6f73; margin-top: 15px; text-align: center;">By clicking Checkout,
+                    you agree to our terms & conditions.</p>
+            </div>
+        </div>
     </div>
+
 </body>
 
 </html>

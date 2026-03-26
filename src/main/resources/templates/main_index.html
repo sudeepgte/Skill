@@ -1015,6 +1015,7 @@
                         </form>
                     </div>
                 </div>
+                <a href="/cart" class="nav-link" style="margin-left: 0.8rem;"><i class="fas fa-shopping-cart" style="font-size: 1.8rem;"></i></a>
             </th:block>
 
             <!-- Guest state -->
@@ -1152,7 +1153,10 @@
                         <span class="tooltip-tag"
                             th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
                     </div>
-                    <span class="tooltip-btn">Add to cart</span>
+                    <form th:action="@{/course/wishlist/add}" method="post">
+                        <input type="hidden" name="courseId" th:value="${course.id}">
+                        <button type="submit" class="tooltip-btn">Add to cart</button>
+                    </form>
                 </div>
 
             </a>

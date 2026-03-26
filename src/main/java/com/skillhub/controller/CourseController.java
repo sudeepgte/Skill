@@ -104,6 +104,15 @@ public class CourseController {
             }
         }
 
+        // Fallback: If no lesson found but course has a direct video URL, use it as intro
+        if (currentLesson == null && courseDTO.getVideoUrl() != null && !courseDTO.getVideoUrl().isEmpty()) {
+            currentLesson = new com.skillhub.dto.LectureDTO();
+            currentLesson.setTitle("Course Overview");
+            currentLesson.setVideoUrl(courseDTO.getVideoUrl());
+            currentLesson.setDurationSeconds(0);
+            currentLesson.setId(-1L); // Virtual ID
+        }
+
         model.addAttribute("course", courseDTO);
         model.addAttribute("currentLesson", currentLesson);
         // Debug
