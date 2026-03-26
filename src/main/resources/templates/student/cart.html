@@ -129,7 +129,7 @@
                 <div th:each="item : ${cartItems}" class="cart-item">
                     <img th:src="${item.course.imageUrl}" class="item-img" alt="Thumbnail">
                     <div class="item-info">
-                        <a th:href="@{/user/course/{id}(id=${item.course.id})}" class="item-title"
+                        <a th:href="@{/course/{id}(id=${item.course.id})}" class="item-title"
                             th:text="${item.course.title}">Course Title</a>
                         <p style="font-size: 0.85rem; color:#6a6f73; margin: 5px 0;"
                             th:text="'By ' + ${item.course.instructor.name}">Instructor</p>

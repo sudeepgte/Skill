@@ -1106,7 +1106,7 @@
         <!-- Course grid -->
         <div class="course-grid" th:unless="${#lists.isEmpty(courses)}">
             <a th:each="course : ${courses}"
-                th:href="${user != null} ? @{/user/course/{id}(id=${course.id})} : @{/user/course/{id}(id=${course.id})}"
+                th:href="@{/course/{id}(id=${course.id})}"
                 class="course-card">
 
                 <!-- Thumbnail -->

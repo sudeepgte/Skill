@@ -294,7 +294,7 @@
             </div>
             <div class="course-grid">
                 <div th:each="course : ${recommendedCourses}" class="course-card">
-                    <a th:href="@{/courses/view/{id}(id=${course.id})}">
+                    <a th:href="@{/course/{id}(id=${course.id})}">
                         <img th:src="${course.imageUrl}" class="course-img" alt="Course img">
                         <div class="course-info">
                             <h3 class="course-title" th:text="${course.title}">Course Title</h3>

@@ -87,7 +87,7 @@
 
         <!-- Course Grid -->
         <div class="course-grid">
-            <a th:each="course : ${courses}" th:href="@{/user/course/{id}(id=${course.id})}" class="course-card">
+            <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
                 <div class="course-image">
                     <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
                 </div>
