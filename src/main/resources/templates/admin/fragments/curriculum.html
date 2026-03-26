@@ -105,12 +105,18 @@
                 <div th:if="${not #lists.isEmpty(section.lectures)}"
                     style="border: 1px solid #e1e4e8; border-radius: 4px; margin-bottom: 1rem; overflow: hidden;">
                     <div th:each="lecture : ${section.lectures}" class="curr-lecture-item">
-                        <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                            <i class="fas fa-play-circle" style="color: #a435f0;"></i>
-                            <span th:text="${lecture.title}" style="font-weight: 500;">Lecture Title</span>
-                            <span th:if="${lecture.preview}"
-                                style="font-size: 0.75em; background: #e6fcf5; color: #0ca678; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Free
-                                Preview</span>
+                        <div style="display: flex; flex-direction: column; flex: 1; gap: 4px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-play-circle" style="color: #a435f0;"></i>
+                                <span th:text="${lecture.title}" style="font-weight: 500;">Lecture Title</span>
+                                <span th:if="${lecture.preview}"
+                                    style="font-size: 0.75em; background: #e6fcf5; color: #0ca678; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Free
+                                    Preview</span>
+                            </div>
+                            <div th:if="${lecture.videoUrl != null}" 
+                                 style="font-size: 0.75rem; color: #6a6f73; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 400px;">
+                                <i class="fas fa-link"></i> <span th:text="${lecture.videoUrl}">/uploads/v.mp4</span>
+                            </div>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 15px;">

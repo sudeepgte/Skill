@@ -222,7 +222,7 @@ public class AdminController {
 
             courseService.saveCourse(course);
         }
-        return "redirect:/admin/courses";
+        return "redirect:/admin/courses/edit?id=" + course.getId();
     }
 
     @Autowired
@@ -287,8 +287,8 @@ public class AdminController {
         videoResourceRepository.save(video);
 
         redirectAttributes.addFlashAttribute("success",
-                "Video resource added successfully! You can find it on the home page.");
-        return "redirect:/admin/courses";
+                "Video resource added successfully! You can find it in the Video Library.");
+        return "redirect:/library";
     }
 
     @GetMapping("/broadcast")

@@ -117,17 +117,19 @@
 
         <div class="dashboard-grid">
             <!-- Total Users -->
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/admin/users'">
                 <i class="fas fa-users stat-icon"></i>
                 <div class="stat-title">Total Users</div>
                 <div class="stat-value" th:text="${totalUsers}">0</div>
                 <div class="stat-meta">
                     <span style="color: #4CAF50;" th:text="${activeUsersToday} + ' Active Today'">0 Active Today</span>
+                    <br>
+                    <a th:href="@{/admin/users}" style="font-size: 0.8rem; color: #a435f0; margin-top: 5px; display: inline-block;">Manage Users &rarr;</a>
                 </div>
             </div>
 
             <!-- Total Courses -->
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/admin/courses'">
                 <i class="fas fa-graduation-cap stat-icon"></i>
                 <div class="stat-title">Total Courses</div>
                 <div class="stat-value" th:text="${totalCourses}">0</div>
@@ -135,10 +137,11 @@
             </div>
 
             <!-- Total Videos -->
-            <div class="stat-card">
+            <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/library'">
                 <i class="fas fa-video stat-icon"></i>
                 <div class="stat-title">Total Videos</div>
                 <div class="stat-value" th:text="${totalVideos}">0</div>
+                <a th:href="@{/library}" style="font-size: 0.8rem; color: #a435f0;">Explore Library &rarr;</a>
             </div>
 
             <!-- Pending Reports -->

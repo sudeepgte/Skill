@@ -74,19 +74,6 @@ public class DataInitializer {
                 deleteCategory(categoryRepository, "Design");
                 deleteCategory(categoryRepository, "Marketing");
                 deleteCategory(categoryRepository, "Personal Development");
-                // 3. FORCE CLEANUP: Delete ALL courses and reviews to ensure clean state as
-                // requested
-                // This ensures no pre-added or persistent demo courses appear
-                if (courseRepository.count() > 0) {
-                    try {
-                        reviewRepository.deleteAll(); // Delete reviews first (FK constraint)
-                        enrollmentRepository.deleteAll(); // Delete enrollments before courses
-                        courseRepository.deleteAll(); // Delete all courses
-                        System.out.println("--- FORCED CLEANUP: All courses, reviews, and enrollments deleted ---");
-                    } catch (Exception e) {
-                        System.out.println("Cleanup error: " + e.getMessage());
-                    }
-                }
             }
 
             // 4. NO REVIEWS OR COURSES CREATED

@@ -257,6 +257,12 @@
 
                 <div style="margin-bottom: 1.5rem;">
                     <label class="form-label">Promo Video</label>
+                    
+                    <!-- NEW: Display current video info -->
+                    <div th:if="${course.videoUrl != null}" style="margin-bottom: 1rem; padding: 10px; background: #eef2f7; border-radius: 4px; font-size: 0.9rem;">
+                        <span style="font-weight: 600; color: #5624d0;"><i class="fas fa-play-circle"></i> Current Video: </span>
+                        <span th:text="${course.videoUrl}">/uploads/abc.mp4</span>
+                    </div>
                     <div class="help-text" style="margin-bottom: 10px;">Upload a video file OR provide a YouTube URL.
                     </div>
 

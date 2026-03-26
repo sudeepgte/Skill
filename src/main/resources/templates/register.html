@@ -12,31 +12,12 @@
 
 <body>
 
-    <!-- Navbar (Full) -->
+    <!-- Navbar (Simplified for Auth) -->
     <nav class="navbar">
         <div class="navbar-left">
             <a href="/" class="logo">
                 <span class="logo-text">SkillHub</span>
             </a>
-            <div class="dropdown">
-                <div class="categories-link">Categories <i class="fas fa-chevron-down"
-                        style="font-size: 1.2rem; margin-left: 0.4rem;"></i></div>
-                <div class="dropdown-menu">
-                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" class="dropdown-item">
-                        <span th:text="${cat.name}">Category</span>
-                        <i class="fas fa-chevron-right" style="font-size: 1.2rem; opacity: 0.5;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="navbar-center">
-            <div class="search-container">
-                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
-                <form action="/" style="width: 100%;">
-                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
-                </form>
-            </div>
         </div>
 
         <div class="navbar-right">
@@ -44,10 +25,6 @@
                 <a href="/login" class="btn btn-outline btn-sm">Log in</a>
                 <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
             </div>
-            <a href="#" class="btn btn-outline btn-icon"
-                style="width: 4rem; height: 4rem; padding: 0; border: 1px solid var(--color-black);">
-                <i class="fas fa-globe"></i>
-            </a>
         </div>
     </nav>
 

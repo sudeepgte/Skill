@@ -511,7 +511,7 @@
     </div>
 
     <!-- MAIN -->
-    <div class="learning-container">
+    <div class="learning-container" id="learningContainer">
 
         <!-- VIDEO AREA -->
         <div class="video-area">
@@ -527,15 +527,18 @@
                 <!-- Lesson selected - non-YouTube video -->
                 <video
                     th:if="${currentLesson != null && currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
-                    th:src="${currentLesson.videoUrl}" controls id="mainVideo" style="width:100%;height:100%;">
+                    th:src="@{${currentLesson.videoUrl}}" controls autoplay playsinline id="mainVideo" style="width:100%;height:100%;"
+                    allowfullscreen>
                     Your browser does not support the video tag.
                 </video>
 
                 <!-- Lesson selected - YouTube video -->
                 <iframe
-                    th:if="${currentLesson != null && currentLesson.videoUrl != null && #strings.contains(currentLesson.videoUrl, 'youtube')}"
-                    th:src="${#strings.replace(currentLesson.videoUrl, 'watch?v=', 'embed/')} + '?enablejsapi=1'"
-                    width="100%" height="100%" frameborder="0" allowfullscreen id="youtubePlayer">
+                    th:if="${currentLesson != null && currentLesson.videoUrl != null and (#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
+                    th:src="${currentLesson.embedUrl} + '?enablejsapi=1&autoplay=1&mute=0'"
+                    width="100%" height="100%" frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen id="youtubePlayer">
                 </iframe>
 
                 <!-- No video URL -->
@@ -550,7 +553,7 @@
             <div class="video-info" th:if="${currentLesson != null}">
                 <div>
                     <h2 th:text="${currentLesson.title}">Lecture Title</h2>
-                    <p th:text="'Section · ' + ${currentLesson.durationSeconds / 60} + ' min'">Section · 5 min</p>
+                    <p th:text="'Section · ' + ${(currentLesson.durationSeconds != null ? currentLesson.durationSeconds / 60 : 0)} + ' min'">Section · 5 min</p>
                 </div>
                 <button class="btn-complete" id="markCompleteBtn" th:attr="data-lecture-id=${currentLesson.id}"
                     onclick="toggleComplete(this)">
@@ -561,7 +564,7 @@
         </div>
 
         <!-- SIDEBAR -->
-        <div class="sidebar">
+        <div class="sidebar" id="learningSidebar">
             <div class="sidebar-header">
                 <span style="color: black;">Course Content</span>
                 <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>

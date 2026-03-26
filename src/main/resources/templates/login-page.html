@@ -111,6 +111,7 @@
         .navbar {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             height: 6.4rem;
             padding: 0 2.4rem;
             border-bottom: 1px solid var(--color-border);
@@ -380,35 +381,11 @@
             <a href="/" class="logo">
                 <span class="logo-text">SkillHub</span>
             </a>
-            <div class="dropdown">
-                <div class="categories-link">
-                    Categories <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="dropdown-menu">
-                    <a th:each="cat : ${categories}" th:href="@{/(categoryId=${cat.id})}" href="#"
-                        class="dropdown-item">
-                        <span th:text="${cat.name}">Category</span>
-                        <i class="fas fa-chevron-right" style="font-size:1.1rem; opacity:0.5;"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="navbar-center">
-            <div class="search-container">
-                <button class="search-icon-btn" type="button"><i class="fas fa-search"></i></button>
-                <form action="/" style="width:100%;">
-                    <input type="text" name="query" class="search-input" placeholder="Search for anything">
-                </form>
-            </div>
         </div>
 
         <div class="navbar-right">
             <a href="/login" class="btn btn-outline btn-sm">Log in</a>
             <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
-            <a href="#" class="btn btn-outline btn-icon" title="Language">
-                <i class="fas fa-globe"></i>
-            </a>
         </div>
     </nav>
 

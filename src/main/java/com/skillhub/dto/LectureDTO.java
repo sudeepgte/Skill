@@ -59,4 +59,33 @@ public class LectureDTO {
     public void setPosition(int position) {
         this.position = position;
     }
+    public String getEmbedUrl() {
+        if (videoUrl == null)
+            return null;
+        if (videoUrl.contains("youtube.com") || videoUrl.contains("youtu.be")) {
+            String videoId = "";
+            if (videoUrl.contains("youtu.be/")) {
+                videoId = videoUrl.substring(videoUrl.lastIndexOf("/") + 1);
+                if (videoId.contains("?")) {
+                    videoId = videoId.substring(0, videoId.indexOf("?"));
+                }
+            } else if (videoUrl.contains("v=")) {
+                int index = videoUrl.indexOf("v=");
+                videoId = videoUrl.substring(index + 2);
+                if (videoId.contains("&")) {
+                    videoId = videoId.substring(0, videoId.indexOf("&"));
+                }
+            } else if (videoUrl.contains("embed/")) {
+                videoId = videoUrl.substring(videoUrl.lastIndexOf("/") + 1);
+                if (videoId.contains("?")) {
+                    videoId = videoId.substring(0, videoId.indexOf("?"));
+                }
+            }
+
+            if (!videoId.isEmpty()) {
+                return "https://www.youtube.com/embed/" + videoId;
+            }
+        }
+        return videoUrl;
+    }
 }
