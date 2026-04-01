@@ -232,16 +232,29 @@
             <div class="user-info">
                 <div class="avatar-lg" th:text="${#strings.substring(user.name, 0, 1)}">U</div>
                 <h3 th:text="${user.name}">User Name</h3>
-                <p style="color: var(--muted); font-size: 0.9rem;" th:text="${user.role}">Role</p>
+                <p style="color: var(--muted); font-size: 0.9rem;" th:text="${user.headline != null ? user.headline : user.role}">Role</p>
+                <div style="display:flex; justify-content:center; gap:1rem; margin-top:1rem; padding-top:1rem; border-top:1px solid #eee;">
+                    <div style="text-align:center;">
+                        <div style="font-weight:700;" th:text="${enrollments != null ? enrollments.size() : 0}">0</div>
+                        <div style="font-size:0.75rem; color:var(--muted);">Courses</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-weight:700;" th:text="${certificates != null ? certificates.size() : 0}">0</div>
+                        <div style="font-size:0.75rem; color:var(--muted);">Certificates</div>
+                    </div>
+                </div>
             </div>
             <nav class="nav-menu">
-                <button class="nav-item active" data-tab="profile">
+                <button type="button" class="nav-item active" data-tab="profile">
                     <i class="fas fa-user-circle"></i> View Profile
                 </button>
-                <button class="nav-item" data-tab="certificates">
+                <button type="button" class="nav-item" data-tab="courses">
+                    <i class="fas fa-book-reader"></i> My Courses
+                </button>
+                <button type="button" class="nav-item" data-tab="certificates">
                     <i class="fas fa-certificate"></i> My Certificates
                 </button>
-                <button class="nav-item" data-tab="security">
+                <button type="button" class="nav-item" data-tab="security">
                     <i class="fas fa-lock"></i> Security
                 </button>
                 <form th:action="@{/logout}" method="post" style="width:100%;">
@@ -285,8 +298,38 @@
                         <label>Biography</label>
                         <textarea name="bio" class="form-control" rows="4" th:text="${user.bio}" placeholder="Tell us about yourself..."></textarea>
                     </div>
+                    <div class="form-group" th:if="${user.lastLoginDate != null}">
+                        <label>Last Login</label>
+                        <input type="text" th:value="${#temporals.format(user.lastLoginDate, 'dd MMM yyyy, HH:mm')}" class="form-control" readonly style="background:#f0f2f5;">
+                    </div>
                     <button type="submit" class="btn-save">Save Changes</button>
                 </form>
+            </div>
+
+            <!-- Courses Tab -->
+            <div id="courses" class="tab-content">
+                <h2 style="margin-top: 0;">Enrolled Courses</h2>
+                <div th:if="${#lists.isEmpty(enrollments)}" style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-book-open" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                    <p style="color: var(--muted);">You haven't enrolled in any courses yet.</p>
+                    <a href="/user/home" class="btn-save" style="text-decoration: none; display: inline-block; margin-top: 1rem;">Browse Courses</a>
+                </div>
+                <div class="cert-grid" th:unless="${#lists.isEmpty(enrollments)}">
+                    <div th:each="enrollment : ${enrollments}" class="cert-card" style="padding: 0; overflow: hidden;">
+                        <img th:src="${enrollment.course.imageUrl}" style="width: 100%; height: 140px; object-fit: cover;" onerror="this.src='/images/banner1.webp'">
+                        <div style="padding: 1.5rem;">
+                            <h4 style="margin: 0; font-size: 1.1rem;" th:text="${enrollment.course.title}">Course Title</h4>
+                            <p style="font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0;" th:text="${enrollment.course.instructor.name}">Instructor</p>
+                            <div style="background: #eee; height: 4px; border-radius: 2px; margin: 1rem 0;">
+                                <div style="background: var(--primary); height: 100%; border-radius: 2px;" th:style="'width: ' + (${enrollment.progressPercentage} ?: 0) + '%'"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                <span style="font-size: 0.8rem; font-weight: 700;" th:text="(${enrollment.progressPercentage} ?: 0) + '% Complete'">0% Complete</span>
+                                <a th:href="@{/course/{id}/learn(id=${enrollment.course.id})}" style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 0.9rem;">Continue</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Certificates Tab -->
@@ -328,26 +371,29 @@
     </div>
 
     <script th:inline="javascript">
-        document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-                
-                // Update buttons
-                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Update content
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                document.getElementById(tabId).classList.add('active');
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    // Update buttons
+                    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Update content
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    const target = document.getElementById(tabId);
+                    if(target) target.classList.add('active');
+                });
             });
-        });
 
-        // Initialize from URL or default
-        const activeTab = /*[[${activeTab}]]*/ 'profile';
-        if(activeTab) {
-            const btn = document.querySelector(`.nav-item[data-tab="${activeTab}"]`);
-            if(btn) btn.click();
-        }
+            // Initialize from URL or default
+            const activeTab = /*[[${activeTab}]]*/ 'profile';
+            if(activeTab && activeTab !== 'profile') {
+                const btn = document.querySelector(`.nav-item[data-tab="${activeTab}"]`);
+                if(btn) btn.click();
+            }
+        });
     </script>
     <!-- Footer -->
     <footer class="simple-footer">

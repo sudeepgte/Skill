@@ -437,7 +437,7 @@
         <div class="nav-links">
             <th:block th:if="${isLoggedIn}">
                 <a href="/user/home">My Learning</a>
-                <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+
                 <div class="user-avatar"
                     th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'U'}">
                     U
@@ -509,7 +509,7 @@
             <!-- Wishlist Button -->
             <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
                 style="background-color: transparent; color: #1c1d1f; border: 1px solid #1c1d1f; margin-top: 10px;">
-                <i class="far fa-heart"></i> Add to Wishlist
+                <i class="far fa-heart"></i> Add to Favorites
             </button>
             <p class="guarantee">30-Day Money-Back Guarantee</p>
 
@@ -851,8 +851,8 @@
                 if (r.redirected && r.url.includes('login')) {
                     window.location.href = '/login';
                 } else if (r.ok || r.redirected) {
-                    alert('Added to wishlist!');
-                    this.innerHTML = '<i class="fas fa-heart" style="color:red"></i> In Wishlist';
+                    alert('Added to favorites!');
+                    this.innerHTML = '<i class="fas fa-heart" style="color:red"></i> In Favorites';
                 }
             });
         });

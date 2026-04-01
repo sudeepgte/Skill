@@ -1015,7 +1015,7 @@
                         </form>
                     </div>
                 </div>
-                <a href="/cart" class="nav-link" style="margin-left: 0.8rem;"><i class="fas fa-shopping-cart" style="font-size: 1.8rem;"></i></a>
+
             </th:block>
 
             <!-- Guest state -->
@@ -1155,7 +1155,7 @@
                     </div>
                     <form th:action="@{/course/wishlist/add}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
-                        <button type="submit" class="tooltip-btn">Add to cart</button>
+                        <button type="submit" class="tooltip-btn">Add to Favorites</button>
                     </form>
                 </div>
 
