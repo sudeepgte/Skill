@@ -161,3 +161,85 @@
         justify-content: center;
     }
 }
+
+/* Role Selection Grid */
+.role-selection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+.role-card {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.role-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.role-card-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 1.2rem 1.6rem !important;
+    border: 1.5px solid #1c1d1f !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease !important;
+    min-height: 8.5rem !important;
+    justify-content: center !important;
+}
+
+.role-icon-box {
+    width: 2.8rem !important;
+    height: 2.8rem !important;
+    background-color: #f7f9fa !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 0.6rem !important;
+    color: #1c1d1f !important;
+    font-size: 1.4rem !important;
+}
+
+.role-title {
+    display: block;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #1c1d1f;
+    margin-bottom: 0.1rem;
+}
+
+.role-desc {
+    display: block;
+    font-size: 1.1rem;
+    color: #6a6f73;
+}
+
+/* Checked State - Purple */
+.role-card input[type="radio"]:checked + .role-card-content {
+    border-color: #5624d0;
+    background-color: #f0ebff;
+}
+
+.role-card input[type="radio"]:checked + .role-card-content .role-icon-box {
+    background-color: #5624d0;
+    color: #fff;
+}
+
+.role-card:hover .role-card-content {
+    background-color: #f7f9fa;
+}
+
+@media (max-width: 500px) {
+    .role-selection-grid {
+        grid-template-columns: 1fr;
+    }
+}

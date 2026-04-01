@@ -34,7 +34,8 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String register(Model model) {
+    public String register(Model model, jakarta.servlet.http.HttpServletRequest request) {
+        request.getSession(true);
         model.addAttribute("user", new User());
         model.addAttribute("isAdmin", false);
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -42,7 +43,8 @@ public class AuthController {
     }
 
     @GetMapping("/register/admin")
-    public String registerAdmin(Model model) {
+    public String registerAdmin(Model model, jakarta.servlet.http.HttpServletRequest request) {
+        request.getSession(true);
         User user = new User();
         user.setRole("ADMIN");
         model.addAttribute("user", user);
@@ -52,11 +54,28 @@ public class AuthController {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("user") User user) {
+    public String saveUser(@ModelAttribute("user") User user,
+                           @org.springframework.web.bind.annotation.RequestParam(value = "role", defaultValue = "STUDENT") String role,
+                           @org.springframework.web.bind.annotation.RequestParam(value = "categoryName", required = false) String categoryName,
+                           @org.springframework.web.bind.annotation.RequestParam(value = "newCategoryName", required = false) String newCategoryName) {
         // In a real app, check if email exists
         if (userService.findByEmail(user.getEmail()) != null) {
             return "redirect:/register?error";
         }
+        
+        user.setRole(role);
+        
+        // Handling Vendor specific selections
+        if ("INSTRUCTOR".equals(role)) {
+            if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
+                com.skillhub.model.Category category = new com.skillhub.model.Category(newCategoryName, "fas fa-star text-warning");
+                categoryService.saveCategory(category);
+                user.setSkills(newCategoryName);
+            } else if (categoryName != null && !categoryName.isEmpty()) {
+                user.setSkills(categoryName);
+            }
+        }
+        
         userService.saveUser(user);
         return "redirect:/login?success";
     }

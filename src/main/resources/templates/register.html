@@ -3,125 +3,368 @@
 
 <head>
     <title>Sign Up | SkillHub</title>
-    <!-- Use style.css -->
-    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
-    <link rel="stylesheet" th:href="@{/css/auth.css}" href="../static/css/auth.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-primary: #a435f0;
+            --color-primary-hover: #8710d8;
+            --color-text-main: #1c1d1f;
+            --color-text-secondary: #6a6f73;
+            --color-border: #d1d7dc;
+            --color-bg: #ffffff;
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #ffffff;
+            color: var(--color-text-main);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Navbar Style */
+        .nav-minimal {
+            height: 72px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-family: 'Merriweather', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1c1d1f;
+            text-decoration: none;
+        }
+
+        /* Split Layout Container */
+        .auth-split-wrapper {
+            display: flex;
+            min-height: calc(100vh - 72px);
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            gap: 64px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Left Side: Illustration */
+        .auth-illustration {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-illustration img {
+            max-width: 400px;
+            height: auto;
+            width: 100%;
+        }
+
+        /* Right Side: Card */
+        .auth-card {
+            flex: 1;
+            background: #fff;
+            width: 100%;
+            max-width: 380px;
+            padding: 10px;
+        }
+
+        .auth-card h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: #1c1d1f;
+            text-align: left;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px;
+            border: 1px solid #1c1d1f;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            border-radius: 0;
+            transition: all 0.1s;
+        }
+
+        .form-control:focus {
+            border-color: #1c1d1f;
+            box-shadow: inset 0 0 0 1px #1c1d1f;
+        }
+
+        /* Role Switcher (Tabs Style) */
+        .role-switch {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .role-option input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .role-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border: 1px solid #1c1d1f;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            background: #fff;
+        }
+
+        .role-label i {
+            font-size: 20px;
+            margin-bottom: 6px;
+            color: #1c1d1f;
+        }
+
+        .role-label span {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .role-option input:checked + .role-label {
+            background-color: #5624d0;
+            border-color: #5624d0;
+            color: #fff;
+        }
+
+        .role-option input:checked + .role-label i {
+            color: #fff;
+        }
+
+        /* Vendor Section */
+        .vendor-fields {
+            background: #f7f9fa;
+            border: 1px solid #d1d7dc;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Button */
+        .btn-submit {
+            width: 100%;
+            height: 48px;
+            background-color: #a435f0;
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background-color: #8710d8;
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: #1c1d1f;
+            padding-top: 16px;
+            border-top: 1px solid #d1d7dc;
+        }
+
+        .auth-footer a {
+            color: #5624d0;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .terms-row {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .terms-row input {
+            transform: scale(1.2);
+            margin-top: 4px;
+            accent-color: #a435f0;
+        }
+
+        @media (max-width: 850px) {
+            .auth-illustration {
+                display: none;
+            }
+            .auth-split-wrapper {
+                padding: 40px 16px;
+                justify-content: center;
+            }
+            .auth-card {
+                max-width: 100%;
+                text-align: center;
+            }
+            .auth-card h1 {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <!-- Logo -->
+    <nav class="nav-minimal">
         <a href="/" class="nav-logo">SkillHub</a>
-
-        <!-- Categories Dropdown -->
-        <div class="nav-dropdown">
-            <div class="nav-dropdown-trigger">
-                Categories <i class="fas fa-chevron-down" style="font-size:1rem;"></i>
-            </div>
-            <div class="nav-dropdown-menu">
-                <a th:each="cat : ${categories}"
-                    th:href="@{/(categoryId=${cat.id})}"
-                    class="nav-dropdown-item">
-                    <span th:text="${cat.name}">Category</span>
-                    <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Search -->
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form action="/">
-                <input type="text" name="query" placeholder="Search for anything" th:value="${searchQuery}">
-            </form>
-        </div>
-
-        <!-- Right side -->
-        <div class="nav-right">
-            <a href="/login" class="nav-btn-outline">Log in</a>
-            <a href="/register" class="nav-btn-primary">Sign up</a>
-            <button class="nav-globe"><i class="fas fa-globe"></i></button>
-        </div>
     </nav>
 
-    <div class="auth-page-container" style="min-height: 60vh;">
-        <div class="container auth-split-container">
-            <!-- Left: Illustration -->
-            <div class="auth-illustration">
-                <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp"
-                    alt="Sign up to SkillHub" style="max-width: 380px;">
-            </div>
+    <div class="auth-split-wrapper">
+        <!-- Illustration (Left) -->
+        <div class="auth-illustration">
+            <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp" alt="Join SkillHub">
+        </div>
 
-            <!-- Right: Form -->
-            <div class="auth-form-side">
-                <h3 class="auth-header" th:text="${isAdmin} ? 'Admin Sign Up' : 'Sign up and start learning'">Sign up
-                    and start learning</h3>
+        <!-- Form (Right) -->
+        <div class="auth-card">
+            <h1 th:text="${isAdmin} ? 'Admin Registration' : 'Sign up and start learning'">Sign up</h1>
 
-                <form th:action="@{/saveUser}" th:object="${user}" method="post">
+            <form th:action="@{/saveUser}" th:object="${user}" method="post" id="registrationForm">
+                <div class="form-group">
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Join SkillHub as:</label>
+                    <div class="role-switch">
+                        <div class="role-option">
+                            <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
+                            <label for="roleUser" class="role-label">
+                                <i class="fas fa-user"></i>
+                                <span>User</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
+                            <label for="roleVendor" class="role-label">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Vendor</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vendor Section -->
+                <div id="vendorSection" class="vendor-fields">
+                    <p style="font-weight:700; font-size:14px; margin-bottom:12px; color:#5624d0;">Vendor Information</p>
                     <div class="form-group">
-                        <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
+                        <select id="categorySelect" name="categoryName" class="form-control" onchange="checkOther(this.value)">
+                            <option value="" disabled selected>Select your professional field</option>
+                            <option th:each="cat : ${categories}" th:if="${cat.name != 'Other'}" th:value="${cat.name}" th:text="${cat.name}"></option>
+                            <option value="Other">Other / Not in list</option>
+                        </select>
+                    </div>
+
+                    <div id="otherInput" class="form-group" style="display: none;">
+                        <input type="text" name="newCategoryName" class="form-control" placeholder="Specify your talent">
                     </div>
 
                     <div class="form-group">
-                        <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                        <input type="text" th:field="*{headline}" class="form-control" placeholder="e.g. Master Chef / Web Developer">
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <input type="password" th:field="*{password}" class="form-control" placeholder="Password"
-                            required>
-                    </div>
+                <div class="terms-row">
+                    <input type="checkbox" required>
+                    <span>I agree to the Terms of Use and Privacy Policy.</span>
+                </div>
 
-                    <!-- Hidden Role always set to STUDENT -->
-                    <input type="hidden" name="role" value="STUDENT">
+                <button type="submit" class="btn-submit">Sign up</button>
 
-                    <!-- Admin check remains for hidden manual override from controller if needed, 
-                         but strictly user requested: "All users should be registered as STUDENT by default." -->
-
-                    <!-- Visual Checkbox from reference -->
-
-                    <!-- Visual Checkbox from reference -->
-                    <div style="display: flex; gap: 0.8rem; margin-bottom: 1.6rem; align-items: flex-start;">
-                        <input type="checkbox" style="margin-top: 0.4rem; accent-color: var(--color-primary);">
-                        <span class="text-xs" style="color: var(--color-text-main);">Send me special offers,
-                            personalized recommendations, and learning tips.</span>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-full">Sign up</button>
-
-                    <div
-                        style="font-size: 1.2rem; text-align: center; margin-top: 1.2rem; color: var(--color-text-secondary);">
-                        <div class="footer-link-col"></div>
-                    </div>
-
-                    <div style="margin-top: 2.4rem; text-align: center; font-size: 1.5rem;">
-                        Already have an account? <a href="/login"
-                            style="color: var(--color-primary); font-weight: 700; text-decoration: underline;">Log
-                            in</a>
-                    </div>
-                </form>
-            </div>
+                <div class="auth-footer">
+                    Already have an account? <a href="/login">Log in</a>
+                </div>
+            </form>
         </div>
     </div>
 
-     <!-- Footer -->
-    <footer class="simple-footer">
-        <div class="container footer-simple-content">
-            <a href="/about" class="footer-simple-link">About Us</a>
-            <a href="/contact" class="footer-simple-link">Contact Us</a>
-            <a href="/terms" class="footer-simple-link">Terms</a>
-            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
-        </div>
-        <div class="container">
-            <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
-        </div>
-    </footer>
+    <script>
+        function toggleVendorSection(show) {
+            const section = document.getElementById('vendorSection');
+            const select = document.getElementById('categorySelect');
+            section.style.display = show ? 'block' : 'none';
+            if (show) {
+                select.setAttribute('required', 'required');
+            } else {
+                select.removeAttribute('required');
+            }
+        }
 
-
-
+        function checkOther(val) {
+            const otherDiv = document.getElementById('otherInput');
+            const input = otherDiv.querySelector('input');
+            if (val === 'Other') {
+                otherDiv.style.display = 'block';
+                input.setAttribute('required', 'required');
+            } else {
+                otherDiv.style.display = 'none';
+                input.removeAttribute('required');
+            }
+        }
+    </script>
 </body>
-
 </html>

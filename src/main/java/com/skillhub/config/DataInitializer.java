@@ -33,20 +33,6 @@ public class DataInitializer {
                 // Admin
                 User admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
                 userRepository.save(java.util.Objects.requireNonNull(admin));
-
-                // Instructors (Keep users, but they won't have courses by default)
-                User angela = newUser("Dr. Angela Yu", "angela@skillhub.com", "password", "INSTRUCTOR",
-                        passwordEncoder);
-                angela.setHeadline("Developer and Lead Instructor");
-                userRepository.save(java.util.Objects.requireNonNull(angela));
-
-                User jose = newUser("Jose Portilla", "jose@skillhub.com", "password", "INSTRUCTOR", passwordEncoder);
-                jose.setHeadline("Head of Data Science, Pierian Data");
-                userRepository.save(java.util.Objects.requireNonNull(jose));
-
-                // Student
-                User student = newUser("Jane Smith", "student@skillhub.com", "password", "STUDENT", passwordEncoder);
-                userRepository.save(java.util.Objects.requireNonNull(student));
             }
 
             // 2. Create Categories
@@ -60,93 +46,9 @@ public class DataInitializer {
                         new Category("Art, Craft and Painting", "fas fa-paint-brush"),
                         new Category("Kids Learning and Speaking Course", "fas fa-child"),
                         new Category("Language", "fas fa-language"),
-                        new Category("Photography", "fas fa-camera"));
+                        new Category("Photography", "fas fa-camera"),
+                        new Category("Other", "fas fa-ellipsis-h"));
                 categoryRepository.saveAll(java.util.Objects.requireNonNull(categories));
-            } else {
-                // Rename legacy categories if they exist
-                updateCategoryName(categoryRepository, "Development", "Development and IT");
-                updateCategoryName(categoryRepository, "Business", "Business Marketing");
-                updateCategoryName(categoryRepository, "Office Productivity", "Office Productivity and Design");
-                updateCategoryName(categoryRepository, "Health & Fitness", "Health Fitness and Yoga");
-
-                // Remove unwanted legacy categories
-                deleteCategory(categoryRepository, "Finance & Accounting");
-                deleteCategory(categoryRepository, "IT & Software");
-                deleteCategory(categoryRepository, "Design");
-                deleteCategory(categoryRepository, "Marketing");
-                deleteCategory(categoryRepository, "Personal Development");
-            }
-
-            // 3. Create Sample Courses if none exist
-            if (courseRepository.count() == 0) {
-                User angela = userRepository.findByEmail("angela@skillhub.com");
-                Category devCat = categoryRepository.findByName("Development and IT");
-
-                com.skillhub.model.Course javaCourse = new com.skillhub.model.Course();
-                javaCourse.setTitle("Complete Java Masterclass 2026");
-                javaCourse.setSubtitle("Learn Java Programming with real projects");
-                javaCourse.setInstructor(angela);
-                javaCourse.setCategory(devCat);
-                javaCourse.setPrice(49.99);
-                javaCourse.setImageUrl("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800");
-                javaCourse.setPublished(true);
-                javaCourse = courseRepository.save(javaCourse);
-
-                // Add a Section
-                com.skillhub.model.CourseSection section = new com.skillhub.model.CourseSection();
-                section.setTitle("Java Fundamentals");
-                section.setCourse(javaCourse);
-                section.setPosition(1);
-                
-                // Note: Need SectionRepository if saving separately, or cascade save from Course
-                // Assuming Course has List<CourseSection> sections with CascadeType.ALL
-                javaCourse.addSection(section);
-
-                // Add Lectures
-                com.skillhub.model.Lecture l1 = new com.skillhub.model.Lecture();
-                l1.setTitle("What is Java?");
-                l1.setVideoUrl("https://www.youtube.com/watch?v=eIrMb66zuIc");
-                l1.setSection(section);
-                l1.setDurationSeconds(300);
-                l1.setPosition(1);
-                section.addLecture(l1);
-
-                com.skillhub.model.Lecture l2 = new com.skillhub.model.Lecture();
-                l2.setTitle("Setting up the Environment");
-                l2.setVideoUrl("https://www.youtube.com/watch?v=eIrMb66zuIc");
-                l2.setSection(section);
-                l2.setDurationSeconds(600);
-                l2.setPosition(2);
-                section.addLecture(l2);
-
-                courseRepository.save(javaCourse);
-
-                com.skillhub.model.Course springCourse = new com.skillhub.model.Course();
-                springCourse.setTitle("Spring Boot Microservices");
-                springCourse.setSubtitle("Master the most popular Java framework");
-                springCourse.setInstructor(angela);
-                springCourse.setCategory(devCat);
-                springCourse.setPrice(59.99);
-                springCourse.setImageUrl("https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800");
-                springCourse.setPublished(true);
-                courseRepository.save(springCourse);
-
-                // 4. Enroll Student in one course
-                User student = userRepository.findByEmail("student@skillhub.com");
-                if (student != null) {
-                    com.skillhub.model.Enrollment enrollment = new com.skillhub.model.Enrollment(student, javaCourse);
-                    enrollment.setProgressPercentage(45.0); // Sample progress
-                    enrollmentRepository.save(enrollment);
-
-                    // 5. Add a notification
-                    com.skillhub.model.Notification note = new com.skillhub.model.Notification();
-                    note.setUser(student);
-                    note.setTitle("Welcome");
-                    note.setType("INFO");
-                    note.setMessage("Welcome to SkillHub! You have been enrolled in the Java Masterclass.");
-                    note.setCreatedAt(java.time.LocalDateTime.now());
-                    notificationRepository.save(note);
-                }
             }
         };
     }
