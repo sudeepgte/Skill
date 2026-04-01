@@ -115,6 +115,10 @@ public class InstructorController {
             }
         }
         
+        if (course.getId() == null) {
+            course.setPublished(true);
+        }
+        
         course.setLastUpdated(java.time.LocalDate.now().toString());
 
         courseService.saveCourse(course);
@@ -128,6 +132,21 @@ public class InstructorController {
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
         return "instructor/edit_course";
+    }
+
+    @PostMapping("/courses/{id}/status")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<?> updateCourseStatus(@PathVariable Long id, @RequestParam boolean published) {
+        try {
+            if (published) {
+                courseService.publishCourse(id);
+            } else {
+                courseService.unpublishCourse(id);
+            }
+            return org.springframework.http.ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return org.springframework.http.ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/courses/{id}/sections/add")

@@ -148,8 +148,9 @@ public class User {
         isBlocked = blocked;
     }
 
+
     public boolean isApproved() {
-        return isApproved == null ? true : isApproved;
+        return isApproved == null ? true : isApproved; // Existing rows will have null, allow them
     }
 
     public void setApproved(Boolean approved) {
@@ -173,6 +174,7 @@ public class User {
             streakCount = 1;
         }
         lastStreakDate = now;
+
     }
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
