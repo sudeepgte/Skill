@@ -79,6 +79,7 @@ public class CourseMapper {
         dto.setDurationSeconds(lecture.getDurationSeconds());
         dto.setPreview(lecture.isPreview());
         dto.setPosition(lecture.getPosition());
+        dto.setContent(lecture.getContent());
         return dto;
     }
 }

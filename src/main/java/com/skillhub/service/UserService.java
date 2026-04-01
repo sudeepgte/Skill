@@ -58,6 +58,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByEmail(email);
         if (user != null) {
             user.setLastLoginDate(java.time.LocalDateTime.now());
+            user.updateStreak(); // Update gamification streak
             userRepository.save(user);
         }
     }

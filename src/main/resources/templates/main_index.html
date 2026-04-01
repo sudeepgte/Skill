@@ -262,6 +262,15 @@
             z-index: 600;
         }
 
+        .nav-user-menu::before {
+            content: "";
+            position: absolute;
+            top: -0.6rem;
+            left: 0;
+            right: 0;
+            height: 0.6rem;
+        }
+
         .nav-user-menu-header {
             padding: 1.4rem 1.6rem;
             border-bottom: 1px solid #d1d7dc;
@@ -487,7 +496,17 @@
         /* ─── TRUSTED BANNER ─── */
         .trusted-bar {
             border-bottom: 1px solid #d1d7dc;
-            padding: 1.6rem 0;
+            padding: 1.5rem 0;
+        }
+        .nav-user-menu::before {
+            content: "";
+            position: absolute;
+            top: -0.6rem;
+            left: 0;
+            right: 0;
+            height: 0.6rem;
+        }
+        .trusted-bar {
             background: #fff;
         }
 
@@ -997,11 +1016,14 @@
         <div class="nav-right">
             <!-- Logged-in state -->
             <th:block th:if="${user != null}">
-                <a href="/profile?tab=courses" class="nav-link">My Courses</a>
+                <a href="/user/certifications" class="nav-link">Exams</a>
+                <a href="/student/wishlist" class="nav-icon" title="Wishlist"><i class="far fa-heart"></i></a>
+                <a href="/notifications" class="nav-icon" title="Notifications"><i class="far fa-bell"></i></a>
                 <div class="nav-user-dropdown">
-                    <div class="nav-avatar">
-                        <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-                    </div>
+                    <a href="/profile" class="nav-avatar">
+                        <img th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        <span th:if="${user.profileImageUrl == null}" th:text="${#strings.substring(user.name,0,1)}">U</span>
+                    </a>
                     <div class="nav-user-menu">
                         <div class="nav-user-menu-header">
                             <div class="name" th:text="${user.name}">User Name</div>
@@ -1015,7 +1037,7 @@
                         </form>
                     </div>
                 </div>
-                <a href="/cart" class="nav-link" style="margin-left: 0.8rem;"><i class="fas fa-shopping-cart" style="font-size: 1.8rem;"></i></a>
+
             </th:block>
 
             <!-- Guest state -->
@@ -1155,7 +1177,7 @@
                     </div>
                     <form th:action="@{/course/wishlist/add}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
-                        <button type="submit" class="tooltip-btn">Add to cart</button>
+                        <button type="submit" class="tooltip-btn">Add to Favorites</button>
                     </form>
                 </div>
 

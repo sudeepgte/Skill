@@ -35,16 +35,14 @@
             <!-- My Learning Link -->
             <a href="#" class="categories-link">My Learning</a>
 
-            <!-- Icons (Cart Removed) -->
             <a href="/student/wishlist" class="btn btn-ghost btn-icon"><i class="far fa-heart" style="font-size: 2rem;"></i></a>
-            <a href="/cart" class="btn btn-ghost btn-icon"><i class="fas fa-shopping-cart" style="font-size: 2rem;"></i></a>
             <a href="#" class="btn btn-ghost btn-icon"><i class="far fa-bell" style="font-size: 2rem;"></i></a>
 
             <!-- User Avatar -->
-            <div
-                style="width: 4rem; height: 4rem; background-color: var(--color-black); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+            <a href="/profile"
+                style="width: 4rem; height: 4rem; background-color: var(--color-black); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; text-decoration: none;">
                 <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-            </div>
+            </a>
 
             <!-- Logout -->
             <form th:action="@{/logout}" method="post" style="display:inline;">

@@ -29,6 +29,9 @@ public class Lecture {
 
     private Long viewCount = 0L;
 
+    @Column(columnDefinition = "TEXT")
+    private String content; // Lesson article or transcript
+
     @Column(columnDefinition = "boolean default true")
     private boolean allowComments = true;
 
@@ -105,5 +108,13 @@ public class Lecture {
 
     public void setAllowComments(boolean allowComments) {
         this.allowComments = allowComments;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

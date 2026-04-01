@@ -34,12 +34,21 @@ public class User {
     private boolean isBlocked = false;
     private Boolean isApproved = true; // Automatically approved for students/admin, not vendors
     private LocalDateTime lastLoginDate;
-    
+
     // Social Links & Expertise
     private String instagramUrl;
     private String linkedinUrl;
     private String youtubeUrl;
     private String expertise;
+
+    // Gamification Fields
+    private int totalXP = 0;
+    private int streakCount = 0;
+    private LocalDateTime lastStreakDate;
+    private int level = 1;
+
+    @Column(length = 2000)
+    private String badges; // Comma-separated badge IDs or names (e.g., "QUIZ_MASTER,FAST_LEARNER")
 
     public User() {
     }
@@ -139,12 +148,32 @@ public class User {
         isBlocked = blocked;
     }
 
+
     public boolean isApproved() {
         return isApproved == null ? true : isApproved; // Existing rows will have null, allow them
     }
 
     public void setApproved(Boolean approved) {
         this.isApproved = approved;
+
+    // Gamification Helpers
+    public void addXP(int amount) {
+        this.totalXP += amount;
+        // Simple level-up logic: 1000 XP per level
+        this.level = (this.totalXP / 1000) + 1;
+    }
+
+    public void updateStreak() {
+        LocalDateTime now = LocalDateTime.now();
+        if (lastStreakDate == null) {
+            streakCount = 1;
+        } else if (lastStreakDate.toLocalDate().isEqual(now.toLocalDate().minusDays(1))) {
+            streakCount++;
+        } else if (!lastStreakDate.toLocalDate().isEqual(now.toLocalDate())) {
+            streakCount = 1;
+        }
+        lastStreakDate = now;
+
     }
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -166,15 +195,82 @@ public class User {
         this.lastLoginDate = lastLoginDate;
     }
 
-    public String getInstagramUrl() { return instagramUrl; }
-    public void setInstagramUrl(String instagramUrl) { this.instagramUrl = instagramUrl; }
+    public String getInstagramUrl() {
+        return instagramUrl;
+    }
 
-    public String getLinkedinUrl() { return linkedinUrl; }
-    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
+    public void setInstagramUrl(String instagramUrl) {
+        this.instagramUrl = instagramUrl;
+    }
 
-    public String getYoutubeUrl() { return youtubeUrl; }
-    public void setYoutubeUrl(String youtubeUrl) { this.youtubeUrl = youtubeUrl; }
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
 
-    public String getExpertise() { return expertise; }
-    public void setExpertise(String expertise) { this.expertise = expertise; }
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
+    }
+
+    public String getYoutubeUrl() {
+        return youtubeUrl;
+    }
+
+    public void setYoutubeUrl(String youtubeUrl) {
+        this.youtubeUrl = youtubeUrl;
+    }
+
+    public String getExpertise() {
+        return expertise;
+    }
+
+    public void setExpertise(String expertise) {
+        this.expertise = expertise;
+    }
+
+    // Gamification Getters and Setters
+    public int getTotalXP() {
+        return totalXP;
+    }
+
+    public void setTotalXP(int totalXP) {
+        this.totalXP = totalXP;
+    }
+
+    public int getStreakCount() {
+        return streakCount;
+    }
+
+    public void setStreakCount(int streakCount) {
+        this.streakCount = streakCount;
+    }
+
+    public LocalDateTime getLastStreakDate() {
+        return lastStreakDate;
+    }
+
+    public void setLastStreakDate(LocalDateTime lastStreakDate) {
+        this.lastStreakDate = lastStreakDate;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public String getBadges() {
+        return badges;
+    }
+
+    public void setBadges(String badges) {
+        this.badges = badges;
+    }
+
+    public java.util.List<String> getBadgesList() {
+        if (badges == null || badges.isEmpty())
+            return java.util.Collections.emptyList();
+        return java.util.Arrays.asList(badges.split(","));
+    }
 }
