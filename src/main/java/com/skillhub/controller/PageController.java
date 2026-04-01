@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class PageController {
@@ -28,8 +30,20 @@ public class PageController {
     @Autowired
     private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
 
+    @ModelAttribute
+    public void forceSessionAndCsrf(HttpServletRequest request) {
+        // Force session creation and set a dummy attribute to ensure headers are sent early
+        request.getSession(true).setAttribute("init", true);
+        // Eagerly resolve CSRF token
+        org.springframework.security.web.csrf.CsrfToken token = (org.springframework.security.web.csrf.CsrfToken) request.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+        if (token != null) {
+            token.getToken(); // Forces generation/loading in the controller phase
+        }
+    }
+
     @GetMapping("/")
-    public String index(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
+    public String index(Model model, Principal principal, HttpServletRequest request,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
@@ -57,7 +71,8 @@ public class PageController {
     }
 
     @GetMapping("/user/home")
-    public String home(Model model, Principal principal, @RequestParam(required = false) Long categoryId,
+    public String home(Model model, Principal principal, HttpServletRequest request,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String query) {
         if (principal == null) {
             return "redirect:/login";
@@ -110,7 +125,7 @@ public class PageController {
     }
 
     @GetMapping("/about")
-    public String about(Model model, Principal principal) {
+    public String about(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
@@ -119,7 +134,7 @@ public class PageController {
     }
 
     @GetMapping("/contact")
-    public String contact(Model model, Principal principal) {
+    public String contact(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
@@ -128,7 +143,7 @@ public class PageController {
     }
 
     @GetMapping("/terms")
-    public String terms(Model model, Principal principal) {
+    public String terms(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
@@ -137,7 +152,7 @@ public class PageController {
     }
 
     @GetMapping("/privacy")
-    public String privacy(Model model, Principal principal) {
+    public String privacy(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
@@ -146,7 +161,7 @@ public class PageController {
     }
 
     @GetMapping("/blog")
-    public String blog(Model model, Principal principal) {
+    public String blog(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
