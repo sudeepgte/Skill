@@ -79,6 +79,11 @@ public class PageController {
         }
         String email = principal.getName();
         com.skillhub.model.User user = userService.findByEmail(email);
+        
+        if (user != null && "INSTRUCTOR".equalsIgnoreCase(user.getRole())) {
+            return "redirect:/instructor/dashboard";
+        }
+        
         model.addAttribute("user", user);
         model.addAttribute("categories", categoryService.getAllCategories());
 

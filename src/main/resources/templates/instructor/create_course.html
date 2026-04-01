@@ -79,9 +79,11 @@
                 </select>
             </div>
 
+            <input type="hidden" th:field="*{price}" value="0.0">
+
             <div class="form-group">
-                <label for="price">Price ($)</label>
-                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" placeholder="0.00" required>
+                <label for="videoUrl">Course Preview Video URL</label>
+                <input type="text" id="videoUrl" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
             </div>
 
             <div class="form-group">

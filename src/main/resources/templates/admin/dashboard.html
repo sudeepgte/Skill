@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -11,7 +11,7 @@
 
 <body>
 
-    <!-- ══ SIDEBAR ══ -->
+    <!-- â•â• SIDEBAR â•â• -->
     <aside class="admin-sidebar" id="adminSidebar">
 
         <div class="sidebar-brand">
@@ -31,6 +31,10 @@
 
             <a href="/admin/users" class="nav-item">
                 <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
             </a>
 
             <a href="/admin/courses" class="nav-item">
@@ -65,7 +69,7 @@
 
     </aside>
 
-    <!-- ══ MAIN BODY ══ -->
+    <!-- â•â• MAIN BODY â•â• -->
     <div class="admin-body">
 
         <!-- Top Bar -->
@@ -166,13 +170,13 @@
 
             </div>
 
-            <!-- Content Grid — Most Watched + System Health -->
+            <!-- Content Grid â€” Most Watched + System Health -->
             <div class="content-grid">
 
                 <!-- Most Watched Course -->
                 <div>
                     <div class="most-watched" th:if="${mostWatchedCourse != null}">
-                        <div class="most-watched-label">🔥 Most Watched Course</div>
+                        <div class="most-watched-label">ðŸ”¥ Most Watched Course</div>
                         <div class="most-watched-title" th:text="${mostWatchedCourse.title}">Course Title</div>
                         <div>
                             <div class="most-watched-stat" th:text="${mostWatchedCourse.viewCount}">0</div>

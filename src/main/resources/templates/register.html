@@ -275,6 +275,11 @@
         <div class="auth-card">
             <h1 th:text="${isAdmin} ? 'Admin Registration' : 'Sign up and start learning'">Sign up</h1>
 
+            <!-- Error Messages -->
+            <div th:if="${param.error}" class="alert" style="background: #fff2f2; color: #b32d2e; padding: 12px; border: 1px solid #ffc9c9; margin-bottom: 20px; font-size: 14px;">
+                <i class="fas fa-exclamation-circle"></i> This email is already registered. Please login or use a different email.
+            </div>
+
             <form th:action="@{/saveUser}" th:object="${user}" method="post" id="registrationForm">
                 <div class="form-group">
                     <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>

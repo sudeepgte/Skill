@@ -59,20 +59,50 @@ public class AdminController {
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+        // EXCLUDE INSTRUCTORS FROM THE STANDARD USERS TAB
+        java.util.List<com.skillhub.model.User> studentsAndAdmins = userService.getAllUsers().stream()
+                .filter(u -> !"INSTRUCTOR".equals(u.getRole()))
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("users", studentsAndAdmins);
         return "admin/users";
     }
 
+    @GetMapping("/vendors")
+    public String listVendors(Model model) {
+        // ONLY INSTRUCTORS FOR THE VENDORS TAB
+        java.util.List<com.skillhub.model.User> vendors = userService.getAllUsers().stream()
+                .filter(u -> "INSTRUCTOR".equals(u.getRole()))
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("users", vendors); // Keeping 'users' attribute name for easy template reuse
+        return "admin/vendors";
+    }
+
     @PostMapping("/users/block")
-    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.blockUser(id);
-        return "redirect:/admin/users";
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @PostMapping("/users/unblock")
-    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.unblockUser(id);
-        return "redirect:/admin/users";
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/approve")
+    public String approveUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+        userService.approveUser(id);
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/delete")
+    public String deleteUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+        userService.deleteUser(id);
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @GetMapping("/courses")

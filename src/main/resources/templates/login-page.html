@@ -278,6 +278,9 @@
                 <div th:if="${param.success}" class="alert" style="color:#0f3e0f; background:#dff0d8;">
                     Registration successful! Please login.
                 </div>
+                <div th:if="${param.vendor_pending}" class="alert" style="color:#856404; background:#fff3cd; border:1px solid #ffeeba;">
+                    Registration successful! Please wait until an admin approves your vendor account before logging in.
+                </div>
 
                 <!-- Using manual action to avoid Thymeleaf CSRF crash issue -->
                 <form action="/login" method="post">

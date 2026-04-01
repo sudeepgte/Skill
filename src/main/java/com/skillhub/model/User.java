@@ -32,7 +32,14 @@ public class User {
     private String phone;
     private String skills; // Comma separated skills
     private boolean isBlocked = false;
+    private Boolean isApproved = true; // Automatically approved for students/admin, not vendors
     private LocalDateTime lastLoginDate;
+    
+    // Social Links & Expertise
+    private String instagramUrl;
+    private String linkedinUrl;
+    private String youtubeUrl;
+    private String expertise;
 
     public User() {
     }
@@ -132,6 +139,14 @@ public class User {
         isBlocked = blocked;
     }
 
+    public boolean isApproved() {
+        return isApproved == null ? true : isApproved; // Existing rows will have null, allow them
+    }
+
+    public void setApproved(Boolean approved) {
+        this.isApproved = approved;
+    }
+
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Enrollment> enrollments = new java.util.ArrayList<>();
 
@@ -150,4 +165,16 @@ public class User {
     public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
+
+    public String getInstagramUrl() { return instagramUrl; }
+    public void setInstagramUrl(String instagramUrl) { this.instagramUrl = instagramUrl; }
+
+    public String getLinkedinUrl() { return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
+
+    public String getYoutubeUrl() { return youtubeUrl; }
+    public void setYoutubeUrl(String youtubeUrl) { this.youtubeUrl = youtubeUrl; }
+
+    public String getExpertise() { return expertise; }
+    public void setExpertise(String expertise) { this.expertise = expertise; }
 }

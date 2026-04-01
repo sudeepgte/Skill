@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -11,7 +11,7 @@
 
 <body>
 
-    <!-- ══ SIDEBAR ══ -->
+    <!-- â•â• SIDEBAR â•â• -->
     <aside class="admin-sidebar" id="adminSidebar">
 
         <div class="sidebar-brand">
@@ -31,6 +31,10 @@
 
             <a href="/admin/users" class="nav-item">
                 <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
             </a>
 
             <a href="/admin/courses" class="nav-item">
@@ -65,7 +69,7 @@
 
     </aside>
 
-    <!-- ══ MAIN BODY ══ -->
+    <!-- â•â• MAIN BODY â•â• -->
     <div class="admin-body">
 
         <!-- Top Bar -->
@@ -180,7 +184,7 @@
                     </div>
                 </div>
 
-                <!-- ══ EDIT CATEGORY MODAL ══ -->
+                <!-- â•â• EDIT CATEGORY MODAL â•â• -->
                 <div id="editModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
                     <div class="panel" style="width: 100%; max-width: 450px; margin: 2rem; box-shadow: 0 2rem 4rem rgba(0,0,0,0.4); animation: fadeIn 0.3s ease;">
                         <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -231,7 +235,7 @@
             }
         });
 
-        // ══ CATEGORY EDIT MODAL LOGIC ══
+        // â•â• CATEGORY EDIT MODAL LOGIC â•â•
         const editModal = document.getElementById('editModal');
         const closeModal = document.getElementById('closeModal');
         const editIdInput = document.getElementById('editId');
