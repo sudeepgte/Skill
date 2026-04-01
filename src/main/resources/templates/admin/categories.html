@@ -142,11 +142,12 @@
                                     <th>ID</th>
                                     <th>Icon</th>
                                     <th>Name</th>
+                                    <th style="min-width: 100px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${categories.empty}">
-                                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">No categories defined.</td>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">No categories defined.</td>
                                 </tr>
                                 <tr th:each="cat : ${categories}">
                                     <td th:text="${cat.id}" style="color: var(--text-muted);">1</td>
@@ -156,11 +157,61 @@
                                         </div>
                                     </td>
                                     <td style="font-weight: 600; color: var(--text);" th:text="${cat.name}">Category Name</td>
+                                    <td>
+                                        <div style="display: flex; gap: 0.8rem;">
+                                            <button class="action-icon-btn edit-btn" 
+                                                    th:data-id="${cat.id}" 
+                                                    th:data-name="${cat.name}" 
+                                                    th:data-icon="${cat.icon}"
+                                                    title="Edit" style="background: rgba(164,53,240,0.1); color: #a435f0; border: none; padding: 0.6rem 1rem; border-radius: 0.6rem; cursor: pointer;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form th:action="@{/admin/categories/delete}" method="post" onsubmit="return confirm('Delete this category? This might fail if it contains courses.')">
+                                                <input type="hidden" name="id" th:value="${cat.id}">
+                                                <button type="submit" class="action-icon-btn" title="Delete" style="background: rgba(231,76,60,0.1); color: #e74c3c; border: none; padding: 0.6rem 1rem; border-radius: 0.6rem; cursor: pointer;">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- ══ EDIT CATEGORY MODAL ══ -->
+                <div id="editModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+                    <div class="panel" style="width: 100%; max-width: 450px; margin: 2rem; box-shadow: 0 2rem 4rem rgba(0,0,0,0.4); animation: fadeIn 0.3s ease;">
+                        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="panel-title">Edit Category</span>
+                            <button id="closeModal" style="background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+                        </div>
+                        <div class="panel-body">
+                            <form th:action="@{/admin/categories/edit}" method="post">
+                                <input type="hidden" name="id" id="editId">
+                                <div class="form-group" style="margin-bottom: 2rem;">
+                                    <label class="form-label">Category Name</label>
+                                    <input type="text" name="name" id="editName" class="form-control" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 2.4rem;">
+                                    <label class="form-label">Icon Class</label>
+                                    <input type="text" name="icon" id="editIcon" class="form-control">
+                                </div>
+                                <button type="submit" class="btn-primary-admin" style="width: 100%; justify-content: center;">
+                                    Update Category
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Error Banner -->
+            <div th:if="${error}" style="margin-top: 2rem; padding: 1.6rem; background: rgba(231,76,60,0.1); color: #e74c3c; border-radius: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+            </div>
 
             </div>
 
@@ -178,6 +229,29 @@
             if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
                 sidebar.classList.remove('open');
             }
+        });
+
+        // ══ CATEGORY EDIT MODAL LOGIC ══
+        const editModal = document.getElementById('editModal');
+        const closeModal = document.getElementById('closeModal');
+        const editIdInput = document.getElementById('editId');
+        const editNameInput = document.getElementById('editName');
+        const editIconInput = document.getElementById('editIcon');
+
+        // Open Modal
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                editIdInput.value = btn.getAttribute('data-id');
+                editNameInput.value = btn.getAttribute('data-name');
+                editIconInput.value = btn.getAttribute('data-icon');
+                editModal.style.display = 'flex';
+            });
+        });
+
+        // Close Modal
+        closeModal.addEventListener('click', () => editModal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target === editModal) editModal.style.display = 'none';
         });
     </script>
 </body>

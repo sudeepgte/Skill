@@ -251,6 +251,34 @@ public class AdminController {
         return "redirect:/admin/categories";
     }
 
+    @PostMapping("/categories/edit")
+    public String editCategory(
+            @org.springframework.web.bind.annotation.RequestParam Long id,
+            @org.springframework.web.bind.annotation.RequestParam String name,
+            @org.springframework.web.bind.annotation.RequestParam String icon,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        com.skillhub.model.Category category = categoryService.getCategoryById(id);
+        if (category != null) {
+            category.setName(name);
+            category.setIcon(icon);
+            categoryService.saveCategory(category);
+            redirectAttributes.addFlashAttribute("success", "Category updated successfully!");
+        }
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/categories/delete")
+    public String deleteCategory(@org.springframework.web.bind.annotation.RequestParam Long id,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.deleteCategory(id);
+            redirectAttributes.addFlashAttribute("success", "Category deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Cannot delete category. It might be linked to courses.");
+        }
+        return "redirect:/admin/categories";
+    }
+
     @GetMapping("/upload")
     public String showUploadForm(Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
