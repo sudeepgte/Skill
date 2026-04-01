@@ -59,7 +59,7 @@ public class Course {
     private Long viewCount = 0L;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Enrollment> enrollments;
+    private List<Enrollment> enrollments = new java.util.ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wishlist> wishlist = new ArrayList<>();

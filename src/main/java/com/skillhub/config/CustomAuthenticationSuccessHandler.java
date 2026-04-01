@@ -48,10 +48,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Default Redirect based on role
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("ADMIN") || ga.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+        boolean isInstructor = authentication.getAuthorities().stream()
+                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("INSTRUCTOR") || ga.getAuthority().equalsIgnoreCase("ROLE_INSTRUCTOR"));
 
         if (isAdmin) {
             response.sendRedirect("/admin/dashboard");
+        } else if (isInstructor) {
+            response.sendRedirect("/instructor/dashboard");
         } else {
             response.sendRedirect("/user/home");
         }

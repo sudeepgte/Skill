@@ -26,6 +26,9 @@ public class Review {
 
     private LocalDateTime createdAt;
 
+    private String reply;
+    private LocalDateTime replyDate;
+
     public Review() {
         this.createdAt = LocalDateTime.now();
     }
@@ -86,4 +89,10 @@ public class Review {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getReply() { return reply; }
+    public void setReply(String reply) { this.reply = reply; }
+
+    public LocalDateTime getReplyDate() { return replyDate; }
+    public void setReplyDate(LocalDateTime replyDate) { this.replyDate = replyDate; }
 }

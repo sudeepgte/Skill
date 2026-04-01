@@ -58,25 +58,29 @@ public class AuthController {
                            @org.springframework.web.bind.annotation.RequestParam(value = "role", defaultValue = "STUDENT") String role,
                            @org.springframework.web.bind.annotation.RequestParam(value = "categoryName", required = false) String categoryName,
                            @org.springframework.web.bind.annotation.RequestParam(value = "newCategoryName", required = false) String newCategoryName) {
-        // In a real app, check if email exists
-        if (userService.findByEmail(user.getEmail()) != null) {
-            return "redirect:/register?error";
-        }
-        
-        user.setRole(role);
-        
-        // Handling Vendor specific selections
-        if ("INSTRUCTOR".equals(role)) {
-            if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
-                com.skillhub.model.Category category = new com.skillhub.model.Category(newCategoryName, "fas fa-star text-warning");
-                categoryService.saveCategory(category);
-                user.setSkills(newCategoryName);
-            } else if (categoryName != null && !categoryName.isEmpty()) {
-                user.setSkills(categoryName);
+        try {
+            // Check if email exists
+            if (userService.findByEmail(user.getEmail()) != null) {
+                return "redirect:/register?error=exists";
             }
+            
+            user.setRole(role);
+            
+            // Handling Vendor specific selections
+            if ("INSTRUCTOR".equals(role)) {
+                if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
+                    com.skillhub.model.Category category = new com.skillhub.model.Category(newCategoryName, "fas fa-star text-warning");
+                    categoryService.saveCategory(category);
+                    user.setSkills(newCategoryName);
+                } else if (categoryName != null && !categoryName.isEmpty()) {
+                    user.setSkills(categoryName);
+                }
+            }
+            
+            userService.saveUser(user);
+            return "redirect:/login?success";
+        } catch (Exception e) {
+            return "redirect:/register?error=generic";
         }
-        
-        userService.saveUser(user);
-        return "redirect:/login?success";
     }
 }

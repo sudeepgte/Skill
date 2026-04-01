@@ -186,9 +186,11 @@
                         <textarea th:field="*{description}" rows="5"></textarea>
                     </div>
 
+                    <input type="hidden" th:field="*{price}" value="0.0">
+
                     <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" th:field="*{price}" step="0.01">
+                        <label>Course Preview Video URL</label>
+                        <input type="text" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
                     </div>
 
                     <div class="form-group">

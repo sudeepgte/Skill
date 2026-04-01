@@ -33,6 +33,12 @@ public class User {
     private String skills; // Comma separated skills
     private boolean isBlocked = false;
     private LocalDateTime lastLoginDate;
+    
+    // Social Links & Expertise
+    private String instagramUrl;
+    private String linkedinUrl;
+    private String youtubeUrl;
+    private String expertise;
 
     public User() {
     }
@@ -150,4 +156,16 @@ public class User {
     public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
+
+    public String getInstagramUrl() { return instagramUrl; }
+    public void setInstagramUrl(String instagramUrl) { this.instagramUrl = instagramUrl; }
+
+    public String getLinkedinUrl() { return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
+
+    public String getYoutubeUrl() { return youtubeUrl; }
+    public void setYoutubeUrl(String youtubeUrl) { this.youtubeUrl = youtubeUrl; }
+
+    public String getExpertise() { return expertise; }
+    public void setExpertise(String expertise) { this.expertise = expertise; }
 }
