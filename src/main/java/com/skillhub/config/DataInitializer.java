@@ -60,6 +60,32 @@ public class DataInitializer {
                         new Category("Other", "fas fa-ellipsis-h"));
                 categoryRepository.saveAll(java.util.Objects.requireNonNull(categories));
             }
+            // 3. Mock Data for "Students" Tab (Enrollments)
+            if (enrollmentRepository.count() == 0) {
+                // Find vendor and a course
+                User vendorInstructor = userRepository.findByEmail("vyshu@gmail.com");
+                if (vendorInstructor != null) {
+                    List<com.skillhub.model.Course> courses = courseRepository.findByInstructorEmail(vendorInstructor.getEmail());
+                    if (courses != null && !courses.isEmpty()) {
+                        com.skillhub.model.Course sampleCourse = courses.get(0);
+                        
+                        // Create a mock student
+                        User mockStudent = userRepository.findByEmail("student@skillhub.com");
+                        if (mockStudent == null) {
+                            mockStudent = newUser("Mock Student", "student@skillhub.com", "student123", "STUDENT", passwordEncoder);
+                            userRepository.save(mockStudent);
+                        }
+                        
+                        // Create enrollment
+                        com.skillhub.model.Enrollment enrollment = new com.skillhub.model.Enrollment(mockStudent, sampleCourse);
+                        enrollment.setProgressPercentage(45.0); // Pre-fill some progress
+                        
+                        // Update course stat
+                        sampleCourse.getEnrollments().add(enrollment);
+                        enrollmentRepository.save(enrollment);
+                    }
+                }
+            }
         };
     }
 

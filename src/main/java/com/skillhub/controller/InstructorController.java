@@ -2,13 +2,17 @@ package com.skillhub.controller;
 
 import com.skillhub.model.Course;
 import com.skillhub.model.User;
+import com.skillhub.repository.EnrollmentRepository;
+import com.skillhub.repository.ReviewRepository;
 import com.skillhub.service.CategoryService;
 import com.skillhub.service.CourseService;
+import com.skillhub.service.FileStorageService;
 import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -28,13 +32,13 @@ public class InstructorController {
     private UserService userService;
 
     @Autowired
-    private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
-
+    private EnrollmentRepository enrollmentRepository;
+ 
     @Autowired
-    private com.skillhub.repository.ReviewRepository reviewRepository;
-
+    private ReviewRepository reviewRepository;
+ 
     @Autowired
-    private com.skillhub.service.FileStorageService fileStorageService;
+    private FileStorageService fileStorageService;
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
@@ -89,13 +93,28 @@ public class InstructorController {
     }
 
     @PostMapping("/courses/save")
-    public String saveCourse(@ModelAttribute Course course, Principal principal,
+    public String saveCourse(@ModelAttribute Course course,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            Principal principal,
             RedirectAttributes redirectAttributes) {
         String email = principal.getName();
         User instructor = userService.findByEmail(email);
 
         course.setInstructor(instructor);
-        course.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg"); // Default
+        
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            course.setImageUrl(fileStorageService.store(thumbnail));
+        } else if (course.getId() == null) {
+            course.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg"); // Default for new
+        } else {
+            // For edits, if no new thumbnail is uploaded, we should keep the existing imageUrl
+            // Fetch the current course from DB to get the existing image URL if it was not in the form
+            Course existingCourse = courseService.getCourseById(course.getId());
+            if (course.getImageUrl() == null || course.getImageUrl().isEmpty()) {
+                course.setImageUrl(existingCourse.getImageUrl());
+            }
+        }
+        
         course.setLastUpdated(java.time.LocalDate.now().toString());
 
         courseService.saveCourse(course);
