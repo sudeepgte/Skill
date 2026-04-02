@@ -155,6 +155,7 @@ public class User {
 
     public void setApproved(Boolean approved) {
         this.isApproved = approved;
+    }
 
     // Gamification Helpers
     public void addXP(int amount) {
