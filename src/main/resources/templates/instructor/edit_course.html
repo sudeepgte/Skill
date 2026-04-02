@@ -161,7 +161,7 @@
         <!-- Details Tab -->
         <div id="details" class="tab-content active">
             <div class="card">
-                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post">
+                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:field="*{id}">
 
                     <div class="form-group">
@@ -194,8 +194,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Thumbnail Image URL</label>
-                        <input type="text" th:field="*{imageUrl}">
+                        <label>Course Thumbnail</label>
+                        <div style="display: flex; gap: 1.5rem; align-items: start; background: #f8fafc; padding: 1rem; border: 1px solid #d1d7dc;">
+                            <img id="editImagePreview" th:src="${course.imageUrl}" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d7dc;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.9rem; margin-bottom: 0.5rem;">Change Thumbnail</label>
+                                <input type="file" name="thumbnail" accept="image/*" style="border: none; padding: 0;" onchange="previewEditImage(event)">
+                                <p style="font-size: 0.75rem; color: #6a6f73; margin-top: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> Upload a new image to update your course thumbnail. Recommended size: 750x422 pixels.
+                                </p>
+                                <input type="hidden" th:field="*{imageUrl}">
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Save Details</button>
@@ -299,6 +309,16 @@
         }
         function hideAddLectureForm(sectionId) {
             document.getElementById('addLectureForm-' + sectionId).style.display = 'none';
+        }
+        function previewEditImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('editImagePreview');
+                preview.src = reader.result;
+            }
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
         }
     </script>
 </body>

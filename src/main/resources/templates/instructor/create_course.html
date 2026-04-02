@@ -60,7 +60,18 @@
     <div class="container">
         <h1 style="text-align: center; margin-bottom: 2rem;">Create a New Course</h1>
 
-        <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post">
+        <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="thumbnail">Course Thumbnail</label>
+                <div style="border: 2px dashed #d1d7dc; padding: 2rem; border-radius: 8px; text-align: center; margin-bottom: 1rem; background: #f8fafc;">
+                    <div id="imagePreviewContainer" style="display: none; margin-bottom: 1rem;">
+                        <img id="imagePreview" src="" alt="Thumbnail Preview" style="width: 100%; max-width: 400px; height: auto; border-radius: 8px; border: 1px solid #d1d7dc;">
+                    </div>
+                    <i id="uploadIcon" class="fas fa-image" style="font-size: 2.5rem; color: #d1d7dc; display: block; margin-bottom: 1rem;"></i>
+                    <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="cursor: pointer;" onchange="previewImage(event)">
+                    <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #6a6f73;">Upload a high-quality thumbnail image for your course (Recommended: 750x422)</p>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="title">Course Title</label>
                 <input type="text" id="title" th:field="*{title}" placeholder="e.g. valid-title" required>
@@ -98,6 +109,23 @@
             </div>
         </form>
     </div>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('imagePreview');
+                const container = document.getElementById('imagePreviewContainer');
+                const icon = document.getElementById('uploadIcon');
+                
+                preview.src = reader.result;
+                container.style.display = 'block';
+                icon.style.display = 'none';
+            }
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+    </script>
 </body>
 
 </html>
