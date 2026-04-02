@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -96,7 +96,7 @@
             <h1 th:text="${course.id == null ? 'Create a New Course' : 'Edit Course'}">Create a New Course</h1>
             <!-- NEW: Display simplified stats if available -->
             <div th:if="${course.id != null}" style="color: #6a6f73; margin-top: 10px;">
-                <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections •
+                <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections â€¢
                 <span th:text="${course.contentLength != null ? course.contentLength : '0m'}">0m</span> total length
             </div>
             <p style="color: #6a6f73;">Fill in the details below to create a new course. You can add sections and videos

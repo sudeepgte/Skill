@@ -546,7 +546,7 @@
                                 </td>
                                 <td th:text="${course.category != null ? course.category.name : 'N/A'}">Technology</td>
                                 <td>
-                                    <span th:if="${course.published}" class="status-badge status-live">Live</span>
+                                    <span th:if="${course.published}" class="status-badge status-live">Published</span>
                                     <span th:unless="${course.published}" class="status-badge status-draft">Draft</span>
                                 </td>
                                 <td th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</td>

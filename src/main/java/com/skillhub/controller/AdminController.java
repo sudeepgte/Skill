@@ -59,20 +59,50 @@ public class AdminController {
 
     @GetMapping("/users")
     public String listUsers(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+        // EXCLUDE INSTRUCTORS FROM THE STANDARD USERS TAB
+        java.util.List<com.skillhub.model.User> studentsAndAdmins = userService.getAllUsers().stream()
+                .filter(u -> !"INSTRUCTOR".equals(u.getRole()))
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("users", studentsAndAdmins);
         return "admin/users";
     }
 
+    @GetMapping("/vendors")
+    public String listVendors(Model model) {
+        // ONLY INSTRUCTORS FOR THE VENDORS TAB
+        java.util.List<com.skillhub.model.User> vendors = userService.getAllUsers().stream()
+                .filter(u -> "INSTRUCTOR".equals(u.getRole()))
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("users", vendors); // Keeping 'users' attribute name for easy template reuse
+        return "admin/vendors";
+    }
+
     @PostMapping("/users/block")
-    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.blockUser(id);
-        return "redirect:/admin/users";
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @PostMapping("/users/unblock")
-    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id) {
+    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.unblockUser(id);
-        return "redirect:/admin/users";
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/approve")
+    public String approveUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+        userService.approveUser(id);
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+    }
+
+    @PostMapping("/users/delete")
+    public String deleteUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+        userService.deleteUser(id);
+        String referer = request.getHeader("Referer");
+        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @GetMapping("/courses")
@@ -248,6 +278,34 @@ public class AdminController {
         }
         categoryService.saveCategory(category);
         redirectAttributes.addFlashAttribute("success", "Category created successfully!");
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/categories/edit")
+    public String editCategory(
+            @org.springframework.web.bind.annotation.RequestParam Long id,
+            @org.springframework.web.bind.annotation.RequestParam String name,
+            @org.springframework.web.bind.annotation.RequestParam String icon,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        com.skillhub.model.Category category = categoryService.getCategoryById(id);
+        if (category != null) {
+            category.setName(name);
+            category.setIcon(icon);
+            categoryService.saveCategory(category);
+            redirectAttributes.addFlashAttribute("success", "Category updated successfully!");
+        }
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/categories/delete")
+    public String deleteCategory(@org.springframework.web.bind.annotation.RequestParam Long id,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.deleteCategory(id);
+            redirectAttributes.addFlashAttribute("success", "Category deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Cannot delete category. It might be linked to courses.");
+        }
         return "redirect:/admin/categories";
     }
 

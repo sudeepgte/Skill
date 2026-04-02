@@ -32,6 +32,7 @@ public class User {
     private String phone;
     private String skills; // Comma separated skills
     private boolean isBlocked = false;
+    private Boolean isApproved = true; // Automatically approved for students/admin, not vendors
     private LocalDateTime lastLoginDate;
 
     // Social Links & Expertise
@@ -147,6 +148,15 @@ public class User {
         isBlocked = blocked;
     }
 
+
+    public boolean isApproved() {
+        return isApproved == null ? true : isApproved; // Existing rows will have null, allow them
+    }
+
+    public void setApproved(Boolean approved) {
+        this.isApproved = approved;
+    }
+
     // Gamification Helpers
     public void addXP(int amount) {
         this.totalXP += amount;
@@ -164,6 +174,7 @@ public class User {
             streakCount = 1;
         }
         lastStreakDate = now;
+
     }
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -22,6 +22,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     public void saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Default role if not set
@@ -76,6 +79,26 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public void approveUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setApproved(true);
+            userRepository.save(user);
+            
+            // Send email notification indicating approval
+            try {
+                String subject = "Account Approved - Welcome to SkillHub!";
+                String text = "Hello " + user.getName() + ",\n\n" +
+                              "Great news! Your vendor account has been approved by the administrator.\n" +
+                              "You can now log in and start creating courses.\n\n" +
+                              "Best regards,\nThe SkillHub Team";
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+            } catch (Exception e) {
+                System.err.println("Failed to send approval email: " + e.getMessage());
+            }
+        }
+    }
+
     public long countActiveUsers24h() {
         return userRepository.countByLastLoginDateAfter(java.time.LocalDateTime.now().minusHours(24));
     }
@@ -89,6 +112,10 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
+                user.isApproved() && !user.isBlocked(), // enabled status
+                true,
+                true,
+                true,
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
     }
 }

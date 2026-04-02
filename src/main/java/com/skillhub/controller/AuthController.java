@@ -68,6 +68,7 @@ public class AuthController {
             
             // Handling Vendor specific selections
             if ("INSTRUCTOR".equals(role)) {
+                user.setApproved(false); // Vendor must be approved by admin before login
                 if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
                     com.skillhub.model.Category category = new com.skillhub.model.Category(newCategoryName, "fas fa-star text-warning");
                     categoryService.saveCategory(category);
@@ -78,6 +79,9 @@ public class AuthController {
             }
             
             userService.saveUser(user);
+            if ("INSTRUCTOR".equals(role)) {
+                return "redirect:/login?vendor_pending";
+            }
             return "redirect:/login?success";
         } catch (Exception e) {
             return "redirect:/register?error=generic";
