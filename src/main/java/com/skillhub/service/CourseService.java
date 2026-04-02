@@ -189,4 +189,41 @@ public class CourseService {
             courseRepository.save(course);
         }
     }
+
+    public void generateSampleCurriculum(Long courseId) {
+        Course course = getCourseById(courseId);
+        if (course == null)
+            return;
+
+        // Add Section 1
+        CourseSection s1 = new CourseSection();
+        s1.setTitle("Fundamentals of Skill Discovery");
+        s1.setCourse(course);
+        s1.setPosition(1);
+        courseSectionRepository.save(s1);
+
+        // Lesson 1: Video (YouTube)
+        com.skillhub.model.Lecture l1 = new com.skillhub.model.Lecture();
+        l1.setTitle("Core Concepts & Mindset");
+        l1.setSection(s1);
+        l1.setPosition(1);
+        l1.setVideoUrl("https://www.youtube.com/watch?v=aqS_607XF_U"); // Sample photography video
+        l1.setDurationSeconds(600);
+        l1.setContent(
+                "Welcome to your first lesson! In this article, we dive deep into the mindset required for mastering new skills. Consistency is key.");
+        lectureRepository.save(l1);
+
+        // Lesson 2: Reading Material (Article Only)
+        com.skillhub.model.Lecture l2 = new com.skillhub.model.Lecture();
+        l2.setTitle("Essential Tools & Setup");
+        l2.setSection(s1);
+        l2.setPosition(2);
+        l2.setVideoUrl(null); // No video, purely reading
+        l2.setDurationSeconds(300);
+        l2.setContent(
+                "<h2>The Checklist</h2><ul><li>Patience</li><li>Correct Environment</li><li>Quality Tools</li></ul><p>Use the Audio Mode to listen to this while you gather your tools!</p>");
+        lectureRepository.save(l2);
+
+        updateCourseStats(courseId);
+    }
 }

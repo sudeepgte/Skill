@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.skillhub.dto.CourseDTO;
 import com.skillhub.mapper.CourseMapper;
 import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Controller
 public class CourseController {
@@ -29,10 +33,19 @@ public class CourseController {
     private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
 
     @Autowired
+    private com.skillhub.repository.NoteRepository noteRepository;
+
+    @Autowired
     private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
 
     @Autowired
+    private com.skillhub.repository.LectureRepository lectureRepository;
+
+    @Autowired
     private com.skillhub.service.UserService userService;
+
+    @Autowired
+    private com.skillhub.repository.CourseQuestionRepository questionRepository;
 
     @GetMapping({ "/course/{id}", "/user/course/{id}" })
     public String getCourseDetails(@PathVariable Long id, Model model, Principal principal) {
@@ -58,15 +71,46 @@ public class CourseController {
             }
         }
 
-        // Fetch reviews
-        java.util.List<com.skillhub.model.Review> reviews = reviewRepository
-                .findByCourse(course, org.springframework.data.domain.Pageable.unpaged()).getContent();
+        // Fetch reviews (latest first)
+        List<com.skillhub.model.Review> reviews = reviewRepository
+                .findByCourseIdOrderByCreatedAtDesc(id);
+
+        // Calculate real metadata with failsafe
+        try {
+            Double avgRatingObj = reviewRepository.getAverageRatingByCourseId(id).orElse(0.0);
+            double avgRating = (avgRatingObj != null) ? avgRatingObj : 0.0;
+            int revCount = (reviews != null) ? reviews.size() : 0;
+            long studentCount = enrollmentRepository.countByCourse(course);
+
+            courseDTO.setAverageRating(Math.round(avgRating * 10.0) / 10.0);
+            courseDTO.setReviewCount(revCount);
+            courseDTO.setEnrolledStudentCount(studentCount);
+
+            if (courseDTO.getLastUpdated() == null || courseDTO.getLastUpdated().isEmpty()) {
+                courseDTO.setLastUpdated(LocalDate.now().toString());
+            }
+        } catch (Exception e) {
+            System.err.println("Error calculating course metadata: " + e.getMessage());
+            // Fallbacks are already in DTO or set to 0/empty
+            if (courseDTO.getAverageRating() == null)
+                courseDTO.setAverageRating(0.0);
+            if (courseDTO.getReviewCount() == null)
+                courseDTO.setReviewCount(0);
+            if (courseDTO.getEnrolledStudentCount() == null)
+                courseDTO.setEnrolledStudentCount(0L);
+            if (courseDTO.getLastUpdated() == null)
+                courseDTO.setLastUpdated("Recently");
+        }
+
+        // Fetch questions
+        List<com.skillhub.model.CourseQuestion> questions = questionRepository
+                .findByCourseIdOrderByCreatedAtDesc(id);
 
         model.addAttribute("course", courseDTO);
         model.addAttribute("reviews", reviews);
+        model.addAttribute("questions", questions);
         model.addAttribute("isEnrolled", isEnrolled);
         model.addAttribute("user", user);
-        // NEW: expose login state
         model.addAttribute("isLoggedIn", principal != null);
         return "course-details";
     }
@@ -107,7 +151,8 @@ public class CourseController {
             }
         }
 
-        // Fallback: If no lesson found but course has a direct video URL, use it as intro
+        // Fallback: If no lesson found but course has a direct video URL, use it as
+        // intro
         if (currentLesson == null && courseDTO.getVideoUrl() != null && !courseDTO.getVideoUrl().isEmpty()) {
             currentLesson = new com.skillhub.dto.LectureDTO();
             currentLesson.setTitle("Course Overview");
@@ -122,18 +167,29 @@ public class CourseController {
         // Fetch completed lecture IDs for this user/course
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
         java.util.List<Long> completedLectureIds = lectureProgressRepository.findByUser(user).stream()
-            .filter(com.skillhub.model.LectureProgress::isCompleted)
-            .map(lp -> lp.getLecture().getId())
-            .filter(lectureIdVal -> {
-                // Only include lectures from THIS course
-                return course.getSections().stream()
-                    .flatMap(s -> s.getLectures().stream())
-                    .anyMatch(l -> l.getId().equals(lectureIdVal));
-            })
-            .collect(java.util.stream.Collectors.toList());
+                .filter(com.skillhub.model.LectureProgress::isCompleted)
+                .map(lp -> lp.getLecture().getId())
+                .filter(lectureIdVal -> {
+                    // Only include lectures from THIS course
+                    return course.getSections().stream()
+                            .flatMap(s -> s.getLectures().stream())
+                            .anyMatch(l -> l.getId().equals(lectureIdVal));
+                })
+                .collect(java.util.stream.Collectors.toList());
         model.addAttribute("completedLectureIds", completedLectureIds);
-        // Debug
-        // System.out.println("Course Sections: " + courseDTO.getSections().size());
+
+        // Fetch Note
+        if (currentLesson != null && currentLesson.getId() != null && currentLesson.getId() > 0) {
+            com.skillhub.model.Lecture lectureRef = lectureRepository.findById(currentLesson.getId()).orElse(null);
+            if (lectureRef != null) {
+                noteRepository.findByUserAndLecture(user, lectureRef)
+                        .ifPresent(n -> model.addAttribute("lectureNote", n.getContent()));
+            }
+        } else {
+            // General Course Notes
+            noteRepository.findByUserAndCourseAndLectureIsNull(user, course)
+                    .ifPresent(n -> model.addAttribute("lectureNote", n.getContent()));
+        }
 
         return "course/learning_room";
     }
@@ -206,5 +262,74 @@ public class CourseController {
         });
 
         return "redirect:/user/home?certificateData=earned";
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/user/course/{id}/generate-sample")
+    public String generateSample(@PathVariable Long id, Principal principal) {
+        if (principal == null)
+            return "redirect:/login";
+        courseService.generateSampleCurriculum(id);
+        return "redirect:/user/course/" + id + "/learn";
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/user/lecture/{id}/save-note")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.Map<String, Object> saveNote(@PathVariable Long id,
+            @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Object> payload,
+            Principal principal) {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        if (principal == null) {
+            response.put("success", false);
+            return response;
+        }
+
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        String content = payload.get("content") != null ? payload.get("content").toString() : "";
+
+        Object courseIdObj = payload.get("courseId");
+        if (courseIdObj == null) {
+            response.put("success", false);
+            response.put("message", "Missing courseId");
+            return response;
+        }
+
+        Long courseId = Long.parseLong(courseIdObj.toString());
+        com.skillhub.model.Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            response.put("success", false);
+            return response;
+        }
+
+        try {
+            com.skillhub.model.Note note;
+            if (id > 0) {
+                com.skillhub.model.Lecture lecture = lectureRepository.findById(id).orElse(null);
+                if (lecture == null) {
+                    response.put("success", false);
+                    response.put("message", "Lecture not found");
+                    return response;
+                }
+                note = noteRepository.findByUserAndLecture(user, lecture)
+                        .orElse(new com.skillhub.model.Note());
+                note.setLecture(lecture);
+            } else {
+                // Course Overview Note
+                note = noteRepository.findByUserAndCourseAndLectureIsNull(user, course)
+                        .orElse(new com.skillhub.model.Note());
+                note.setLecture(null);
+            }
+
+            note.setUser(user);
+            note.setCourse(course);
+            note.setContent(content);
+            noteRepository.save(note);
+
+            response.put("success", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Database error: " + e.getMessage());
+        }
+        return response;
     }
 }

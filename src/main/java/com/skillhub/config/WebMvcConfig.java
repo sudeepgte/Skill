@@ -19,21 +19,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
         String uploadAbsolutePath = uploadPath.toFile().toURI().toString();
-        
+
         System.out.println("Mapping /uploads/** to " + uploadAbsolutePath);
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadAbsolutePath);
-                
-        // Fallback for classpath images if any
 
-        String uploadPath = java.nio.file.Paths.get(uploadDir).toFile().getAbsolutePath();
-        
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
-
+        // Static resources
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/");
+
         registry.addResourceHandler("/js/**")
                 .addResourceLocations("classpath:/static/js/");
 

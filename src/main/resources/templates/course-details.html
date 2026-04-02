@@ -531,10 +531,27 @@
 
     <!-- Header -->
     <div class="course-header">
+        <!-- Messages -->
+        <div th:if="${success}" style="max-width: 1184px; margin: 0 auto; padding: 16px 24px;">
+            <div
+                style="background: #e1f5fe; color: #01579b; padding: 12px 16px; border-radius: 4px; border: 1px solid #0288d1; display: flex; align-items: center; gap: 10px; font-weight: 700;">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}">Success!</span>
+            </div>
+        </div>
+        <div th:if="${error}" style="max-width: 1184px; margin: 0 auto; padding: 16px 24px;">
+            <div
+                style="background: #ffebee; color: #c62828; padding: 12px 16px; border-radius: 4px; border: 1px solid #c62828; display: flex; align-items: center; gap: 10px; font-weight: 700;">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}">Error!</span>
+            </div>
+        </div>
+
         <div class="header-content">
             <div class="header-text">
                 <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
-                    <a th:href="${isLoggedIn} ? '/user/home' : '/'" style="color: #cec0fc; text-decoration: none;">Courses</a>
+                    <a th:href="${isLoggedIn} ? '/user/home' : '/'"
+                        style="color: #cec0fc; text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>
@@ -547,16 +564,23 @@
                     Short description goes here</p>
 
                 <div class="course-meta">
-                    <span
-                        style="background: #f4c150; color: #1c1d1f; padding: 2px 6px; font-weight: 700; font-size: 0.8rem;">Bestseller</span>
-                    <span style="color: #f4c150; font-weight: 700;">4.7</span>
+                    <span th:if="${course.enrolledStudentCount != null && course.enrolledStudentCount > 5}"
+                        style="background: #f4c150; color: #1c1d1f; padding: 2px 6px; font-weight: 700; font-size: 0.8rem; margin-right: 8px;">Bestseller</span>
+                    <span style="color: #f4c150; font-weight: 700;"
+                        th:text="${course.averageRating != null ? course.averageRating : '0.0'}">4.7</span>
                     <span>
-                        <i class="fas fa-star rating-star"></i><i class="fas fa-star rating-star"></i><i
-                            class="fas fa-star rating-star"></i><i class="fas fa-star rating-star"></i><i
-                            class="fas fa-star-half-alt rating-star"></i>
+                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
+                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
+                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
+                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
+                        <i class="fas fa-star-half-alt" style="color: #f4c150; font-size: 0.8rem;"></i>
                     </span>
-                    <span style="text-decoration: underline; color: #cec0fc;">(1,234 ratings)</span>
-                    <span>10,500 students</span>
+                    <span style="text-decoration: underline; color: #cec0fc;"
+                        th:text="'(' + (${course.reviewCount != null ? course.reviewCount : '0'}) + ' ratings)'">(1,234
+                        ratings)</span>
+                    <span
+                        th:text="(${course.enrolledStudentCount != null ? course.enrolledStudentCount : '0'}) + ' students'">10,500
+                        students</span>
                 </div>
 
                 <div class="course-meta">
@@ -689,15 +713,15 @@
             <div class="course-section" id="reviews-section">
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top:30px;">
-                    <h2 style="margin: 0;">Student Reviews</h2>
+                    <h2 style="margin: 0;">Student Comments</h2>
                     <button onclick="toggleReviewForm()" class="btn-buy"
                         style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f;">
-                        Write a Review
+                        Write a Comment
                     </button>
                 </div>
 
                 <div id="reviewForm">
-                    <form th:action="@{/api/reviews}" method="post">
+                    <form th:action="@{/reviews/add}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <select name="rating">
                             <option value="5">5 Stars</option>
@@ -706,8 +730,10 @@
                             <option value="2">2 Stars</option>
                             <option value="1">1 Star</option>
                         </select>
-                        <textarea name="comment" rows="4" placeholder="Share your thoughts..."></textarea>
-                        <button type="submit" class="btn-buy" style="width: auto;">Submit Review</button>
+                        <textarea name="comment" rows="4" placeholder="Share your experience..."></textarea>
+                        <button type="submit" class="btn-comment-submit"
+                            style="width: auto; background: #1c1d1f; color: white; border: 1px solid #1c1d1f; padding: 12px 24px; font-weight: 700; cursor: pointer;">Post
+                            Comment</button>
                     </form>
                 </div>
 
@@ -729,12 +755,82 @@
                                         th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'dd-MM-yyyy') : ''}">Date</span>
                                 </div>
                                 <p style="color: #1c1d1f; margin: 0; line-height: 1.5;" th:text="${review.comment}">
-                                    Review content.</p>
+                                    Comment content.</p>
                             </div>
                         </div>
                     </th:block>
                     <div th:if="${reviews == null or reviews.empty}" style="color: #6a6f73; font-style: italic;">
-                        No reviews yet. Be the first to verify!
+                        No comments yet. Be the first to share!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q&A Section -->
+            <div class="course-section" id="qa-section" style="margin-top: 50px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Questions & Answers</h2>
+                    <button onclick="toggleQAForm()" class="btn-buy"
+                        style="width: auto; padding: 10px 20px; margin: 0; background: #5624d0; color: #fff;">
+                        Ask a Question
+                    </button>
+                </div>
+
+                <div id="qaForm"
+                    style="display:none; margin-bottom: 20px; padding:20px; background:#f7f9fa; border:1px solid #d1d7dc;">
+                    <form th:action="@{/api/course/questions}" method="post">
+                        <input type="hidden" name="courseId" th:value="${course.id}">
+                        <input type="text" name="title" placeholder="Summary of your question"
+                            style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #1c1d1f;">
+                        <textarea name="content" rows="4" placeholder="Detail your question..."></textarea>
+                        <button type="submit" class="btn-comment-submit"
+                            style="width: auto; background: #5624d0; color: white; border: 1px solid #5624d0; padding: 12px 24px; font-weight: 700; cursor: pointer;">Ask
+                            Question</button>
+                    </form>
+                </div>
+
+                <div class="qa-search" style="margin-bottom: 20px; display: flex; gap: 10px;">
+                    <input type="text" placeholder="Search all course questions"
+                        style="flex:1; padding: 10px; border: 1px solid #d1d7dc;">
+                    <button class="btn-buy"
+                        style="width: auto; margin:0; padding:10px 20px; border: 1px solid #1c1d1f; background: #fff; color: #1c1d1f;">Search</button>
+                </div>
+
+                <div class="qa-list">
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(questions)}" class="empty-qa"
+                        style="text-align:center; padding: 40px; background:#f7f9fa; border-radius:4px; border: 1px solid #d1d7dc;">
+                        <i class="far fa-comments" style="font-size: 2.5rem; color:#d1d7dc; margin-bottom: 10px;"></i>
+                        <h4 style="margin: 0; color: #1c1d1f;">No questions asked yet</h4>
+                        <p style="margin: 5px 0 0; color: #6a6f73; font-size: 0.9rem;">Be the first to ask about this
+                            course!</p>
+                    </div>
+
+                    <!-- Question Items -->
+                    <div th:each="q : ${questions}" class="qa-item"
+                        style="padding: 24px 0; border-bottom: 1px solid #d1d7dc;">
+                        <div style="display: flex; gap: 16px;">
+                            <div style="width: 40px; height: 40px; background: #1c1d1f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;"
+                                th:text="${q.user != null and q.user.name != null ? #strings.substring(q.user.name,0,1) : 'U'}">
+                                U</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 8px; color: #1c1d1f; font-weight: 700;" th:text="${q.title}">
+                                    Question Title</h4>
+                                <p style="margin: 0 0 12px; color: #1c1d1f; line-height: 1.5;" th:text="${q.content}">
+                                    Question content goes here...</p>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #6a6f73;">
+                                    <span style="color: #5624d0; font-weight: 700;"
+                                        th:text="${q.user != null ? q.user.name : 'User'}">Student Name</span>
+                                    <span>•</span>
+                                    <span
+                                        th:text="${q.createdAt != null ? #temporals.format(q.createdAt, 'MMM dd, yyyy') : 'Recently'}">Oct
+                                        24, 2023</span>
+                                    <span>•</span>
+                                    <span th:text="${q.answers != null ? q.answers.size() : '0'} + ' answers'">0
+                                        answers</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -768,7 +864,12 @@
 
         function toggleReviewForm() {
             const form = document.getElementById('reviewForm');
-            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+            if (form) form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+
+        function toggleQAForm() {
+            const form = document.getElementById('qaForm');
+            if (form) form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
         }
 
         function playPreview(videoUrl) {
@@ -796,11 +897,14 @@
         }
 
         // Enroll / Buy Button Logic
-        document.querySelectorAll('.btn-buy').forEach(button => {
-            if (button.id === 'addToWishlistBtn' || button.tagName.toLowerCase() === 'a') return; // Skip wishlist and links
+        document.querySelectorAll('.btn-buy').forEach(function (button) {
+            // Skip wishlist, links, and toggle buttons (with onclick)
+            if (button.id === 'addToWishlistBtn' ||
+                button.tagName.toLowerCase() === 'a' ||
+                button.hasAttribute('onclick')) return;
 
             button.addEventListener('click', function () {
-                const courseId = /*[[${course.id}]]*/ 0;
+                const courseId = [[${ course.id }]];
 
                 // Use CSRF token if protected
                 const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
