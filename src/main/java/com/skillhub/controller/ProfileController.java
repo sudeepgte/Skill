@@ -2,6 +2,9 @@ package com.skillhub.controller;
 
 import com.skillhub.model.User;
 import com.skillhub.service.UserService;
+import com.skillhub.service.FileStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -9,38 +12,46 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProfileController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
     @Autowired
     private UserService userService;
 
     @Autowired
     private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
+    
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/profile")
-    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "profile") String tab, Model model, Principal principal) {
+    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "welcome") String tab, Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("user", user);
 
-        // Fetch enrollments for My Courses tab
-        java.util.List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
+        // Fetch enrollments
+        List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
         model.addAttribute("enrollments", enrollments);
         
-        // Fetch certificates (Enrolled courses where exam is passed)
-        java.util.List<com.skillhub.model.Enrollment> certificates = enrollments.stream()
+        // Fetch certificates
+        List<com.skillhub.model.Enrollment> certificates = enrollments.stream()
                 .filter(com.skillhub.model.Enrollment::isExamPassed)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         model.addAttribute("certificates", certificates);
         model.addAttribute("activeTab", tab);
 
@@ -54,6 +65,7 @@ public class ProfileController {
                                 @RequestParam(value = "skills", required = false) String skills,
                                 @RequestParam(value = "bio", required = false) String bio,
                                 @RequestParam(value = "headline", required = false) String headline,
+                                @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture,
                                 Principal principal,
                                 RedirectAttributes redirectAttributes) {
         if (principal == null) {
@@ -65,15 +77,6 @@ public class ProfileController {
             return "redirect:/login";
         }
 
-        // Basic validation
-        if (!user.getEmail().equals(email)) {
-            User existing = userService.findByEmail(email);
-            if (existing != null) {
-                redirectAttributes.addFlashAttribute("error", "Email already in use.");
-                return "redirect:/profile";
-            }
-        }
-
         user.setName(name);
         user.setEmail(email);
         user.setPhone(phone);
@@ -81,23 +84,52 @@ public class ProfileController {
         user.setBio(bio);
         user.setHeadline(headline);
 
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                logger.info("Uploading profile picture for user: {}", user.getEmail());
+                String imagePath = fileStorageService.store(profilePicture);
+                user.setProfileImageUrl(imagePath);
+                logger.info("Profile picture updated: {}", imagePath);
+            } catch (Exception e) {
+                logger.error("Upload error for user {}: {}", user.getEmail(), e.getMessage());
+                redirectAttributes.addFlashAttribute("error", "Failed to upload image: " + e.getMessage());
+            }
+        }
+
         userService.updateUser(user);
 
-        // Handle email change re-auth if needed
         if (!principal.getName().equals(email)) {
             redirectAttributes.addFlashAttribute("success", "Profile updated. Please log in with your new email.");
             return "redirect:/logout";
         }
 
         redirectAttributes.addFlashAttribute("success", "Profile updated successfully.");
-        return "redirect:/profile";
+        return "redirect:/profile?tab=profile";
+    }
+
+    @PostMapping("/profile/upload-photo")
+    public String uploadPhotoOnly(@RequestParam("profilePicture") MultipartFile profilePicture,
+                                  Principal principal,
+                                  RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        
+        User user = userService.findByEmail(principal.getName());
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                String imagePath = fileStorageService.store(profilePicture);
+                user.setProfileImageUrl(imagePath);
+                userService.updateUser(user);
+                redirectAttributes.addFlashAttribute("success", "Photo updated!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload: " + e.getMessage());
+            }
+        }
+        return "redirect:/profile?tab=profile";
     }
 
     @GetMapping("/change-password")
     public String showChangePassword(Model model, Principal principal) {
-        if (principal == null) {
-            return "redirect:/login";
-        }
+        if (principal == null) return "redirect:/login";
         model.addAttribute("user", userService.findByEmail(principal.getName()));
         return "change_password";
     }
@@ -109,9 +141,7 @@ public class ProfileController {
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
-        if (principal == null) {
-            return "redirect:/login";
-        }
+        if (principal == null) return "redirect:/login";
 
         User user = userService.findByEmail(principal.getName());
 

@@ -14,13 +14,15 @@
 }
 
 .nav-logo {
-    font-size: 2.4rem;
+    font-size: 2.6rem;
     font-weight: 800;
     color: #5624d0;
     text-decoration: none;
     flex-shrink: 0;
-    margin-right: 0.8rem;
-    letter-spacing: -0.5px;
+    margin-right: 1.2rem;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
 }
 
 /* Categories dropdown */
@@ -140,7 +142,7 @@
 }
 
 .nav-link:hover {
-    border-color: #1c1d1f;
+    color: #5624d0;
 }
 
 .nav-btn-outline {
@@ -175,30 +177,29 @@
     border-color: #401b9c;
 }
 
-.nav-globe {
-    width: 3.8rem;
-    height: 3.8rem;
-    border: 1.5px solid #1c1d1f;
-    border-radius: 0.4rem;
+.nav-icon {
+    font-size: 2rem;
+    color: #1c1d1f;
+    padding: 1rem;
+    border-radius: 50%;
+    transition: background 0.2s;
+    cursor: pointer;
+    text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
-    color: #1c1d1f;
-    cursor: pointer;
-    background: none;
-    transition: background 0.15s;
+    position: relative;
 }
 
-.nav-globe:hover {
-    background: #f7f9fa;
+.nav-icon:hover {
+    background-color: #f7f9fa;
 }
 
 .nav-avatar {
-    width: 3.4rem;
-    height: 3.4rem;
+    width: 3.6rem;
+    height: 3.6rem;
     border-radius: 50%;
-    background: #5624d0;
+    background: #1c1d1f;
     color: #fff;
     display: flex;
     align-items: center;
@@ -207,6 +208,13 @@
     font-size: 1.4rem;
     cursor: pointer;
     flex-shrink: 0;
+    margin-left: 1.2rem;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.nav-avatar:hover {
+    border-color: #5624d0;
 }
 
 .nav-user-dropdown {
@@ -227,6 +235,15 @@
     border: 1px solid #d1d7dc;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
     z-index: 600;
+}
+
+.nav-user-menu::before {
+    content: "";
+    position: absolute;
+    top: -0.6rem;
+    left: 0;
+    right: 0;
+    height: 0.6rem;
 }
 
 .nav-user-menu-header {
