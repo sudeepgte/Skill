@@ -489,6 +489,46 @@
         .toast .toast-icon {
             color: var(--success);
         }
+
+        /* ─── AUDIO MODE & ARTICLE ─── */
+        .article-content {
+            padding: 2rem;
+            line-height: 1.8;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .btn-audio {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-audio:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-audio.playing {
+            border-color: var(--accent);
+            color: var(--accent-light);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .highlight-text {
+            background: var(--accent-glow);
+            border-radius: 3px;
+        }
     </style>
 </head>
 
@@ -527,17 +567,17 @@
                 <!-- Lesson selected - non-YouTube video -->
                 <video
                     th:if="${currentLesson != null && currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
-                    th:src="@{${currentLesson.videoUrl}}" controls autoplay playsinline id="mainVideo" style="width:100%;height:100%;"
-                    allowfullscreen>
+                    th:src="@{${currentLesson.videoUrl}}" controls autoplay playsinline id="mainVideo"
+                    style="width:100%;height:100%;" allowfullscreen>
                     Your browser does not support the video tag.
                 </video>
 
                 <!-- Lesson selected - YouTube video -->
                 <iframe
                     th:if="${currentLesson != null && currentLesson.videoUrl != null and (#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
-                    th:src="${currentLesson.embedUrl} + '?enablejsapi=1&autoplay=1&mute=0'"
-                    width="100%" height="100%" frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    th:src="${currentLesson.embedUrl} + '?enablejsapi=1&autoplay=1&mute=0'" width="100%" height="100%"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen id="youtubePlayer">
                 </iframe>
 
@@ -553,13 +593,31 @@
             <div class="video-info" th:if="${currentLesson != null}">
                 <div>
                     <h2 th:text="${currentLesson.title}">Lecture Title</h2>
-                    <p th:text="'Section · ' + ${(currentLesson.durationSeconds != null ? currentLesson.durationSeconds / 60 : 0)} + ' min'">Section · 5 min</p>
+                    <p
+                        th:text="'Section · ' + ${(currentLesson.durationSeconds != null ? currentLesson.durationSeconds / 60 : 0)} + ' min'">
+                        Section · 5 min</p>
                 </div>
                 <button class="btn-complete" id="markCompleteBtn" th:attr="data-lecture-id=${currentLesson.id}"
                     onclick="toggleComplete(this)">
                     <i class="fas fa-check"></i>
                     <span>Mark Complete</span>
                 </button>
+            </div>
+
+            <!-- Article / Transcription Section -->
+            <div class="article-content" th:if="${currentLesson != null}">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; color: var(--text-primary);">Lesson Article</h3>
+                    <button class="btn-audio" id="audioModeBtn" onclick="toggleAudioMode()">
+                        <i class="fas fa-headphones"></i>
+                        <span>Listen to Lesson</span>
+                    </button>
+                </div>
+                <div id="lessonText"
+                    th:utext="${currentLesson.content ?: 'This lesson contains practical steps for ' + currentLesson.title + '. (Transcription coming soon...)'}">
+                    Lesson content goes here.
+                </div>
             </div>
         </div>
 
@@ -620,7 +678,7 @@
         /*<![CDATA[*/
         const COURSE_ID = /*[[${course.id}]]*/ 0;
         const CURRENT_LECTURE_ID = /*[[${currentLesson != null ? currentLesson.id : null}]]*/ null;
-        const COMPLETED_LECTURE_IDS = /*[[${completedLectureIds}]]*/ []; 
+        const COMPLETED_LECTURE_IDS = /*[[${completedLectureIds}]]*/[];
         const STORAGE_PREFIX = 'skillhub_';
 
         // ─── INITIALIZE COMPLETION FROM BACKEND ───
@@ -799,24 +857,58 @@
             });
         }
 
-        // ─── RESUME BADGES in sidebar ───
-        function initResumeBadges() {
-            document.querySelectorAll('[data-resume-badge]').forEach(badge => {
-                const id = badge.dataset.resumeBadge;
-                const saved = getProgress(id);
-                if (saved > 5 && !isCompleted(id)) {
-                    badge.style.display = 'inline-flex';
+        // ─── AUDIO MODE (TEXT TO SPEECH) ───
+        let speechSynth = window.speechSynthesis;
+        let speechUtterance = null;
+        let isSpeaking = false;
+
+        function toggleAudioMode() {
+            const btn = document.getElementById('audioModeBtn');
+            const textArea = document.getElementById('lessonText');
+            if (!textArea) return;
+            const text = textArea.innerText;
+
+            if (isSpeaking) {
+                speechSynth.cancel();
+                isSpeaking = false;
+                btn.classList.remove('playing');
+                btn.querySelector('span').textContent = 'Listen to Lesson';
+                showToast('Audio mode paused', false);
+            } else {
+                speechSynth.cancel();
+                speechUtterance = new SpeechSynthesisUtterance(text);
+
+                // Voice config
+                const voices = speechSynth.getVoices();
+                if (voices.length > 0) {
+                    speechUtterance.voice = voices.find(v => v.lang.includes('en')) || voices[0];
                 }
-            });
+                speechUtterance.rate = 1.0;
+                speechUtterance.pitch = 1.0;
+
+                speechUtterance.onend = () => {
+                    isSpeaking = false;
+                    btn.classList.remove('playing');
+                    btn.querySelector('span').textContent = 'Listen to Lesson';
+                };
+
+                speechSynth.speak(speechUtterance);
+                isSpeaking = true;
+                btn.classList.add('playing');
+                btn.querySelector('span').textContent = 'Now Reading...';
+                showToast('Playing audio transcription');
+            }
         }
+
+        // Stop speech if navigating
+        window.onbeforeunload = () => { if (speechSynth) speechSynth.cancel(); };
 
         // ─── ON LOAD ───
         document.addEventListener('DOMContentLoaded', () => {
-            // Apply saved completion states to radio buttons
+            // Apply saved completion states
             document.querySelectorAll('[data-radio-id]').forEach(radio => {
                 const id = radio.dataset.radioId;
                 if (id == CURRENT_LECTURE_ID) {
-                    // Playing state (unless already watched)
                     if (isCompleted(id)) {
                         radio.classList.add('watched');
                     } else {
@@ -835,7 +927,13 @@
 
             updateProgressBar();
             initVideoResume();
-            initResumeBadges();
+
+            // Auto-collapse sections
+            document.querySelectorAll('.section-item').forEach(sec => {
+                if (!sec.querySelector('.lesson-item.active')) {
+                    sec.classList.add('collapsed');
+                }
+            });
         });
         /*]]>*/
     </script>

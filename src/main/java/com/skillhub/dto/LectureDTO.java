@@ -7,6 +7,7 @@ public class LectureDTO {
     private Integer durationSeconds;
     private boolean isPreview;
     private int position;
+    private String content;
 
     public LectureDTO() {
     }
@@ -59,6 +60,15 @@ public class LectureDTO {
     public void setPosition(int position) {
         this.position = position;
     }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public String getEmbedUrl() {
         if (videoUrl == null)
             return null;

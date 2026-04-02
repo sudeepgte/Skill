@@ -4,6 +4,9 @@
 <head>
     <title>My Profile | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
@@ -158,6 +161,53 @@
             font-weight: 700;
         }
 
+        /* Gamification & Badges */
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1.2rem;
+            padding: 0 1.2rem;
+        }
+
+        .badge-icon {
+            width: 3.2rem;
+            height: 3.2rem;
+            background: #fff8e1;
+            border: 1.5px solid #ffc107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffc107;
+            font-size: 1.4rem;
+            cursor: help;
+            transition: transform 0.2s;
+        }
+
+        .badge-icon:hover {
+            transform: scale(1.1);
+            background: #ffc107;
+            color: #fff;
+        }
+
+        .xp-level {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: #f3e5f5;
+            padding: 0.2rem 0.8rem;
+            border-radius: 1rem;
+            margin-top: 0.4rem;
+            display: inline-block;
+        }
+
+        .streak-fire {
+            color: #ff5722;
+            margin-right: 0.4rem;
+        }
+
         /* Content Area */
         .content-card {
             background: #fff;
@@ -174,8 +224,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         h2 {
@@ -246,13 +301,87 @@
             font-weight: 600;
         }
 
-        .alert-success { background: #acd2cc; color: #1c1d1f; }
-        .alert-error { background: #f5c2c7; color: #842029; }
+        .alert-success {
+            background: #acd2cc;
+            color: #1c1d1f;
+        }
+
+        .alert-error {
+            background: #f5c2c7;
+            color: #842029;
+        }
 
         .welcome-section {
             border: 1px solid var(--border);
             padding: 4rem;
             text-align: center;
+        }
+
+        .radar-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fdfdfd;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Portfolio / Creations */
+        .creation-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .creation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .creation-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .creation-info {
+            padding: 1.5rem;
+        }
+
+        .creation-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .creation-desc {
+            font-size: 1.3rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
         }
     </style>
 </head>
@@ -279,8 +408,10 @@
             <th:block th:if="${user != null}">
                 <div class="nav-user-dropdown">
                     <a href="/profile" class="nav-avatar">
-                        <img th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                        <span th:if="${user.profileImageUrl == null}" th:text="${#strings.substring(user.name,0,1)}">U</span>
+                        <img th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}"
+                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                        <span th:if="${user.profileImageUrl == null}"
+                            th:text="${#strings.substring(user.name,0,1)}">U</span>
                     </a>
                     <div class="nav-user-menu">
                         <div class="nav-user-menu-header">
@@ -309,16 +440,28 @@
     <div class="profile-container">
         <aside class="sidebar">
             <div class="user-info">
-                <form id="photoUploadForm" th:action="@{/profile/upload-photo}" method="post" enctype="multipart/form-data" style="display:none;">
-                    <input type="file" id="quickProfilePictureInput" name="profilePicture" onchange="document.getElementById('photoUploadForm').submit()">
+                <form id="photoUploadForm" th:action="@{/profile/upload-photo}" method="post"
+                    enctype="multipart/form-data" style="display:none;">
+                    <input type="file" id="quickProfilePictureInput" name="profilePicture"
+                        onchange="document.getElementById('photoUploadForm').submit()">
                 </form>
-                <a href="javascript:void(0)" onclick="document.getElementById('quickProfilePictureInput').click()" class="avatar-large" title="Click to change photo">
-                    <img id="avatarImage" th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                    <span id="avatarInitial" th:if="${user.profileImageUrl == null}" th:text="${#strings.substring(user.name,0,1)}">U</span>
+                <a href="javascript:void(0)" onclick="document.getElementById('quickProfilePictureInput').click()"
+                    class="avatar-large" title="Click to change photo">
+                    <img id="avatarImage" th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}"
+                        style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                    <span id="avatarInitial" th:if="${user.profileImageUrl == null}"
+                        th:text="${#strings.substring(user.name,0,1)}">U</span>
                     <span class="add-icon"><i class="fas fa-camera"></i></span>
                 </a>
                 <h3 th:text="${user.name}">User Name</h3>
                 <p th:text="${user.headline ?: 'SkillHub Learner'}">Headline</p>
+                <div class="xp-level" th:text="|Level ${user.level}|">Level 1</div>
+
+                <div class="badges-container" th:if="${!#strings.isEmpty(user.badges)}">
+                    <div th:each="badge : ${user.getBadgesList()}" class="badge-icon" th:title="${badge}">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
             </div>
 
             <div class="stats-grid">
@@ -329,6 +472,17 @@
                 <div class="stat-item">
                     <span class="stat-value" th:text="${#lists.size(certificates)}">0</span>
                     <span class="stat-label">Certs</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">
+                        <i class="fas fa-fire streak-fire"></i>
+                        <span th:text="${user.streakCount}">0</span>
+                    </span>
+                    <span class="stat-label">Streak</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" th:text="${user.totalXP}">0</span>
+                    <span class="stat-label">XP</span>
                 </div>
             </div>
 
@@ -341,6 +495,9 @@
                 </button>
                 <button type="button" class="nav-item" data-tab="courses">
                     <i class="fas fa-book-reader"></i> My Courses
+                </button>
+                <button type="button" class="nav-item" data-tab="creations">
+                    <i class="fas fa-images"></i> My Creations
                 </button>
                 <button type="button" class="nav-item" data-tab="certificates">
                     <i class="fas fa-award"></i> Certificates
@@ -360,12 +517,16 @@
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-            <!-- Welcome / Overview Tab -->
-            <div id="welcome" class="tab-content active">
-                <div class="welcome-section">
-                    <h1 style="font-size: 3.2rem; margin-bottom: 0.8rem;" th:text="|Welcome, ${user.name}!|">Welcome!</h1>
-                    <p style="font-size: 1.6rem; color: var(--muted); margin-bottom: 3.2rem;">Select an option from the menu to get started.</p>
+            <div class="welcome-section">
+                <h1 style="font-size: 3.2rem; margin-bottom: 0.8rem;" th:text="|Welcome, ${user.name}!|">Welcome!
+                </h1>
+                <p style="font-size: 1.6rem; color: var(--muted); margin-bottom: 3.2rem;">Your expertise at a glance</p>
+
+                <div class="radar-container">
+                    <canvas id="skillRadarChart"></canvas>
                 </div>
+
+                <p style="font-size: 1.3rem; color: var(--muted);">Explore more categories to "fill the map"!</p>
             </div>
 
             <!-- Edit Profile Tab -->
@@ -381,28 +542,34 @@
                     </div>
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" name="email" th:value="${user.email}" class="form-control" readonly style="background:#f0f2f5;">
+                        <input type="email" name="email" th:value="${user.email}" class="form-control" readonly
+                            style="background:#f0f2f5;">
                         <small style="color:var(--muted);">Email cannot be changed.</small>
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
-                        <input type="text" name="phone" th:value="${user.phone}" class="form-control" placeholder="+1 234 567 890">
+                        <input type="text" name="phone" th:value="${user.phone}" class="form-control"
+                            placeholder="+1 234 567 890">
                     </div>
                     <div class="form-group">
                         <label>Headline</label>
-                        <input type="text" name="headline" th:value="${user.headline}" class="form-control" placeholder="e.g. Software Engineer Student">
+                        <input type="text" name="headline" th:value="${user.headline}" class="form-control"
+                            placeholder="e.g. Software Engineer Student">
                     </div>
                     <div class="form-group">
                         <label>Skills (Comma separated)</label>
-                        <input type="text" name="skills" th:value="${user.skills}" class="form-control" placeholder="Java, Spring Boot, React...">
+                        <input type="text" name="skills" th:value="${user.skills}" class="form-control"
+                            placeholder="Java, Spring Boot, React...">
                     </div>
                     <div class="form-group">
                         <label>Biography</label>
-                        <textarea name="bio" class="form-control" rows="4" th:text="${user.bio}" placeholder="Tell us about yourself..."></textarea>
+                        <textarea name="bio" class="form-control" rows="4" th:text="${user.bio}"
+                            placeholder="Tell us about yourself..."></textarea>
                     </div>
                     <div class="form-group" th:if="${user.lastLoginDate != null}">
                         <label>Last Login</label>
-                        <input type="text" th:value="${#temporals.format(user.lastLoginDate, 'dd MMM yyyy, HH:mm')}" class="form-control" readonly style="background:#f0f2f5;">
+                        <input type="text" th:value="${#temporals.format(user.lastLoginDate, 'dd MMM yyyy, HH:mm')}"
+                            class="form-control" readonly style="background:#f0f2f5;">
                     </div>
                     <button type="submit" class="btn-save">Save Changes</button>
                 </form>
@@ -411,48 +578,127 @@
             <!-- My Courses Tab -->
             <div id="courses" class="tab-content">
                 <h2 style="border-bottom: 1px solid var(--border); padding-bottom: 1.6rem;">My Enrolled Courses</h2>
-                <div th:if="${#lists.isEmpty(enrollments)}" style="padding: 4rem; text-align: center; border: 1px solid var(--border);">
+                <div th:if="${#lists.isEmpty(enrollments)}"
+                    style="padding: 4rem; text-align: center; border: 1px solid var(--border);">
                     <p style="color: var(--muted); margin-bottom: 1.6rem;">You haven't enrolled in any courses yet.</p>
-                    <a href="/user/home" class="btn-save" style="text-decoration: none; display: inline-block;">Browse Courses</a>
+                    <a href="/user/home" class="btn-save" style="text-decoration: none; display: inline-block;">Browse
+                        Courses</a>
                 </div>
                 <div class="grid" th:unless="${#lists.isEmpty(enrollments)}">
                     <div th:each="enrollment : ${enrollments}" class="card" th:if="${enrollment.course != null}">
-                        <img th:src="${enrollment.course.imageUrl}" style="width: 100%; height: 16rem; object-fit: cover;" onerror="this.src='/images/banner1.webp'">
+                        <img th:src="${enrollment.course.imageUrl}"
+                            style="width: 100%; height: 16rem; object-fit: cover;"
+                            onerror="this.src='/images/banner1.webp'">
                         <div style="padding: 2rem;">
-                            <h4 style="margin: 0; font-size: 1.6rem; min-height: 4.8rem;" th:text="${enrollment.course.title}">Course Title</h4>
-                            <p style="font-size: 1.3rem; color: var(--muted); margin: 0.8rem 0;" th:text="${enrollment.course.instructor != null ? enrollment.course.instructor.name : 'SkillHub Instructor'}">Instructor</p>
-                            
-                            <div style="font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                            <h4 style="margin: 0; font-size: 1.6rem; min-height: 4.8rem;"
+                                th:text="${enrollment.course.title}">
+                                Course Title</h4>
+                            <p style="font-size: 1.3rem; color: var(--muted); margin: 0.8rem 0;"
+                                th:text="${enrollment.course.instructor != null ? enrollment.course.instructor.name : 'SkillHub Instructor'}">
+                                Instructor</p>
+
+                            <div
+                                style="font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
                                 <span th:text="|${enrollment.progressPercentage ?: 0}% complete|">0% complete</span>
                             </div>
                             <div style="background: #eee; height: 8px; overflow: hidden; margin-bottom: 2rem;">
-                                <div style="background: var(--primary); height: 100%;" th:style="|width: ${enrollment.progressPercentage ?: 0}%|"></div>
+                                <div style="background: var(--primary); height: 100%;"
+                                    th:style="|width: ${enrollment.progressPercentage ?: 0}%|"></div>
                             </div>
-                            
-                            <a th:href="@{/course/{id}/learn(id=${enrollment.course.id})}" class="btn-save" style="display: block; text-align: center; text-decoration: none; padding: 1.2rem; font-size: 1.4rem; width: 100%;">Continue Learning</a>
+
+                            <a th:href="@{/course/{id}/learn(id=${enrollment.course.id})}" class="btn-save"
+                                style="display: block; text-align: center; text-decoration: none; padding: 1.2rem; font-size: 1.4rem; width: 100%;">Continue
+                                Learning</a>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- My Creations (Portfolio) Tab -->
+            <div id="creations" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1.6rem; margin-bottom: 2.4rem;">
+                    <h2 style="margin: 0;">My Project Showcase</h2>
+                    <button class="btn-save" onclick="document.getElementById('creationModal').style.display='flex'">
+                        <i class="fas fa-plus"></i> Add New Creation
+                    </button>
+                </div>
+
+                <div th:if="${#lists.isEmpty(creations)}"
+                    style="text-align: center; padding: 4rem; border: 2px dashed var(--border); border-radius: 12px;">
+                    <i class="fas fa-camera-retro" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                    <p style="color: var(--muted); font-size: 1.5rem;">Show off what you've made! Upload photos of your
+                        cooking, sewing, or art.</p>
+                </div>
+
+                <div class="grid">
+                    <div th:each="creation : ${creations}" class="creation-card">
+                        <img th:src="${creation.imageUrl}" class="creation-img"
+                            onerror="this.src='/images/course-placeholder.jpg'">
+                        <div class="creation-info">
+                            <div class="creation-title" th:text="${creation.title}">Creation Title</div>
+                            <div class="creation-desc" th:text="${creation.description}">Short description of the work.
+                            </div>
+                            <div style="font-size: 1.1rem; color: #999; margin-top: 1rem;"
+                                th:text="${#temporals.format(creation.createdAt, 'dd MMM yyyy')}">Date</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creation Modal -->
+            <div id="creationModal" class="modal-overlay">
+                <div class="modal-content">
+                    <h2 style="margin-top: 0;">Add to Portfolio</h2>
+                    <form th:action="@{/profile/creations/add}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Creation Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Handmade Silk Gown"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description (Tell the story)</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="How did you make this?"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Photo</label>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button type="submit" class="btn-save">Upload to Portfolio</button>
+                            <button type="button" class="btn-save" style="background: #eee; color: #333;"
+                                onclick="document.getElementById('creationModal').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <!-- Certificates Tab -->
             <div id="certificates" class="tab-content">
                 <h2 style="border-bottom: 1px solid var(--border); padding-bottom: 1.6rem;">My Certificates</h2>
-                <div th:if="${#lists.isEmpty(certificates)}" style="text-align: center; padding: 6rem 0; border: 1px solid var(--border);">
-                    <i class="fas fa-certificate" style="font-size: 4.8rem; color: #ddd; margin-bottom: 1.6rem; display: block;"></i>
+                <div th:if="${#lists.isEmpty(certificates)}"
+                    style="text-align: center; padding: 6rem 0; border: 1px solid var(--border);">
+                    <i class="fas fa-certificate"
+                        style="font-size: 4.8rem; color: #ddd; margin-bottom: 1.6rem; display: block;"></i>
                     <p style="color: var(--muted);">Complete a course exam to earn certificates.</p>
                 </div>
                 <div class="grid">
-                    <div th:each="cert : ${certificates}" class="card" th:if="${cert.course != null}" style="padding: 2.4rem; display: flex; align-items: center; gap: 2rem;">
+                    <div th:each="cert : ${certificates}" class="card" th:if="${cert.course != null}"
+                        style="padding: 2.4rem; display: flex; align-items: center; gap: 2rem;">
                         <div style="color: #b4690e; font-size: 4rem;">
                             <i class="fas fa-award"></i>
                         </div>
                         <div>
-                            <h4 style="margin: 0 0 0.4rem; font-size: 1.8rem;" th:text="${cert.course.title}">Course Title</h4>
+                            <h4 style="margin: 0 0 0.4rem; font-size: 1.8rem;" th:text="${cert.course.title}">Course
+                                Title</h4>
                             <p style="font-size: 1.4rem; color: var(--muted); margin: 0;">
-                                Completed on <span th:text="${cert.certificateDate != null ? #temporals.format(cert.certificateDate, 'dd MMM yyyy') : 'Recently'}">Date</span>
+                                Completed on <span
+                                    th:text="${cert.certificateDate != null ? #temporals.format(cert.certificateDate, 'dd MMM yyyy') : 'Recently'}">Date</span>
                             </p>
-                            <a href="#" style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 1.4rem; display: inline-block; margin-top: 1.2rem;">Download Certificate</a>
+                            <a href="#"
+                                style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 1.4rem; display: inline-block; margin-top: 1.2rem;">Download
+                                Certificate</a>
                         </div>
                     </div>
                 </div>
@@ -485,15 +731,15 @@
             document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
-                    
+
                     // Update buttons
                     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
-                    
+
                     // Update content
                     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     const target = document.getElementById(tabId);
-                    if(target) target.classList.add('active');
+                    if (target) target.classList.add('active');
 
                     // Handle full-width for My Courses
                     const container = document.querySelector('.profile-container');
@@ -508,12 +754,48 @@
                 });
             });
 
-            // Initialize from URL or default
-            const activeTab = /*[[${activeTab}]]*/ 'profile';
-            if(activeTab && activeTab !== 'profile') {
+            if (activeTab && activeTab !== 'profile') {
                 const btn = document.querySelector(`.nav-item[data-tab="${activeTab}"]`);
-                if(btn) btn.click();
+                if (btn) btn.click();
             }
+
+            // Skill Radar Chart Initialization
+            const expertiseData = /*[[${expertiseMap}]]*/ {};
+            const labels = Object.keys(expertiseData);
+            const data = Object.values(expertiseData);
+
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Skill Proficiency (%)',
+                        data: data,
+                        backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                        borderColor: '#7c3aed',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#7c3aed',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#7c3aed'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { display: true },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    maintainAspectRatio: true
+                }
+            });
         });
     </script>
 
@@ -530,4 +812,5 @@
         </div>
     </footer>
 </body>
+
 </html>

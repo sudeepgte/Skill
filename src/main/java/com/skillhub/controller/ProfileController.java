@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Controller
@@ -29,15 +31,25 @@ public class ProfileController {
 
     @Autowired
     private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
-    
+
     @Autowired
     private FileStorageService fileStorageService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.skillhub.repository.CategoryRepository categoryRepository;
+
+    @Autowired
+    private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
+
+    @Autowired
+    private com.skillhub.repository.CreationRepository creationRepository;
+
     @GetMapping("/profile")
-    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "welcome") String tab, Model model, Principal principal) {
+    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "welcome") String tab,
+            Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -47,7 +59,31 @@ public class ProfileController {
         // Fetch enrollments
         List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
         model.addAttribute("enrollments", enrollments);
-        
+
+        // --- Calculate Category Expertise (Skill Radar) ---
+        List<com.skillhub.model.Category> allCategories = categoryRepository.findAll();
+        java.util.Map<String, Double> expertiseMap = new java.util.HashMap<>();
+
+        for (com.skillhub.model.Category cat : allCategories) {
+            // Count completed lectures in this category for this user
+            long completed = lectureProgressRepository.countCompletedLecturesByCategory(user.getId(), cat.getId());
+            long total = cat.getCourses().stream()
+                    .flatMap(c -> c.getSections().stream())
+                    .flatMap(s -> s.getLectures().stream())
+                    .count();
+
+            double percent = (total > 0) ? (completed * 100.0 / total) : 0.0;
+            // Cap at 100
+            if (percent > 100)
+                percent = 100.0;
+            expertiseMap.put(cat.getName(), percent);
+        }
+        model.addAttribute("expertiseMap", expertiseMap);
+
+        // --- Fetch Creations (Portfolio) ---
+        List<com.skillhub.model.Creation> creations = creationRepository.findByUserOrderByCreatedAtDesc(user);
+        model.addAttribute("creations", creations);
+
         // Fetch certificates
         List<com.skillhub.model.Enrollment> certificates = enrollments.stream()
                 .filter(com.skillhub.model.Enrollment::isExamPassed)
@@ -58,16 +94,43 @@ public class ProfileController {
         return "profile";
     }
 
+    @PostMapping("/profile/creations/add")
+    public String addCreation(@RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("image") MultipartFile image,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        if (principal == null)
+            return "redirect:/login";
+        User user = userService.findByEmail(principal.getName());
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                String imagePath = fileStorageService.store(image);
+                com.skillhub.model.Creation creation = new com.skillhub.model.Creation();
+                creation.setTitle(title);
+                creation.setDescription(description);
+                creation.setImageUrl(imagePath);
+                creation.setUser(user);
+                creationRepository.save(creation);
+                redirectAttributes.addFlashAttribute("success", "Creation added to portfolio!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Upload failed: " + e.getMessage());
+            }
+        }
+        return "redirect:/profile?tab=creations";
+    }
+
     @PostMapping("/profile")
     public String updateProfile(@RequestParam("name") String name,
-                                @RequestParam("email") String email,
-                                @RequestParam(value = "phone", required = false) String phone,
-                                @RequestParam(value = "skills", required = false) String skills,
-                                @RequestParam(value = "bio", required = false) String bio,
-                                @RequestParam(value = "headline", required = false) String headline,
-                                @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture,
-                                Principal principal,
-                                RedirectAttributes redirectAttributes) {
+            @RequestParam("email") String email,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "skills", required = false) String skills,
+            @RequestParam(value = "bio", required = false) String bio,
+            @RequestParam(value = "headline", required = false) String headline,
+            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -109,10 +172,11 @@ public class ProfileController {
 
     @PostMapping("/profile/upload-photo")
     public String uploadPhotoOnly(@RequestParam("profilePicture") MultipartFile profilePicture,
-                                  Principal principal,
-                                  RedirectAttributes redirectAttributes) {
-        if (principal == null) return "redirect:/login";
-        
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        if (principal == null)
+            return "redirect:/login";
+
         User user = userService.findByEmail(principal.getName());
         if (profilePicture != null && !profilePicture.isEmpty()) {
             try {
@@ -129,7 +193,8 @@ public class ProfileController {
 
     @GetMapping("/change-password")
     public String showChangePassword(Model model, Principal principal) {
-        if (principal == null) return "redirect:/login";
+        if (principal == null)
+            return "redirect:/login";
         model.addAttribute("user", userService.findByEmail(principal.getName()));
         return "change_password";
     }
@@ -141,7 +206,8 @@ public class ProfileController {
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
-        if (principal == null) return "redirect:/login";
+        if (principal == null)
+            return "redirect:/login";
 
         User user = userService.findByEmail(principal.getName());
 
