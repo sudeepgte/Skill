@@ -28,36 +28,55 @@ public class InstructorController {
     private UserService userService;
 
     @Autowired
+    private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private com.skillhub.repository.ReviewRepository reviewRepository;
+
+    @Autowired
     private com.skillhub.service.FileStorageService fileStorageService;
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
+    public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
+                           Model model, Principal principal) {
         String email = principal.getName();
+        User instructor = userService.findByEmail(email);
         List<Course> courses = courseService.getCoursesByInstructor(email);
 
         int totalStudents = 0;
-        double averageRating = 0.0;
+        double totalRating = 0.0;
         int totalReviews = 0;
+        long totalViews = 0;
 
         for (Course course : courses) {
-            // Note: In production, use dedicated JPQL queries for performance
             if (course.getEnrollments() != null) {
                 totalStudents += course.getEnrollments().size();
             }
-            if (course.getAverageRating() != null) {
-                averageRating += course.getAverageRating() * course.getReviewCount();
-                totalReviews += course.getReviewCount();
+            if (course.getViewCount() != null) {
+                totalViews += course.getViewCount();
             }
+            // Populate ratings
+            Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
+            Integer count = reviewRepository.countByCourseId(course.getId());
+            totalRating += avg * count;
+            totalReviews += count;
         }
 
-        if (totalReviews > 0) {
-            averageRating /= totalReviews;
-        }
+        double averageRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
 
+        model.addAttribute("instructor", instructor);
         model.addAttribute("courses", courses);
         model.addAttribute("totalStudents", totalStudents);
+        model.addAttribute("totalViews", totalViews);
         model.addAttribute("averageRating", String.format("%.1f", averageRating));
         model.addAttribute("totalReviews", totalReviews);
+        model.addAttribute("activeTab", tab);
+        
+        if ("communications".equals(tab)) {
+            model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
+        } else if ("students".equals(tab)) {
+            model.addAttribute("enrollments", enrollmentRepository.findByInstructorEmail(email));
+        }
 
         return "instructor/dashboard";
     }
@@ -123,5 +142,45 @@ public class InstructorController {
 
         redirectAttributes.addFlashAttribute("success", "Lecture added successfully!");
         return (referer != null) ? "redirect:" + referer : "redirect:/instructor/dashboard";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@ModelAttribute User userUpdate, Principal principal, RedirectAttributes redirectAttributes) {
+        User user = userService.findByEmail(principal.getName());
+        user.setName(userUpdate.getName());
+        user.setBio(userUpdate.getBio());
+        user.setSkills(userUpdate.getSkills());
+        user.setExpertise(userUpdate.getExpertise());
+        user.setInstagramUrl(userUpdate.getInstagramUrl());
+        user.setLinkedinUrl(userUpdate.getLinkedinUrl());
+        user.setYoutubeUrl(userUpdate.getYoutubeUrl());
+        
+        userService.saveUser(user);
+        redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
+        return "redirect:/instructor/dashboard?tab=profile";
+    }
+
+    @PostMapping("/reviews/{id}/reply")
+    public String replyToReview(@PathVariable Long id, @RequestParam String reply, RedirectAttributes redirectAttributes) {
+        com.skillhub.model.Review review = reviewRepository.findById(id).orElse(null);
+        if (review != null) {
+            review.setReply(reply);
+            review.setReplyDate(java.time.LocalDateTime.now());
+            reviewRepository.save(review);
+            redirectAttributes.addFlashAttribute("success", "Reply sent!");
+        }
+        return "redirect:/instructor/dashboard?tab=communications";
+    }
+
+    @PostMapping("/enrollments/{id}/certificate")
+    public String generateCertificate(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        com.skillhub.model.Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
+        if (enrollment != null) {
+            enrollment.setExamPassed(true);
+            enrollment.setCertificateDate(java.time.LocalDateTime.now());
+            enrollmentRepository.save(enrollment);
+            redirectAttributes.addFlashAttribute("success", "Certificate generated for student: " + enrollment.getStudent().getName());
+        }
+        return "redirect:/instructor/dashboard?tab=students";
     }
 }

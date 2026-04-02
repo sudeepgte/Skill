@@ -20,4 +20,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Integer countByCourseId(@Param("courseId") Long courseId);
 
     void deleteByCourse(Course course);
+
+    @Query("SELECT r FROM Review r WHERE r.course.instructor.email = :email ORDER BY r.createdAt DESC")
+    java.util.List<Review> findByInstructorEmail(@Param("email") String email);
+
+    java.util.List<Review> findByCourseIdOrderByCreatedAtDesc(Long courseId);
 }

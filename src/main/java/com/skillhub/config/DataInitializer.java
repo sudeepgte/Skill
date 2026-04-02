@@ -28,8 +28,18 @@ public class DataInitializer {
             PasswordEncoder passwordEncoder) {
         return args -> {
 
-            // 1. Create Users
-            if (userRepository.count() == 0) {
+            // 1. Create or Update Users
+            // Force vyshu@gmail.com to be an INSTRUCTOR for testing
+            User vendor = userRepository.findByEmail("vyshu@gmail.com");
+            if (vendor == null) {
+                vendor = newUser("Vyshu Vendor", "vyshu@gmail.com", "vyshu123", "INSTRUCTOR", passwordEncoder);
+                userRepository.save(vendor);
+            } else {
+                vendor.setRole("INSTRUCTOR"); // Force update for existing user
+                userRepository.save(vendor);
+            }
+
+            if (userRepository.count() == 1) { // If only vendor was found/added
                 // Admin
                 User admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
                 userRepository.save(java.util.Objects.requireNonNull(admin));
