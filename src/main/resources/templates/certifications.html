@@ -10,7 +10,7 @@
     <!-- Copying standard imports from main_index -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
 
     <style>
         *,
@@ -320,14 +320,7 @@
 
 <body>
     <!-- Basic Navbar fallback -->
-    <nav class="navbar">
-        <a href="/" class="nav-logo">SkillHub</a>
-        <div class="nav-right">
-            <a href="/dashboard" class="nav-link">My Learning</a>
-            <a href="/user/certifications" class="nav-link" style="color:#5624d0; font-weight:700;">Certifications</a>
-            <span class="nav-link" th:text="${user.name}">User</span>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <div class="cert-dashboard">
         <div class="cert-header">
@@ -432,32 +425,7 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-cols">
-                <div class="footer-col">
-                    <a href="#">SkillHub Business</a>
-                    <a href="#">Teach on SkillHub</a>
-                    <a href="#">About us</a>
-                    <a href="#">Contact us</a>
-                </div>
-                <div class="footer-col">
-                    <a href="#">Careers</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Help and Support</a>
-                </div>
-                <div class="footer-col">
-                    <a href="/terms">Terms</a>
-                    <a href="/privacy">Privacy policy</a>
-                    <a href="#">Sitemap</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <span class="footer-logo">SkillHub</span>
-                <span class="footer-copy">&copy; 2024 SkillHub, Inc.</span>
-            </div>
-        </div>
-    </footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <!-- CSRF needed for sync API -->
     <meta name="_csrf" th:content="${_csrf.token}" />

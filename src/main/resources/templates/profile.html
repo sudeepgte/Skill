@@ -10,7 +10,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
         :root {
             --primary: #a435f0;
@@ -388,54 +389,8 @@
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <!-- Logo -->
-        <a href="/user/home" class="nav-logo">SkillHub</a>
-
-        <!-- Search -->
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form th:action="@{/user/home}">
-                <input type="text" name="query" placeholder="Search for anything">
-            </form>
-        </div>
-
-        <!-- Right side -->
-        <div class="nav-right">
-            <a href="/profile?tab=courses" class="nav-link">My Courses</a>
-
-            <th:block th:if="${user != null}">
-                <div class="nav-user-dropdown">
-                    <a href="/profile" class="nav-avatar">
-                        <img th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}"
-                            style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                        <span th:if="${user.profileImageUrl == null}"
-                            th:text="${#strings.substring(user.name,0,1)}">U</span>
-                    </a>
-                    <div class="nav-user-menu">
-                        <div class="nav-user-menu-header">
-                            <div class="name" th:text="${user.name}">User Name</div>
-                            <div class="email" th:text="${user.email}">user@example.com</div>
-                        </div>
-                        <a href="/profile">My Profile</a>
-                        <a href="/profile?tab=courses">My Courses</a>
-                        <a href="/profile?tab=security">Change Password</a>
-                        <div class="nav-user-menu-divider"></div>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </th:block>
-
-            <th:block th:unless="${user != null}">
-                <a href="/login" class="nav-btn-outline">Log in</a>
-                <a href="/register" class="nav-btn-primary">Sign up</a>
-            </th:block>
-            <button class="nav-globe"><i class="fas fa-globe"></i></button>
-        </div>
-    </nav>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <div class="profile-container">
         <aside class="sidebar">
@@ -464,31 +419,12 @@
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-value" th:text="${#lists.size(enrollments)}">0</span>
-                    <span class="stat-label">Courses</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" th:text="${#lists.size(certificates)}">0</span>
-                    <span class="stat-label">Certs</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value">
-                        <i class="fas fa-fire streak-fire"></i>
-                        <span th:text="${user.streakCount}">0</span>
-                    </span>
-                    <span class="stat-label">Streak</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" th:text="${user.totalXP}">0</span>
-                    <span class="stat-label">XP</span>
-                </div>
-            </div>
-
             <nav class="nav-menu">
-                <button type="button" class="nav-item" data-tab="welcome">
-                    <i class="fas fa-home"></i> Dashboard
+                <a href="/student/dashboard" class="nav-item">
+                    <i class="fas fa-home"></i> My Dashboard
+                </a>
+                <button type="button" class="nav-item active" data-tab="welcome">
+                    <i class="fas fa-chart-line"></i> Overview
                 </button>
                 <button type="button" class="nav-item" data-tab="profile">
                     <i class="fas fa-user-circle"></i> Edit Profile
@@ -517,16 +453,97 @@
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-            <div class="welcome-section">
-                <h1 style="font-size: 3.2rem; margin-bottom: 0.8rem;" th:text="|Welcome, ${user.name}!|">Welcome!
-                </h1>
-                <p style="font-size: 1.6rem; color: var(--muted); margin-bottom: 3.2rem;">Your expertise at a glance</p>
-
-                <div class="radar-container">
-                    <canvas id="skillRadarChart"></canvas>
+            <!-- Overview Dashboard (Welcome Section) -->
+            <div id="welcome" class="tab-content active">
+                <div class="welcome-header"
+                    style="padding-bottom: 3.2rem; margin-bottom: 3.2rem; border-bottom: 1px solid var(--border);">
+                    <h1 style="font-size: 3.2rem; font-weight: 800; color: #1c1d1f; margin-bottom: 0.8rem;"
+                        th:text="|Welcome back, ${user.name}!|">Welcome back!</h1>
+                    <p style="font-size: 1.6rem; color: var(--muted);">Here's how your learning journey is progressing
+                        today.</p>
                 </div>
 
-                <p style="font-size: 1.3rem; color: var(--muted);">Explore more categories to "fill the map"!</p>
+                <!-- Stats Strip (Horizontal) -->
+                <div class="stats-strip"
+                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 4rem;">
+                    <div class="stat-box"
+                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center;">
+                        <div style="color: var(--primary); font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
+                            th:text="${#lists.size(enrollments)}">0</div>
+                        <div
+                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
+                            Courses</div>
+                    </div>
+                    <div class="stat-box"
+                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center;">
+                        <div style="color: #b4690e; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
+                            th:text="${#lists.size(certificates)}">0</div>
+                        <div
+                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
+                            Certs</div>
+                    </div>
+                    <div class="stat-box"
+                        style="padding: 2rem; background: #fff5f5; border-radius: 1.2rem; text-align: center;">
+                        <div style="color: #ff4757; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;">
+                            <i class="fas fa-fire"></i> <span th:text="${user.streakCount}">0</span>
+                        </div>
+                        <div
+                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
+                            Streak</div>
+                    </div>
+                    <div class="stat-box"
+                        style="padding: 2rem; background: #f0f7ff; border-radius: 1.2rem; text-align: center;">
+                        <div style="color: #0066cc; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
+                            th:text="${user.totalXP}">0</div>
+                        <div
+                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
+                            Total XP</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 34rem; gap: 3.2rem;">
+                    <!-- Skill Radar -->
+                    <div class="dashboard-card"
+                        style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2.4rem;">
+                        <h3 style="font-size: 1.8rem; margin-bottom: 2rem;"><i class="fas fa-bullseye"
+                                style="color: var(--primary);"></i> Expertise Radar</h3>
+                        <div class="radar-container" style="max-width: 100%; margin: 0 auto;">
+                            <canvas id="skillRadarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Side Actions / Achievements -->
+                    <div class="dashboard-card"
+                        style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2.4rem;">
+                        <h3 style="font-size: 1.8rem; margin-bottom: 1.6rem;"><i class="fas fa-magic"
+                                style="color: #ff9f43;"></i> Quick Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                            <a href="/user/home"
+                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #1c1d1f; color: #fff; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem;">
+                                <i class="fas fa-search"></i> Browse More Courses
+                            </a>
+                            <a href="/notifications"
+                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #f8f9fa; color: #1c1d1f; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem; border: 1px solid var(--border);">
+                                <i class="fas fa-bell"></i> Check Notifications
+                            </a>
+                            <a href="/student/wishlist"
+                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #f8f9fa; color: #1c1d1f; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem; border: 1px solid var(--border);">
+                                <i class="fas fa-heart"></i> View Wishlist
+                            </a>
+                        </div>
+
+                        <div style="margin-top: 3.2rem;">
+                            <h3 style="font-size: 1.6rem; margin-bottom: 1.2rem;">Current Level</h3>
+                            <div
+                                style="background: #eee; height: 1rem; border-radius: 1rem; overflow: hidden; margin-bottom: 0.8rem;">
+                                <div style="background: var(--primary); height: 100%; width: 65%;"></div>
+                            </div>
+                            <p style="font-size: 1.2rem; color: var(--muted);">XP to Level [[${user.level + 1}]]:
+                                <strong>350</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Edit Profile Tab -->
@@ -726,6 +743,9 @@
         </main>
     </div>
 
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
@@ -799,18 +819,6 @@
         });
     </script>
 
-    <!-- Footer -->
-    <footer class="simple-footer">
-        <div class="footer-simple-content">
-            <a href="/about" class="footer-simple-link">About Us</a>
-            <a href="/contact" class="footer-simple-link">Contact Us</a>
-            <a href="/terms" class="footer-simple-link">Terms</a>
-            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
-        </div>
-        <div class="footer-copyright">
-            &copy; 2024 SkillHub, Inc.
-        </div>
-    </footer>
 </body>
 
 </html>

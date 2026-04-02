@@ -24,6 +24,9 @@ public class CourseController {
     private CourseService courseService;
 
     @Autowired
+    private com.skillhub.service.EnrollmentService enrollmentService;
+
+    @Autowired
     private CourseMapper courseMapper;
 
     @Autowired
@@ -89,6 +92,38 @@ public class CourseController {
             if (courseDTO.getLastUpdated() == null || courseDTO.getLastUpdated().isEmpty()) {
                 courseDTO.setLastUpdated(LocalDate.now().toString());
             }
+
+            // Calculate content stats
+            int totalLectures = 0;
+            int videoCount = 0;
+            int articleCount = 0;
+
+            if (course.getSections() != null) {
+                for (com.skillhub.model.CourseSection s : course.getSections()) {
+                    if (s.getLectures() != null) {
+                        for (com.skillhub.model.Lecture l : s.getLectures()) {
+                            totalLectures++;
+                            if (l.getVideoUrl() != null && !l.getVideoUrl().isEmpty()) {
+                                videoCount++;
+                            } else if (l.getContent() != null && !l.getContent().isEmpty()) {
+                                articleCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Generate a realistic content length (e.g., 45 mins per video)
+            int totalMins = videoCount * 45;
+            int hours = totalMins / 60;
+            int mins = totalMins % 60;
+            String duration = (hours > 0 ? hours + "h " : "") + mins + "m";
+
+            courseDTO.setContentLength(duration);
+            model.addAttribute("totalLectures", totalLectures);
+            model.addAttribute("videoCount", videoCount);
+            model.addAttribute("articleCount", articleCount);
+            model.addAttribute("totalSections", course.getSections() != null ? course.getSections().size() : 0);
         } catch (Exception e) {
             System.err.println("Error calculating course metadata: " + e.getMessage());
             // Fallbacks are already in DTO or set to 0/empty
@@ -262,6 +297,16 @@ public class CourseController {
         });
 
         return "redirect:/user/home?certificateData=earned";
+    }
+
+    @GetMapping("/course/enroll/{id}")
+    public String enrollCourse(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        enrollmentService.enrollUser(user, id);
+        return "redirect:/student/dashboard";
     }
 
     @org.springframework.web.bind.annotation.GetMapping("/user/course/{id}/generate-sample")

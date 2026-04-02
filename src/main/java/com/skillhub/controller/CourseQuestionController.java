@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.skillhub.service.EmailService;
 
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/api/course/questions")
+@RequestMapping("/course/questions")
 public class CourseQuestionController {
 
     @Autowired
@@ -27,6 +28,9 @@ public class CourseQuestionController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @PostMapping
     public String addQuestion(@RequestParam Long courseId,
@@ -50,6 +54,23 @@ public class CourseQuestionController {
             question.setContent(content);
 
             questionRepository.save(question);
+
+            // Notify instructor via email
+            try {
+                if (course.getInstructor() != null) {
+                    String subject = "New Question: " + course.getTitle();
+                    String text = "Hello " + course.getInstructor().getName() + ",\n\n" +
+                            "A student has asked a question on your course \"" + course.getTitle() + "\":\n\n" +
+                            "Title: " + title + "\n" +
+                            "Content: " + content + "\n\n" +
+                            "Please log in to SkillHub to answer it.\n\n" +
+                            "Best regards,\nThe SkillHub Team";
+                    emailService.sendSimpleMessage(course.getInstructor().getEmail(), subject, text);
+                }
+            } catch (Exception e) {
+                System.err.println("Email notification failed: " + e.getMessage());
+            }
+
             redirectAttributes.addFlashAttribute("success", "Your question has been posted!");
         }
 

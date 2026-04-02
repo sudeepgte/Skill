@@ -2,185 +2,339 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Wishlist | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>My Wishlist | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
+        :root {
+            --primary: #a435f0;
+            --primary-dark: #8710d8;
+            --bg-gray: #f7f9fa;
+            --text-main: #1c1d1f;
+            --text-muted: #6a6f73;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            background-color: #f7f9fa;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            line-height: 1.6;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .page-header {
-            background: #1c1d1f;
+        /* ── Header Design ── */
+        .dashboard-header {
+            background: linear-gradient(135deg, #1c1d1f 0%, #2d2f31 100%);
             color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
+            padding: 5rem 0 0;
+            margin-bottom: 5rem;
+            position: relative;
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 2.4rem;
         }
 
         .header-content h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 2.5rem;
-            margin: 0;
+            font-size: 3.6rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            letter-spacing: -0.5px;
         }
 
-        .nav-tabs {
-            margin-top: 2rem;
+        .header-tabs {
             display: flex;
-            gap: 2rem;
+            gap: 3.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .nav-tab {
-            color: #d1d7dc;
-            text-decoration: none;
-            font-weight: 700;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid transparent;
+        .header-tab {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 1.6rem;
+            padding: 1.2rem 0;
+            position: relative;
+            transition: var(--transition);
         }
 
-        .nav-tab.active {
+        .header-tab:hover {
             color: white;
-            border-bottom: 2px solid white;
         }
 
-        .course-grid {
+        .header-tab.active {
+            color: white;
+        }
+
+        .header-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            box-shadow: 0 -2px 10px rgba(164, 53, 240, 0.5);
+        }
+
+        /* ── Main Container ── */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2.4rem 8rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 3.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ── Wishlist Grid ── */
+        .wishlist-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            gap: 3.2rem;
         }
 
-        .course-card {
+        .wish-card {
             background: white;
-            border: 1px solid #d1d7dc;
-            text-decoration: none;
-            color: #1c1d1f;
-            display: block;
-            transition: box-shadow 0.2s;
+            border-radius: 1.6rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
             position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
-        .course-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .wish-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-img-wrap {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
         }
 
         .card-img {
             width: 100%;
-            height: 157px;
+            height: 100%;
             object-fit: cover;
-            background: #eee;
+            transition: transform 0.5s ease;
+        }
+
+        .wish-card:hover .card-img {
+            transform: scale(1.1);
+        }
+
+        .remove-overlay {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            z-index: 10;
+        }
+
+        .btn-remove {
+            width: 3.6rem;
+            height: 3.6rem;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            color: #ff4757;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .btn-remove:hover {
+            background: #ff4757;
+            color: white;
+            transform: rotate(90deg);
         }
 
         .card-body {
-            padding: 1rem;
+            padding: 2.4rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .course-title {
+        .card-title {
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-main);
+            height: 5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 2.4em;
         }
 
-        .instructor-name {
-            font-size: 0.8rem;
-            color: #6a6f73;
-            margin-bottom: 0.5rem;
+        .instructor {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 1.6rem;
         }
 
-        .course-price {
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1.6rem;
+            border-top: 1px solid #f1f3f4;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 0.6rem;
             font-weight: 700;
-            font-size: 1.1rem;
-            margin-top: 5px;
+            font-size: 1.3rem;
+            transition: var(--transition);
         }
 
-        .remove-btn {
-            color: #a435f0;
-            cursor: pointer;
-            border: 1px solid #1c1d1f;
-            padding: 5px 10px;
+        .btn-view:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(164, 53, 240, 0.3);
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
             text-align: center;
-            margin-top: 10px;
-            display: block;
+            padding: 10rem 0;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .empty-icon {
+            font-size: 8rem;
+            background: linear-gradient(135deg, #eee 0%, #ddd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2.4rem;
+        }
+
+        .empty-state h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 1.6rem;
+            margin-bottom: 3.2rem;
+        }
+
+        .btn-browse {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--text-main);
+            color: white;
+            padding: 1.6rem 3.2rem;
+            border-radius: 1rem;
             font-weight: 700;
-            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-browse:hover {
+            background: #000;
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Navbar (Ideally fragment) -->
-    <nav class="navbar">
-        <div class="container"
-            style="display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 2rem; max-width: 100%;">
-            <a href="/user/home" class="logo"
-                style="text-decoration:none; color:black; font-weight:700; font-size:1.5rem;">SkillHub</a>
-            <div>
-                <a href="/instructor/dashboard" class="btn btn-ghost">Instructor</a>
-                <a href="/student/dashboard" class="btn btn-ghost" style="font-weight:700;">My Learning</a>
-                <div
-                    style="display:inline-block; width:30px; height:30px; background:black; color:white; border-radius:50%; text-align:center; line-height:30px; margin-left:10px;">
-                    U</div>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Header -->
-    <div class="page-header">
+    <header class="dashboard-header">
         <div class="header-content">
             <h1>My Learning</h1>
-            <div class="nav-tabs">
-                <a href="/student/dashboard" class="nav-tab">All Courses</a>
-                <a href="#" class="nav-tab active">Wishlist</a>
-                <a href="#" class="nav-tab">Archived</a>
+            <div class="header-tabs">
+                <a href="/student/dashboard" class="header-tab">All Courses</a>
+                <a href="/student/wishlist" class="header-tab active">Wishlist</a>
+                <a href="/user/certifications" class="header-tab">Certifications</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Content -->
-    <div class="container">
+    <main class="main-container">
 
-        <div th:if="${#lists.isEmpty(wishlistItems)}" style="text-align: center; padding: 4rem;">
+        <div th:if="${#lists.isEmpty(wishlistItems)}" class="empty-state">
+            <div class="empty-icon"><i class="fas fa-heart-broken"></i></div>
             <h2>Your wishlist is empty</h2>
-            <p>Explore courses and save them for later.</p>
-            <a href="/user/home" class="btn btn-primary"
-                style="background:#1c1d1f; color:white; padding:10px 20px; text-decoration:none; margin-top:1rem; display:inline-block;">Browse
-                Courses</a>
+            <p>Ready to find your next favorite course? Explore our latest offerings.</p>
+            <a href="/user/home" class="btn-browse">
+                <i class="fas fa-search"></i> Browse Courses
+            </a>
         </div>
 
-        <div class="course-grid">
-            <div th:each="item : ${wishlistItems}" class="course-card">
-                <a th:href="@{/course/{id}(id=${item.course.id})}" style="text-decoration:none; color:inherit;">
-                    <img th:src="${item.course.imageUrl}" class="card-img" alt="Course Thumbnail">
-                    <div class="card-body">
-                        <div class="course-title" th:text="${item.course.title}">Course Title</div>
-                        <div class="instructor-name" th:text="${item.course.instructor.name}">Instructor Name</div>
-                        <div class="course-price" th:text="'₹' + ${item.course.price}">₹499</div>
+        <div th:unless="${#lists.isEmpty(wishlistItems)}">
+            <div class="section-title">
+                <span>Courses you're interested in</span>
+                <span class="badgE" style="font-size:1.4rem; color:var(--primary); font-weight:700;"
+                    th:text="${#lists.size(wishlistItems)} + ' Items'">0 Items</span>
+            </div>
 
+            <div class="wishlist-grid">
+                <div th:each="item : ${wishlistItems}" class="wish-card">
+                    <div class="remove-overlay">
                         <form th:action="@{/course/wishlist/remove}" method="post">
                             <input type="hidden" name="courseId" th:value="${item.course.id}" />
-                            <button type="submit" class="remove-btn" style="width:100%; background:white;">Remove from
-                                Wishlist</button>
+                            <button type="submit" class="btn-remove" title="Remove from Wishlist">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </form>
                     </div>
-                </a>
+                    <div class="card-img-wrap">
+                        <img th:src="${item.course.imageUrl}" class="card-img" alt="Course Thumbnail">
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${item.course.title}">Course Title</h3>
+                        <div class="instructor" th:text="'By ' + ${item.course.instructor.name}">Instructor Name</div>
+
+                        <div class="price-row">
+                            <div class="price" th:text="'₹' + ${item.course.price}">₹0</div>
+                            <a th:href="@{/course/{id}(id=${item.course.id})}" class="btn-view">View Details</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 

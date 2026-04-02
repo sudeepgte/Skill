@@ -2,22 +2,35 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${course.title != null ? course.title + ' | SkillHub' : 'Course Details | SkillHub'}">Course Details
-        | SkillHub</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSRF Token -->
-    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
-    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}" />
-
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title th:text="${course.title}">Course Details</title>
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
+        :root {
+            --primary: #5624d0;
+            --primary-hover: #401b9c;
+            --text-dark: #1c1d1f;
+            --text-muted: #6a6f73;
+            --bg-light: #f7f9fa;
+            --border-color: #d1d7dc;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --header-bg: #1c1d1f;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #fff;
+            font-family: 'Outfit', sans-serif;
             margin: 0;
-            padding: 0;
-            color: #1c1d1f;
+            background-color: var(--white);
+            color: var(--text-dark);
+            line-height: 1.6;
         }
 
         /* Navbar Styles from User Request */
@@ -87,92 +100,144 @@
 
         /* Course Header */
         .course-header {
-            background-color: #1c1d1f;
+            background: var(--header-bg);
             color: white;
-            padding: 32px 0;
+            padding: 40px 0;
             position: relative;
         }
 
         .header-content {
             max-width: 1184px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
             display: flex;
+            justify-content: space-between;
         }
 
         .header-text {
             max-width: 700px;
-            padding-right: 20px;
         }
 
         .course-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
             line-height: 1.2;
         }
 
         .course-subtitle {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: #d1d7dc;
         }
 
         .course-meta {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
             flex-wrap: wrap;
         }
 
-        .rating-star {
-            color: #f4c150;
-            margin-right: 4px;
-        }
-
-        .instructor-link {
-            color: #cec0fc;
-            text-decoration: underline;
-        }
-
-        .lang-icon {
-            margin-right: 5px;
-        }
-
-        /* Sticky Sidebar */
+        /* Fixed Sidebar */
         .course-sidebar {
             position: fixed;
             top: 100px;
-            right: calc((100% - 1184px) / 2 + 20px);
-            /* Align with content container */
+            right: calc((100% - 1184px) / 2 + 24px);
             width: 340px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
+            background: var(--white);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
             z-index: 100;
-            border: 1px solid #d1d7dc;
-            display: none;
+            border: 1px solid var(--border-color);
         }
 
-        @media(min-width: 1080px) {
+        @media (max-width: 1080px) {
             .course-sidebar {
-                display: block;
+                position: static;
+                width: 100%;
+                margin-top: 24px;
+                box-shadow: var(--shadow);
             }
         }
 
-        @media(max-width: 1224px) {
-            .course-sidebar {
-                right: 20px;
-            }
+        .main-container {
+            max-width: 1184px;
+            margin: 40px auto;
+            padding: 0 24px;
+            display: flex;
+            gap: 48px;
         }
 
-        .sidebar-preview {
-            position: relative;
+        .main-left {
+            flex: 1;
+            max-width: 700px;
         }
 
-        .sidebar-content {
-            padding: 20px;
+        .learning-objectives {
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            margin-bottom: 32px;
+            border-radius: 4px;
+        }
+
+        .learning-objectives h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+
+        .obj-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .obj-list li {
+            display: flex;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .obj-list i {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .course-section {
+            margin-bottom: 40px;
+        }
+
+        .course-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .section-toggle {
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .lecture-item {
+            padding: 12px 24px 12px 48px;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
         }
 
         .btn-buy {
@@ -198,61 +263,40 @@
             margin-top: 10px;
         }
 
+        /* Includes List Style */
         .includes-list {
             list-style: none;
             padding: 0;
-            margin-top: 15px;
+            margin: 0;
         }
 
         .includes-list li {
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: #1c1d1f;
             display: flex;
             align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+
+        .includes-list li:hover {
+            transform: translateX(5px);
         }
 
         .includes-list i {
-            width: 20px;
+            width: 18px;
             text-align: center;
-            margin-right: 10px;
+            color: var(--text-muted);
+            font-size: 1rem;
         }
 
-        /* Main Content Area */
-        .main-container {
-            max-width: 1184px;
-            margin: 0 auto;
-            padding: 32px 20px;
-            display: flex;
-        }
-
-        .main-left {
-            max-width: 700px;
-            width: 100%;
-        }
-
-        /* What you'll learn box */
-        .learning-objectives {
-            border: 1px solid #d1d7dc;
-            padding: 24px;
-            margin-bottom: 32px;
-            background-color: #fff;
-        }
-
-        .learning-objectives h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            margin-top: 0;
-        }
-
-        .obj-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
         }
 
         .obj-list li {
@@ -427,29 +471,8 @@
 
 <body>
 
-    <nav class="navbar">
-        <a th:href="${isLoggedIn} ? '/user/home' : '/'" class="logo">SkillHub</a>
-        <div class="search-bar" style="margin-left: 20px; flex-grow: 1; max-width: 600px;">
-            <form action="/home" method="get">
-                <input type="text" name="query" placeholder="Search for anything">
-            </form>
-        </div>
-        <div class="nav-links">
-            <th:block th:if="${isLoggedIn}">
-                <a href="/user/home">My Learning</a>
-
-                <a href="/profile" class="user-avatar" style="text-decoration:none;"
-                    th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'U'}">
-                    U
-                </a>
-            </th:block>
-            <th:block th:unless="${isLoggedIn}">
-                <a href="/login" style="padding: 10px 20px; border: 1px solid #1c1d1f; font-weight: bold;">Log in</a>
-                <a href="/register"
-                    style="padding: 10px 20px; background: #1c1d1f; color: white; font-weight: bold;">Sign up</a>
-            </th:block>
-        </div>
-    </nav>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <!-- Sidebar (Desktop) -->
     <div class="course-sidebar">
@@ -514,16 +537,29 @@
             <p class="guarantee">30-Day Money-Back Guarantee</p>
 
             <div class="includes">
-                <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">This course includes:</p>
+                <p style="font-weight: 700; font-size: 0.9rem; margin: 24px 0 12px; color: var(--text-dark);">This
+                    course includes:</p>
                 <ul class="includes-list">
-                    <li><i class="fas fa-video"></i> <span
-                            th:text="${course.contentLength != null ? course.contentLength : '10 hours'} + ' on-demand video'"></span>
+                    <li>
+                        <i class="fas fa-video"></i>
+                        <span><strong th:text="${course.contentLength != null ? course.contentLength : '0h 0m'}">0h
+                                0m</strong> on-demand video</span>
                     </li>
-                    <li><i class="fas fa-file"></i> 5 articles</li>
-                    <li><i class="fas fa-download"></i> 10 downloadable resources</li>
-                    <li><i class="fas fa-mobile-alt"></i> Access on mobile and TV</li>
-                    <li><i class="fas fa-infinity"></i> Full lifetime access</li>
-                    <li><i class="fas fa-certificate"></i> Certificate of completion</li>
+                    <li>
+                        <i class="fas fa-file-alt"></i>
+                        <span><strong th:text="${articleCount != null ? articleCount : '0'}">0</strong> articles</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-play-circle"></i>
+                        <span><strong th:text="${videoCount != null ? videoCount : '0'}">0</strong> video lessons</span>
+                    </li>
+                    <li th:if="${totalSections != null}">
+                        <i class="fas fa-layer-group"></i>
+                        <span><strong th:text="${totalSections}">0</strong> course sections</span>
+                    </li>
+                    <li><i class="fas fa-mobile-alt"></i> <span>Access on mobile and TV</span></li>
+                    <li><i class="fas fa-infinity"></i> <span>Full lifetime access</span></li>
+                    <li><i class="fas fa-certificate"></i> <span>Certificate of completion</span></li>
                 </ul>
             </div>
         </div>
@@ -565,15 +601,12 @@
 
                 <div class="course-meta">
                     <span th:if="${course.enrolledStudentCount != null && course.enrolledStudentCount > 5}"
-                        style="background: #f4c150; color: #1c1d1f; padding: 2px 6px; font-weight: 700; font-size: 0.8rem; margin-right: 8px;">Bestseller</span>
-                    <span style="color: #f4c150; font-weight: 700;"
+                        style="background: #f4c150; color: #1c1d1f; padding: 4px 8px; font-weight: 700; font-size: 0.8rem; border-radius: 2px;">Bestseller</span>
+                    <span style="color: #f4c150; font-weight: 700; font-size: 1.1rem;"
                         th:text="${course.averageRating != null ? course.averageRating : '0.0'}">4.7</span>
-                    <span>
-                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
-                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
-                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
-                        <i class="fas fa-star" style="color: #f4c150; font-size: 0.8rem;"></i>
-                        <i class="fas fa-star-half-alt" style="color: #f4c150; font-size: 0.8rem;"></i>
+                    <span style="display: flex; gap: 2px;">
+                        <i th:each="i : ${#numbers.sequence(1, 5)}" class="fas fa-star"
+                            th:style="'color: ' + (${i <= course.averageRating} ? '#f4c150' : '#4d4d4d') + '; font-size: 0.9rem;'"></i>
                     </span>
                     <span style="text-decoration: underline; color: #cec0fc;"
                         th:text="'(' + (${course.reviewCount != null ? course.reviewCount : '0'}) + ' ratings)'">(1,234
@@ -777,7 +810,7 @@
 
                 <div id="qaForm"
                     style="display:none; margin-bottom: 20px; padding:20px; background:#f7f9fa; border:1px solid #d1d7dc;">
-                    <form th:action="@{/api/course/questions}" method="post">
+                    <form th:action="@{/course/questions}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <input type="text" name="title" placeholder="Summary of your question"
                             style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #1c1d1f;">
@@ -789,9 +822,9 @@
                 </div>
 
                 <div class="qa-search" style="margin-bottom: 20px; display: flex; gap: 10px;">
-                    <input type="text" placeholder="Search all course questions"
+                    <input type="text" id="qaSearchInput" placeholder="Search all course questions"
                         style="flex:1; padding: 10px; border: 1px solid #d1d7dc;">
-                    <button class="btn-buy"
+                    <button class="btn-buy" onclick="searchQuestions()"
                         style="width: auto; margin:0; padding:10px 20px; border: 1px solid #1c1d1f; background: #fff; color: #1c1d1f;">Search</button>
                 </div>
 
@@ -826,8 +859,46 @@
                                         th:text="${q.createdAt != null ? #temporals.format(q.createdAt, 'MMM dd, yyyy') : 'Recently'}">Oct
                                         24, 2023</span>
                                     <span>•</span>
-                                    <span th:text="${q.answers != null ? q.answers.size() : '0'} + ' answers'">0
+                                    <span th:text="(${q.answers != null ? q.answers.size() : '0'}) + ' answers'">0
                                         answers</span>
+                                </div>
+
+                                <!-- Answers List -->
+                                <div th:if="${q.answers != null and !q.answers.empty}"
+                                    style="margin-top: 16px; margin-left: 0; padding: 16px; background: #f7f9fa; border-radius: 4px; border-left: 3px solid #5624d0;">
+                                    <div th:each="a : ${q.answers}"
+                                        style="margin-bottom: 16px; display: flex; gap: 12px;">
+                                        <div style="width: 32px; height: 32px; background: #5624d0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;"
+                                            th:text="${a.user != null ? #strings.substring(a.user.name,0,1) : 'A'}">I
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <p style="margin: 0 0 4px; color: #1c1d1f; font-size: 0.9rem; line-height: 1.4;"
+                                                th:text="${a.content}">Answer content...</p>
+                                            <div style="font-size: 0.8rem; color: #6a6f73;">
+                                                <span style="font-weight: 700;"
+                                                    th:text="${a.user != null ? a.user.name : 'Instructor'}">Instructor
+                                                    Name</span>
+                                                <span
+                                                    th:if="${course.instructor != null and a.user != null and a.user.email == course.instructor.email}"
+                                                    style="background: #e1f5fe; color: #01579b; padding: 1px 4px; border-radius: 2px; font-size: 0.7rem; margin-left: 4px;">INSTRUCTOR</span>
+                                                • <span
+                                                    th:text="${a.createdAt != null ? #temporals.format(a.createdAt, 'MMM dd, yyyy') : 'Recently'}">Date</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Instructor Reply Form -->
+                                <div th:if="${isLoggedIn and user != null and course.instructor != null and user.email == course.instructor.email}"
+                                    style="margin-top: 16px;">
+                                    <form th:action="@{/course/answers}" method="post"
+                                        style="display: flex; gap: 10px;">
+                                        <input type="hidden" name="questionId" th:value="${q.id}">
+                                        <input type="text" name="content" placeholder="Share your answer..." required
+                                            style="flex: 1; padding: 10px 14px; border: 1px solid #d1d7dc; border-radius: 4px; font-size: 0.9rem;">
+                                        <button type="submit" class="btn-buy"
+                                            style="width: auto; margin: 0; padding: 10px 20px; background: #1c1d1f; color: white; border: none; font-weight: 700;">Reply</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -960,8 +1031,31 @@
                 }
             });
         });
+
+        function searchQuestions() {
+            const query = document.getElementById('qaSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.qa-item');
+
+            items.forEach(function (item) {
+                const title = item.querySelector('h4').innerText.toLowerCase();
+                const content = item.querySelector('p').innerText.toLowerCase();
+
+                if (title.includes(query) || content.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Search on Enter key
+        document.getElementById('qaSearchInput')?.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') searchQuestions();
+        });
         /*]]>*/
     </script>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 
 </html>

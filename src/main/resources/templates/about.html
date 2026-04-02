@@ -6,179 +6,277 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap"
         rel="stylesheet">
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- CSS -->
-    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
 
     <style>
+        :root {
+            --primary: #5624d0;
+            --dark: #1c1d1f;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #ffffff;
+            color: var(--dark);
+        }
+
         .page-header {
-            background-color: #f7f9fa;
-            padding: 6.4rem 0;
+            position: relative;
+            background: url('/images/about/about_hero.png') center/cover no-repeat;
+            padding: 12rem 0;
             text-align: center;
+            color: white;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(28, 29, 31, 0.65);
+        }
+
+        .page-header .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
         }
 
         .page-header h1 {
             font-family: 'Merriweather', serif;
-            font-size: 3.2rem;
+            font-size: 4.2rem;
             font-weight: 700;
-            margin-bottom: 1.6rem;
-            color: #1c1d1f;
+            margin-bottom: 2.4rem;
         }
 
         .page-header p {
-            font-size: 1.9rem;
-            max-width: 80rem;
-            margin: 0 auto;
-            line-height: 1.4;
-            color: #2d2f31;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            opacity: 0.9;
         }
 
         .content-section {
-            padding: 6.4rem 0;
+            padding: 10rem 0;
         }
 
-        .mission-box {
-            max-width: 80rem;
-            margin: 0 auto;
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8rem;
+            align-items: center;
+        }
+
+        .mission-text h2 {
+            font-size: 2.4rem;
+            margin-bottom: 3.2rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .mission-text p {
+            font-size: 1.6rem;
+            line-height: 1.8;
+            margin-bottom: 2.4rem;
+            color: #6a6f73;
+        }
+
+        .mission-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background-color: #f7f9fa;
+            padding: 8rem 0;
             text-align: center;
         }
 
-        .mission-box h2 {
-            font-size: 2.4rem;
-            margin-bottom: 2.4rem;
-            font-weight: 700;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4rem;
         }
 
-        .mission-box p {
-            font-size: 1.6rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            text-align: left;
+        .stat-item h3 {
+            font-size: 3.6rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        .stat-item p {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-top: 4.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 4rem;
+            margin-top: 8rem;
         }
 
-        .value-item {
+        .value-card {
+            padding: 4rem;
+            border: 1px solid #d1d7dc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
             text-align: center;
-            padding: 2rem;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
         }
 
         .value-icon {
-            font-size: 3rem;
-            color: #a435f0;
-            margin-bottom: 1.6rem;
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 2.4rem;
         }
 
-        .value-item h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
+        .value-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1.6rem;
             font-weight: 700;
+        }
+
+        @media (max-width: 992px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 3.2rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a href="/" class="nav-logo">SkillHub</a>
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form action="/"><input type="text" name="query" placeholder="Search for anything"></form>
-        </div>
-        <div class="nav-right">
-            <th:block th:if="${user != null}">
-                <div class="nav-user-dropdown">
-                    <div class="nav-avatar"><span th:text="${#strings.substring(user.name,0,1)}">U</span></div>
-                    <div class="nav-user-menu">
-                        <div class="nav-user-menu-header">
-                            <div class="name" th:text="${user.name}">User Name</div>
-                            <div class="email" th:text="${user.email}">user@example.com</div>
-                        </div>
-                        <a href="/profile">My Profile</a>
-                        <a href="/profile?tab=courses">My Courses</a>
-                        <div class="nav-user-menu-divider"></div>
-                        <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
-                    </div>
-                </div>
-            </th:block>
-            <th:block th:unless="${user != null}">
-                <a href="/login" class="nav-btn-outline">Log in</a>
-                <a href="/register" class="nav-btn-primary">Sign up</a>
-            </th:block>
-            <button class="nav-globe"><i class="fas fa-globe"></i></button>
-        </div>
-    </nav>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Header -->
-    <div class="page-header">
-        <div class="container">
+    <!-- Header Section -->
+    <header class="page-header">
+        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
             <h1>We share knowledge with the world</h1>
-            <p>SkillHub is a global destination for online learning, connecting people through knowledge.</p>
+            <p>SkillHub is a global destination for online learning, connecting millions of people through mastery of
+                new skills and practical knowledge shared by experts.</p>
         </div>
-    </div>
+    </header>
 
-    <!-- Main Content -->
-    <div class="content-section">
-        <div class="container">
-            <div class="mission-box">
-                <h2>Changing learning for the better</h2>
-                <p>Whether you want to learn a new skill, train your team, or share what you know with the world, you're
-                    in the right place. As a leader in online learning, we're here to help you achieve your goals and
-                    transform your life.</p>
-                <p>We help organizations of all types and sizes prepare for the path ahead — wherever it leads. Our
-                    curated collection of business and technical courses help companies, governments, and nonprofits go
-                    further by placing learning at the center of their strategies.</p>
-
-                <div class="values-grid">
-                    <div class="value-item">
-                        <i class="fas fa-bullseye value-icon"></i>
-                        <h3>Work with purpose</h3>
-                        <p>We are dedicated to creating access to knowledge for everyone, everywhere.</p>
-                    </div>
-                    <div class="value-item">
-                        <i class="fas fa-users value-icon"></i>
-                        <h3>Community focused</h3>
-                        <p>We believe in the power of connecting learners and instructors to share opportunities.</p>
-                    </div>
-                    <div class="value-item">
-                        <i class="fas fa-lightbulb value-icon"></i>
-                        <h3>Always learning</h3>
-                        <p>We practice what we preach, constantly learning and improving our platform.</p>
-                    </div>
+    <!-- Mission Section -->
+    <section class="content-section">
+        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
+            <div class="mission-grid">
+                <div class="mission-text">
+                    <h2>Changing learning for the better</h2>
+                    <p>Whether you want to learn a new skill, train your team, or share what you know with the world,
+                        you're in the right place. As a leader in online learning, we're here to help you achieve your
+                        goals and transform your life.</p>
+                    <p>We help organizations of all types and sizes prepare for the path ahead — wherever it leads. Our
+                        curated collection of business and technical courses help companies, governments, and nonprofits
+                        go further by placing learning at the center of their strategies.</p>
+                    <a href="/register" class="btn btn-primary"
+                        style="background: var(--dark); color: white; padding: 1.6rem 3.2rem; font-weight: 700; text-decoration: none; border-radius: 4px; display: inline-block;">Start
+                        Learning Today</a>
                 </div>
-
-                <div style="margin-top: 6.4rem;">
-                    <a href="/" class="btn btn-primary">Start Learning Today</a>
+                <div class="mission-image">
+                    <img src="/images/about/about_mission.png" alt="Our Mission at SkillHub">
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Footer -->
-    <footer class="simple-footer">
-        <div class="container footer-simple-content">
-            <a href="/about" class="footer-simple-link">About Us</a>
-            <a href="/blog" class="footer-simple-link">Blog</a>
-            <a href="/contact" class="footer-simple-link">Contact Us</a>
-            <a href="/terms" class="footer-simple-link">Terms</a>
-            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>62M+</h3>
+                    <p>Learners</p>
+                </div>
+                <div class="stat-item">
+                    <h3>75K+</h3>
+                    <p>Instructors</p>
+                </div>
+                <div class="stat-item">
+                    <h3>210K+</h3>
+                    <p>Courses</p>
+                </div>
+                <div class="stat-item">
+                    <h3>830M+</h3>
+                    <p>Enrollments</p>
+                </div>
+            </div>
         </div>
-        <div class="container">
-            <div class="footer-copyright" style="text-align: center; margin-top: 2rem;">&copy; 2024 SkillHub, Inc.</div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="content-section">
+        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
+            <div style="text-align: center; margin-bottom: 6.4rem;">
+                <h2 style="font-size: 3.2rem; font-weight: 800;">Our Core Values</h2>
+                <p style="font-size: 1.8rem; color: #6a6f73; margin-top: 1.6rem;">What drives us every day to empower
+                    students worldwide.</p>
+            </div>
+
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-bullseye value-icon"></i>
+                    <h3>Work with purpose</h3>
+                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We are dedicated to creating access
+                        to knowledge for everyone, everywhere. Every line of code and every course is built with the
+                        student in mind.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-users value-icon"></i>
+                    <h3>Community focused</h3>
+                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We believe in the power of
+                        connecting learners and instructors. Our platform is a thriving ecosystem of collaboration and
+                        support.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-lightbulb value-icon"></i>
+                    <h3>Always learning</h3>
+                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We practice what we preach. We are
+                        constantly innovating and learning ourselves to ensure SkillHub stays at the cutting edge of
+                        tech education.</p>
+                </div>
+            </div>
         </div>
-    </footer>
+    </section>
+
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 
-</html>/html>
+</html>

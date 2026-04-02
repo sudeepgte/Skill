@@ -87,7 +87,7 @@
                             <div class="email" th:text="${user.email}">user@example.com</div>
                         </div>
                         <a href="/profile">My Profile</a>
-                        <a href="/profile?tab=courses">My Courses</a>
+                        <li><a href="/student/dashboard">My Courses</a></li>
                         <div class="nav-user-menu-divider"></div>
                         <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
                     </div>

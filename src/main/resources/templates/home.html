@@ -6,51 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
 </head>
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-left">
-            <a href="/user/home" class="logo">
-                <span class="logo-text">SkillHub</span>
-            </a>
-
-            <div class="categories-link">Categories</div>
-        </div>
-
-        <div class="navbar-center">
-            <div class="search-container">
-                <button class="search-icon-btn"><i class="fas fa-search"></i></button>
-                <form action="/home" style="width: 100%;">
-                    <input type="text" name="query" class="search-input" placeholder="Search for anything"
-                        th:value="${searchQuery}">
-                </form>
-            </div>
-        </div>
-
-        <div class="navbar-right">
-            <!-- My Learning Link -->
-            <a href="#" class="categories-link">My Learning</a>
-
-            <a href="/student/wishlist" class="btn btn-ghost btn-icon"><i class="far fa-heart" style="font-size: 2rem;"></i></a>
-            <a href="#" class="btn btn-ghost btn-icon"><i class="far fa-bell" style="font-size: 2rem;"></i></a>
-
-            <!-- User Avatar -->
-            <a href="/profile"
-                style="width: 4rem; height: 4rem; background-color: var(--color-black); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; text-decoration: none;">
-                <span th:text="${#strings.substring(user.name,0,1)}">U</span>
-            </a>
-
-            <!-- Logout -->
-            <form th:action="@{/logout}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-ghost text-sm"
-                    style="font-weight: 400; text-decoration: underline;">Logout</button>
-            </form>
-        </div>
-    </nav>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 
 
@@ -59,8 +24,8 @@
         <div class="hero-track" id="heroTrack">
             <!-- Slide 1 -->
             <div class="hero-slide">
-                <img src="https://img.freepik.com/free-photo/hands-working-digital-device-network-graphic-overlay_53876-132150.jpg?semt=ais_user_personalization&w=740&q=80"
-                    alt="Learning" draggable="false">
+               <img src="/images/about/skill1.jpeg" alt="Our Mission at SkillHub">
+                    
                 <div class="hero-content-box">
                     <h1>Unlock Your Potential</h1>
                     <p>Skills for your present (and your future). Get started with us.</p>
@@ -125,67 +90,44 @@
 
         <!-- Course Grid -->
         <div class="course-grid">
-            <a th:each="course : ${courses}" th:href="@{/course/{id}(id=${course.id})}" class="course-card">
+            <div th:each="course : ${courses}" class="course-card">
                 <div class="course-image">
                     <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
+                    <!-- Wishlist Heart Overlay -->
+                    <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
+                        <input type="hidden" name="courseId" th:value="${course.id}" />
+                        <button type="submit" class="wish-btn" title="Add to Wishlist">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="course-content">
-                    <h3 class="course-title" th:text="${course.title}">Course Title</h3>
-                    <div class="course-author" th:text="${course.instructor}">Instructor</div>
-                    <div class="course-rating">
-                        <span class="rating-number">4.7</span>
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                                class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    <a th:href="@{/course/{id}(id=${course.id})}" style="text-decoration: none;">
+                        <h3 class="course-title" th:text="${course.title}">Course Title</h3>
+                        <div class="course-author" th:text="${course.instructor}">Instructor</div>
+                        <div class="course-rating">
+                            <span class="rating-number">4.7</span>
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                    class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="rating-count">(3,240)</span>
                         </div>
-                        <span class="rating-count">(3,240)</span>
+                    </a>
+
+                    <!-- Action Button -->
+                    <div style="margin-top: auto; padding-top: 1.6rem;">
+                        <a th:href="@{/course/enroll/{id}(id=${course.id})}" class="btn-add-course">
+                            Add to My Course
+                        </a>
                     </div>
-                    <div class="course-price" th:text="'₹' + ${course.price}">₹499</div>
-                    <div class="bestseller-badge" th:if="${course.price > 400}">Bestseller</div>
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <!-- Companies Banner -->
-        <div class="footer-companies-banner container">
-            <div class="footer-companies-text">Top companies choose <span style="color: #cec0fc;">SkillHub
-                    Business</span> to build in-demand career skills.</div>
-            <div class="footer-companies-logos">
-                <span style="font-weight: 700; font-size: 1.6rem;">Nasdaq</span>
-                <span style="font-weight: 700; font-size: 1.6rem;">Volkswagen</span>
-                <span style="font-weight: 700; font-size: 1.6rem;">Box</span>
-                <span style="font-weight: 700; font-size: 1.6rem;">NetApp</span>
-                <span style="font-weight: 700; font-size: 1.6rem;">Eventbrite</span>
-            </div>
-        </div>
-
-        <div class="footer-content container">
-            <div class="footer-links-row">
-                <div class="footer-link-col">
-                    <a href="/about" class="footer-link">About Us</a>
-                    <a href="/blog" class="footer-link">Blog</a>
-                </div>
-                <div class="footer-link-col">
-                    <a href="/contact" class="footer-link">Contact Us</a>
-                </div>
-                <div class="footer-link-col">
-                    <a href="/terms" class="footer-link">Terms</a>
-                    <a href="/privacy" class="footer-link">Privacy Policy</a>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <a href="/" class="logo">
-                    <img src="https://www.udemy.com/staticx/udemy/images/v7/logo-udemy-inverted.svg" alt="SkillHub"
-                        style="height: 3.2rem;">
-                </a>
-                <div class="footer-copyright">&copy; 2024 SkillHub, Inc.</div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:src="@{/js/script.js}"></script>
 </body>
