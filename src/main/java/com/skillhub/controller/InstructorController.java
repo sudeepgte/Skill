@@ -139,6 +139,41 @@ public class InstructorController {
         return ResponseEntity.ok(result);
     }
 
+    /** REST endpoint – returns overall stats (JSON) */
+    @GetMapping("/api/dashboard-overview")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDashboardOverview(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        String email = principal.getName();
+        List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
+
+        int totalEnrolled = 0;
+        long totalViews = 0;
+        double totalRating = 0.0;
+        int totalReviews = 0;
+
+        for (com.skillhub.model.Course course : courses) {
+            totalEnrolled += (course.getEnrollments() != null ? course.getEnrollments().size() : 0);
+            totalViews += (course.getViewCount() != null ? course.getViewCount() : 0);
+            Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
+            Integer count = reviewRepository.countByCourseId(course.getId());
+            totalRating += avg * count;
+            totalReviews += count;
+        }
+
+        int totalQuestions = courseQuestionRepository.findByInstructorEmail(email).size();
+        double avgRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalEnrolled", totalEnrolled);
+        stats.put("totalViews", totalViews);
+        stats.put("averageRating", String.format("%.1f", avgRating));
+        stats.put("totalReviews", totalReviews);
+        stats.put("totalQuestions", totalQuestions);
+
+        return ResponseEntity.ok(stats);
+    }
+
     @GetMapping("/courses/create")
     public String createCourseForm(Model model) {
         Course course = new Course();
