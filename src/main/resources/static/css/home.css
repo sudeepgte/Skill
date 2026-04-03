@@ -309,8 +309,73 @@
 }
 
 .course-card:hover {
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.14);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
     border-color: #d1d7dc;
+    transform: translateY(-4px);
+}
+
+/* Wishlist Overlay */
+.wishlist-overlay {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.course-card:hover .wishlist-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.wish-btn {
+    width: 3.8rem;
+    height: 3.8rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    color: #1c1d1f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
+    font-size: 1.8rem;
+}
+
+.wish-btn:hover {
+    color: #ff4757;
+    transform: scale(1.15);
+    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.2);
+}
+
+.course-content {
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.btn-add-course {
+    margin-top: auto;
+    padding: 1rem;
+    background: #1c1d1f;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.4rem;
+    border-radius: 0.6rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-add-course:hover {
+    background: #000;
+    transform: scale(1.02);
 }
 
 /* Tooltip on hover - Udemy style */

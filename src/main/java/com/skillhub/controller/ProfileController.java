@@ -54,6 +54,8 @@ public class ProfileController {
             return "redirect:/login";
         }
         User user = userService.findByEmail(principal.getName());
+        // No redirect for courses tab to allow internal view
+
         model.addAttribute("user", user);
 
         // Fetch enrollments

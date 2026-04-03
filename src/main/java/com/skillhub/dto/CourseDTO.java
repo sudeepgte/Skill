@@ -21,6 +21,7 @@ public class CourseDTO {
     private String contentLength;
     private Double averageRating;
     private Integer reviewCount;
+    private Long enrolledStudentCount;
     private String videoUrl;
     private List<SectionDTO> sections;
 
@@ -216,5 +217,13 @@ public class CourseDTO {
             }
         }
         return videoUrl;
+    }
+
+    public Long getEnrolledStudentCount() {
+        return enrolledStudentCount;
+    }
+
+    public void setEnrolledStudentCount(Long enrolledStudentCount) {
+        this.enrolledStudentCount = enrolledStudentCount;
     }
 }

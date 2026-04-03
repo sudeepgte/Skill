@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <style th:fragment="footer-styles">
+        .skillhub-footer {
+            background: #1c1d1f;
+            color: #ffffff;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+            border-top: 1px solid #4d4d4d;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .footer-container {
+            max-width: 1184px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .footer-top {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 60px;
+            border-bottom: 1px solid #4d4d4d;
+            padding-bottom: 50px;
+        }
+
+        .footer-col {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .footer-col-large {
+            flex: 2;
+            min-width: 250px;
+        }
+
+        .footer-logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+
+        .footer-tagline {
+            font-size: 1rem;
+            color: #d1d7dc;
+            line-height: 1.6;
+            max-width: 400px;
+        }
+
+        .footer-heading {
+            margin-bottom: 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #d1d7dc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #f4c150;
+            text-decoration: underline;
+        }
+
+        .newsletter-box {
+            margin-top: 32px;
+        }
+
+        .newsletter-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 8px;
+            max-width: 350px;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            background: #2d2f31;
+            border: 1px solid #4d4d4d;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .newsletter-btn {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .footer-bottom {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .footer-bottom-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #d1d7dc;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #ffffff;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .social-links a {
+            color: #ffffff;
+            font-size: 1.3rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #f4c150;
+        }
+
+        @media (max-width: 768px) {
+            .footer-top {
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <footer th:fragment="footer" class="skillhub-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-col-large">
+                    <p class="footer-logo-text" style="color: #fff; font-size: 2.2rem;">Skill<span
+                            style="color: #a435f0;">Hub</span></p>
+                    <p class="footer-tagline">
+                        We provide world-class learning opportunities for millions of students worldwide. Empowering you
+                        to master new skills and reach your career goals.
+                    </p>
+                    <div class="newsletter-box">
+                        <p class="newsletter-label">Stay updated with our newsletter</p>
+                        <form onsubmit="event.preventDefault(); alert('Subscribed successfully!');"
+                            class="newsletter-form">
+                            <input type="email" placeholder="Enter your email" required class="newsletter-input"
+                                style="background: transparent; border-color: #6a6f73;">
+                            <button type="submit" class="newsletter-btn"
+                                style="background: #a435f0; color: #fff;">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="footer-col" style="padding-left: 2rem;">
+                    <h4 class="footer-heading">Explore</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/business}">SkillHub Business</a></li>
+                        <li><a th:href="@{/instructor/teaching}">Teach on SkillHub</a></li>
+                        <li><a th:href="@{/app}">Get the app</a></li>
+                        <li><a th:href="@{/about}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-heading">Support</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/contact}">Contact Us</a></li>
+                        <li><a th:href="@{/help}">Help Center</a></li>
+                        <li><a th:href="@{/blog}">Blog</a></li>
+                        <li><a th:href="@{/faq}">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-heading">Legal</h4>
+                    <ul class="footer-links">
+                        <li><a th:href="@{/terms}">Terms of Service</a></li>
+                        <li><a th:href="@{/privacy}">Privacy Policy</a></li>
+                        <li><a th:href="@{/cookies}">Cookie Settings</a></li>
+                        <li><a th:href="@{/accessibility}">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom" style="padding-top: 3.2rem;">
+                <div class="footer-bottom-left"
+                    style="display: flex; flex-direction: column; align-items: flex-start; gap: 1.2rem;">
+                    <div class="lang-btn" style="border-color: #6a6f73;">
+                        <i class="fas fa-globe"></i>
+                        <span>English</span>
+                        <i class="fas fa-chevron-up" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <p style="color: #d1d7dc; font-size: 0.9rem; margin: 0;">&copy; 2026 SkillHub, Inc. All rights
+                        reserved.</p>
+                </div>
+                <div class="social-links" style="align-self: flex-end;">
+                    <a href="#"
+                        style="background: #2d2f31; width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="#"
+                        style="background: #2d2f31; width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i
+                            class="fab fa-twitter"></i></a>
+                    <a href="#"
+                        style="background: #2d2f31; width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="#"
+                        style="background: #2d2f31; width: 4rem; height: 4rem; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i
+                            class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

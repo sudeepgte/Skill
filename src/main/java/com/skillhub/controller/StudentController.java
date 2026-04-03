@@ -29,9 +29,6 @@ public class StudentController {
     private com.skillhub.repository.NotificationRepository notificationRepository;
 
     @Autowired
-    private com.skillhub.service.PlacementService placementService;
-
-    @Autowired
     private com.skillhub.service.CategoryService categoryService;
 
     @Autowired
@@ -41,21 +38,20 @@ public class StudentController {
     private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
 
     @GetMapping("/dashboard")
-    public String dashboard(@RequestParam(required = false) String tab, 
-                           @RequestParam(required = false) String category,
-                           Model model, Principal principal) {
+    public String dashboard(@RequestParam(required = false) String tab,
+            @RequestParam(required = false) String category,
+            Model model, Principal principal) {
         String email = principal.getName();
         User student = userService.findByEmail(email);
 
         List<Enrollment> enrollments = enrollmentRepository.findByStudent(student);
-        List<com.skillhub.model.Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(student);
-        
+
         // Basic Recommendation: Fetch all published courses and exclude enrolled ones
         List<com.skillhub.model.Course> allCourses = courseRepository.findByIsPublishedTrue();
         List<com.skillhub.model.Course> enrolledCourses = enrollments.stream()
                 .map(Enrollment::getCourse)
                 .collect(java.util.stream.Collectors.toList());
-        
+
         List<com.skillhub.model.Course> recommendedCourses = allCourses.stream()
                 .filter(c -> !enrolledCourses.contains(c))
                 .limit(4) // Show top 4
@@ -65,8 +61,9 @@ public class StudentController {
         java.util.Map<Long, String> progressCountMap = new java.util.HashMap<>();
         for (Enrollment enrollment : enrollments) {
             long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
-            long completed = lectureProgressRepository.countCompletedLecturesByCourse(student.getId(), enrollment.getCourse().getId());
-            
+            long completed = lectureProgressRepository.countCompletedLecturesByCourse(student.getId(),
+                    enrollment.getCourse().getId());
+
             if (total > 0 && completed == total) {
                 progressCountMap.put(enrollment.getId(), "Completed \u2714\ufe0f");
             } else {
@@ -75,24 +72,16 @@ public class StudentController {
         }
 
         // Fetch certificates (courses where exam passed)
-        List<Enrollment> certificates = enrollments.stream().filter(Enrollment::isExamPassed).collect(java.util.stream.Collectors.toList());
-
-        // Placement Data
-        if ("placement".equals(tab)) {
-            model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("interviewQuestions", placementService.getAllInterviewQuestions());
-            model.addAttribute("aptitudeQuestions", placementService.getRandomAptitudeQuestions(10));
-            model.addAttribute("resume", placementService.getResumeByUser(student));
-        }
+        List<Enrollment> certificates = enrollments.stream().filter(Enrollment::isExamPassed)
+                .collect(java.util.stream.Collectors.toList());
 
         model.addAttribute("enrollments", enrollments);
-        model.addAttribute("notifications", notifications);
         model.addAttribute("recommendedCourses", recommendedCourses);
         model.addAttribute("student", student);
         model.addAttribute("progressCountMap", progressCountMap);
         model.addAttribute("certificates", certificates);
         model.addAttribute("activeTab", tab != null ? tab : "courses");
-        
+
         return "student/dashboard";
     }
 

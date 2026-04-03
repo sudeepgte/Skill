@@ -32,7 +32,7 @@
             --accent-light: #8b5cf6;
             --accent-glow: rgba(124, 58, 237, 0.35);
             --success: #10b981;
-            --sidebar-width: 380px;
+            --sidebar-width: 400px;
             --header-height: 58px;
         }
 
@@ -97,9 +97,36 @@
         .header-progress {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1.5rem;
             font-size: 0.8rem;
             color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
+        .header-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
 
         .progress-bar-wrap {
@@ -122,6 +149,8 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
+            /* For absolute sidebar */
         }
 
         /* ─── VIDEO AREA ─── */
@@ -130,7 +159,9 @@
             display: flex;
             flex-direction: column;
             background: #000;
-            overflow: hidden;
+            overflow-y: auto;
+            /* Allow scrolling content below video */
+            height: 100%;
         }
 
         .video-wrapper {
@@ -234,30 +265,41 @@
             background: var(--success);
         }
 
-        /* ─── SIDEBAR ─── */
+        /* ─── SIDEBAR (Slide-out Overlay) ─── */
         .sidebar {
             width: var(--sidebar-width);
-            background: var(--bg-secondary);
+            height: 100%;
+            background: white;
+            /* Clean light background for the content list */
+            color: black;
             border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            flex-shrink: 0;
+            position: absolute;
+            right: calc(-1 * var(--sidebar-width));
+            top: 0;
+            z-index: 2000;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.show {
+            right: 0;
         }
 
         .sidebar-header {
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #eee;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-shrink: 0;
+            background: #fdfdfd;
         }
 
         .sidebar-header span {
             font-size: 0.9rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: black !important;
             letter-spacing: 0.01em;
         }
 
@@ -529,6 +571,97 @@
             background: var(--accent-glow);
             border-radius: 3px;
         }
+
+        /* CUSTOM VIDEO CONTROLS */
+        .video-controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #eee;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn:hover {
+            color: var(--accent-light);
+            transform: scale(1.1);
+        }
+
+        .control-btn i {
+            font-size: 1.4rem;
+        }
+
+        .notes-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem;
+            margin-top: 0;
+        }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .notes-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #noteArea {
+            width: 100%;
+            min-height: 151px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #noteArea:focus {
+            border-color: var(--accent);
+        }
+
+        .save-indicator {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: none;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .save-indicator.show {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -547,6 +680,15 @@
             <div class="progress-bar-wrap">
                 <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
             </div>
+
+            <button class="header-btn" id="sidebarToggle" onclick="toggleSidebar()">
+                <i class="fas fa-list-ul"></i>
+                <span>Course Content</span>
+            </button>
+            <button class="header-btn" id="notesToggle" onclick="toggleNotes()">
+                <i class="fas fa-sticky-note"></i>
+                <span>My Notes</span>
+            </button>
         </div>
     </div>
 
@@ -573,13 +715,11 @@
                 </video>
 
                 <!-- Lesson selected - YouTube video -->
-                <iframe
+                <div id="ytPlayerContainer"
                     th:if="${currentLesson != null && currentLesson.videoUrl != null and (#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
-                    th:src="${currentLesson.embedUrl} + '?enablejsapi=1&autoplay=1&mute=0'" width="100%" height="100%"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen id="youtubePlayer">
-                </iframe>
+                    style="width:100%;height:100%;">
+                    <div id="youtubePlayer"></div>
+                </div>
 
                 <!-- No video URL -->
                 <div class="video-placeholder" th:if="${currentLesson != null && currentLesson.videoUrl == null}">
@@ -587,6 +727,19 @@
                     <h2>No video for this lecture</h2>
                     <p>This lecture has no video content attached.</p>
                 </div>
+            </div>
+
+            <!-- Custom Controls Bar -->
+            <div class="video-controls-bar" th:if="${currentLesson != null && currentLesson.videoUrl != null}">
+                <button class="control-btn" onclick="rewindVideo()">
+                    <i class="fas fa-backward"></i> <span>-10s</span>
+                </button>
+                <button class="control-btn" id="masterPlayPauseBtn" onclick="togglePlayPause()">
+                    <i class="fas fa-pause"></i> <span>Pause</span>
+                </button>
+                <button class="control-btn" onclick="forwardVideo()">
+                    <i class="fas fa-forward"></i> <span>+10s</span>
+                </button>
             </div>
 
             <!-- Video Info Bar -->
@@ -619,53 +772,96 @@
                     Lesson content goes here.
                 </div>
             </div>
+
         </div>
+    </div>
 
-        <!-- SIDEBAR -->
-        <div class="sidebar" id="learningSidebar">
-            <div class="sidebar-header">
-                <span style="color: black;">Course Content</span>
-                <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="learningSidebar">
+        <div class="sidebar-header">
+            <span style="color: black;">Course Content</span>
+            <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
+        </div>
+        <div class="sidebar-body">
+            <!-- Empty State for Curriculum -->
+            <div th:if="${#lists.isEmpty(course.sections)}"
+                style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                <i class="fas fa-layer-group" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">This course curriculum is currently empty.</p>
+                <a th:href="@{/user/course/{id}/generate-sample(id=${course.id})}" class="btn-audio"
+                    style="width: 100%; justify-content: center; background: var(--accent); color: white; border: none; text-decoration: none;">
+                    <i class="fas fa-magic"></i>
+                    <span>Generate Sample Content</span>
+                </a>
             </div>
-            <div class="sidebar-body">
-                <div th:each="section : ${course.sections}" class="section-item">
-                    <div class="section-title" onclick="toggleSection(this)">
-                        <div>
-                            <div class="section-title-text" th:text="${section.title}">Section</div>
-                            <div class="section-meta" th:text="${#lists.size(section.lectures)} + ' lectures'">0
-                                lectures</div>
+
+            <div th:each="section : ${course.sections}" class="section-item">
+                <div class="section-title" onclick="toggleSection(this)">
+                    <div>
+                        <div class="section-title-text" th:text="${section.title}">Section</div>
+                        <div class="section-meta" th:text="${#lists.size(section.lectures)} + ' lectures'">0
+                            lectures</div>
+                    </div>
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </div>
+                <div class="lesson-list">
+                    <a th:each="lesson : ${section.lectures}"
+                        th:href="@{/user/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}"
+                        class="lesson-item"
+                        th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' active'"
+                        th:attr="data-lecture-id=${lesson.id}">
+
+                        <div class="lesson-radio"
+                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' playing'"
+                            th:attr="data-radio-id=${lesson.id}"
+                            onclick="event.preventDefault(); event.stopPropagation(); handleRadioClick(this, /*[[${lesson.id}]]*/ 0)">
                         </div>
-                        <i class="fas fa-chevron-down section-chevron"></i>
-                    </div>
-                    <div class="lesson-list">
-                        <a th:each="lesson : ${section.lectures}"
-                            th:href="@{/user/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}"
-                            class="lesson-item"
-                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' active'"
-                            th:attr="data-lecture-id=${lesson.id}">
 
-                            <div class="lesson-radio"
-                                th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' playing'"
-                                th:attr="data-radio-id=${lesson.id}"
-                                onclick="event.preventDefault(); event.stopPropagation(); handleRadioClick(this, /*[[${lesson.id}]]*/ 0)">
+                        <div class="lesson-text">
+                            <div class="lesson-title" th:text="${lesson.title}">Lesson Title</div>
+                            <div class="lesson-meta">
+                                <i class="far fa-play-circle"></i>
+                                <span th:text="${lesson.durationSeconds / 60} + ' min'">5 min</span>
+                                <span class="resume-badge" th:attr="data-resume-badge=${lesson.id}"
+                                    style="display:none;">
+                                    <i class="fas fa-history" style="font-size:0.6rem;"></i> Resume
+                                </span>
                             </div>
-
-                            <div class="lesson-text">
-                                <div class="lesson-title" th:text="${lesson.title}">Lesson Title</div>
-                                <div class="lesson-meta">
-                                    <i class="far fa-play-circle"></i>
-                                    <span th:text="${lesson.durationSeconds / 60} + ' min'">5 min</span>
-                                    <span class="resume-badge" th:attr="data-resume-badge=${lesson.id}"
-                                        style="display:none;">
-                                        <i class="fas fa-history" style="font-size:0.6rem;"></i> Resume
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- NOTES SIDEBAR -->
+    <div class="sidebar" id="notesSidebar">
+        <div class="sidebar-header">
+            <span style="color: black;">My Lesson Notes</span>
+            <div class="save-indicator" id="saveIndicator">
+                <i class="fas fa-check-circle"></i> Saved
+            </div>
+        </div>
+        <div class="sidebar-body" style="padding: 1.5rem;">
+            <div style="margin-bottom: 1rem;">
+                <h4 th:text="${currentLesson != null && currentLesson.id > 0 ? currentLesson.title : 'Course Overview & General Notes'}"
+                    style="font-size: 1rem; font-weight: 600; color: black; margin-bottom: 0.3rem;">Notes</h4>
+                <p style="font-size: 0.75rem; color: var(--text-muted);"
+                    th:text="${currentLesson != null && currentLesson.id > 0 ? 'Important points for this lecture' : 'General notes for this whole course'}">
+                    Important points
+                </p>
+            </div>
+            <textarea id="noteArea" placeholder="Write down important points..." th:text="${lectureNote}"
+                oninput="autoSaveNote()"
+                style="width: 100%; height: 65vh; padding: 1rem; border-radius: 8px; border: 1px solid #ddd; resize: none;"></textarea>
+            <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                <i class="fas fa-info-circle"></i> Your notes are automatically saved and associated with
+                <span
+                    th:text="${currentLesson != null && currentLesson.id > 0 ? 'this specific lecture' : 'the entire course overview'}">this
+                    lecture</span>.
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Toast -->
@@ -673,6 +869,9 @@
         <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
         <span id="toastMsg">Lecture marked as complete!</span>
     </div>
+
+    <!-- YouTube API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -854,7 +1053,97 @@
             // Pause save
             video.addEventListener('pause', () => {
                 setProgress(CURRENT_LECTURE_ID, video.currentTime);
+                updateControlBtnUI(true);
             });
+            video.addEventListener('play', () => {
+                updateControlBtnUI(false);
+            });
+        }
+
+        // ─── MASTER VIDEO CONTROLS (Unified for YT and Local) ───
+        let ytPlayer = null;
+        const YT_EMBED_URL = /*[[${currentLesson != null ? currentLesson.embedUrl : ''}]]*/ '';
+
+        function onYouTubeIframeAPIReady() {
+            if (!CURRENT_LECTURE_ID || !YT_EMBED_URL) return;
+            const videoWrapper = document.getElementById('youtubePlayer');
+            if (!videoWrapper) return;
+
+            const videoId = YT_EMBED_URL.split('/').pop().split('?')[0];
+
+            ytPlayer = new YT.Player('youtubePlayer', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 1, // Keep native controls but add our own too
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'enablejsapi': 1
+                },
+                events: {
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.PAUSED) {
+                updateControlBtnUI(true);
+            } else if (event.data === YT.PlayerState.PLAYING) {
+                updateControlBtnUI(false);
+            }
+        }
+
+        function updateControlBtnUI(isPaused) {
+            const btn = document.getElementById('masterPlayPauseBtn');
+            if (!btn) return;
+            if (isPaused) {
+                btn.querySelector('i').className = 'fas fa-play';
+                btn.querySelector('span').textContent = 'Play';
+            } else {
+                btn.querySelector('i').className = 'fas fa-pause';
+                btn.querySelector('span').textContent = 'Pause';
+            }
+        }
+
+        function togglePlayPause() {
+            const video = document.getElementById('mainVideo');
+            if (video) {
+                if (video.paused) video.play();
+                else video.pause();
+                return;
+            }
+            if (ytPlayer && ytPlayer.getPlayerState) {
+                const state = ytPlayer.getPlayerState();
+                if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+                else ytPlayer.playVideo();
+            }
+        }
+
+        function rewindVideo() {
+            const video = document.getElementById('mainVideo');
+            if (video) {
+                video.currentTime = Math.max(0, video.currentTime - 10);
+                return;
+            }
+            if (ytPlayer && ytPlayer.getCurrentTime) {
+                const time = ytPlayer.getCurrentTime();
+                ytPlayer.seekTo(Math.max(0, time - 10), true);
+            }
+        }
+
+        function forwardVideo() {
+            const video = document.getElementById('mainVideo');
+            if (video) {
+                video.currentTime = Math.min(video.duration, video.currentTime + 10);
+                return;
+            }
+            if (ytPlayer && ytPlayer.getCurrentTime) {
+                const time = ytPlayer.getCurrentTime();
+                ytPlayer.seekTo(time + 10, true);
+            }
         }
 
         // ─── AUDIO MODE (TEXT TO SPEECH) ───
@@ -935,6 +1224,85 @@
                 }
             });
         });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('learningSidebar');
+            const notesSidebar = document.getElementById('notesSidebar');
+            const btn = document.getElementById('sidebarToggle');
+            const notesBtn = document.getElementById('notesToggle');
+
+            if (notesSidebar.classList.contains('show')) {
+                notesSidebar.classList.remove('show');
+                notesBtn.classList.remove('active');
+            }
+
+            sidebar.classList.toggle('show');
+            btn.classList.toggle('active');
+        }
+
+        function toggleNotes() {
+            const sidebar = document.getElementById('learningSidebar');
+            const notesSidebar = document.getElementById('notesSidebar');
+            const btn = document.getElementById('sidebarToggle');
+            const notesBtn = document.getElementById('notesToggle');
+
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                btn.classList.remove('active');
+            }
+
+            notesSidebar.classList.toggle('show');
+            notesBtn.classList.toggle('active');
+        }
+
+        let autoSaveTimeout;
+        function autoSaveNote() {
+            const indicator = document.getElementById('saveIndicator');
+            const noteEl = document.getElementById('noteArea');
+            if (!indicator || !noteEl) return;
+
+            indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            indicator.classList.add('show');
+
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                const lectureId = [[${ currentLesson != null ? currentLesson.id : 0}]];
+            const content = noteEl.value;
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+            fetch(`/user/lecture/${lectureId}/save-note`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({
+                    content: content,
+                    courseId: COURSE_ID
+                })
+            })
+                .then(async response => {
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`Server error: ${response.status} - ${text}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        indicator.innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+                        setTimeout(() => indicator.classList.remove('show'), 2000);
+                    } else {
+                        throw new Error('Server returned failure');
+                    }
+                })
+                .catch(err => {
+                    console.error('Note save error:', err);
+                    indicator.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ff6b6b;"></i> Save Failed';
+                });
+        }, 1000);
+        }
         /*]]>*/
     </script>
 </body>

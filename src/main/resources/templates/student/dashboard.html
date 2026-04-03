@@ -4,528 +4,429 @@
 <head>
     <title>My Learning | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            font-size: 62.5%;
+        :root {
+            --primary: #a435f0;
+            --primary-dark: #8710d8;
+            --bg-gray: #f7f9fa;
+            --text-main: #1c1d1f;
+            --text-muted: #6a6f73;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.4rem;
-            color: #1c1d1f;
-            background: #f7f9fa;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            line-height: 1.6;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
+        /* ── Header Design ── */
+        .dashboard-header {
+            background: #1c1d1f;
+            color: white;
+            padding: 6rem 0 0;
+            margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
         }
 
-        .container {
+        .header-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2.4rem;
         }
 
-        /* ── Page Header ── */
-        .page-header {
-            background: #1c1d1f;
-            color: #fff;
-            padding: 3.2rem 0 0;
-        }
-
-        .page-header h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 2.8rem;
+        .header-content h1 {
+            font-size: 3.2rem;
             font-weight: 700;
-            margin-bottom: 2rem;
-            padding-left: 2.4rem;
+            margin-bottom: 3.2rem;
+            color: #fff;
         }
 
+        /* ── Tabs ── */
         .header-tabs {
             display: flex;
-            gap: 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            margin-top: 0.4rem;
-            padding-left: 2.4rem;
+            gap: 2.4rem;
         }
 
         .header-tab {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1.4rem;
-            font-weight: 600;
-            padding: 1.4rem 2rem;
-            border-bottom: 3px solid transparent;
+            font-weight: 700;
+            font-size: 1.6rem;
+            padding: 1.2rem 0;
             text-decoration: none;
-            transition: color 0.15s, border-color 0.15s;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s;
         }
 
         .header-tab:hover {
-            color: #fff;
+            color: white;
         }
 
         .header-tab.active {
-            color: #fff;
-            border-bottom-color: #a435f0;
+            color: white;
+            border-bottom-color: white;
         }
 
-        /* ── Main Layout ── */
-        .dashboard-layout {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 4rem;
-            padding: 4rem 2.4rem;
+        /* ── Stats Section ── */
+        .stats-grid {
             max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ── Course Card ── */
-        .section-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #1c1d1f;
-            margin-bottom: 2.4rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .course-grid {
+            margin: -6rem auto 4rem;
+            padding: 0 2.4rem;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 2.4rem;
-            margin-bottom: 5rem;
-        }
-
-        .course-card {
-            background: #fff;
-            border: 1px solid #d1d7dc;
-            border-radius: 0.4rem;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .course-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .card-img-wrapper {
             position: relative;
-            padding-top: 56%;
-            background: #f7f9fa;
+            z-index: 10;
         }
 
-        .card-img-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card-body {
-            padding: 1.6rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .course-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 0.8rem;
-            height: 3.8rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .instructor-name {
-            font-size: 1.2rem;
-            color: #6a6f73;
-            margin-bottom: 1.6rem;
-        }
-
-        /* Progress */
-        .progress-container {
-            margin-top: auto;
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #1c1d1f;
-            margin-bottom: 0.8rem;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: #d1d7dc;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #a435f0;
-            transition: width 0.5s ease;
-        }
-
-        /* ── Sidebar Widgets ── */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 3.2rem;
-        }
-
-        .widget {
-            background: #fff;
-            border: 1px solid #d1d7dc;
-            border-radius: 0.8rem;
+        .stat-card {
+            background: white;
             padding: 2.4rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-        }
-
-        .widget-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
+            border-radius: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid #d1d7dc;
-            padding-bottom: 1rem;
+            gap: 1.6rem;
+            border: 1px solid #d1d7dc;
         }
 
-        .notification-item {
-            display: flex;
-            gap: 1.2rem;
-            margin-bottom: 1.6rem;
-            padding-bottom: 1.6rem;
-            border-bottom: 1px solid #f7f9fa;
-        }
-
-        .notification-item:last-child {
-            border: 0;
-            margin: 0;
-        }
-
-        .note-icon {
-            width: 3.2rem;
-            height: 3.2rem;
-            border-radius: 50%;
-            background: #f3e8ff;
-            color: #a435f0;
+        .stat-icon {
+            width: 5.2rem;
+            height: 5.2rem;
+            border-radius: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
-            flex-shrink: 0;
+            font-size: 2rem;
         }
 
-        .note-content h4 {
+        .stat-info h3 {
             font-size: 1.3rem;
+            color: #1c1d1f;
             font-weight: 700;
             margin-bottom: 0.2rem;
         }
 
-        .note-content p {
+        .stat-info .value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #1c1d1f;
+        }
+
+        /* ── Main Content ── */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2.4rem 6rem;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 2.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* ── Continue Card ── */
+        .continue-card {
+            background: white;
+            border: 1px solid #d1d7dc;
+            border-radius: 0.8rem;
+            overflow: hidden;
+            margin-bottom: 4rem;
+            display: flex;
+            height: 20rem;
+        }
+
+        .continue-img {
+            width: 32rem;
+            flex-shrink: 0;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .continue-body {
+            padding: 2.4rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .continue-tag {
+            color: #5624d0;
+            text-transform: uppercase;
             font-size: 1.2rem;
-            color: #6a6f73;
-            line-height: 1.4;
-            margin: 0;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
         }
 
-        .note-time {
-            font-size: 1rem;
-            color: #afb3b6;
-            margin-top: 0.4rem;
+        .continue-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            line-height: 1.2;
         }
 
-        .stat-row {
+        .continue-progress {
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .btn-continue {
+            background: var(--primary);
+            color: white;
+            padding: 1.4rem 2.8rem;
+            border-radius: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            transition: var(--transition);
+            width: fit-content;
+        }
+
+        .btn-continue:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        /* ── Course Grid ── */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 3.2rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-img {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 4.6rem;
+        }
+
+        .card-meta {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            margin-top: auto;
+        }
+
+        .progress-labels {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.2rem;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
         }
 
-        .stat-value {
-            font-weight: 700;
-            color: #a435f0;
+        .progress-track {
+            height: 6px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            transition: width 1s ease;
         }
 
         /* ── Empty State ── */
         .empty-state {
             text-align: center;
-            padding: 6rem 2.4rem;
-            background: #fff;
-            border: 1px dashed #d1d7dc;
-            border-radius: 0.8rem;
+            padding: 8rem 0;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: var(--card-shadow);
         }
 
         .empty-state i {
-            font-size: 4rem;
-            color: #d1d7dc;
-            margin-bottom: 1.6rem;
-            display: block;
+            font-size: 6rem;
+            color: #ddd;
+            margin-bottom: 2rem;
         }
 
-        .empty-state h3 {
-            font-size: 1.8rem;
-            margin-bottom: 0.8rem;
-        }
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .continue-card {
+                grid-template-columns: 1fr;
+            }
 
-        .empty-state p {
-            color: #6a6f73;
-            margin-bottom: 2.4rem;
-        }
+            .continue-img {
+                height: 200px;
+            }
 
-        .btn-primary {
-            display: inline-block;
-            background: #a435f0;
-            color: #fff;
-            padding: 1.2rem 2.4rem;
-            font-weight: 700;
-            border-radius: 0.4rem;
+            .header-content h1 {
+                font-size: 2.8rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ══ NAVBAR ══ -->
-    <nav class="navbar">
-        <a href="/user/home"
-            style="text-decoration:none; color:var(--dark); font-weight:800; font-size:1.5rem;">SkillHub</a>
-        <div class="nav-links">
-            <a href="/user/home" class="nav-link">Explore</a>
-            <a href="/student/dashboard" class="nav-link" th:style="${activeTab == 'courses' ? 'color:var(--primary)' : ''}">My Learning</a>
-            <a href="/student/dashboard?tab=placement" class="nav-link" th:style="${activeTab == 'placement' ? 'color:var(--primary)' : ''}">Placement Prep</a>
-            <a href="/profile" class="nav-link">Profile</a>
-            <div class="user-avatar" th:text="${#strings.substring(student.name, 0, 1)}">U</div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- ══ PAGE HEADER ══ -->
-    <div class="page-header">
-        <h1 th:text="${activeTab == 'placement' ? 'Placement Preparation' : 'My Learning'}">My Learning</h1>
-        <div class="header-tabs">
-            <a href="/student/dashboard" class="header-tab" th:classappend="${activeTab == 'courses' ? 'active' : ''}">All Courses</a>
-            <a href="/student/dashboard?tab=placement" class="header-tab" th:classappend="${activeTab == 'placement' ? 'active' : ''}">Placement Prep</a>
-            <a href="/student/wishlist" class="header-tab">Wishlist</a>
-            <a href="/user/certifications" class="header-tab">Certifications</a>
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1 th:text="'Welcome back, ' + ${user.name}">Welcome back, Student</h1>
+            <div class="header-tabs">
+                <a href="/student/dashboard" class="header-tab active">All Courses</a>
+                <a href="/student/wishlist" class="header-tab">Wishlist</a>
+                <a href="/user/certifications" class="header-tab">Certifications</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f3e8ff; color: #a435f0;"><i class="fas fa-book-open"></i></div>
+            <div class="stat-info">
+                <h3>Enrolled Courses</h3>
+                <div class="value" th:text="${#lists.size(enrollments)}">0</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Certificates Earned</h3>
+                <div class="value" th:text="${#lists.size(certificates)}">0</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #ecfdf5; color: #059669;"><i class="fas fa-chart-pie"></i></div>
+            <div class="stat-info">
+                <h3>Learning Streak</h3>
+                <div class="value" th:text="${user.streakCount + ' Days'}">0 Days</div>
+            </div>
         </div>
     </div>
 
-    <!-- ══ MAIN LAYOUT ══ -->
-    <div class="dashboard-layout">
+    <main class="main-container">
 
-        <!-- Left Column: Content -->
-        <main>
-            <!-- TAB: COURSES -->
-            <div th:if="${activeTab == 'courses'}">
-                <div class="section-title">
-                    <i class="fas fa-play-circle" style="color:#a435f0"></i> Enrolled Courses
-                </div>
-
-                <div th:if="${#lists.isEmpty(enrollments)}" class="empty-state">
-                    <i class="fas fa-book-open"></i>
-                    <h3>No courses yet</h3>
-                    <p>Start your learning journey by enrolling in a course.</p>
-                    <a href="/user/home" class="btn-primary">Browse Courses</a>
-                </div>
-
-                <div class="course-grid">
-                    <div th:each="enrollment : ${enrollments}" class="course-card">
-                        <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}">
-                            <div class="card-img-wrapper">
-                                <img th:src="${enrollment.course.imageUrl}" alt="Course img">
+        <!-- Continue Watching Section -->
+        <div th:if="${currentCourseId != null}">
+            <div class="section-title"><i class="fas fa-play-circle"></i> Continue Learning</div>
+            <th:block th:each="enrollment : ${enrollments}">
+                <div th:if="${enrollment.course.id == currentCourseId}" class="continue-card">
+                    <div class="continue-img" th:style="'background-image: url(' + ${enrollment.course.imageUrl} + ')'">
+                    </div>
+                    <div class="continue-body">
+                        <div class="continue-tag">Currently Active</div>
+                        <h2 class="continue-title" th:text="${enrollment.course.title}">Course Title</h2>
+                        <div class="continue-progress">
+                            <div class="progress-labels">
+                                <span th:text="${progressCountMap.get(enrollment.id)}">0/0 Completed</span>
+                                <span th:text="${enrollment.progressPercentage + '%'}">0%</span>
                             </div>
-                            <div class="card-body">
-                                <h3 class="course-title" th:text="${enrollment.course.title}">Course Title</h3>
-                                <p class="instructor-name" th:text="${enrollment.course.instructor.name}">Instructor</p>
-                                
-                                <div class="progress-container">
-                                    <div class="progress-text">
-                                        <span th:text="${progressCountMap.get(enrollment.id)}">0/0 completed</span>
-                                        <span th:text="${enrollment.progressPercentage + '%'}">0%</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" th:style="'width:' + ${enrollment.progressPercentage} + '%'"></div>
-                                    </div>
+                            <div class="progress-track">
+                                <div class="progress-bar" th:style="'width:' + ${enrollment.progressPercentage} + '%'">
                                 </div>
                             </div>
+                        </div>
+                        <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}" class="btn-continue">
+                            Resume Learning <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
+            </th:block>
+        </div>
 
-                <div class="section-title">
-                    <i class="fas fa-lightbulb" style="color:#a435f0"></i> Recommended For You
-                </div>
-                <div class="course-grid">
-                    <div th:each="course : ${recommendedCourses}" class="course-card">
-                        <a th:href="@{/courses/view/{id}(id=${course.id})}">
-                            <div class="card-img-wrapper">
-                                <img th:src="${course.imageUrl}" alt="Course img">
-                            </div>
-                            <div class="card-body">
-                                <h3 class="course-title" th:text="${course.title}">Course Title</h3>
-                                <p class="instructor-name" th:text="${course.instructor.name}">Instructor</p>
-                            </div>
-                        </a>
+        <div class="section-title"><i class="fas fa-th-large"></i> All Your Courses</div>
+
+        <div th:if="${#lists.isEmpty(enrollments)}" class="empty-state">
+            <i class="fas fa-book-open"></i>
+            <h3>No courses enrolled yet</h3>
+            <p>Ready to start your journey? Explore our library of professional courses.</p>
+            <br>
+            <a href="/user/home" class="btn-continue">Browse All Courses</a>
+        </div>
+
+        <div class="course-grid">
+            <div th:each="enrollment : ${enrollments}" class="course-card">
+                <a th:href="@{/user/course/{id}/learn(id=${enrollment.course.id})}">
+                    <div class="card-img" th:style="'background-image: url(' + ${enrollment.course.imageUrl} + ')'">
                     </div>
-                </div>
-            </div>
-
-            <!-- TAB: PLACEMENT -->
-            <div th:if="${activeTab == 'placement'}">
-                <style>
-                    .p-section { background: white; border: 1px solid #d1d7dc; border-radius: 8px; padding: 3rem; margin-bottom: 3.2rem; }
-                    .quest-card { border-bottom: 1px solid #f7f9fa; padding: 1.6rem 0; }
-                    .quest-card:last-child { border-bottom:none; }
-                    .btn-reveal { background: none; border: none; color: #a435f0; font-weight: 700; cursor: pointer; padding: 0.8rem 0; font-family: 'Inter', sans-serif; font-size: 1.4rem; }
-                    .answer { display: none; padding: 1.6rem; background: #f7f9fa; border-radius: 4px; border-left: 4px solid #a435f0; margin-top: 1rem; color: #6a6f73; line-height: 1.6; }
-                    .p-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem; }
-                    .p-nav-card { background: white; border: 1px solid #d1d7dc; padding: 2.4rem; border-radius: 8px; text-align: center; transition: all 0.2s; }
-                    .p-nav-card:hover { border-color: #a435f0; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-                    .p-nav-card i { font-size: 2.4rem; color: #a435f0; margin-bottom: 1.2rem; display: block; }
-                </style>
-
-                <div class="p-grid">
-                    <a href="#interview-sec" class="p-nav-card">
-                        <i class="fas fa-comments"></i>
-                        <span style="font-weight:700;">Interview Prep</span>
-                    </a>
-                    <a href="#aptitude-sec" class="p-nav-card">
-                        <i class="fas fa-brain"></i>
-                        <span style="font-weight:700;">Aptitude Tests</span>
-                    </a>
-                    <a href="#resume-sec" class="p-nav-card">
-                        <i class="fas fa-file-invoice"></i>
-                        <span style="font-weight:700;">Resume Builder</span>
-                    </a>
-                </div>
-
-                <!-- Interview Questions -->
-                <div id="interview-sec" class="p-section">
-                    <h3 class="section-title"><i class="fas fa-comments" style="color:#a435f0"></i> Interview Questions Bank</h3>
-                    <div th:each="q : ${interviewQuestions}" class="quest-card">
-                        <div style="font-weight:700; font-size:1.6rem; margin-bottom:0.8rem; font-family: 'Merriweather', serif;" th:text="${q.question}">Question</div>
-                        <button class="btn-reveal" onclick="this.nextElementSibling.style.display == 'block' ? this.nextElementSibling.style.display = 'none' : this.nextElementSibling.style.display = 'block'">View Suggested Answer <i class="fas fa-chevron-down"></i></button>
-                        <div class="answer" th:text="${q.answer}">Answer</div>
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${enrollment.course.title}">Course Title</h3>
+                        <div class="card-meta" th:text="'Instructor: ' + ${enrollment.course.instructor.name}">
+                            Instructor</div>
+                        <div class="progress-wrapper">
+                            <div class="progress-labels">
+                                <span th:text="${enrollment.progressPercentage + '%'}">0%</span>
+                                <span th:text="${progressCountMap.get(enrollment.id)}">0/0</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-bar" th:style="'width:' + ${enrollment.progressPercentage} + '%'">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Aptitude -->
-                <div id="aptitude-sec" class="p-section">
-                    <h3 class="section-title"><i class="fas fa-brain" style="color:#a435f0"></i> Mock Aptitude assessments</h3>
-                    <p style="color:#6a6f73; margin-bottom:2.4rem; font-size:1.5rem;">Test your logic, quantitative, and verbal skills with timed mock tests.</p>
-                    <a th:href="@{/user/placement/aptitude}" class="btn-primary" style="padding: 1.4rem 3rem;">Start New Test</a>
-                </div>
-
-                <!-- Resume Builder -->
-                <div id="resume-sec" class="p-section">
-                    <h3 class="section-title"><i class="fas fa-magic" style="color:#a435f0"></i> Resume Builder</h3>
-                    <form th:action="@{/user/placement/resume/save}" method="POST" style="display:grid; grid-template-columns: 1fr 1fr; gap:3rem;">
-                        <input type="hidden" name="id" th:value="${resume.id}"/>
-                        <div style="display:flex; flex-direction:column; gap:1.6rem;">
-                            <input type="text" name="fullName" th:value="${resume.fullName}" placeholder="Full Name" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; font-size:1.4rem;">
-                            <input type="email" name="email" th:value="${resume.email}" placeholder="Email Address" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; font-size:1.4rem;">
-                            <textarea name="summary" th:text="${resume.summary}" placeholder="Professional Summary" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; min-height:10rem; font-family:inherit;font-size:1.4rem;"></textarea>
-                            <textarea name="skills" th:text="${resume.skills}" placeholder="Skills (comma separated)" style="padding:1.2rem; border:1px solid #d1d7dc; border-radius:4px; min-height:10rem; font-family:inherit;font-size:1.4rem;"></textarea>
-                            <button type="submit" class="btn-primary" style="border:none; cursor:pointer; width:100%;">Save & Update Resume</button>
-                        </div>
-                        <div style="background:#f7f9fa; padding:2.4rem; border-radius:4px; border:1px solid #d1d7dc;">
-                            <h2 style="font-family:'Merriweather', serif; font-size:2rem; margin-bottom:0.4rem;" th:text="${resume.fullName}">Name</h2>
-                            <p style="color:#6a6f73; font-size:1.2rem; margin-bottom:2rem; border-bottom:2px solid #1c1d1f; padding-bottom:1rem;" th:text="${resume.email}">Email</p>
-                            <h4 style="text-transform:uppercase; font-size:1.1rem; letter-spacing:1px; margin-bottom:0.8rem; color:#1c1d1f;">Profile Summary</h4>
-                            <p style="font-size:1.3rem; line-height:1.6; margin-bottom:2rem;" th:text="${resume.summary}">Summary...</p>
-                            <h4 style="text-transform:uppercase; font-size:1.1rem; letter-spacing:1px; margin-bottom:0.8rem; color:#1c1d1f;">Core Competencies</h4>
-                            <p style="font-size:1.3rem; line-height:1.6;" th:text="${resume.skills}">Skills...</p>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </main>
-
-        <!-- Right Column: Sidebar -->
-        <aside class="sidebar">
-            <!-- Stats -->
-            <div class="widget">
-                <h3 class="widget-title"><i class="fas fa-chart-line"></i> Learning Activity</h3>
-                <div class="stat-row">
-                    <span>Enrolled Courses</span>
-                    <span class="stat-value" th:text="${#lists.size(enrollments)}">0</span>
-                </div>
-                <div class="stat-row">
-                    <span>Certificates Earned</span>
-                    <span class="stat-value" th:text="${#lists.size(certificates)}">0</span>
-                </div>
-                <!-- Placement Button -->
-                <a href="/student/dashboard?tab=placement" class="btn-primary" style="width:100%; text-align:center; padding: 1.4rem; margin-top:1rem;">
-                    <i class="fas fa-rocket"></i> Prepare for Placement
                 </a>
             </div>
-
-            <!-- Notifications -->
-            <div class="widget">
-                <h3 class="widget-title"><i class="fas fa-bell"></i> Recent Alerts</h3>
-                <div class="notification-list">
-                    <div th:if="${#lists.isEmpty(notifications)}"
-                        style="text-align:center; color:#6a6f73; padding: 1rem 0; font-size:1.2rem;">
-                        No new notifications
-                    </div>
-                    <div th:each="note : ${notifications}" class="notification-item">
-                        <div class="note-icon"><i class="fas fa-info"></i></div>
-                        <div class="note-content">
-                            <h4 th:text="${note.title != null ? note.title : 'Update'}">Update</h4>
-                            <p th:text="${note.message}">Message</p>
-                            <div class="note-time" th:text="${#temporals.format(note.createdAt, 'dd MMM, HH:mm')}">Time
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-    </div>
-
-    <footer class="simple-footer">
-        <div class="container"
-            style="text-align: center; padding: 4rem 0; border-top: 1px solid #d1d7dc; color: #6a6f73; font-size: 1.2rem;">
-            &copy; 2026 SkillHub Course Platform. All rights reserved.
         </div>
-    </footer>
+
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 

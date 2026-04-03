@@ -8,9 +8,12 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Modern Font for Footer -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}">
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <style>
         *,
@@ -379,7 +382,7 @@
             line-height: 1.25;
             color: #fff;
             margin-bottom: 1.4rem;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
         }
 
         .hero-content-box p {
@@ -387,7 +390,7 @@
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.6;
             margin-bottom: 2.4rem;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
         }
 
         .hero-btns {
@@ -498,6 +501,7 @@
             border-bottom: 1px solid #d1d7dc;
             padding: 1.5rem 0;
         }
+
         .nav-user-menu::before {
             content: "";
             position: absolute;
@@ -506,6 +510,7 @@
             right: 0;
             height: 0.6rem;
         }
+
         .trusted-bar {
             background: #fff;
         }
@@ -639,8 +644,69 @@
         }
 
         .course-card:hover {
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.14);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16);
             border-color: #d1d7dc;
+            transform: translateY(-4px);
+        }
+
+        /* Wishlist Overlay */
+        .wishlist-overlay {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .course-card:hover .wishlist-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .wish-btn {
+            width: 3.8rem;
+            height: 3.8rem;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            color: #1c1d1f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: all 0.2s ease;
+            font-size: 1.8rem;
+        }
+
+        .wish-btn:hover {
+            color: #ff4757;
+            transform: scale(1.15);
+            box-shadow: 0 6px 16px rgba(255, 71, 87, 0.2);
+        }
+
+        .btn-add-course {
+            display: block;
+            width: 100%;
+            padding: 1.1rem;
+            margin-top: 1.2rem;
+            background: #1c1d1f;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.4rem;
+            border-radius: 0.6rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-add-course:hover {
+            background: #000;
+            transform: scale(1.02);
+            color: #fff;
         }
 
         /* Tooltip on hover - Udemy style */
@@ -984,71 +1050,8 @@
 
 <body>
 
-    <!-- ═══════════════════════════ NAVBAR ═══════════════════════════ -->
-    <nav class="navbar">
-        <!-- Logo -->
-        <a th:href="${user != null} ? '/user/home' : '/'" class="nav-logo">SkillHub</a>
-
-        <!-- Categories Dropdown -->
-        <div class="nav-dropdown">
-            <div class="nav-dropdown-trigger">
-                Categories <i class="fas fa-chevron-down" style="font-size:1rem;"></i>
-            </div>
-            <div class="nav-dropdown-menu">
-                <a th:each="cat : ${categories}"
-                    th:href="${user != null} ? @{/user/home(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
-                    class="nav-dropdown-item">
-                    <span th:text="${cat.name}">Category</span>
-                    <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Search -->
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form th:action="${user != null} ? '/user/home' : '/'">
-                <input type="text" name="query" placeholder="Search for anything" th:value="${searchQuery}">
-            </form>
-        </div>
-
-        <!-- Right side -->
-        <div class="nav-right">
-            <!-- Logged-in state -->
-            <th:block th:if="${user != null}">
-                <a href="/user/certifications" class="nav-link">Exams</a>
-                <a href="/student/wishlist" class="nav-icon" title="Wishlist"><i class="far fa-heart"></i></a>
-                <a href="/notifications" class="nav-icon" title="Notifications"><i class="far fa-bell"></i></a>
-                <div class="nav-user-dropdown">
-                    <a href="/profile" class="nav-avatar">
-                        <img th:if="${user.profileImageUrl != null}" th:src="${user.profileImageUrl}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                        <span th:if="${user.profileImageUrl == null}" th:text="${#strings.substring(user.name,0,1)}">U</span>
-                    </a>
-                    <div class="nav-user-menu">
-                        <div class="nav-user-menu-header">
-                            <div class="name" th:text="${user.name}">User Name</div>
-                            <div class="email" th:text="${user.email}">user@example.com</div>
-                        </div>
-                        <a href="/profile">My Profile</a>
-                        <a href="/profile?tab=security">Change Password</a>
-                        <div class="nav-user-menu-divider"></div>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit">Logout</button>
-                        </form>
-                    </div>
-                </div>
-
-            </th:block>
-
-            <!-- Guest state -->
-            <th:block th:unless="${user != null}">
-                <a href="/login" class="nav-btn-outline">Log in</a>
-                <a href="/register" class="nav-btn-primary">Sign up</a>
-            </th:block>
-
-            <button class="nav-globe"><i class="fas fa-globe"></i></button>
-        </div>
-    </nav>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <!-- ═══════════════════════════ HERO CAROUSEL ═══════════════════════════ -->
     <!-- Welcome (logged-in only) -->
@@ -1132,56 +1135,49 @@
 
         <!-- Course grid -->
         <div class="course-grid" th:unless="${#lists.isEmpty(courses)}">
-            <a th:each="course : ${courses}"
-                th:href="@{/course/{id}(id=${course.id})}"
-                class="course-card">
-
+            <div th:each="course : ${courses}" class="course-card">
                 <!-- Thumbnail -->
                 <div class="course-thumb">
                     <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt=""
                         onerror="this.src='/images/banner1.webp'">
                     <span class="badge-bestseller" th:if="${course.averageRating >= 4.5}">Bestseller</span>
+
+                    <!-- Wishlist Heart Overlay -->
+                    <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
+                        <input type="hidden" name="courseId" th:value="${course.id}" />
+                        <button type="submit" class="wish-btn" title="Add to Wishlist">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Info -->
                 <div class="course-info">
-                    <div class="ci-title" th:text="${course.title}">Course Title</div>
-                    <div class="ci-author"
-                        th:text="${course.instructor != null ? course.instructor.name : 'Instructor'}">Instructor</div>
-                    <div class="ci-rating">
-                        <span class="ci-rating-num" th:text="${course.averageRating}">4.7</span>
-                        <div class="ci-stars">
-                            <span th:each="i : ${#numbers.sequence(1,5)}">
-                                <i class="fas fa-star" th:if="${course.averageRating >= i}"></i>
-                                <i class="fas fa-star-half-alt"
-                                    th:if="${course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
-                                <i class="far fa-star" th:if="${course.averageRating < i - 0.5}"></i>
-                            </span>
+                    <a th:href="@{/course/{id}(id=${course.id})}" style="text-decoration: none; color: inherit;">
+                        <div class="ci-title" th:text="${course.title}">Course Title</div>
+                        <div class="ci-author"
+                            th:text="${course.instructor != null ? course.instructor.name : 'Instructor'}">Instructor
                         </div>
-                        <span class="ci-count" th:text="'(' + ${course.reviewCount} + ')'"></span>
-                    </div>
-                    <div class="ci-price" th:text="'₹' + ${course.price}">₹0</div>
-                </div>
+                        <div class="ci-rating">
+                            <span class="ci-rating-num" th:text="${course.averageRating}">4.7</span>
+                            <div class="ci-stars">
+                                <span th:each="i : ${#numbers.sequence(1,5)}">
+                                    <i class="fas fa-star" th:if="${course.averageRating >= i}"></i>
+                                    <i class="fas fa-star-half-alt"
+                                        th:if="${course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
+                                    <i class="far fa-star" th:if="${course.averageRating < i - 0.5}"></i>
+                                </span>
+                            </div>
+                            <span class="ci-count" th:text="'(' + ${course.reviewCount} + ')'"></span>
+                        </div>
+                    </a>
 
-                <!-- Hover tooltip (Udemy style) -->
-                <div class="course-tooltip">
-                    <div class="tooltip-title" th:text="${course.title}">Course Title</div>
-                    <div class="tooltip-updated">Updated recently</div>
-                    <div class="tooltip-desc"
-                        th:text="${course.description != null ? course.description : 'Master this topic with comprehensive, beginner-friendly lessons taught by real-world experts.'}">
-                        Description</div>
-                    <div class="tooltip-tags">
-                        <span class="tooltip-tag">Beginner</span>
-                        <span class="tooltip-tag"
-                            th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
-                    </div>
-                    <form th:action="@{/course/wishlist/add}" method="post">
-                        <input type="hidden" name="courseId" th:value="${course.id}">
-                        <button type="submit" class="tooltip-btn">Add to Favorites</button>
-                    </form>
+                    <!-- Action Button -->
+                    <a th:href="@{/course/enroll/{id}(id=${course.id})}" class="btn-add-course">
+                        Add to My Course
+                    </a>
                 </div>
-
-            </a>
+            </div>
         </div>
 
         <!-- Empty state -->
@@ -1207,31 +1203,8 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-cols">
-                <div class="footer-col">
-                    <a href="/about">About Us</a>
-                    <a href="/blog">Blog</a>
-                </div>
-                <div class="footer-col">
-                    <a href="/contact">Contact Us</a>
-                </div>
-                <div class="footer-col">
-                    <a href="/terms">Terms</a>
-                    <a href="/privacy">Privacy Policy</a>
-                </div>
-                <div class="footer-col">
-                    <button class="footer-lang-btn"><i class="fas fa-globe"></i> English</button>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <span class="footer-logo">SkillHub</span>
-                <span class="footer-copy">&copy; 2024 SkillHub, Inc.</span>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:src="@{/js/script.js}"></script>
 </body>
