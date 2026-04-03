@@ -6,12 +6,25 @@
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #a435f0;
+            --primary-hover: #8710d8;
+            --text-main: #2d2f31;
+            --text-secondary: #6a6f73;
+            --bg-gray: #f7f9fa;
+            --border: #d1d7dc;
+            --white: #ffffff;
+        }
+
         body {
-            background-color: #f7f9fa;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 0;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
@@ -26,32 +39,41 @@
         .header h1 {
             font-weight: 700;
             color: #2d2f31;
+            margin: 0;
         }
 
         .back-link {
             text-decoration: none;
-            color: #a435f0;
+            color: var(--primary);
             font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: inline-block;
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid var(--border);
             margin-bottom: 2rem;
+            background: var(--white);
         }
 
         .tab-btn {
             padding: 1rem 2rem;
             cursor: pointer;
             font-weight: 700;
-            color: #6a6f73;
+            color: var(--text-secondary);
             border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
         }
 
         .tab-btn.active {
-            color: #2d2f31;
-            border-bottom: 2px solid #2d2f31;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--text-main);
         }
 
         .tab-content {
@@ -65,9 +87,10 @@
         /* Forms */
         .card {
             background: white;
-            border: 1px solid #d1d7dc;
-            padding: 2rem;
+            border: 1px solid var(--border);
+            padding: 2.5rem;
             margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
         .form-group {
@@ -84,34 +107,45 @@
         textarea,
         select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #1c1d1f;
+            padding: 12px;
+            border: 1px solid var(--text-main);
             font-size: 1rem;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-weight: 700;
             cursor: pointer;
             border: none;
+            transition: opacity 0.2s;
         }
 
         .btn-primary {
-            background-color: #2d2f31;
+            background-color: var(--text-main);
             color: white;
         }
 
         .btn-success {
-            background-color: #a435f0;
+            background-color: var(--primary);
             color: white;
+        }
+
+        .btn-save-fixed {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
         }
 
         /* Curriculum Styles */
         .section-item {
             background: #f7f9fa;
-            border: 1px solid #d1d7dc;
-            margin-bottom: 1rem;
-            padding: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
         }
 
         .section-header {
@@ -119,20 +153,21 @@
             justify-content: space-between;
             align-items: center;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
         }
 
         .lecture-list {
             background: white;
-            border: 1px solid #d1d7dc;
-            padding: 1rem;
+            border: 1px solid var(--border);
+            padding: 0;
         }
 
         .lecture-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid #eee;
         }
 
@@ -147,15 +182,18 @@
         <div class="header">
             <div>
                 <a href="/instructor/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Courses</a>
-                <h1 th:text="'Edit: ' + ${course.title}">Edit Course</h1>
+                <h1 th:text="'Manage: ' + ${course.title}">Edit Course</h1>
             </div>
-            <button class="btn btn-primary"
-                th:onclick="'window.location.href=\'/course/' + ${course.id} + '/learn\''">Preview Course</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary"
+                    th:onclick="'window.location.href=\'/course/' + ${course.id} + '\''">Preview Course</button>
+            </div>
         </div>
 
         <div class="tabs">
             <div class="tab-btn active" onclick="switchTab('details')">Course Landing Page</div>
             <div class="tab-btn" onclick="switchTab('curriculum')">Curriculum</div>
+            <div class="tab-btn" onclick="switchTab('pricing')">Pricing & Promo</div>
         </div>
 
         <!-- Details Tab -->
@@ -166,49 +204,62 @@
 
                     <div class="form-group">
                         <label>Course Title</label>
-                        <input type="text" th:field="*{title}" required>
+                        <input type="text" th:field="*{title}" required maxlength="60">
                     </div>
 
                     <div class="form-group">
-                        <label>Subtitle</label>
-                        <input type="text" th:field="*{subtitle}">
+                        <label>Course Subtitle</label>
+                        <input type="text" th:field="*{subtitle}" placeholder="Summary of what students will achieve.">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select th:field="*{category.id}">
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Level</label>
+                            <select th:field="*{level}">
+                                <option value="Beginner">Beginner Level</option>
+                                <option value="Intermediate">Intermediate Level</option>
+                                <option value="Advanced">Advanced Level</option>
+                                <option value="All Levels">All Levels</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Category</label>
-                        <select th:field="*{category.id}">
-                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                        </select>
+                        <label>Learning Objectives (One per line)</label>
+                        <textarea th:field="*{learningObjectives}" rows="5" placeholder="What will students learn?"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>Description</label>
-                        <textarea th:field="*{description}" rows="5"></textarea>
+                        <label>Requirements</label>
+                        <textarea th:field="*{requirements}" rows="3"></textarea>
                     </div>
 
-                    <input type="hidden" th:field="*{price}" value="0.0">
-
                     <div class="form-group">
-                        <label>Course Preview Video URL</label>
-                        <input type="text" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
+                        <label>Course Description</label>
+                        <textarea th:field="*{description}" rows="8"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Course Thumbnail</label>
-                        <div style="display: flex; gap: 1.5rem; align-items: start; background: #f8fafc; padding: 1rem; border: 1px solid #d1d7dc;">
-                            <img id="editImagePreview" th:src="${course.imageUrl}" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d7dc;">
+                        <div style="display: flex; gap: 1.5rem; align-items: start; background: #f8fafc; padding: 1rem; border: 1px solid var(--border);">
+                            <img id="editImagePreview" th:src="${course.imageUrl}" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
                             <div style="flex: 1;">
-                                <label style="font-size: 0.9rem; margin-bottom: 0.5rem;">Change Thumbnail</label>
+                                <label style="font-size: 0.9rem; margin-bottom: 0.5rem;">Upload New Thumbnail</label>
                                 <input type="file" name="thumbnail" accept="image/*" style="border: none; padding: 0;" onchange="previewEditImage(event)">
-                                <p style="font-size: 0.75rem; color: #6a6f73; margin-top: 0.5rem;">
-                                    <i class="fas fa-info-circle"></i> Upload a new image to update your course thumbnail. Recommended size: 750x422 pixels.
-                                </p>
                                 <input type="hidden" th:field="*{imageUrl}">
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save Details</button>
+                    <div style="padding-top: 1rem; border-top: 1px solid #eee; margin-top: 1rem;">
+                        <button type="submit" class="btn btn-success btn-save-fixed">Save All Changes</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -216,20 +267,20 @@
         <!-- Curriculum Tab -->
         <div id="curriculum" class="tab-content">
             <div class="card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                    <h2>Curriculum</h2>
-                    <button class="btn btn-primary" onclick="showAddSectionForm()">+ Add Section</button>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; align-items: center;">
+                    <h2 style="margin: 0;">Course Content</h2>
+                    <button class="btn btn-primary" onclick="showAddSectionForm()">+ New Section</button>
                 </div>
 
-                <!-- Add Section Form (Hidden by default) -->
+                <!-- Add Section Form -->
                 <div id="addSectionForm"
-                    style="display: none; background: #e6f2f5; padding: 1rem; margin-bottom: 1rem;">
-                    <h4>New Section</h4>
+                    style="display: none; background: #f0f7ff; padding: 1.5rem; border: 1px solid #cce3ff; margin-bottom: 2rem;">
+                    <h4>Add New Section</h4>
                     <form th:action="@{/instructor/courses/{id}/sections/add(id=${course.id})}" method="post">
                         <div class="form-group">
-                            <input type="text" name="title" placeholder="Enter section title" required>
+                            <input type="text" name="title" placeholder="e.g. Introduction to React" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Section</button>
+                        <button type="submit" class="btn btn-success">Save Section</button>
                         <button type="button" class="btn" onclick="hideAddSectionForm()">Cancel</button>
                     </form>
                 </div>
@@ -237,52 +288,87 @@
                 <!-- Section List -->
                 <div th:each="section : ${course.sections}" class="section-item">
                     <div class="section-header">
-                        <span th:text="'Section ' + ${sectionStat.count} + ': ' + ${section.title}">Section 1:
-                            Intro</span>
-                        <!-- Add Lecture Button -->
-                        <button class="btn btn-success" style="font-size: 0.8rem;"
-                            th:onclick="'showAddLectureForm(' + ${section.id} + ')'">+ Content</button>
+                        <span th:text="'Section ' + ${sectionStat.count} + ': ' + ${section.title}">Section Title</span>
+                        <button class="btn btn-success" style="font-size: 0.85rem;"
+                            th:onclick="'showAddLectureForm(' + ${section.id} + ')'"><i class="fas fa-plus"></i> Add Lecture</button>
                     </div>
 
-                    <!-- Add Lecture Form (Hidden) -->
+                    <!-- Add Lecture Form -->
                     <div th:id="'addLectureForm-' + ${section.id}"
-                        style="display: none; padding: 1rem; border-top: 1px solid #ddd;">
-                        <h5>Add Lecture to <span th:text="${section.title}"></span></h5>
+                        style="display: none; padding: 1.5rem; background: white; border: 1px solid var(--border); margin: 1rem 0;">
+                        <h5>Add Lecture: <span th:text="${section.title}" style="color: var(--primary);"></span></h5>
                         <form th:action="@{/instructor/sections/{id}/lectures/add(id=${section.id})}" method="post"
                             enctype="multipart/form-data">
                             <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" required>
+                                <label>Lecture Title</label>
+                                <input type="text" name="title" required placeholder="e.g. Setting up your environment">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <div class="form-group">
+                                    <label>Video File (MP4)</label>
+                                    <input type="file" name="videoFile" accept="video/*">
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration (Seconds)</label>
+                                    <input type="number" name="durationSeconds" value="0">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label>Video File (Upload)</label>
-                                <input type="file" name="videoFile" accept="video/*">
+                                <label>OR Promotional/External Video URL</label>
+                                <input type="text" name="videoUrl" placeholder="YouTube/Vimeo URL">
                             </div>
-                            <div class="form-group">
-                                <label>OR Video URL (YouTube/External)</label>
-                                <input type="text" name="videoUrl"
-                                    placeholder="e.g. https://www.youtube.com/watch?v=...">
+                            <div style="background: #f8fafc; padding: 1rem; margin-bottom: 1rem; border: 1px solid #d1d7dc;">
+                                <label><i class="fas fa-paperclip"></i> Supporting Materials (Optional)</label>
+                                <small style="display: block; color: #666; margin-bottom: 0.5rem;">PDFs, Source Code, Slides</small>
+                                <input type="file" name="lectureResources" multiple>
                             </div>
-                            <div class="form-group">
-                                <label>Duration (Seconds)</label>
-                                <input type="number" name="durationSeconds" value="0">
-                            </div>
-                            <button type="submit" class="btn btn-success">Save Lecture</button>
-                            <button type="button" class="btn"
-                                th:onclick="'hideAddLectureForm(' + ${section.id} + ')'">Cancel</button>
+                            <button type="submit" class="btn btn-success">Upload & Save</button>
+                            <button type="button" class="btn" th:onclick="'hideAddLectureForm(' + ${section.id} + ')'">Cancel</button>
                         </form>
                     </div>
 
                     <div class="lecture-list" th:if="${not #lists.isEmpty(section.lectures)}">
                         <div th:each="lecture : ${section.lectures}" class="lecture-item">
-                            <div>
-                                <i class="fas fa-play-circle"></i>
-                                <span th:text="${lecture.title}">Lecture Title</span>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <i class="fas fa-video" style="color: #6a6f73;"></i>
+                                <div style="font-weight: 500;" th:text="${lecture.title}">Lecture Title</div>
                             </div>
-                            <small th:text="${lecture.durationSeconds} + 's'">120s</small>
+                            <div style="display: flex; gap: 15px; align-items: center; color: #6a6f73; font-size: 0.9rem;">
+                                <span th:if="${lecture.durationSeconds > 0}" th:text="${lecture.durationSeconds / 60} + 'm ' + ${lecture.durationSeconds % 60} + 's'"></span>
+                                <i class="fas fa-pencil-alt" style="cursor: pointer;" title="Edit Lecture"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Pricing Tab -->
+        <div id="pricing" class="tab-content">
+            <div class="card">
+                <h2>Pricing & Promo Video</h2>
+                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <!-- Need to include essential hidden fields for save to work if not present in this tab -->
+                    <input type="hidden" th:field="*{title}">
+                    <input type="hidden" th:field="*{category.id}">
+
+                    <div class="form-group">
+                        <label>Price (USD)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.2rem; font-weight: 700;">$</span>
+                            <input type="number" th:field="*{price}" step="0.01" min="0" style="max-width: 200px;" placeholder="0.00">
+                        </div>
+                        <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Set to 0.00 for a free course.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Promotional Video URL</label>
+                        <input type="text" th:field="*{videoUrl}" placeholder="e.g. YouTube link to course preview">
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-save-fixed">Save Pricing</button>
+                </form>
             </div>
         </div>
     </div>
@@ -291,34 +377,22 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
             document.getElementById(tabName).classList.add('active');
-            // Find btn logic could be better but sufficient for MVP
-            event.target.classList.add('active');
+            // Standardize button finding logic
+            event.currentTarget.classList.add('active');
         }
 
-        function showAddSectionForm() {
-            document.getElementById('addSectionForm').style.display = 'block';
-        }
-        function hideAddSectionForm() {
-            document.getElementById('addSectionForm').style.display = 'none';
-        }
+        function showAddSectionForm() { document.getElementById('addSectionForm').style.display = 'block'; }
+        function hideAddSectionForm() { document.getElementById('addSectionForm').style.display = 'none'; }
+        function showAddLectureForm(sectionId) { document.getElementById('addLectureForm-' + sectionId).style.display = 'block'; }
+        function hideAddLectureForm(sectionId) { document.getElementById('addLectureForm-' + sectionId).style.display = 'none'; }
 
-        function showAddLectureForm(sectionId) {
-            document.getElementById('addLectureForm-' + sectionId).style.display = 'block';
-        }
-        function hideAddLectureForm(sectionId) {
-            document.getElementById('addLectureForm-' + sectionId).style.display = 'none';
-        }
         function previewEditImage(event) {
             const reader = new FileReader();
             reader.onload = function() {
-                const preview = document.getElementById('editImagePreview');
-                preview.src = reader.result;
+                document.getElementById('editImagePreview').src = reader.result;
             }
-            if (event.target.files[0]) {
-                reader.readAsDataURL(event.target.files[0]);
-            }
+            if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
         }
     </script>
 </body>
