@@ -59,7 +59,16 @@ public class ProfileController {
         model.addAttribute("user", user);
 
         // Fetch enrollments
+        // Fetch enrollments
         List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
+        for (com.skillhub.model.Enrollment enrollment : enrollments) {
+            long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
+            if (total > 0) {
+                long completed = lectureProgressRepository.countCompletedLecturesByCourse(enrollment.getStudent().getId(), enrollment.getCourse().getId());
+                double percentage = Math.min(100.0, (double) completed / total * 100.0);
+                enrollment.setProgressPercentage(percentage);
+            }
+        }
         model.addAttribute("enrollments", enrollments);
 
         // --- Calculate Category Expertise (Skill Radar) ---

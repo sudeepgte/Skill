@@ -16,7 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/instructor")
@@ -39,6 +44,9 @@ public class InstructorController {
  
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
@@ -79,10 +87,47 @@ public class InstructorController {
         if ("communications".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
         } else if ("students".equals(tab)) {
-            model.addAttribute("enrollments", enrollmentRepository.findByInstructorEmail(email));
+            List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
+            for (com.skillhub.model.Enrollment enrollment : enrollments) {
+                long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
+                double lectureBasedPct = 0.0;
+                if (total > 0) {
+                    long completed = lectureProgressRepository.countCompletedLecturesByCourse(enrollment.getStudent().getId(), enrollment.getCourse().getId());
+                    lectureBasedPct = Math.min(100.0, (double) completed / total * 100.0);
+                }
+                // Use whichever is higher: discrete lecture completion OR partial video watch %
+                double storedPct = enrollment.getProgressPercentage();
+                enrollment.setProgressPercentage(Math.max(lectureBasedPct, storedPct));
+            }
+            model.addAttribute("enrollments", enrollments);
         }
 
         return "instructor/dashboard";
+    }
+
+    /** REST endpoint – returns live progress for all enrolled students (JSON) */
+    @GetMapping("/api/students-progress")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> getStudentsProgress(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        String email = principal.getName();
+        List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (com.skillhub.model.Enrollment enrollment : enrollments) {
+            long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
+            double lectureBasedPct = 0.0;
+            if (total > 0) {
+                long completed = lectureProgressRepository.countCompletedLecturesByCourse(
+                        enrollment.getStudent().getId(), enrollment.getCourse().getId());
+                lectureBasedPct = Math.min(100.0, (double) completed / total * 100.0);
+            }
+            double pct = Math.max(lectureBasedPct, enrollment.getProgressPercentage());
+            Map<String, Object> row = new HashMap<>();
+            row.put("enrollmentId", enrollment.getId());
+            row.put("pct", Math.round(pct));
+            result.add(row);
+        }
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/courses/create")
