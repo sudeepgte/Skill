@@ -2,15 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>About Us | SkillHub</title>
+    <title>About Us | Our Mission to Empower Learners Worldwide</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap"
-        rel="stylesheet">
-    <!-- FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <!-- Footer Styles -->
@@ -19,57 +15,67 @@
     <style>
         :root {
             --primary: #5624d0;
-            --dark: #1c1d1f;
+            --primary-dark: #1c1d1f;
+            --text-main: #1c1d1f;
+            --text-muted: #6a6f73;
+            --bg-light: #f7f9fa;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
             background-color: #ffffff;
-            color: var(--dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
         }
 
+        /* ── Hero Section ── */
         .page-header {
             position: relative;
-            background: url('/images/about/about_hero.png') center/cover no-repeat;
-            padding: 12rem 0;
+            background-image: linear-gradient(rgba(28, 29, 31, 0.7), rgba(28, 29, 31, 0.7)), url('/images/about_hero_pro.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 14rem 2.4rem;
             text-align: center;
             color: white;
-            min-height: 450px;
+            min-height: 50vh;
             display: flex;
             align-items: center;
         }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(28, 29, 31, 0.65);
-        }
-
-        .page-header .container {
-            position: relative;
-            z-index: 1;
+        .header-glass-card {
+            background: transparent;
+            padding: 4.8rem;
             max-width: 900px;
+            margin: 0 auto;
         }
 
         .page-header h1 {
             font-family: 'Merriweather', serif;
-            font-size: 4.2rem;
-            font-weight: 700;
+            font-size: 5.2rem;
+            font-weight: 800;
             margin-bottom: 2.4rem;
+            letter-spacing: -1.5px;
+            color: #ffffff !important;
         }
 
         .page-header p {
-            font-size: 1.8rem;
+            font-size: 2rem;
             line-height: 1.6;
-            opacity: 0.9;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
+        /* ── Content Section ── */
         .content-section {
-            padding: 10rem 0;
+            padding: 10rem 2.4rem;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .mission-grid {
@@ -79,101 +85,159 @@
             align-items: center;
         }
 
+        @media (max-width: 960px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+                gap: 4.8rem;
+            }
+        }
+
         .mission-text h2 {
-            font-size: 2.4rem;
+            font-size: 3.6rem;
             margin-bottom: 3.2rem;
             font-weight: 800;
-            color: var(--dark);
+            color: var(--primary-dark);
+            line-height: 1.2;
         }
 
         .mission-text p {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             line-height: 1.8;
             margin-bottom: 2.4rem;
-            color: #6a6f73;
+            color: var(--text-muted);
+        }
+
+        .mission-image {
+            position: relative;
         }
 
         .mission-image img {
             width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 2rem;
+            box-shadow: 0 3.2rem 6.4rem rgba(0, 0, 0, 0.12);
         }
 
-        /* Stats Section */
+        /* ── Stats Section ── */
         .stats-section {
-            background-color: #f7f9fa;
-            padding: 8rem 0;
+            background-color: var(--bg-light);
+            padding: 8rem 2.4rem;
             text-align: center;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            padding: 2.4rem;
         }
 
         .stat-item h3 {
-            font-size: 3.6rem;
+            font-size: 4.8rem;
             font-weight: 800;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
             color: var(--primary);
+            letter-spacing: -1px;
         }
 
         .stat-item p {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
+        /* ── Values Cards ── */
         .values-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 4rem;
-            margin-top: 8rem;
+            margin-top: 6.4rem;
         }
 
         .value-card {
-            padding: 4rem;
-            border: 1px solid #d1d7dc;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-align: center;
+            padding: 4.8rem 3.2rem;
+            background: white;
+            border: 1px solid #e0e4e8;
+            border-radius: 1.6rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: left;
         }
 
         .value-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-12px);
             border-color: var(--primary);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2rem 4rem rgba(86, 36, 208, 0.08);
         }
 
         .value-icon {
-            font-size: 4rem;
-            color: var(--primary);
+            font-size: 3.2rem;
+            color: white;
+            background: var(--primary);
+            width: 6.4rem;
+            height: 6.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.2rem;
             margin-bottom: 2.4rem;
+            box-shadow: 0 0.8rem 1.6rem rgba(86, 36, 208, 0.3);
         }
 
         .value-card h3 {
-            font-size: 2rem;
+            font-size: 2.4rem;
             margin-bottom: 1.6rem;
             font-weight: 700;
+            color: var(--primary-dark);
         }
 
-        @media (max-width: 992px) {
-            .mission-grid {
-                grid-template-columns: 1fr;
-                gap: 4rem;
-            }
+        .value-card p {
+            font-size: 1.6rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
 
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+        /* ── CTA Section ── */
+        .cta-section {
+            background: var(--primary-dark);
+            color: #ffffff;
+            padding: 8rem 2.4rem;
+            text-align: center;
+        }
 
-            .page-header h1 {
-                font-size: 3.2rem;
-            }
+        .cta-section h2 {
+            color: #ffffff !important;
+        }
+
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .btn-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 1.2rem;
+            background: white;
+            color: var(--primary-dark);
+            padding: 2rem 4rem;
+            font-size: 2rem;
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 1.2rem;
+            transition: all 0.3s ease;
+            margin-top: 3.2rem;
+        }
+
+        .btn-large:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -185,31 +249,23 @@
 
     <!-- Header Section -->
     <header class="page-header">
-        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
-            <h1>We share knowledge with the world</h1>
-            <p>SkillHub is a global destination for online learning, connecting millions of people through mastery of
-                new skills and practical knowledge shared by experts.</p>
+        <div class="header-glass-card">
+            <h1>We empower everyone, everywhere.</h1>
+            <p>SkillHub is a global destination for online learning, connecting millions of people through mastery of practical skills taught by world-class experts.</p>
         </div>
     </header>
 
     <!-- Mission Section -->
     <section class="content-section">
-        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
+        <div class="section-container">
             <div class="mission-grid">
                 <div class="mission-text">
-                    <h2>Changing learning for the better</h2>
-                    <p>Whether you want to learn a new skill, train your team, or share what you know with the world,
-                        you're in the right place. As a leader in online learning, we're here to help you achieve your
-                        goals and transform your life.</p>
-                    <p>We help organizations of all types and sizes prepare for the path ahead — wherever it leads. Our
-                        curated collection of business and technical courses help companies, governments, and nonprofits
-                        go further by placing learning at the center of their strategies.</p>
-                    <a href="/register" class="btn btn-primary"
-                        style="background: var(--dark); color: white; padding: 1.6rem 3.2rem; font-weight: 700; text-decoration: none; border-radius: 4px; display: inline-block;">Start
-                        Learning Today</a>
+                    <h2>Transforming the future of global education</h2>
+                    <p>Whether you want to learn a new programming language, master leadership strategies, or share what you know with the world, SkillHub is your partner in growth.</p>
+                    <p>We help organizations of all types and sizes prepare for the path ahead. Our curated collections of business and technical courses help companies, governments, and nonprofits go further by placing learning at the center of their operations.</p>
                 </div>
                 <div class="mission-image">
-                    <img src="/images/about/about_mission.png" alt="Our Mission at SkillHub">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80" alt="Team Synergy at SkillHub">
                 </div>
             </div>
         </div>
@@ -217,66 +273,67 @@
 
     <!-- Stats Section -->
     <section class="stats-section">
-        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3>62M+</h3>
-                    <p>Learners</p>
-                </div>
-                <div class="stat-item">
-                    <h3>75K+</h3>
-                    <p>Instructors</p>
-                </div>
-                <div class="stat-item">
-                    <h3>210K+</h3>
-                    <p>Courses</p>
-                </div>
-                <div class="stat-item">
-                    <h3>830M+</h3>
-                    <p>Enrollments</p>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>62M+</h3>
+                <p>Global Learners</p>
+            </div>
+            <div class="stat-item">
+                <h3>75K+</h3>
+                <p>Expert Mentors</p>
+            </div>
+            <div class="stat-item">
+                <h3>210K+</h3>
+                <p>Video Courses</p>
+            </div>
+            <div class="stat-item">
+                <h3>180+</h3>
+                <p>Countries Reached</p>
             </div>
         </div>
     </section>
 
     <!-- Values Section -->
     <section class="content-section">
-        <div class="container" style="max-width: 1184px; margin: 0 auto; padding: 0 24px;">
+        <div class="section-container">
             <div style="text-align: center; margin-bottom: 6.4rem;">
-                <h2 style="font-size: 3.2rem; font-weight: 800;">Our Core Values</h2>
-                <p style="font-size: 1.8rem; color: #6a6f73; margin-top: 1.6rem;">What drives us every day to empower
-                    students worldwide.</p>
+                <h2 style="font-size: 4rem; font-weight: 800; color: var(--primary-dark);">Our Core Values</h2>
+                <p style="font-size: 1.8rem; color: var(--text-muted); margin-top: 1.6rem; max-width: 600px; margin-left: auto; margin-right: auto;">These principles drive our mission every day to democratize knowledge and empower professionals worldwide.</p>
             </div>
 
             <div class="values-grid">
                 <div class="value-card">
-                    <i class="fas fa-bullseye value-icon"></i>
-                    <h3>Work with purpose</h3>
-                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We are dedicated to creating access
-                        to knowledge for everyone, everywhere. Every line of code and every course is built with the
-                        student in mind.</p>
+                    <div class="value-icon"><i class="fas fa-bullseye"></i></div>
+                    <h3>Impact First</h3>
+                    <p>We are dedicated to creating access to knowledge for everyone. Every part of our platform is designed to maximize learning outcomes and career advancement.</p>
                 </div>
                 <div class="value-card">
-                    <i class="fas fa-users value-icon"></i>
-                    <h3>Community focused</h3>
-                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We believe in the power of
-                        connecting learners and instructors. Our platform is a thriving ecosystem of collaboration and
-                        support.</p>
+                    <div class="value-icon"><i class="fas fa-users"></i></div>
+                    <h3>Radical Collaboration</h3>
+                    <p>We believe in the power of connecting learners and instructors. Our platform is a thriving ecosystem of shared wisdom and mutual support.</p>
                 </div>
                 <div class="value-card">
-                    <i class="fas fa-lightbulb value-icon"></i>
-                    <h3>Always learning</h3>
-                    <p style="font-size: 1.5rem; line-height: 1.6; color: #6a6f73;">We practice what we preach. We are
-                        constantly innovating and learning ourselves to ensure SkillHub stays at the cutting edge of
-                        tech education.</p>
+                    <div class="value-icon"><i class="fas fa-lightbulb"></i></div>
+                    <h3>Infinite Innovation</h3>
+                    <p>We practice what we preach. We are constantly innovating ourselves to ensure SkillHub stays at the cutting edge of modern education technology.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2 style="font-size: 3.6rem; font-weight: 800;">Ready to start your journey?</h2>
+            <p style="font-size: 1.8rem; opacity: 0.8; margin-top: 1.2rem;">Join the millions of learners and take the next step in your career.</p>
+            <a href="/register" class="btn-large">Get Started Now <i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
 
     <!-- Footer Fragment -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 
+    <script th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

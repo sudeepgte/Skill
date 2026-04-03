@@ -140,10 +140,10 @@
             flex-wrap: wrap;
         }
 
-        /* Fixed Sidebar */
+        /* Absolute Sidebar (Anchored to Header) */
         .course-sidebar {
-            position: fixed;
-            top: 100px;
+            position: absolute;
+            top: 40px;
             right: calc((100% - 1184px) / 2 + 24px);
             width: 340px;
             background: var(--white);
@@ -474,96 +474,7 @@
     <!-- Navbar Fragment -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <!-- Sidebar (Desktop) -->
-    <div class="course-sidebar">
-        <div class="sidebar-preview">
-            <!-- Video Player Logic -->
-            <div id="videoContainer"
-                style="background: black; min-height: 190px; display: flex; align-items: center; justify-content: center;">
-                <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
-                    <!-- Check if YouTube -->
-                    <iframe
-                        th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                        th:src="${course.embedUrl}" width="100%" height="190" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-                    <!-- Else Local Video -->
-                    <video id="coursePreviewVideo"
-                        th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                        width="100%" height="190" controls>
-                        <source th:src="@{${course.videoUrl}}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </th:block>
-                <!-- Fallback Image -->
-                <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
-                    th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt="Course Preview"
-                    style="width: 100%; height: 190px; object-fit: cover;" id="previewImage">
-            </div>
 
-            <!-- Video Restriction Overlay -->
-            <div id="videoOverlay">
-                <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; color: #a435f0;"></i>
-                <p style="font-weight: 700; margin-bottom: 5px;">Preview Ended</p>
-                <div th:if="${!isLoggedIn}">
-                    <p style="font-size: 0.9rem; margin-bottom: 15px; color: #ccc;">
-                        Please <a href="/login"
-                            style="color: #cec0fc; text-decoration: underline; font-weight: bold;">Login</a> to
-                        continue.
-                    </p>
-                </div>
-                <div th:if="${isLoggedIn}">
-                    <p style="font-size: 0.8rem; margin-bottom: 15px; color: #ccc;">Enroll in this course to continue
-                        watching.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="sidebar-content">
-            <th:block th:if="${isEnrolled}">
-                <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy"
-                    style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
-                    Now</a>
-            </th:block>
-            <th:block th:unless="${isEnrolled}">
-                <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
-            </th:block>
-
-            <!-- Wishlist Button -->
-            <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
-                style="background-color: transparent; color: #1c1d1f; border: 1px solid #1c1d1f; margin-top: 10px;">
-                <i class="far fa-heart"></i> Add to Favorites
-            </button>
-            <p class="guarantee">30-Day Money-Back Guarantee</p>
-
-            <div class="includes">
-                <p style="font-weight: 700; font-size: 0.9rem; margin: 24px 0 12px; color: var(--text-dark);">This
-                    course includes:</p>
-                <ul class="includes-list">
-                    <li>
-                        <i class="fas fa-video"></i>
-                        <span><strong th:text="${course.contentLength != null ? course.contentLength : '0h 0m'}">0h
-                                0m</strong> on-demand video</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-file-alt"></i>
-                        <span><strong th:text="${articleCount != null ? articleCount : '0'}">0</strong> articles</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-play-circle"></i>
-                        <span><strong th:text="${videoCount != null ? videoCount : '0'}">0</strong> video lessons</span>
-                    </li>
-                    <li th:if="${totalSections != null}">
-                        <i class="fas fa-layer-group"></i>
-                        <span><strong th:text="${totalSections}">0</strong> course sections</span>
-                    </li>
-                    <li><i class="fas fa-mobile-alt"></i> <span>Access on mobile and TV</span></li>
-                    <li><i class="fas fa-infinity"></i> <span>Full lifetime access</span></li>
-                    <li><i class="fas fa-certificate"></i> <span>Certificate of completion</span></li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
     <!-- Header -->
     <div class="course-header">
@@ -638,6 +549,103 @@
                 <th:block th:unless="${isEnrolled}">
                     <button class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
                 </th:block>
+            </div>
+
+            <!-- Sidebar (Desktop - Absolute Positioned within Header) -->
+            <div class="course-sidebar">
+                <div class="sidebar-preview">
+                    <!-- Video Player Logic -->
+                    <div id="videoContainer"
+                        style="background: black; min-height: 190px; display: flex; align-items: center; justify-content: center;">
+                        <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
+                            <!-- Check if YouTube -->
+                            <iframe
+                                th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
+                                th:src="${course.embedUrl}" width="100%" height="190" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                            <!-- Else Local Video -->
+                            <video id="coursePreviewVideo"
+                                th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
+                                width="100%" height="190" controls>
+                                <source th:src="@{${course.videoUrl}}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </th:block>
+                        <!-- Fallback Image -->
+                        <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
+                            th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
+                            alt="Course Preview" style="width: 100%; height: 190px; object-fit: cover;"
+                            id="previewImage">
+                    </div>
+
+                    <!-- Video Restriction Overlay -->
+                    <div id="videoOverlay">
+                        <i class="fas fa-lock" style="font-size: 2rem; margin-bottom: 10px; color: #a435f0;"></i>
+                        <p style="font-weight: 700; margin-bottom: 5px;">Preview Ended</p>
+                        <div th:if="${!isLoggedIn}">
+                            <p style="font-size: 0.9rem; margin-bottom: 15px; color: #ccc;">
+                                Please <a href="/login"
+                                    style="color: #cec0fc; text-decoration: underline; font-weight: bold;">Login</a> to
+                                continue.
+                            </p>
+                        </div>
+                        <div th:if="${isLoggedIn}">
+                            <p style="font-size: 0.8rem; margin-bottom: 15px; color: #ccc;">Enroll in this course to
+                                continue
+                                watching.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-content">
+                    <th:block th:if="${isEnrolled}">
+                        <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy"
+                            style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
+                            Now</a>
+                    </th:block>
+                    <th:block th:unless="${isEnrolled}">
+                        <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
+                    </th:block>
+
+                    <!-- Wishlist Button -->
+                    <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
+                        style="background-color: transparent; color: #1c1d1f; border: 1px solid #1c1d1f; margin-top: 10px;">
+                        <i class="far fa-heart"></i> Add to Favorites
+                    </button>
+                    <p class="guarantee">30-Day Money-Back Guarantee</p>
+
+                    <div class="includes">
+                        <p style="font-weight: 700; font-size: 0.9rem; margin: 24px 0 12px; color: var(--text-dark);">
+                            This
+                            course includes:</p>
+                        <ul class="includes-list">
+                            <li>
+                                <i class="fas fa-video"></i>
+                                <span><strong
+                                        th:text="${course.contentLength != null ? course.contentLength : '0h 0m'}">0h
+                                        0m</strong> on-demand video</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-file-alt"></i>
+                                <span><strong th:text="${articleCount != null ? articleCount : '0'}">0</strong>
+                                    articles</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-play-circle"></i>
+                                <span><strong th:text="${videoCount != null ? videoCount : '0'}">0</strong> video
+                                    lessons</span>
+                            </li>
+                            <li th:if="${totalSections != null}">
+                                <i class="fas fa-layer-group"></i>
+                                <span><strong th:text="${totalSections}">0</strong> course sections</span>
+                            </li>
+                            <li><i class="fas fa-mobile-alt"></i> <span>Access on mobile and TV</span></li>
+                            <li><i class="fas fa-infinity"></i> <span>Full lifetime access</span></li>
+                            <li><i class="fas fa-certificate"></i> <span>Certificate of completion</span></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

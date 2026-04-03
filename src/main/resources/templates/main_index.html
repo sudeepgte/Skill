@@ -369,28 +369,34 @@
         .hero-content-box {
             position: relative;
             z-index: 2;
-            max-width: 46rem;
+            max-width: 52rem;
             margin-left: 7%;
-            background: transparent;
-            padding: 3.2rem 3.2rem 3.6rem;
+            background: rgba(28, 29, 31, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 4rem;
+            border-radius: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .hero-content-box h1 {
             font-family: 'Merriweather', Georgia, serif;
-            font-size: 3.2rem;
-            font-weight: 700;
-            line-height: 1.25;
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.2;
             color: #fff;
-            margin-bottom: 1.4rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+            margin-bottom: 1.8rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            letter-spacing: -0.5px;
         }
 
         .hero-content-box p {
-            font-size: 1.5rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.7rem;
+            color: rgba(255, 255, 255, 0.95);
             line-height: 1.6;
-            margin-bottom: 2.4rem;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+            margin-bottom: 3.2rem;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         .hero-btns {
@@ -572,15 +578,51 @@
             color: #6a6f73;
         }
 
-        /* ─── CATEGORY TABS ─── */
+        /* ─── CATEGORY TABS SLIDER ─── */
+        .cat-tabs-slider {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 2.8rem;
+        }
+
+        .cat-scroll-btn {
+            background: #ffffff;
+            border: 1px solid #d1d7dc;
+            color: #1c1d1f;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: absolute;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.2s ease;
+        }
+
+        .cat-scroll-btn:hover {
+            background: #f7f9fa;
+            border-color: #1c1d1f;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .cat-prev { left: -1.6rem; }
+        .cat-next { right: -1.6rem; }
+
         .cat-tabs {
             display: flex;
-            gap: 0;
+            gap: 1rem;
             overflow-x: auto;
             scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
             border-bottom: 1px solid #d1d7dc;
-            margin-bottom: 2.8rem;
-            margin-top: 2rem;
+            width: 100%;
         }
 
         .cat-tabs::-webkit-scrollbar {
@@ -1065,48 +1107,51 @@
 
             <!-- Slide 1 -->
             <div class="hero-slide">
-                <img th:src="@{/images/skill1.jpeg}" alt="Unlock Your Potential">
+                <img th:src="@{/images/hero1.png}" alt="Unlock Your Potential">
                 <div class="hero-content-box">
                     <h1>Unlock Your Potential</h1>
-                    <p>Skills for your present (and your future). Get started with us.</p>
+                    <p>Advance your career with masterclass courses in technology, business, and creative arts.</p>
                     <div class="hero-btns">
-                        <a href="/register" class="hero-cta-primary">Get Started</a>
-                        <a href="#courses" class="hero-cta-secondary">Browse Courses</a>
+                        <a href="/register" class="hero-cta-primary">Get Started Now</a>
+                        <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: #fff; color: #fff;">Browse All Courses</a>
                     </div>
                 </div>
             </div>
+
             <!-- Slide 2 -->
             <div class="hero-slide">
-                <img th:src="@{/images/skill2.jpeg}" alt="Future in Tech">
+                <img th:src="@{/images/hero2.png}" alt="Future in Tech">
                 <div class="hero-content-box">
                     <h1>Future in Tech</h1>
-                    <p>Master the latest frameworks and technologies with expert-led courses.</p>
+                    <p>Master the latest frameworks and technologies with hands-on, expert-led training sessions.</p>
                     <div class="hero-btns">
-                        <a href="#courses" class="hero-cta-primary">Explore Tech</a>
-                        <a href="#courses" class="hero-cta-secondary">Learn AI</a>
+                        <a href="#courses" class="hero-cta-primary">Explore Tech Skills</a>
+                        <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: #fff; color: #fff;">Learn AI / ML</a>
                     </div>
                 </div>
             </div>
+
             <!-- Slide 3 -->
             <div class="hero-slide">
-                <img th:src="@{/images/skill3.jpeg}" alt="Lead the Way">
+                <img th:src="@{/images/hero3.png}" alt="Lead the Way">
                 <div class="hero-content-box">
-                    <h1>Lead the Way</h1>
-                    <p>Business strategies for the modern world. Advance your career today.</p>
+                    <h1>Lead with Confidence</h1>
+                    <p>Build essential leadership and business strategies for the modern global marketplace.</p>
                     <div class="hero-btns">
-                        <a href="#courses" class="hero-cta-primary">Get Personal Plan</a>
-                        <a href="#courses" class="hero-cta-secondary">View All</a>
+                        <a href="#courses" class="hero-cta-primary">Personal Learning Plan</a>
+                        <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: #fff; color: #fff;">Corporate Training</a>
                     </div>
                 </div>
             </div>
+
             <!-- Slide 4 -->
             <div class="hero-slide">
-                <img th:src="@{/images/skill4.jpeg}" alt="Expert Learning">
+                <img th:src="@{/images/hero4.png}" alt="Expert Learning">
                 <div class="hero-content-box">
-                    <h1>Expert Learning</h1>
-                    <p>Learn from the best in the industry. Start your journey today.</p>
+                    <h1>Expert-Led Learning</h1>
+                    <p>Join over 210,000 learners globally and start your transformation today.</p>
                     <div class="hero-btns">
-                        <a href="/register" class="hero-cta-primary">Join Now</a>
+                        <a href="/register" class="hero-cta-primary">Join the Community</a>
                     </div>
                 </div>
             </div>
@@ -1117,7 +1162,7 @@
     </div>
 
     <!-- ═══════════════════════════ COURSE SECTION ═══════════════════════════ -->
-    <div class="main" id="courses">
+    <div class="main" id="courses" style="margin-top: 6.4rem;">
 
 
 
@@ -1128,14 +1173,20 @@
                 published every month</p>
         </div>
 
-        <!-- Category tabs -->
-        <div class="cat-tabs">
-            <a th:href="${user != null} ? '/user/home' : '/'" class="cat-tab"
-                th:classappend="${selectedCategoryId == null} ? ' active' : ''">All Courses</a>
-            <a th:each="cat : ${categories}"
-                th:href="${user != null} ? @{/user/home(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
-                class="cat-tab" th:classappend="${selectedCategoryId == cat.id} ? ' active' : ''"
-                th:text="${cat.name}">Category</a>
+        <!-- Category tabs with Horizontal Slider -->
+        <div class="cat-tabs-slider">
+            <button class="cat-scroll-btn cat-prev" onclick="scrollTabs('catTabsScroll', -200)"><i
+                    class="fas fa-chevron-left"></i></button>
+            <div class="cat-tabs" id="catTabsScroll">
+                <a th:href="${user != null} ? '/user/home' : '/'" class="cat-tab"
+                    th:classappend="${selectedCategoryId == null} ? ' active' : ''">All Courses</a>
+                <a th:each="cat : ${categories}"
+                    th:href="${user != null} ? @{/user/home(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
+                    class="cat-tab" th:classappend="${selectedCategoryId == cat.id} ? ' active' : ''"
+                    th:text="${cat.name}">Category</a>
+            </div>
+            <button class="cat-scroll-btn cat-next" onclick="scrollTabs('catTabsScroll', 200)"><i
+                    class="fas fa-chevron-right"></i></button>
         </div>
 
         <!-- Course grid -->
@@ -1211,6 +1262,12 @@
     <!-- Footer Fragment -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 
+    <script>
+        function scrollTabs(containerId, amount) {
+            const container = document.getElementById(containerId);
+            container.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+    </script>
     <script th:src="@{/js/script.js}"></script>
 </body>
 
