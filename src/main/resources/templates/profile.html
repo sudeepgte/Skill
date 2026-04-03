@@ -438,6 +438,9 @@
                 <button type="button" class="nav-item" data-tab="certificates">
                     <i class="fas fa-award"></i> Certificates
                 </button>
+                <button type="button" class="nav-item" data-tab="notes">
+                    <i class="fas fa-sticky-note"></i> My Notes
+                </button>
                 <button type="button" class="nav-item" data-tab="security">
                     <i class="fas fa-key"></i> Security
                 </button>
@@ -737,6 +740,55 @@
                 </div>
             </div>
 
+            <!-- Notes Tab -->
+            <div id="notes" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1.6rem; margin-bottom: 2rem;">
+                    <h2 style="margin: 0;">My Learning Notes</h2>
+                    <button th:unless="${#lists.isEmpty(notes)}" onclick="downloadAllNotes()" 
+                            style="background: var(--primary); color: white; border: none; padding: 0.8rem 1.6rem; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.8rem;">
+                        <i class="fas fa-file-download"></i> Download All Notes (.txt)
+                    </button>
+                </div>
+                <div th:if="${#lists.isEmpty(notes)}"
+                    style="text-align: center; padding: 6rem 0; border: 1px dashed var(--border); border-radius: 12px;">
+                    <i class="fas fa-sticky-note"
+                        style="font-size: 4.8rem; color: #ddd; margin-bottom: 1.6rem; display: block;"></i>
+                    <p style="color: var(--muted); font-size: 1.5rem;">You haven't saved any notes yet.</p>
+                    <p style="color: var(--muted);">Notes you write during lessons will appear here!</p>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 2rem;" th:unless="${#lists.isEmpty(notes)}">
+                    <div th:each="note : ${notes}" class="card" 
+                        style="padding: 2.4rem; border-radius: 12px; background: #fff; transition: all 0.2s; border: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.8rem; color: var(--primary);" 
+                                    th:text="${note.course != null ? note.course.title : 'General Note'}">Course Title</h4>
+                                <p style="margin: 0.4rem 0 0; font-size: 1.3rem; color: var(--muted); font-weight: 600;">
+                                    <i class="fas fa-bookmark" style="margin-right: 0.5rem; opacity: 0.7;"></i>
+                                    <span th:text="${note.lecture != null ? note.lecture.title : 'Course Overview & General Notes'}">Lecture Title</span>
+                                </p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 1.1rem; color: #999; display: block;" 
+                                    th:text="${#temporals.format(note.updatedAt, 'dd MMM yyyy')}">Date</span>
+                                <a th:href="@{/user/course/{courseId}/learn(courseId=${note.course.id}, lectureId=${note.lecture != null ? note.lecture.id : null})}" 
+                                   style="font-size: 1.2rem; color: var(--primary); text-decoration: none; font-weight: 700; margin-top: 0.8rem; display: inline-block;">
+                                    Go to lesson <i class="fas fa-external-link-alt" style="font-size: 1rem; margin-left: 0.3rem;"></i>
+                                </a>
+                                <button th:attr="onclick=|downloadSingleNote('${#strings.escapeJavaScript(note.course != null ? note.course.title : 'General Note')}', '${#strings.escapeJavaScript(note.lecture != null ? note.lecture.title : 'Overview')}', '${#strings.escapeJavaScript(note.content)}')|"
+                                        style="background: none; border: 1px solid var(--border); color: var(--muted); padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 1.1rem; margin-top: 0.8rem; cursor: pointer; margin-left: 1rem;">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        <div style="background: var(--bg-light); padding: 1.6rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <p style="margin: 0; white-space: pre-wrap; line-height: 1.6; font-size: 1.4rem; color: #333;" th:text="${note.content}">Note content...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Security Tab -->
             <div id="security" class="tab-content">
                 <h2 style="margin-top: 0;">Password & Security</h2>
@@ -763,6 +815,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:inline="javascript">
+        const activeTab = /*[[${activeTab}]]*/ 'welcome';
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
                 button.addEventListener('click', () => {
@@ -833,6 +886,60 @@
                 }
             });
         });
+
+        function downloadSingleNote(course, lecture, content) {
+            const fileName = `${course.replace(/\s+/g, '_')}_Note.txt`;
+            const text = `SKILLHUB LEARNING NOTES\n` +
+                         `========================\n\n` +
+                         `COURSE: ${course}\n` +
+                         `LESSON: ${lecture}\n` +
+                         `DATE: ${new Date().toLocaleDateString()}\n\n` +
+                         `CONTENT:\n------------------------\n` +
+                         `${content}\n\n` +
+                         `========================\n` +
+                         `Generated by SkillHub`;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadAllNotes() {
+            let fullText = `SKILLHUB - ALL LEARNING NOTES\n` +
+                          `==============================\n` +
+                          `DATE: ${new Date().toLocaleDateString()}\n` +
+                          `==============================\n\n`;
+
+            const notes = document.querySelectorAll('#notes .card');
+            notes.forEach((card, index) => {
+                const h4 = card.querySelector('h4');
+                const course = h4 ? h4.textContent.trim() : 'Unknown Category';
+                
+                const p = card.querySelector('p');
+                const lesson = p ? p.textContent.trim() : 'Unknown Lesson';
+                
+                const contentEl = card.querySelector('div[style*="background: var(--bg-light)"] p');
+                const content = contentEl ? contentEl.textContent.trim() : '';
+
+                fullText += `NOTE #${index + 1}\n` +
+                            `------------------------------\n` +
+                            `COURSE: ${course}\n` +
+                            `LESSON: ${lesson}\n` +
+                            `CONTENT:\n${content}\n\n`;
+            });
+
+            const blob = new Blob([fullText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SkillHub_All_Notes.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 
     <script>

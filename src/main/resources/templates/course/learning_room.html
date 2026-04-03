@@ -852,8 +852,13 @@
                 </p>
             </div>
             <textarea id="noteArea" placeholder="Write down important points..." th:text="${lectureNote}"
-                oninput="autoSaveNote()"
-                style="width: 100%; height: 65vh; padding: 1rem; border-radius: 8px; border: 1px solid #ddd; resize: none;"></textarea>
+                oninput="debouncedAutoSave()"
+                style="width: 100%; height: 50vh; padding: 1.2rem; border-radius: 8px; border: 1px solid #ddd; resize: none; background: #fff; color: #1c1d1f; font-size: 1.4rem; line-height: 1.6; margin-bottom: 1.5rem;"></textarea>
+            
+            <button id="manualSaveBtn" class="btn-audio" onclick="manualSaveNote()" 
+                style="width: 100%; justify-content: center; background: var(--accent); color: #fff; border: none; padding: 1.4rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px var(--accent-glow);">
+                <i class="fas fa-save" style="margin-right: 0.8rem;"></i> Save Learning Notes
+            </button>
             <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
                 <i class="fas fa-info-circle"></i> Your notes are automatically saved and associated with
                 <span
@@ -1350,20 +1355,30 @@
         }
 
         let autoSaveTimeout;
-        function autoSaveNote() {
+        function debouncedAutoSave() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(manualSaveNote, 2000);
+        }
+
+        function manualSaveNote() {
             const indicator = document.getElementById('saveIndicator');
             const noteEl = document.getElementById('noteArea');
+            const saveBtn = document.getElementById('manualSaveBtn');
             if (!indicator || !noteEl) return;
+
+            const originalBtnHtml = saveBtn ? saveBtn.innerHTML : '';
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.style.opacity = '0.7';
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            }
 
             indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             indicator.classList.add('show');
+            indicator.style.color = 'var(--accent-light)';
 
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                const lectureId = [[${ currentLesson != null ? currentLesson.id : 0}]];
+            const lectureId = /*[[${ currentLesson != null ? currentLesson.id : 0 }]]*/ 0;
             const content = noteEl.value;
-            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
             fetch(`/user/lecture/${lectureId}/save-note`, {
                 method: 'POST',
@@ -1376,26 +1391,67 @@
                     courseId: COURSE_ID
                 })
             })
-                .then(async response => {
-                    if (!response.ok) {
-                        const text = await response.text();
-                        throw new Error(`Server error: ${response.status} - ${text}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        indicator.innerHTML = '<i class="fas fa-check-circle"></i> Saved';
-                        setTimeout(() => indicator.classList.remove('show'), 2000);
-                    } else {
-                        throw new Error('Server returned failure');
-                    }
-                })
-                .catch(err => {
-                    console.error('Note save error:', err);
-                    indicator.innerHTML = '<i class="fas fa-exclamation-circle" style="color:#ff6b6b;"></i> Save Failed';
-                });
-        }, 1000);
+            .then(async response => {
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`Server error: ${response.status} - ${text}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    indicator.innerHTML = '<i class="fas fa-check-circle"></i> Saved Successfully';
+                    indicator.style.color = 'var(--success)';
+                    showToast('Note saved successfully!');
+                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                } else {
+                    throw new Error(data.message || 'Server returned failure');
+                }
+            })
+            .catch(err => {
+                console.error('Note save error:', err);
+                indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i> Save Failed';
+                indicator.style.color = '#ff6b6b';
+                showToast('Error: ' + err.message, false);
+            })
+            .finally(() => {
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.style.opacity = '1';
+                    saveBtn.innerHTML = originalBtnHtml;
+                }
+            });
+        }
+        function showToast(message, isSuccess = true) {
+            let toast = document.getElementById('noteToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'noteToast';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 2rem;
+                    right: 2rem;
+                    padding: 1.2rem 2.4rem;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 9999;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    transition: all 0.3s ease;
+                    opacity: 0;
+                    transform: translateY(20px);
+                `;
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.background = isSuccess ? 'var(--success)' : '#ef4444';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+            }, 3000);
         }
         /*]]>*/
     </script>

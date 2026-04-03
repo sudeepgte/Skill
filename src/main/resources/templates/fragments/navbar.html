@@ -36,6 +36,7 @@
         <div class="nav-right">
             <!-- New Global Links -->
             <a href="/about" class="nav-link">About</a>
+            <a href="/contact" class="nav-link">Contact</a>
 
             <th:block th:if="${user != null}">
                 <a href="/profile?tab=courses" class="nav-link">My Course</a>
@@ -59,7 +60,7 @@
                             <div class="email" th:text="${user.email}">user@example.com</div>
                         </div>
                         <a href="/profile">My Profile</a>
-                        <a href="/student/dashboard">My Courses</a>
+                        <a href="/user/home">My Courses</a>
                         <a href="/profile?tab=security">Change Password</a>
                         <div class="nav-user-menu-divider"></div>
                         <form th:action="@{/logout}" method="post">

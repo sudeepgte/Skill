@@ -17,8 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Controller
@@ -46,6 +44,9 @@ public class ProfileController {
 
     @Autowired
     private com.skillhub.repository.CreationRepository creationRepository;
+
+    @Autowired
+    private com.skillhub.repository.NoteRepository noteRepository;
 
     @GetMapping("/profile")
     public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "welcome") String tab,
@@ -100,6 +101,11 @@ public class ProfileController {
                 .filter(com.skillhub.model.Enrollment::isExamPassed)
                 .collect(Collectors.toList());
         model.addAttribute("certificates", certificates);
+        
+        // Fetch Notes
+        List<com.skillhub.model.Note> notes = noteRepository.findByUserOrderByUpdatedAtDesc(user);
+        model.addAttribute("notes", notes);
+
         model.addAttribute("activeTab", tab);
 
         return "profile";

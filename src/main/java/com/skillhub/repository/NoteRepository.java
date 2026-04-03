@@ -11,4 +11,6 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     Optional<Note> findByUserAndLecture(User user, Lecture lecture);
 
     Optional<Note> findByUserAndCourseAndLectureIsNull(User user, Course course);
+    
+    java.util.List<Note> findByUserOrderByUpdatedAtDesc(User user);
 }

@@ -2,154 +2,397 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Contact Us | SkillHub</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Merriweather:wght@300;400;700&display=swap"
-        rel="stylesheet">
+    <title>Contact Us - Get in Touch with SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}" href="../static/css/style.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="../static/css/navbar.css">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="../static/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    
+    <!-- Footer Styles -->
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
 
     <style>
-        .contact-container {
-            max-width: 80rem;
+        :root {
+            --primary-purple: #5624d0;
+            --primary-dark: #1c1d1f;
+            --text-main: #1c1d1f;
+            --text-muted: #6a6f73;
+            --bg-light: #f7f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Hero Section */
+        .contact-hero {
+            background-color: #ffffff;
+            background-image: radial-gradient(at 0% 0%, rgba(86, 36, 208, 0.05) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(86, 36, 208, 0.02) 0, transparent 50%);
+            padding: 8rem 2.4rem 4rem;
+            text-align: center;
+            color: var(--text-main);
+            position: relative;
+            border-bottom: 1px solid #e0e4e8;
+        }
+
+        .contact-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 6.4rem 2rem;
-            display: flex;
-            gap: 4rem;
         }
 
-        .contact-info {
-            flex: 1;
-        }
-
-        .contact-form {
-            flex: 1.5;
-            background: #fff;
-            padding: 3rem;
-            border: 1px solid #d1d7dc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        .contact-header {
+        .contact-hero h1 {
             font-family: 'Merriweather', serif;
+            font-size: 4.8rem;
+            font-weight: 800;
+            margin-bottom: 1.6rem;
+            letter-spacing: -1px;
+            color: var(--primary-purple);
+        }
+
+        .contact-hero p {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Main Content Container */
+        .contact-wrapper {
+            max-width: 1200px;
+            margin: 4rem auto 10rem;
+            padding: 0 2.4rem;
+            display: grid;
+            grid-template-columns: 1.2fr 1.8fr;
+            gap: 4rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 960px) {
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+                margin-top: 4rem;
+            }
+        }
+
+        /* Left Column: Contact Info Cards */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2.4rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 3.2rem;
+            border-radius: 1.2rem;
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card i {
+            font-size: 2.4rem;
+            color: var(--primary-purple);
+            margin-bottom: 1.6rem;
+            background: rgba(86, 36, 208, 0.1);
+            padding: 1.6rem;
+            border-radius: 1rem;
+        }
+
+        .info-card h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+
+        .info-card p, .info-card a {
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            line-height: 1.6;
+            display: block;
+        }
+
+        .info-card a:hover {
+            color: var(--primary-purple);
+        }
+
+        /* Social Section */
+        .social-row {
+            display: flex;
+            gap: 1.6rem;
+            margin-top: 1.2rem;
+        }
+
+        .social-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        /* Right Column: Contact Form */
+        .form-panel {
+            background: white;
+            padding: 4.8rem;
+            border-radius: 1.2rem;
+            box-shadow: 0 1.2rem 4.8rem rgba(0, 0, 0, 0.08);
+        }
+
+        .form-header {
+            margin-bottom: 3.2rem;
+        }
+
+        .form-header h2 {
             font-size: 3.2rem;
             font-weight: 700;
-            margin-bottom: 1.6rem;
+            margin-bottom: 1rem;
         }
 
-        .form-group {
-            margin-bottom: 1.6rem;
+        .form-header p {
+            font-size: 1.8rem;
+            color: var(--text-muted);
         }
 
-        .form-label {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.4rem;
+            margin-bottom: 2.4rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .form-panel { padding: 3.2rem 2.4rem; }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .input-group label {
+            font-weight: 600;
             font-size: 1.4rem;
+            color: var(--primary-dark);
         }
 
-        .form-input {
-            width: 100%;
-            padding: 1.2rem;
-            border: 1px solid #1c1d1f;
+        .input-group input, 
+        .input-group textarea,
+        .input-group select {
+            padding: 1.4rem 1.6rem;
+            border: 2px solid #e0e4e8;
+            border-radius: 0.8rem;
             font-size: 1.6rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus, 
+        .input-group textarea:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 4px rgba(86, 36, 208, 0.1);
         }
 
         .submit-btn {
-            background-color: #a435f0;
+            background: var(--primary-purple);
             color: white;
             border: none;
-            padding: 1.2rem 2.4rem;
+            padding: 1.8rem 3.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            font-size: 1.6rem;
+            border-radius: 0.8rem;
             cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 1.6rem;
+        }
+
+        .submit-btn:hover {
+            background: #401b9c;
+            transform: translateY(-2px);
+            box-shadow: 0 0.8rem 2rem rgba(86, 36, 208, 0.3);
+        }
+
+        /* Map Section */
+        .map-section {
+            margin-top: 4.8rem;
+            border-radius: 1.2rem;
+            overflow: hidden;
+            height: 30rem;
+            position: relative;
+            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.1);
+        }
+
+        .map-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(86, 36, 208, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-pin {
+            background: white;
+            padding: 1.6rem;
+            border-radius: 50%;
+            color: #ff4757;
+            font-size: 3.2rem;
+            box-shadow: 0 0.4rem 1.2rem rgba(255, 71, 87, 0.4);
+            animation: bounce 2s infinite ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a href="/" class="nav-logo">SkillHub</a>
-        <div class="nav-search">
-            <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form action="/"><input type="text" name="query" placeholder="Search for anything"></form>
+    <!-- Navbar Fragment -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Header -->
+    <section class="contact-hero">
+        <div class="contact-hero-content">
+            <h1>Let's Connect</h1>
+            <p>Have a question or need personalized guidance? Our world-class support team is here to help you navigate your learning journey.</p>
         </div>
-        <div class="nav-right">
-            <th:block th:if="${user != null}">
-                <div class="nav-user-dropdown">
-                    <div class="nav-avatar"><span th:text="${#strings.substring(user.name,0,1)}">U</span></div>
-                    <div class="nav-user-menu">
-                        <div class="nav-user-menu-header">
-                            <div class="name" th:text="${user.name}">User Name</div>
-                            <div class="email" th:text="${user.email}">user@example.com</div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="contact-wrapper">
+        
+        <!-- Sidebar Info -->
+        <aside class="info-panel">
+            <div class="info-card">
+                <i class="fas fa-envelope-open-text"></i>
+                <h3>Email Us</h3>
+                <p>Support & General Inquiries</p>
+                <a href="mailto:support@skillhub.com">support@skillhub.com</a>
+                <a href="mailto:partners@skillhub.com" style="margin-top: 0.8rem;">partners@skillhub.com</a>
+            </div>
+
+            <div class="info-card">
+                <i class="fas fa-phone-volume"></i>
+                <h3>Call Our Experts</h3>
+                <p>Mon - Fri: 9:00 AM - 6:00 PM EST</p>
+                <a href="tel:+15551234567">+1 (555) 123-4567</a>
+            </div>
+
+            <div class="info-card">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Visit Headquarters</h3>
+                <p>123 Learning Way, Suite 400<br>Innovative District, NY 10001</p>
+            </div>
+
+            <div class="info-card">
+                <h3>Follow Our Journey</h3>
+                <div class="social-row">
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Form & Map -->
+        <section class="main-panel">
+            <div class="form-panel">
+                <div class="form-header">
+                    <h2>Send us a Message</h2>
+                    <p>Tell us more about your needs and we'll get back to you within 24 hours.</p>
+                </div>
+
+                <form action="#" method="POST">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="name" placeholder="John Doe" required>
                         </div>
-                        <a href="/profile">My Profile</a>
-                        <li><a href="/student/dashboard">My Courses</a></li>
-                        <div class="nav-user-menu-divider"></div>
-                        <form th:action="@{/logout}" method="post"><button type="submit">Logout</button></form>
+                        <div class="input-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="subject">Inquiry Type</label>
+                            <select id="subject" name="subject">
+                                <option value="general">General Support</option>
+                                <option value="billing">Billing & Payments</option>
+                                <option value="corporate">Corporate Training</option>
+                                <option value="technical">Technical Issue</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="phone">Phone (Optional)</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+1 (000) 000-0000">
+                        </div>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 2.4rem;">
+                        <label for="message">Your Message</label>
+                        <textarea id="message" name="message" rows="6" placeholder="How can we empower you today?" required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Send Message <i class="fas fa-paper-plane" style="margin-left: 1rem;"></i></button>
+                </form>
+
+                <!-- Embedded-like Map Section -->
+                <div class="map-section">
+                    <img th:src="@{/images/contact_map_bg.png}" alt="SkillHub Headquarters Location">
+                    <div class="map-overlay">
+                        <div class="map-pin">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
                     </div>
                 </div>
-            </th:block>
-            <th:block th:unless="${user != null}">
-                <a href="/login" class="nav-btn-outline">Log in</a>
-                <a href="/register" class="nav-btn-primary">Sign up</a>
-            </th:block>
-            <button class="nav-globe"><i class="fas fa-globe"></i></button>
-        </div>
-    </nav>
-
-    <div class="contact-container">
-        <div class="contact-info">
-            <h1 class="contact-header">Contact Us</h1>
-            <p style="font-size: 1.6rem; line-height: 1.6; margin-bottom: 2rem;">
-                Have questions? We're here to help. Send us a message and we'll respond as soon as possible.
-            </p>
-            <div style="font-size: 1.6rem;">
-                <p><strong>Email:</strong> support@skillhub.com</p>
-                <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-                <p><strong>Address:</strong><br>123 Learning Way<br>Education City, CA 90210</p>
             </div>
-        </div>
+        </section>
 
-        <div class="contact-form">
-            <form>
-                <div class="form-group">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-input" placeholder="Your name">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="Your email">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-input" placeholder="What is this about?">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-input" rows="5" placeholder="How can we help?"></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Send Message</button>
-            </form>
-        </div>
-    </div>
+    </main>
 
-    <!-- Footer -->
-    <footer class="simple-footer">
-        <div class="container footer-simple-content">
-            <a href="/about" class="footer-simple-link">About Us</a>
-            <a href="/blog" class="footer-simple-link">Blog</a>
-            <a href="/contact" class="footer-simple-link">Contact Us</a>
-            <a href="/terms" class="footer-simple-link">Terms</a>
-            <a href="/privacy" class="footer-simple-link">Privacy Policy</a>
-        </div>
-        <div class="container">
-            <div class="footer-copyright" style="text-align: center; margin-top: 2rem;">&copy; 2024 SkillHub, Inc.</div>
-        </div>
-    </footer>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/script.js}"></script>
 </body>
 
 </html>

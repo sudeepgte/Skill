@@ -10,6 +10,68 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Footer Styles -->
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style>
+        .hero {
+            background: #1c1d1f;
+        }
+        .hero-content-box {
+            background: rgba(28, 29, 31, 0.65) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 4rem !important;
+            border-radius: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 52rem !important;
+        }
+        .hero-content-box h1 {
+            font-size: 3.8rem !important;
+            font-weight: 800 !important;
+            margin-bottom: 1.8rem !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        .hero-content-box p {
+            font-size: 1.7rem !important;
+            line-height: 1.6 !important;
+            margin-bottom: 0 !important;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ─── CATEGORY TABS SLIDER ─── */
+        .cat-tabs-slider {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .cat-scroll-btn {
+            background: #ffffff;
+            border: 1px solid #d1d7dc;
+            color: #1c1d1f;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: absolute;
+            z-index: 20;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.2s ease;
+        }
+
+        .cat-scroll-btn:hover {
+            background: #f7f9fa;
+            border-color: #1c1d1f;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .cat-prev { left: -1.6rem; }
+        .cat-next { right: -1.6rem; }
+    </style>
 </head>
 
 <body>
@@ -24,28 +86,34 @@
         <div class="hero-track" id="heroTrack">
             <!-- Slide 1 -->
             <div class="hero-slide">
-               <img src="/images/about/skill1.jpeg" alt="Our Mission at SkillHub">
-                    
+                <img th:src="@{/images/hero1.png}" alt="Unlock Your Potential">
                 <div class="hero-content-box">
                     <h1>Unlock Your Potential</h1>
-                    <p>Skills for your present (and your future). Get started with us.</p>
+                    <p>Advance your career with masterclass courses across all major industries.</p>
                 </div>
             </div>
             <!-- Slide 2 -->
             <div class="hero-slide">
-                <img src="https://png.pngtree.com/background/20250512/original/pngtree-a-laptop-and-code-on-the-screen-with-the-text-coding-picture-image_15993834.jpg"
-                    alt="Technology" draggable="false">
+                <img th:src="@{/images/hero2.png}" alt="Future in Tech">
                 <div class="hero-content-box">
                     <h1>Future in Tech</h1>
-                    <p>Master the latest frameworks and technologies.</p>
+                    <p>Master the latest frameworks and technologies with expert-led courses.</p>
                 </div>
             </div>
             <!-- Slide 3 -->
             <div class="hero-slide">
-                <img th:src="@{/images/home/carousel_business.webp}" alt="Business" draggable="false">
+                <img th:src="@{/images/hero3.png}" alt="Lead the Way">
                 <div class="hero-content-box">
-                    <h1>Lead the Way</h1>
-                    <p>Business strategies for the modern world.</p>
+                    <h1>Lead with Confidence</h1>
+                    <p>Build essential business strategies for the modern world.</p>
+                </div>
+            </div>
+            <!-- Slide 4 -->
+            <div class="hero-slide">
+                <img th:src="@{/images/hero4.png}" alt="Expert Learning">
+                <div class="hero-content-box">
+                    <h1>Expert Learning</h1>
+                    <p>Learn from the world's best instructors and professionals.</p>
                 </div>
             </div>
         </div>
@@ -58,8 +126,8 @@
         <div class="hero-dots" id="heroDots"></div>
     </div>
 
-    <!-- Courses Section (Moved from below) -->
-    <div class="container" style="padding-top: 3.2rem; padding-bottom: 4.8rem;">
+    <!-- Courses Section -->
+    <div class="container" style="padding-top: 6.4rem; padding-bottom: 6.4rem;">
 
         <!-- Welcome Message -->
         <div style="margin-bottom: 3.2rem;">
@@ -68,11 +136,15 @@
             <p style="font-size: 1.6rem; color: var(--color-text-secondary);">Pick up where you left off</p>
         </div>
 
-        <!-- Filter Pills -->
-        <div class="tags-container">
-            <a href="/user/home" class="tag-pill" th:classappend="${activeSection == null} ? 'active'">All Courses</a>
-            <a th:each="section : ${sections}" th:href="@{/home(sectionId=${section.id})}" class="tag-pill"
-                th:classappend="${activeSection == section.id} ? 'active'" th:text="${section.name}">Development</a>
+        <!-- Filter Pills with Slider -->
+        <div class="cat-tabs-slider" style="margin-bottom: 3.2rem;">
+            <button class="cat-scroll-btn cat-prev" onclick="scrollTabs('homeTagsScroll', -200)"><i class="fas fa-chevron-left"></i></button>
+            <div class="tags-container" id="homeTagsScroll" style="overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; display: flex; gap: 1rem; width: 100%;">
+                <a href="/user/home" class="tag-pill" th:classappend="${activeSection == null} ? 'active'">All Courses</a>
+                <a th:each="section : ${sections}" th:href="@{/home(sectionId=${section.id})}" class="tag-pill"
+                    th:classappend="${activeSection == section.id} ? 'active'" th:text="${section.name}">Development</a>
+            </div>
+            <button class="cat-scroll-btn cat-next" onclick="scrollTabs('homeTagsScroll', 200)"><i class="fas fa-chevron-right"></i></button>
         </div>
 
         <!-- Section Title -->
@@ -92,7 +164,9 @@
         <div class="course-grid">
             <div th:each="course : ${courses}" class="course-card">
                 <div class="course-image">
-                    <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
+                    <a th:href="@{/course/{id}(id=${course.id})}">
+                        <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
+                    </a>
                     <!-- Wishlist Heart Overlay -->
                     <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
                         <input type="hidden" name="courseId" th:value="${course.id}" />
@@ -117,7 +191,7 @@
 
                     <!-- Action Button -->
                     <div style="margin-top: auto; padding-top: 1.6rem;">
-                        <a th:href="@{/course/enroll/{id}(id=${course.id})}" class="btn-add-course">
+                        <a th:href="@{/course/{id}(id=${course.id})}" class="btn-add-course">
                             Add to My Course
                         </a>
                     </div>
@@ -129,6 +203,12 @@
     <!-- Footer Fragment -->
     <div th:replace="~{fragments/footer :: footer}"></div>
 
+    <script>
+        function scrollTabs(containerId, amount) {
+            const container = document.getElementById(containerId);
+            container.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+    </script>
     <script th:src="@{/js/script.js}"></script>
 </body>
 
