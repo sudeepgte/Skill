@@ -598,7 +598,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="enrollment : ${enrollments}">
+                            <tr th:each="enrollment : ${enrollments}" th:attr="data-enrollment-id=${enrollment.id}">
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <div class="user-avatar" th:text="${#strings.substring(enrollment.student.name, 0, 1)}">S</div>
@@ -779,8 +779,31 @@
     </div>
 
     <script th:inline="javascript">
-        // Basic tab switching handled via URL parameters from backend, 
-        // but adding smooth transitions or client-side logic if needed.
+        // Live polling for student progress
+        function pollStudentProgress() {
+            // Only poll if we are on the students tab
+            if (!document.querySelector('.tab-content.active').textContent.includes('Enrolled Students')) return;
+
+            fetch('/instructor/api/students-progress')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        const row = document.querySelector(`tr[data-enrollment-id="${item.enrollmentId}"]`);
+                        if (row) {
+                            const bar = row.querySelector('div[style*="background: var(--primary)"]');
+                            const text = row.querySelector('span[style*="font-weight: 600"]');
+                            if (bar) bar.style.width = item.pct + '%';
+                            if (text) text.textContent = item.pct + '%';
+                        }
+                    });
+                })
+                .catch(err => console.error('Error polling progress:', err));
+        }
+
+        // Poll every 15 seconds
+        setInterval(pollStudentProgress, 15000);
+        // Also run once on load
+        document.addEventListener('DOMContentLoaded', pollStudentProgress);
     </script>
 </body>
 

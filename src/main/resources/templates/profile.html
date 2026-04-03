@@ -466,16 +466,18 @@
                 <!-- Stats Strip (Horizontal) -->
                 <div class="stats-strip"
                     style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 4rem;">
-                    <div class="stat-box"
-                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center;">
+                    <div class="stat-box transition-transform hover:-translate-y-1"
+                        onclick="document.querySelector('.nav-item[data-tab=\'courses\']').click()"
+                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center; cursor: pointer; transition: transform 0.2s;">
                         <div style="color: var(--primary); font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
                             th:text="${#lists.size(enrollments)}">0</div>
                         <div
                             style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
                             Courses</div>
                     </div>
-                    <div class="stat-box"
-                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center;">
+                    <div class="stat-box transition-transform hover:-translate-y-1"
+                        onclick="document.querySelector('.nav-item[data-tab=\'certificates\']').click()"
+                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center; cursor: pointer; transition: transform 0.2s;">
                         <div style="color: #b4690e; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
                             th:text="${#lists.size(certificates)}">0</div>
                         <div
@@ -602,7 +604,19 @@
                         Courses</a>
                 </div>
                 <div class="grid" th:unless="${#lists.isEmpty(enrollments)}">
-                    <div th:each="enrollment : ${enrollments}" class="card" th:if="${enrollment.course != null}">
+                    <div th:each="enrollment : ${enrollments}" class="card" th:if="${enrollment.course != null}"
+                        style="position: relative; overflow: hidden;">
+                        <!-- Green 'Completed' badge top-right corner -->
+                        <span class="course-done-badge" th:attr="data-badge-id=${enrollment.course.id}"
+                             th:if="${enrollment.progressPercentage >= 99.9}"
+                             style="position:absolute;top:1rem;right:1rem;background:#16a34a;color:#fff;font-size:1.1rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:20px;z-index:10;display:flex;align-items:center;gap:0.4rem;">
+                            <i class="fas fa-check-circle"></i> Completed
+                        </span>
+                        <span class="course-done-badge" th:attr="data-badge-id=${enrollment.course.id}"
+                             th:unless="${enrollment.progressPercentage >= 99.9}"
+                             style="position:absolute;top:1rem;right:1rem;background:#16a34a;color:#fff;font-size:1.1rem;font-weight:700;padding:0.35rem 0.9rem;border-radius:20px;z-index:10;display:none;align-items:center;gap:0.4rem;">
+                            <i class="fas fa-check-circle"></i> Completed
+                        </span>
                         <img th:src="${enrollment.course.imageUrl}"
                             style="width: 100%; height: 16rem; object-fit: cover;"
                             onerror="this.src='/images/banner1.webp'">
@@ -616,11 +630,13 @@
 
                             <div
                                 style="font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                                <span th:text="|${enrollment.progressPercentage ?: 0}% complete|">0% complete</span>
+                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:if="${enrollment.progressPercentage >= 99.9}">Completed</span>
+                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:unless="${enrollment.progressPercentage >= 99.9}" th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 1, 0)} + '% complete'">0% complete</span>
                             </div>
                             <div style="background: #eee; height: 8px; overflow: hidden; margin-bottom: 2rem;">
-                                <div style="background: var(--primary); height: 100%;"
-                                    th:style="|width: ${enrollment.progressPercentage ?: 0}%|"></div>
+                                <div class="course-prog-bar" th:attr="data-prog-bar-id=${enrollment.course.id}"
+                                    style="background: var(--primary); height: 100%; transition: width 0.3s;"
+                                    th:style="|background: var(--primary); height: 100%; transition: width 0.3s; width: ${enrollment.progressPercentage ?: 0}%|"></div>
                             </div>
 
                             <a th:href="@{/course/{id}/learn(id=${enrollment.course.id})}" class="btn-save"
@@ -713,9 +729,9 @@
                                 Completed on <span
                                     th:text="${cert.certificateDate != null ? #temporals.format(cert.certificateDate, 'dd MMM yyyy') : 'Recently'}">Date</span>
                             </p>
-                            <a href="#"
-                                style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 1.4rem; display: inline-block; margin-top: 1.2rem;">Download
-                                Certificate</a>
+                            <a th:href="@{/user/course/{id}/certificate(id=${cert.course.id})}"
+                                style="color: var(--primary); font-weight: 700; text-decoration:none; font-size: 1.4rem; display: inline-block; margin-top: 1.2rem;">
+                                <i class="fas fa-download" style="margin-right: 0.4rem;"></i>Download Certificate</a>
                         </div>
                     </div>
                 </div>
@@ -819,6 +835,33 @@
         });
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Override course progress using exact local video watch percentage
+            document.querySelectorAll('.course-prog-text').forEach(span => {
+                const courseId = span.getAttribute('data-prog-text-id');
+                const localPctStr = localStorage.getItem('skillhub_course_video_pct_' + courseId);
+                if (localPctStr) {
+                    const localPct = parseInt(localPctStr);
+                    if (localPct > 0 && span.textContent !== 'Completed') {
+                        if (localPct >= 99) {
+                            span.textContent = 'Completed';
+                            // Also show the green badge
+                            const badge = document.querySelector(`.course-done-badge[data-badge-id="${courseId}"]`);
+                            if (badge) badge.style.display = 'flex';
+                        } else {
+                            span.textContent = localPct + '% complete';
+                        }
+
+                        const bar = document.querySelector(`.course-prog-bar[data-prog-bar-id="${courseId}"]`);
+                        if (bar) {
+                            bar.style.width = localPct + '%';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

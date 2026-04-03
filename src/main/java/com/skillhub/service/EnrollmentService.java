@@ -130,4 +130,18 @@ public class EnrollmentService {
         enrollment.setProgressPercentage(percentage);
         enrollmentRepository.save(enrollment);
     }
+
+    /** Updates enrollment progress percentage directly (for partial video watch tracking). */
+    @Transactional
+    public void updateVideoProgress(User user, Long courseId, double percentage) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
+                .orElseThrow(() -> new RuntimeException("Not enrolled"));
+        // Only update if the new percentage is higher than stored
+        if (percentage > enrollment.getProgressPercentage()) {
+            enrollment.setProgressPercentage(Math.min(100.0, percentage));
+            enrollmentRepository.save(enrollment);
+        }
+    }
 }

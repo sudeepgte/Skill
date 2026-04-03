@@ -708,7 +708,7 @@
 
                 <!-- Lesson selected - non-YouTube video -->
                 <video
-                    th:if="${currentLesson != null && currentLesson.videoUrl != null && !#strings.contains(currentLesson.videoUrl, 'youtube')}"
+                    th:if="${currentLesson != null && currentLesson.videoUrl != null && !(#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
                     th:src="@{${currentLesson.videoUrl}}" controls autoplay playsinline id="mainVideo"
                     style="width:100%;height:100%;" allowfullscreen>
                     Your browser does not support the video tag.
@@ -952,10 +952,10 @@
             if (isCompleted(lectureId)) return;
             setCompleted(lectureId, true);
             setRadioState(lectureId, lectureId == CURRENT_LECTURE_ID ? 'playing' : 'watched');
-            // If it's the current one, mark btn as done too
+            // If it's the current one, hide the Mark Complete button
             if (lectureId == CURRENT_LECTURE_ID) {
                 const btn = document.getElementById('markCompleteBtn');
-                if (btn) { btn.classList.add('done'); btn.querySelector('span').textContent = 'Completed!'; }
+                if (btn) { btn.style.display = 'none'; }
             }
             updateProgressBar();
             showToast('Lecture marked as complete!');
@@ -996,10 +996,26 @@
                 total++;
                 if (isCompleted(item.dataset.lectureId)) done++;
             });
-            const pct = total ? Math.round((done / total) * 100) : 0;
+            let pct = total ? Math.round((done / total) * 100) : 0;
+            
+            // Mirror granular video watch completion if available
+            const localPctStr = localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID);
+            if (localPctStr && pct < 100) {
+                const localPct = parseInt(localPctStr);
+                if (localPct > pct) {
+                    pct = localPct >= 99 ? 100 : localPct;
+                }
+            }
+
             document.getElementById('progressFill').style.width = pct + '%';
             document.getElementById('progressText').textContent = pct + '% complete';
             document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
+
+            // Hide Mark Complete button when 100% is reached
+            const markBtn = document.getElementById('markCompleteBtn');
+            if (markBtn && pct >= 100) {
+                markBtn.style.display = 'none';
+            }
 
             // Auto-sync with backend if exactly 100%
             if (pct >= 100 && total > 0) {
@@ -1028,9 +1044,27 @@
             }
 
             // Save every 5 seconds
+            let lastSyncTime = 0;
             video.addEventListener('timeupdate', () => {
                 if (video.currentTime > 3) {
                     setProgress(CURRENT_LECTURE_ID, video.currentTime);
+                    if (video.duration) {
+                        const pct = Math.round((video.currentTime / video.duration) * 100);
+                        localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
+                        if (pct < 100 && document.getElementById('progressText').textContent.indexOf('100%') === -1) {
+                             document.getElementById('progressFill').style.width = pct + '%';
+                             document.getElementById('progressText').textContent = pct + '% complete';
+                        }
+                        // Sync pct to server every 10 seconds
+                        const now = Date.now();
+                        if (now - lastSyncTime > 10000) {
+                            lastSyncTime = now;
+                            fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${pct}`, {
+                                method: 'POST',
+                                headers: { [csrfHeader]: csrfToken }
+                            }).catch(() => {});
+                        }
+                    }
                 }
                 // Auto-mark complete when 90% watched
                 if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration > 0.90)) {
@@ -1070,6 +1104,7 @@
             if (!videoWrapper) return;
 
             const videoId = YT_EMBED_URL.split('/').pop().split('?')[0];
+            const saved = getProgress(CURRENT_LECTURE_ID);
 
             ytPlayer = new YT.Player('youtubePlayer', {
                 height: '100%',
@@ -1080,19 +1115,71 @@
                     'controls': 1, // Keep native controls but add our own too
                     'rel': 0,
                     'modestbranding': 1,
-                    'enablejsapi': 1
+                    'enablejsapi': 1,
+                    'start': saved > 5 ? Math.floor(saved) : 0
                 },
                 events: {
+                    'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
                 }
             });
         }
 
+        let ytProgressInterval;
+
+        function onPlayerReady(event) {
+            const saved = getProgress(CURRENT_LECTURE_ID);
+            if (saved > 5) {
+                showToast(`Resuming from ${Math.floor(saved / 60)}:${String(Math.floor(saved % 60)).padStart(2, '0')}`, false);
+            }
+        }
+
         function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PAUSED) {
-                updateControlBtnUI(true);
-            } else if (event.data === YT.PlayerState.PLAYING) {
+            if (event.data === YT.PlayerState.PLAYING) {
                 updateControlBtnUI(false);
+                if (!ytProgressInterval) {
+                    ytProgressInterval = setInterval(() => {
+                        if (ytPlayer && ytPlayer.getCurrentTime) {
+                            const time = ytPlayer.getCurrentTime();
+                            if (time > 3) setProgress(CURRENT_LECTURE_ID, time);
+                            
+                            const duration = ytPlayer.getDuration();
+                            if (duration) {
+                                const pct = Math.round((time / duration) * 100);
+                                localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
+                                if (pct < 100 && document.getElementById('progressText').textContent.indexOf('100%') === -1) {
+                                    document.getElementById('progressFill').style.width = pct + '%';
+                                    document.getElementById('progressText').textContent = pct + '% complete';
+                                }
+                                // Sync pct to server
+                                fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${pct}`, {
+                                    method: 'POST',
+                                    headers: { [csrfHeader]: csrfToken }
+                                }).catch(() => {});
+                                if (!isCompleted(CURRENT_LECTURE_ID) && (time / duration > 0.90)) {
+                                    markLectureComplete(CURRENT_LECTURE_ID);
+                                }
+                            }
+                        }
+                    }, 5000);
+                }
+            } else {
+                if (event.data === YT.PlayerState.PAUSED) {
+                    updateControlBtnUI(true);
+                }
+                if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                    if (ytPlayer && ytPlayer.getCurrentTime) {
+                        const time = ytPlayer.getCurrentTime();
+                        setProgress(CURRENT_LECTURE_ID, event.data === YT.PlayerState.ENDED ? 0 : time);
+                        if (event.data === YT.PlayerState.ENDED) {
+                            markLectureComplete(CURRENT_LECTURE_ID);
+                        }
+                    }
+                }
+                if (ytProgressInterval && event.data !== YT.PlayerState.BUFFERING) {
+                    clearInterval(ytProgressInterval);
+                    ytProgressInterval = null;
+                }
             }
         }
 
@@ -1208,10 +1295,17 @@
                 }
             });
 
-            // Mark complete button state
+            // Mark complete button state — hide if lecture already completed
             if (CURRENT_LECTURE_ID && isCompleted(CURRENT_LECTURE_ID)) {
                 const btn = document.getElementById('markCompleteBtn');
-                if (btn) { btn.classList.add('done'); btn.querySelector('span').textContent = 'Completed!'; }
+                if (btn) { btn.style.display = 'none'; }
+            }
+
+            // Also hide if localStorage video pct is already 99%+
+            const savedPct = parseInt(localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID) || '0');
+            if (savedPct >= 99) {
+                const btn = document.getElementById('markCompleteBtn');
+                if (btn) { btn.style.display = 'none'; }
             }
 
             updateProgressBar();

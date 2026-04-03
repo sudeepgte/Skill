@@ -67,4 +67,23 @@ public class EnrollmentController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    /**
+     * Video progress endpoint: saves partial watch percentage to DB.
+     * Called from learning room every 10s so instructor dashboard shows real-time progress.
+     */
+    @PostMapping("/video-progress/{courseId}")
+    public ResponseEntity<?> saveVideoProgress(@PathVariable Long courseId,
+            @RequestParam double pct, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        try {
+            User user = userService.findByEmail(principal.getName());
+            enrollmentService.updateVideoProgress(user, courseId, pct);
+            return ResponseEntity.ok(Map.of("message", "Progress saved"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 }
