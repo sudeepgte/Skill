@@ -1194,8 +1194,10 @@
             <div th:each="course : ${courses}" class="course-card">
                 <!-- Thumbnail -->
                 <div class="course-thumb">
-                    <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt=""
-                        onerror="this.src='/images/banner1.webp'">
+                    <a th:href="@{/course/{id}(id=${course.id})}">
+                        <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt=""
+                            onerror="this.src='/images/banner1.webp'">
+                    </a>
                     <span class="badge-bestseller" th:if="${course.averageRating >= 4.5}">Bestseller</span>
 
                     <!-- Wishlist Heart Overlay -->
@@ -1229,7 +1231,7 @@
                     </a>
 
                     <!-- Action Button -->
-                    <a th:href="@{/course/enroll/{id}(id=${course.id})}" class="btn-add-course">
+                    <a th:href="@{/course/{id}(id=${course.id})}" class="btn-add-course">
                         Add to My Course
                     </a>
                 </div>

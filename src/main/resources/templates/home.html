@@ -164,7 +164,9 @@
         <div class="course-grid">
             <div th:each="course : ${courses}" class="course-card">
                 <div class="course-image">
-                    <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
+                    <a th:href="@{/course/{id}(id=${course.id})}">
+                        <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
+                    </a>
                     <!-- Wishlist Heart Overlay -->
                     <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
                         <input type="hidden" name="courseId" th:value="${course.id}" />
@@ -189,7 +191,7 @@
 
                     <!-- Action Button -->
                     <div style="margin-top: auto; padding-top: 1.6rem;">
-                        <a th:href="@{/course/enroll/{id}(id=${course.id})}" class="btn-add-course">
+                        <a th:href="@{/course/{id}(id=${course.id})}" class="btn-add-course">
                             Add to My Course
                         </a>
                     </div>

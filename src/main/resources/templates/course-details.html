@@ -148,11 +148,12 @@
             top: 40px;
             right: calc((100% - 1184px) / 2 + 24px);
             width: 340px;
+            min-height: 400px;
             background: var(--white);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
             border-radius: 8px;
             overflow: hidden;
-            z-index: 100;
+            z-index: 50;
             border: 1px solid var(--border-color);
         }
 
@@ -469,35 +470,7 @@
     <!-- Navbar Fragment -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<<<<<<< HEAD
-=======
-    <!-- Sidebar (Desktop) -->
-    <div class="course-sidebar">
-        <div class="sidebar-preview">
-            <!-- Video Player Logic -->
-            <div id="videoContainer"
-                style="background: #1c1d1f; min-height: 190px; display: flex; align-items: center; justify-content: center;">
-                <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
-                    <!-- Check if YouTube -->
-                    <iframe
-                        th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                        th:src="${course.embedUrl}" width="100%" height="190" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
-                    <!-- Else Local Video -->
-                    <video id="coursePreviewVideo"
-                        th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                        width="100%" height="190" controls>
-                        <source th:src="@{${course.videoUrl}}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </th:block>
-                <!-- Fallback Image -->
-                <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
-                    th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt="Course Preview"
-                    style="width: 100%; height: 190px; object-fit: cover;" id="previewImage">
-            </div>
->>>>>>> 69d136792f19b6f3ebc5bde5ee07e52fea688a99
+
 
 
     <!-- Header -->
@@ -580,18 +553,18 @@
                 <div class="sidebar-preview">
                     <!-- Video Player Logic -->
                     <div id="videoContainer"
-                        style="background: black; min-height: 190px; display: flex; align-items: center; justify-content: center;">
+                        style="background: black; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                         <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
                             <!-- Check if YouTube -->
                             <iframe
                                 th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                                th:src="${course.embedUrl}" width="100%" height="190" frameborder="0"
+                                th:src="${course.embedUrl}" width="100%" height="200" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                             <!-- Else Local Video -->
                             <video id="coursePreviewVideo"
                                 th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                                width="100%" height="190" controls>
+                                width="100%" height="200" style="object-fit: cover;" controls>
                                 <source th:src="@{${course.videoUrl}}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -599,7 +572,7 @@
                         <!-- Fallback Image -->
                         <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
                             th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
-                            alt="Course Preview" style="width: 100%; height: 190px; object-fit: cover;"
+                            alt="Course Preview" style="width: 100%; height: 200px; object-fit: cover;"
                             id="previewImage">
                     </div>
 
@@ -941,14 +914,8 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer style="background: #1c1d1f; color: white; padding: 32px 20px; margin-top: 64px;">
-        <div
-            style="max-width: 1184px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 700; font-size: 1.2rem;">SkillHub</div>
-            <p style="font-size: 0.9rem; margin: 0; color: #fff;">&copy; 2024 SkillHub, Inc.</p>
-        </div>
-    </footer>
+    <!-- Footer Fragment -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:inline="javascript">
         /*<![CDATA[*/

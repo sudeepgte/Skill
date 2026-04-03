@@ -1,5 +1,6 @@
 package com.skillhub.controller;
 
+import org.springframework.transaction.annotation.Transactional;
 import com.skillhub.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -317,6 +318,7 @@ public class CourseController {
         return "redirect:/user/course/" + id + "/learn";
     }
 
+    @Transactional
     @org.springframework.web.bind.annotation.PostMapping("/user/lecture/{id}/save-note")
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.Map<String, Object> saveNote(@PathVariable Long id,
