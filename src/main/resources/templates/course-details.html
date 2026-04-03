@@ -100,10 +100,11 @@
 
         /* Course Header */
         .course-header {
-            background: var(--header-bg);
-            color: white;
+            background: var(--bg-light);
+            color: var(--text-dark);
             padding: 40px 0;
             position: relative;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .header-content {
@@ -123,12 +124,13 @@
             font-weight: 700;
             margin-bottom: 12px;
             line-height: 1.2;
+            color: var(--text-dark) !important;
         }
 
         .course-subtitle {
             font-size: 1.2rem;
             margin-bottom: 16px;
-            color: #d1d7dc;
+            color: var(--text-muted);
         }
 
         .course-meta {
@@ -291,13 +293,6 @@
             font-size: 1rem;
         }
 
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        }
 
         .obj-list li {
             display: flex;
@@ -479,7 +474,7 @@
         <div class="sidebar-preview">
             <!-- Video Player Logic -->
             <div id="videoContainer"
-                style="background: black; min-height: 190px; display: flex; align-items: center; justify-content: center;">
+                style="background: #1c1d1f; min-height: 190px; display: flex; align-items: center; justify-content: center;">
                 <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
                     <!-- Check if YouTube -->
                     <iframe
@@ -585,9 +580,9 @@
 
         <div class="header-content">
             <div class="header-text">
-                <div style="color: #cec0fc; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
+                <div style="color: var(--primary); font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
                     <a th:href="${isLoggedIn} ? '/user/home' : '/'"
-                        style="color: #cec0fc; text-decoration: none;">Courses</a>
+                        style="color: var(--primary); text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>
@@ -608,7 +603,7 @@
                         <i th:each="i : ${#numbers.sequence(1, 5)}" class="fas fa-star"
                             th:style="'color: ' + (${i <= course.averageRating} ? '#f4c150' : '#4d4d4d') + '; font-size: 0.9rem;'"></i>
                     </span>
-                    <span style="text-decoration: underline; color: #cec0fc;"
+                    <span style="text-decoration: underline; color: var(--primary);"
                         th:text="'(' + (${course.reviewCount != null ? course.reviewCount : '0'}) + ' ratings)'">(1,234
                         ratings)</span>
                     <span
@@ -622,7 +617,7 @@
                             Name</a></span>
                 </div>
 
-                <div class="course-meta" style="color: white;">
+                <div class="course-meta" style="color: var(--text-dark);">
                     <span><i class="fas fa-exclamation-circle"></i> Last updated <span
                             th:text="${course.lastUpdated != null ? course.lastUpdated : 'Recently'}"></span></span>
                     <span><i class="fas fa-globe lang-icon"></i> <span
@@ -975,7 +970,7 @@
                 button.hasAttribute('onclick')) return;
 
             button.addEventListener('click', function () {
-                const courseId = [[${ course.id }]];
+                const courseId = /*[[${course.id}]]*/ 0;
 
                 // Use CSRF token if protected
                 const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');

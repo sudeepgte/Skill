@@ -1,6 +1,7 @@
 package com.skillhub.model;
 
 import jakarta.persistence.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "lectures")
@@ -22,6 +23,9 @@ public class Lecture {
     private boolean isPreview;
 
     private int position;
+
+    @Transient
+    private MultipartFile videoFile;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id")
@@ -116,5 +120,13 @@ public class Lecture {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public MultipartFile getVideoFile() {
+        return videoFile;
+    }
+
+    public void setVideoFile(MultipartFile videoFile) {
+        this.videoFile = videoFile;
     }
 }

@@ -4,127 +4,596 @@
 <head>
     <title>Create Course | SkillHub Instructor</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #a435f0;
+            --primary-hover: #8710d8;
+            --text-main: #2d2f31;
+            --text-secondary: #6a6f73;
+            --bg-gray: #f7f9fa;
+            --border: #d1d7dc;
+            --white: #ffffff;
+        }
+
         body {
-            background-color: #f7f9fa;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background: var(--white);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
         }
 
         .container {
-            max-width: 800px;
-            margin: 4rem auto;
-            padding: 2rem;
-            background: white;
-            border: 1px solid #d1d7dc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            max-width: 1100px;
+            margin: 2rem auto;
+            display: flex;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        /* Sidebar Tabs */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .tab-btn {
+            display: block;
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            background: none;
+            border: none;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #f8f9fb;
+        }
+
+        .tab-btn.active {
+            background: #f8f9fb;
+            border-left-color: var(--primary);
+            font-weight: 700;
+        }
+
+        .tab-btn i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .tab-btn.active i {
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         label {
             display: block;
-            margin-bottom: 0.5rem;
             font-weight: 700;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            line-height: 1.4;
         }
 
         input[type="text"],
+        input[type="number"],
         textarea,
-        select,
-        input[type="number"] {
+        select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #1c1d1f;
+            padding: 12px 16px;
+            border: 1px solid var(--text-main);
             font-size: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
         }
 
-        .btn-submit {
-            background-color: #a435f0;
+        input:focus, textarea:focus, select:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: -1px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Upload Placeholder */
+        .upload-area {
+            border: 2px dashed var(--border);
+            padding: 3rem;
+            text-align: center;
+            background: #f8fafc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        /* Curriculum Preview */
+        .curriculum-placeholder {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fdfbff;
+            border: 1px dashed var(--primary);
+        }
+
+        .btn-save {
+            background: var(--primary);
             color: white;
-            padding: 12px 24px;
-            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
             font-weight: 700;
+            border: none;
             cursor: pointer;
             width: 100%;
-            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: background 0.2s;
         }
 
-        .btn-submit:hover {
-            background-color: #8710d8;
+        .btn-save:hover {
+            background: var(--primary-hover);
+        }
+
+        .footer-actions {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-outline {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--text-main);
+            background: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        /* Learning Objectives List */
+        .objective-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .objective-input-container input {
+            flex: 1;
+        }
+
+        .btn-add-obj {
+            background: none;
+            border: 1px solid var(--text-main);
+            padding: 8px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1 style="text-align: center; margin-bottom: 2rem;">Create a New Course</h1>
+    <nav class="navbar">
+        <a href="/instructor/dashboard" class="logo">SkillHub <span style="font-weight: 300; font-size: 0.9rem; color: var(--text-secondary);">Instructor</span></a>
+        <div>
+            <a href="/instructor/dashboard" style="text-decoration: none; color: var(--primary); font-weight: 700;">Cancel</a>
+        </div>
+    </nav>
 
-        <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="thumbnail">Course Thumbnail</label>
-                <div style="border: 2px dashed #d1d7dc; padding: 2rem; border-radius: 8px; text-align: center; margin-bottom: 1rem; background: #f8fafc;">
-                    <div id="imagePreviewContainer" style="display: none; margin-bottom: 1rem;">
-                        <img id="imagePreview" src="" alt="Thumbnail Preview" style="width: 100%; max-width: 400px; height: auto; border-radius: 8px; border: 1px solid #d1d7dc;">
-                    </div>
-                    <i id="uploadIcon" class="fas fa-image" style="font-size: 2.5rem; color: #d1d7dc; display: block; margin-bottom: 1rem;"></i>
-                    <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="cursor: pointer;" onchange="previewImage(event)">
-                    <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #6a6f73;">Upload a high-quality thumbnail image for your course (Recommended: 750x422)</p>
+    <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
+        <div class="container">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <button type="button" class="tab-btn active" onclick="switchTab('basic')">
+                    <i class="fas fa-info-circle"></i> Basic Info
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('intended')">
+                    <i class="fas fa-bullseye"></i> Intended Learners
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('curriculum')">
+                    <i class="fas fa-list-ul"></i> Curriculum
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('media')">
+                    <i class="fas fa-photo-video"></i> Course Media
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('pricing')">
+                    <i class="fas fa-tag"></i> Pricing
+                </button>
+                
+                <div style="padding: 1.5rem;">
+                    <button type="submit" class="btn-save">Save & Create</button>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="title">Course Title</label>
-                <input type="text" id="title" th:field="*{title}" placeholder="e.g. valid-title" required>
-            </div>
 
-            <div class="form-group">
-                <label for="subtitle">Subtitle</label>
-                <input type="text" id="subtitle" th:field="*{subtitle}" placeholder="e.g. Learn the basics in 2 hours">
-            </div>
+            <!-- Main Form Areas -->
+            <div class="main-content">
+                
+                <!-- Tab: Basic Info -->
+                <div id="basic" class="tab-content active">
+                    <h2 class="section-title">Course Landing Page</h2>
+                    
+                    <div class="form-group">
+                        <label for="title">Course Title</label>
+                        <input type="text" id="title" th:field="*{title}" placeholder="Insert your course title." required maxlength="60">
+                        <p class="helper-text">Your title should be a mix of actionable, keyword-rich, and representative of the topic. (Max 60 characters)</p>
+                    </div>
 
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" th:field="*{category.id}" required>
-                    <option value="" disabled selected>Select a category</option>
-                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
-                </select>
-            </div>
+                    <div class="form-group">
+                        <label for="subtitle">Course Subtitle</label>
+                        <input type="text" id="subtitle" th:field="*{subtitle}" placeholder="Insert your course subtitle.">
+                        <p class="helper-text">Use 1 or 2 sentences to hook students and summarize what they'll learn.</p>
+                    </div>
 
-            <input type="hidden" th:field="*{price}" value="0.0">
+                    <div class="form-group">
+                        <label for="description">Course Description</label>
+                        <textarea id="description" th:field="*{description}" rows="8" placeholder="Insert your course description." required></textarea>
+                        <p class="helper-text">Description should be at least 200 words. It's where you sell your course!</p>
+                    </div>
 
-            <div class="form-group">
-                <label for="videoUrl">Course Preview Video URL</label>
-                <input type="text" id="videoUrl" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
-            </div>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" th:field="*{category.id}" required>
+                                <option value="" disabled selected>-- Select Category --</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="level">Level</label>
+                            <select id="level" th:field="*{level}">
+                                <option value="Beginner">Beginner Level</option>
+                                <option value="Intermediate">Intermediate Level</option>
+                                <option value="Advanced">Advanced Level</option>
+                                <option value="All Levels">All Levels</option>
+                            </select>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" th:field="*{description}" rows="6"
-                    placeholder="Describe your course content..." required></textarea>
-            </div>
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <select id="language" th:field="*{language}">
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="French">French</option>
+                        </select>
+                    </div>
+                </div>
 
-            <button type="submit" class="btn-submit">Create Course</button>
-            <div style="text-align: center; margin-top: 1rem;">
-                <a href="/instructor/dashboard" style="color: #a435f0; text-decoration: none;">Cancel</a>
+                <!-- Tab: Intended Learners -->
+                <div id="intended" class="tab-content">
+                    <h2 class="section-title">Intended Learners</h2>
+                    <p class="helper-text" style="margin-bottom: 2rem;">The following descriptions will be publicly visible on your Course Landing Page and will have a direct impact on your course performance. These descriptions will help learners decide if your course is right for them.</p>
+
+                    <div class="form-group">
+                        <label>What will students learn in your course? (Learning Objectives)</label>
+                        <p class="helper-text" style="margin-bottom: 1rem;">Enter at least 4 learning objectives or outcomes that learners can expect to achieve after completing your course.</p>
+                        
+                        <div id="objectivesList">
+                            <div class="objective-input-container">
+                                <input type="text" placeholder="Example: Build 10 professional web applications.">
+                            </div>
+                            <div class="objective-input-container">
+                                <input type="text" placeholder="Example: Master React.js from scratch.">
+                            </div>
+                            <div class="objective-input-container">
+                                <input type="text" placeholder="Example: Understand advanced CSS layouts.">
+                            </div>
+                            <div class="objective-input-container">
+                                <input type="text" placeholder="Example: Implement secure authentication.">
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-obj" onclick="addObjective()">+ Add more to your response</button>
+                        <input type="hidden" th:field="*{learningObjectives}" id="finalObjectives">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="requirements">Are there any course requirements or prerequisites?</label>
+                        <textarea id="requirements" th:field="*{requirements}" rows="4" placeholder="Example: Basic knowledge of HTML and CSS."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tab: Curriculum -->
+                <div id="curriculum" class="tab-content">
+                    <h2 class="section-title">Course Curriculum</h2>
+                    <p class="helper-text" style="margin-bottom: 2rem;">Start putting together your course by creating sections and lectures. You can upload videos or provide external links here.</p>
+                    
+                    <div id="sectionsContainer">
+                        <!-- Sections will be added here -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem; padding: 2rem; border: 2px dashed var(--border);">
+                        <button type="button" class="btn-outline" onclick="addSection()" style="border-style: dashed; color: var(--primary); border-color: var(--primary);">
+                            <i class="fas fa-plus"></i> Add New Section
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab: Media -->
+                <div id="media" class="tab-content">
+                    <h2 class="section-title">Course Media</h2>
+                    
+                    <div class="form-group">
+                        <label>Course Thumbnail</label>
+                        <div class="upload-area" onclick="document.getElementById('thumbnail').click()">
+                            <div id="imagePreviewContainer" style="display: none; margin-bottom: 1.5rem;">
+                                <img id="imagePreview" src="" alt="Thumbnail Preview" style="max-width: 100%; height: 200px; border-radius: 4px; border: 1px solid var(--border);">
+                            </div>
+                            <div id="uploadPlaceholder">
+                                <i class="fas fa-image" style="font-size: 3rem; color: var(--border); margin-bottom: 1rem;"></i>
+                                <p>Click to upload your course image (.jpg, .png)</p>
+                                <p class="helper-text">Recommended size: 750x422 pixels.</p>
+                            </div>
+                            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="videoUrl">Promotional Video URL (Preview)</label>
+                        <input type="text" id="videoUrl" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
+                        <p class="helper-text">Your promo video is a quick way for students to preview your course content. YouTube links are recommended.</p>
+                    </div>
+                </div>
+
+                <!-- Tab: Pricing -->
+                <div id="pricing" class="tab-content">
+                    <h2 class="section-title">Pricing & Accessibility</h2>
+                    
+                    <div class="form-group">
+                        <label>Course Pricing</label>
+                        <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+                            <label style="font-weight: 400; cursor: pointer;">
+                                <input type="radio" name="isFree" value="false" checked onclick="togglePrice(false)"> Paid
+                            </label>
+                            <label style="font-weight: 400; cursor: pointer;">
+                                <input type="radio" name="isFree" value="true" onclick="togglePrice(true)"> Free
+                            </label>
+                        </div>
+                        
+                        <div id="priceContainer">
+                            <div class="input-grid">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="price">Base Price (USD)</label>
+                                    <input type="number" id="price" th:field="*{price}" step="0.01" min="0" placeholder="e.g. 19.99">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Sale Price (Optional)</label>
+                                    <input type="number" placeholder="Discounted price..." step="0.01" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fffcf0; padding: 1.5rem; border: 1px solid #ffe799; border-radius: 4px;">
+                        <p style="margin: 0; font-size: 0.9rem;">
+                            <i class="fas fa-lightbulb" style="color: #b4690e; margin-right: 8px;"></i>
+                            <strong>Tip:</strong> Free courses cannot have more than 2 hours of video content and don't include certificates.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="footer-actions">
+                    <button type="button" class="btn-outline" onclick="history.back()">Back</button>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        Final step: Review and Submit for Review
+                    </div>
+                </div>
+
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+
     <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+               if(btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
+            });
+        }
+
+        function addObjective() {
+            const container = document.getElementById('objectivesList');
+            const div = document.createElement('div');
+            div.className = 'objective-input-container';
+            div.innerHTML = '<input type="text" placeholder="Another outcome or skill learners will gain...">';
+            container.appendChild(div);
+        }
+
         function previewImage(event) {
             const reader = new FileReader();
             reader.onload = function() {
                 const preview = document.getElementById('imagePreview');
                 const container = document.getElementById('imagePreviewContainer');
-                const icon = document.getElementById('uploadIcon');
-                
+                const placeholder = document.getElementById('uploadPlaceholder');
                 preview.src = reader.result;
                 container.style.display = 'block';
-                icon.style.display = 'none';
+                placeholder.style.display = 'none';
             }
-            if (event.target.files[0]) {
-                reader.readAsDataURL(event.target.files[0]);
+            if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function togglePrice(isFree) {
+            const priceInput = document.getElementById('price');
+            const container = document.getElementById('priceContainer');
+            if (isFree) {
+                priceInput.value = "0.0";
+                container.style.opacity = "0.4";
+                priceInput.disabled = true;
+            } else {
+                container.style.opacity = "1";
+                priceInput.disabled = false;
             }
         }
+
+        // Curriculum Builder Logic
+        let sectionCount = 0;
+        function addSection() {
+            const container = document.getElementById('sectionsContainer');
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'form-group section-item';
+            sectionDiv.style = 'border: 1px solid var(--border); padding: 1.5rem; background: var(--bg-gray); margin-bottom: 2rem; position: relative;';
+            sectionDiv.id = `section-${sectionCount}`;
+            
+            sectionDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <label style="margin:0;">Section ${sectionCount + 1}</label>
+                    <button type="button" class="btn-outline" onclick="removeSection(${sectionCount})" style="padding: 5px 10px; color: red; border-color: red; font-size: 0.8rem;">Remove</button>
+                </div>
+                <input type="text" name="sections[${sectionCount}].title" placeholder="e.g. Introduction to React" required style="margin-bottom: 1.5rem;">
+                <div id="lectures-${sectionCount}" style="padding-left: 2rem;">
+                    <!-- Lectures go here -->
+                </div>
+                <button type="button" class="btn-outline" onclick="addLecture(${sectionCount})" style="margin-top: 1rem; font-size: 0.9rem; padding: 8px 15px;">
+                    <i class="fas fa-plus"></i> Add Lecture
+                </button>
+            `;
+            container.appendChild(sectionDiv);
+            sectionCount++;
+        }
+
+        function removeSection(id) {
+            const el = document.getElementById(`section-${id}`);
+            if (el) el.remove();
+        }
+
+        let lectureCounts = {};
+        function addLecture(secId) {
+            if (!lectureCounts[secId]) lectureCounts[secId] = 0;
+            const lecId = lectureCounts[secId];
+            const container = document.getElementById(`lectures-${secId}`);
+            const lecDiv = document.createElement('div');
+            lecDiv.id = `lecture-${secId}-${lecId}`;
+            lecDiv.style = 'background: white; border: 1px solid var(--border); padding: 1rem; margin-bottom: 1rem;';
+            
+            lecDiv.innerHTML = `
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h5 style="margin:0;">Lecture ${lecId + 1}</h5>
+                    <button type="button" onclick="removeLecture(${secId}, ${lecId})" style="color: red; background: none; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 0.85rem;">Title</label>
+                    <input type="text" name="sections[${secId}].lectures[${lecId}].title" placeholder="e.g. Setting up environment" required>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 0.85rem;">Content Type</label>
+                    <div style="display: flex; gap: 20px; font-size: 0.9rem;">
+                        <label><input type="radio" name="source-${secId}-${lecId}" value="file" checked onclick="toggleLecSource(${secId}, ${lecId}, 'file')"> Video Upload (MP4)</label>
+                        <label><input type="radio" name="source-${secId}-${lecId}" value="url" onclick="toggleLecSource(${secId}, ${lecId}, 'url')"> Video URL</label>
+                    </div>
+                </div>
+                <div id="file-cont-${secId}-${lecId}">
+                    <input type="file" name="sections[${secId}].lectures[${lecId}].videoFile" accept="video/*">
+                </div>
+                <div id="url-cont-${secId}-${lecId}" style="display:none;">
+                    <input type="text" name="sections[${secId}].lectures[${lecId}].videoUrl" placeholder="e.g. https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label style="font-size: 0.85rem;">Duration (Seconds)</label>
+                    <input type="number" name="sections[${secId}].lectures[${lecId}].durationSeconds" value="0">
+                </div>
+            `;
+            container.appendChild(lecDiv);
+            lectureCounts[secId]++;
+        }
+
+        function removeLecture(secId, lecId) {
+            const el = document.getElementById(`lecture-${secId}-${lecId}`);
+            if (el) el.remove();
+        }
+
+        function toggleLecSource(secId, lecId, type) {
+            const fCont = document.getElementById(`file-cont-${secId}-${lecId}`);
+            const uCont = document.getElementById(`url-cont-${secId}-${lecId}`);
+            if (type === 'file') {
+                fCont.style.display = 'block';
+                uCont.style.display = 'none';
+            } else {
+                fCont.style.display = 'none';
+                uCont.style.display = 'block';
+            }
+        }
+
+        document.querySelector('form').addEventListener('submit', function() {
+            const inputs = document.querySelectorAll('#objectivesList input');
+            const objectives = Array.from(inputs).map(input => input.value).filter(val => val.trim() !== "");
+            document.getElementById('finalObjectives').value = objectives.join('\n');
+        });
     </script>
 </body>
 

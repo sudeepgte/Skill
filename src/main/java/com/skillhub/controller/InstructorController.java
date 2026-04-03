@@ -47,6 +47,12 @@ public class InstructorController {
 
     @Autowired
     private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
+    
+    @Autowired
+    private com.skillhub.repository.CourseQuestionRepository courseQuestionRepository;
+    
+    @Autowired
+    private com.skillhub.repository.CourseAnswerRepository courseAnswerRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
@@ -75,6 +81,7 @@ public class InstructorController {
         }
 
         double averageRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
+        List<com.skillhub.model.CourseQuestion> questionsList = courseQuestionRepository.findByInstructorEmail(email);
 
         model.addAttribute("instructor", instructor);
         model.addAttribute("courses", courses);
@@ -82,10 +89,12 @@ public class InstructorController {
         model.addAttribute("totalViews", totalViews);
         model.addAttribute("averageRating", String.format("%.1f", averageRating));
         model.addAttribute("totalReviews", totalReviews);
+        model.addAttribute("totalQuestions", questionsList.size());
         model.addAttribute("activeTab", tab);
         
         if ("communications".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
+            model.addAttribute("questions", questionsList);
         } else if ("students".equals(tab)) {
             List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
             for (com.skillhub.model.Enrollment enrollment : enrollments) {
@@ -132,9 +141,11 @@ public class InstructorController {
 
     @GetMapping("/courses/create")
     public String createCourseForm(Model model) {
-        model.addAttribute("course", new Course());
+        Course course = new Course();
+        course.setCategory(new com.skillhub.model.Category());
+        model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
-        return "instructor/create_course"; // Template to be created
+        return "instructor/create_course";
     }
 
     @PostMapping("/courses/save")
@@ -165,6 +176,23 @@ public class InstructorController {
         }
         
         course.setLastUpdated(java.time.LocalDate.now().toString());
+
+        // Process Curriculum Videos
+        if (course.getSections() != null) {
+            for (com.skillhub.model.CourseSection section : course.getSections()) {
+                section.setCourse(course);
+                if (section.getLectures() != null) {
+                    for (com.skillhub.model.Lecture lecture : section.getLectures()) {
+                        lecture.setSection(section);
+                        // If file uploaded, store it
+                        if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
+                            String storedUrl = fileStorageService.store(lecture.getVideoFile());
+                            lecture.setVideoUrl(storedUrl);
+                        }
+                    }
+                }
+            }
+        }
 
         courseService.saveCourse(course);
         redirectAttributes.addFlashAttribute("success", "Course created successfully!");
@@ -251,6 +279,21 @@ public class InstructorController {
             review.setReplyDate(java.time.LocalDateTime.now());
             reviewRepository.save(review);
             redirectAttributes.addFlashAttribute("success", "Reply sent!");
+        }
+        return "redirect:/instructor/dashboard?tab=communications";
+    }
+
+    @PostMapping("/questions/{id}/reply")
+    public String replyToQuestion(@PathVariable Long id, @RequestParam String content, Principal principal, RedirectAttributes redirectAttributes) {
+        com.skillhub.model.CourseQuestion question = courseQuestionRepository.findById(id).orElse(null);
+        if (question != null) {
+            com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
+            com.skillhub.model.CourseAnswer answer = new com.skillhub.model.CourseAnswer();
+            answer.setQuestion(question);
+            answer.setUser(instructor);
+            answer.setContent(content);
+            courseAnswerRepository.save(answer);
+            redirectAttributes.addFlashAttribute("success", "Answer posted successfully!");
         }
         return "redirect:/instructor/dashboard?tab=communications";
     }

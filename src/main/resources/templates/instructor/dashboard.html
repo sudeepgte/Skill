@@ -176,7 +176,7 @@
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 1.5rem;
             margin-bottom: 2.5rem;
         }
@@ -388,6 +388,76 @@
         .hidden { display: none; }
 
         /* Custom scrollbar */
+        /* Custom Sub-tabs for Communications */
+        .comm-tabs {
+            display: flex;
+            gap: 2.5rem;
+            margin: 1.5rem 0 2rem 0;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 2px;
+        }
+
+        .comm-tab-btn {
+            position: relative;
+            padding: 0.75rem 0.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comm-tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .comm-tab-btn.active {
+            color: var(--primary);
+        }
+
+        .comm-tab-btn.active::after {
+            width: 100%;
+        }
+
+        .comm-badge {
+            background: #eef2ff;
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .comm-tab-btn.active .comm-badge {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Messaging Placeholder Styling */
+        .placeholder-box {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fafbfd;
+            border: 2px dashed #eee;
+            border-radius: 16px;
+        }
+
+        .placeholder-box i {
+            display: block;
+            margin-bottom: 1rem;
+            opacity: 0.2;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -491,6 +561,15 @@
             </div>
             <div class="stat-card">
                 <div class="stat-icon" style="background: rgba(100, 116, 139, 0.1); color: var(--secondary);">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Student Questions</h3>
+                    <div class="value" th:text="${totalQuestions}">0</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
                     <i class="fas fa-award"></i>
                 </div>
                 <div class="stat-info">
@@ -668,23 +747,35 @@
         <!-- Communications Tab -->
         <div th:class="${activeTab == 'communications' ? 'tab-content active' : 'tab-content'}">
             <div class="card">
-                <div class="card-header">
-                    <h2>Q&A & User Feedback</h2>
+                <div class="card-header" style="margin-bottom: 0;">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;">Communications Workspace</h2>
                 </div>
                 
-                <div th:if="${reviews == null or reviews.isEmpty()}" style="text-align: center; padding: 3rem;">
-                    <i class="fas fa-comments" style="font-size: 3rem; color: var(--border); margin-bottom: 1rem;"></i>
-                    <p>No feedback or questions received yet.</p>
+                <div class="comm-tabs">
+                    <div class="comm-tab-btn active" onclick="switchSubTab('reviews-list', event)">
+                        <i class="fas fa-star" style="font-size: 0.8rem;"></i> Course Reviews
+                        <span class="comm-badge" th:text="${reviews != null ? reviews.size() : 0}">0</span>
+                    </div>
+                    <div class="comm-tab-btn" onclick="switchSubTab('questions-list', event)">
+                        <i class="fas fa-question-circle" style="font-size: 0.8rem;"></i> Student Questions
+                        <span class="comm-badge" th:text="${questions != null ? questions.size() : 0}">0</span>
+                    </div>
                 </div>
 
-                <div class="reviews-list">
+                <!-- Reviews List -->
+                <div id="reviews-list" class="sub-tab-content">
+                    <div th:if="${reviews == null or reviews.isEmpty()}" class="placeholder-box">
+                        <i class="fas fa-star" style="font-size: 3.5rem;"></i>
+                        <h3 style="color: #64748b; font-weight: 700;">No reviews yet</h3>
+                        <p style="color: #94a3b8;">Reviews will appear here once students rate your courses.</p>
+                    </div>
                     <div th:each="review : ${reviews}" class="review-item">
                         <div class="review-meta">
                             <div class="user-info">
                                 <div class="user-avatar" th:text="${#strings.substring(review.user.name, 0, 1)}">U</div>
                                 <div>
                                     <div style="font-weight: 600;" th:text="${review.user.name}">User Name</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy, HH:mm')}">Date</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${#temporals.format(review.createdAt, 'dd MMM yyyy')}">Date</div>
                                 </div>
                             </div>
                             <div class="rating-stars">
@@ -693,23 +784,60 @@
                             </div>
                         </div>
                         <div style="margin-bottom: 1rem;">
-                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: 600;" th:text="'Course: ' + ${review.course.title}">Course</div>
-                            <p th:text="${review.comment}">Review content goes here.</p>
+                            <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">Review for: <span th:text="${review.course.title}"></span></div>
+                            <p th:text="${review.comment}" style="margin-top: 0.5rem; line-height: 1.5; color: #334155;"></p>
                         </div>
-
-                        <!-- Existing Reply -->
                         <div th:if="${review.reply != null}" class="reply-box">
-                            <div style="font-weight: 700; font-size: 0.75rem; margin-bottom: 0.5rem; color: var(--primary);">
-                                YOUR RESPONSE - <span th:text="${#temporals.format(review.replyDate, 'dd MMM yyyy')}">Date</span>
-                            </div>
-                            <p th:text="${review.reply}">Reply content.</p>
+                            <div style="font-weight: 700; font-size: 0.7rem; color: var(--primary); margin-bottom: 5px;">INSTRUCTOR RESPONSE</div>
+                            <p th:text="${review.reply}" style="margin:0;"></p>
                         </div>
-
-                        <!-- Add Reply Form -->
                         <div th:unless="${review.reply != null}" style="margin-top: 1rem;">
                             <form th:action="@{/instructor/reviews/{id}/reply(id=${review.id})}" method="post">
-                                <textarea name="reply" placeholder="Write a professional response..." rows="2" style="margin-bottom: 0.5rem;"></textarea>
-                                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Send Reply</button>
+                                <textarea name="reply" placeholder="Thank the student for their feedback..." rows="2" style="font-size: 0.9rem; margin-bottom: 8px;"></textarea>
+                                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Post Reply</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions List -->
+                <div id="questions-list" class="sub-tab-content" style="display:none;">
+                    <div th:if="${questions == null or questions.isEmpty()}" class="placeholder-box">
+                        <i class="fas fa-question-circle" style="font-size: 3.5rem;"></i>
+                        <h3 style="color: #64748b; font-weight: 700;">No student questions found</h3>
+                        <p style="color: #94a3b8;">When students ask questions in your course, they'll show up here.</p>
+                    </div>
+                    <div th:each="question : ${questions}" class="review-item">
+                        <div class="review-meta">
+                            <div class="user-info">
+                                <div class="user-avatar" style="background: #e0f2fe; color: #0369a1;" th:text="${#strings.substring(question.user.name, 0, 1)}">S</div>
+                                <div>
+                                    <div style="font-weight: 600;" th:text="${question.user.name}">Student Name</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);" th:text="${question.user.email}">student@email.com</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;" th:text="${#temporals.format(question.createdAt, 'dd MMM yyyy, HH:mm')}">Time</div>
+                                </div>
+                            </div>
+                            <span class="status-badge" style="background: #f1f5f9; color: #475569;" th:text="${question.course.title}">Course</span>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <h4 th:text="${question.title}" style="margin-bottom: 0.5rem; font-weight: 700; color: #1e293b;">Question Title</h4>
+                            <p th:text="${question.content}" style="line-height: 1.5; color: #334155;"></p>
+                        </div>
+
+                        <!-- Previous Answers -->
+                        <div th:each="answer : ${question.answers}" class="reply-box" style="border-left-color: #22c55e; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 700; font-size: 0.7rem; color: #16a34a;" th:text="${answer.user.name} + ' (Instructor)'">Instructor Name</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted);" th:text="${#temporals.format(answer.createdAt, 'dd MMM')}">Date</span>
+                            </div>
+                            <p th:text="${answer.content}" style="margin: 0;"></p>
+                        </div>
+
+                        <!-- Add Answer Form -->
+                        <div style="margin-top: 1rem;">
+                            <form th:action="@{/instructor/questions/{id}/reply(id=${question.id})}" method="post">
+                                <textarea name="content" placeholder="Provide a helpful answer to this question..." rows="2" style="font-size: 0.9rem; margin-bottom: 8px;"></textarea>
+                                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: #0ea5e9;">Post Answer</button>
                             </form>
                         </div>
                     </div>
@@ -779,31 +907,50 @@
     </div>
 
     <script th:inline="javascript">
-        // Live polling for student progress
-        function pollStudentProgress() {
+        // Real-time Student Progress Polling
+        const POLL_INTERVAL = 10000; // 10 seconds
+
+        function updateProgressData() {
             // Only poll if we are on the students tab
-            if (!document.querySelector('.tab-content.active').textContent.includes('Enrolled Students')) return;
+            const activeTab = /*[[${activeTab}]]*/ 'courses';
+            if (activeTab !== 'students') return;
 
             fetch('/instructor/api/students-progress')
                 .then(response => response.json())
                 .then(data => {
-                    data.forEach(item => {
-                        const row = document.querySelector(`tr[data-enrollment-id="${item.enrollmentId}"]`);
+                    data.forEach(enrollment => {
+                        const row = document.querySelector(`tr[data-enrollment-id="${enrollment.enrollmentId}"]`);
                         if (row) {
                             const bar = row.querySelector('div[style*="background: var(--primary)"]');
-                            const text = row.querySelector('span[style*="font-weight: 600"]');
-                            if (bar) bar.style.width = item.pct + '%';
-                            if (text) text.textContent = item.pct + '%';
+                            const label = row.querySelector('span[style*="font-size: 0.75rem"]');
+                            
+                            if (bar) bar.style.width = enrollment.pct + '%';
+                            if (label) label.textContent = enrollment.pct + '%';
                         }
                     });
                 })
                 .catch(err => console.error('Error polling progress:', err));
         }
 
-        // Poll every 15 seconds
-        setInterval(pollStudentProgress, 15000);
-        // Also run once on load
-        document.addEventListener('DOMContentLoaded', pollStudentProgress);
+        // Initialize polling if on students tab
+        window.addEventListener('DOMContentLoaded', () => {
+            const activeTab = /*[[${activeTab}]]*/ 'courses';
+            if (activeTab === 'students') {
+                setInterval(updateProgressData, POLL_INTERVAL);
+            }
+        });
+
+        function switchSubTab(tabId, event) {
+            // Hide all sub-tab contents
+            document.querySelectorAll('.sub-tab-content').forEach(el => el.style.display = 'none');
+            // Remove active class from buttons in THIS tab group
+            const parent = event.currentTarget.closest('.comm-tabs');
+            parent.querySelectorAll('.comm-tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show selected and mark active
+            document.getElementById(tabId).style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
     </script>
 </body>
 
