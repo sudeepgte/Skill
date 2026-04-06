@@ -35,7 +35,7 @@ public class PlacementController {
 
     // --- INTERVIEW QUESTIONS ---
     @GetMapping("/interview")
-    public String getInterviewQuestions(@RequestParam(required = false) String category, Model model, Principal principal) {
+    public String getInterviewQuestions(@RequestParam(name = "category", required = false) String category, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         List<InterviewQuestion> questions;
         if (category != null && !category.isEmpty()) {
@@ -52,7 +52,7 @@ public class PlacementController {
 
     // --- APTITUDE TESTS ---
     @GetMapping("/aptitude")
-    public String getAptitudeTests(@RequestParam(required = false) String category, Model model, Principal principal) {
+    public String getAptitudeTests(@RequestParam(name = "category", required = false) String category, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         List<AptitudeQuestion> questions;
         if (category != null && !category.isEmpty()) {

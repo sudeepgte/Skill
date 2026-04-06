@@ -78,28 +78,28 @@ public class AdminController {
     }
 
     @PostMapping("/users/block")
-    public String blockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+    public String blockUser(@org.springframework.web.bind.annotation.RequestParam("id") Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.blockUser(id);
         String referer = request.getHeader("Referer");
         return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @PostMapping("/users/unblock")
-    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+    public String unblockUser(@org.springframework.web.bind.annotation.RequestParam("id") Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.unblockUser(id);
         String referer = request.getHeader("Referer");
         return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @PostMapping("/users/approve")
-    public String approveUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+    public String approveUser(@org.springframework.web.bind.annotation.RequestParam("id") Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.approveUser(id);
         String referer = request.getHeader("Referer");
         return referer != null ? "redirect:" + referer : "redirect:/admin/users";
     }
 
     @PostMapping("/users/delete")
-    public String deleteUser(@org.springframework.web.bind.annotation.RequestParam Long id, jakarta.servlet.http.HttpServletRequest request) {
+    public String deleteUser(@org.springframework.web.bind.annotation.RequestParam("id") Long id, jakarta.servlet.http.HttpServletRequest request) {
         userService.deleteUser(id);
         String referer = request.getHeader("Referer");
         return referer != null ? "redirect:" + referer : "redirect:/admin/users";
@@ -113,19 +113,19 @@ public class AdminController {
 
 
     @PostMapping("/courses/delete")
-    public String deleteCourse(Long id) {
+    public String deleteCourse(@org.springframework.web.bind.annotation.RequestParam("id") Long id) {
         courseService.deleteCourse(id);
         return "redirect:/admin/courses";
     }
 
     @PostMapping("/courses/publish")
-    public String publishCourse(Long id) {
+    public String publishCourse(@org.springframework.web.bind.annotation.RequestParam("id") Long id) {
         courseService.publishCourse(id);
         return "redirect:/admin/courses";
     }
 
     @PostMapping("/courses/unpublish")
-    public String unpublishCourse(Long id) {
+    public String unpublishCourse(@org.springframework.web.bind.annotation.RequestParam("id") Long id) {
         courseService.unpublishCourse(id);
         return "redirect:/admin/courses";
     }
@@ -150,7 +150,7 @@ public class AdminController {
     }
 
     @GetMapping("/courses/edit")
-    public String editCourse(@org.springframework.web.bind.annotation.RequestParam Long id, Model model) {
+    public String editCourse(@org.springframework.web.bind.annotation.RequestParam("id") Long id, Model model) {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -160,8 +160,8 @@ public class AdminController {
     @PostMapping("/courses/save")
     public String saveCourse(
             @org.springframework.web.bind.annotation.ModelAttribute("course") com.skillhub.model.Course course,
-            @org.springframework.web.bind.annotation.RequestParam(value = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
-            @org.springframework.web.bind.annotation.RequestParam(value = "youtubeUrl", required = false) String youtubeUrl,
+            @org.springframework.web.bind.annotation.RequestParam(name = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
+            @org.springframework.web.bind.annotation.RequestParam(name = "youtubeUrl", required = false) String youtubeUrl,
             java.security.Principal principal) {
 
         if (course.getId() != null) {
@@ -238,9 +238,9 @@ public class AdminController {
 
     @PostMapping("/categories/edit")
     public String editCategory(
-            @org.springframework.web.bind.annotation.RequestParam Long id,
-            @org.springframework.web.bind.annotation.RequestParam String name,
-            @org.springframework.web.bind.annotation.RequestParam String icon,
+            @org.springframework.web.bind.annotation.RequestParam("id") Long id,
+            @org.springframework.web.bind.annotation.RequestParam("name") String name,
+            @org.springframework.web.bind.annotation.RequestParam("icon") String icon,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         com.skillhub.model.Category category = categoryService.getCategoryById(id);
         if (category != null) {
@@ -253,7 +253,7 @@ public class AdminController {
     }
 
     @PostMapping("/categories/delete")
-    public String deleteCategory(@org.springframework.web.bind.annotation.RequestParam Long id,
+    public String deleteCategory(@org.springframework.web.bind.annotation.RequestParam("id") Long id,
                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             categoryService.deleteCategory(id);
@@ -272,10 +272,10 @@ public class AdminController {
 
     @PostMapping("/upload")
     public String uploadVideo(
-            @org.springframework.web.bind.annotation.RequestParam(value = "file", required = false) org.springframework.web.multipart.MultipartFile file,
-            @org.springframework.web.bind.annotation.RequestParam(value = "title") String title,
-            @org.springframework.web.bind.annotation.RequestParam(value = "categoryId") Long categoryId,
-            @org.springframework.web.bind.annotation.RequestParam(value = "youtubeUrl", required = false) String youtubeUrl,
+            @org.springframework.web.bind.annotation.RequestParam(name = "file", required = false) org.springframework.web.multipart.MultipartFile file,
+            @org.springframework.web.bind.annotation.RequestParam(name = "title") String title,
+            @org.springframework.web.bind.annotation.RequestParam(name = "categoryId") Long categoryId,
+            @org.springframework.web.bind.annotation.RequestParam(name = "youtubeUrl", required = false) String youtubeUrl,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
         if ((file == null || file.isEmpty()) && (youtubeUrl == null || youtubeUrl.trim().isEmpty())) {
@@ -313,8 +313,8 @@ public class AdminController {
     private com.skillhub.service.NotificationService notificationService;
 
     @PostMapping("/broadcast")
-    public String sendBroadcast(@org.springframework.web.bind.annotation.RequestParam String subject,
-            @org.springframework.web.bind.annotation.RequestParam String message,
+    public String sendBroadcast(@org.springframework.web.bind.annotation.RequestParam("subject") String subject,
+            @org.springframework.web.bind.annotation.RequestParam("message") String message,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
 
         // Mock email sending
@@ -378,8 +378,8 @@ public class AdminController {
     }
 
     @PostMapping("/reports/status")
-    public String updateReportStatus(@org.springframework.web.bind.annotation.RequestParam Long id, 
-                                   @org.springframework.web.bind.annotation.RequestParam com.skillhub.model.Report.ReportStatus status) {
+    public String updateReportStatus(@org.springframework.web.bind.annotation.RequestParam("id") Long id, 
+                                   @org.springframework.web.bind.annotation.RequestParam("status") com.skillhub.model.Report.ReportStatus status) {
         reportRepository.findById(id).ifPresent(report -> {
             report.setStatus(status);
             reportRepository.save(report);

@@ -52,7 +52,7 @@ public class CourseController {
     private com.skillhub.repository.CourseQuestionRepository questionRepository;
 
     @GetMapping({ "/course/{id}", "/user/course/{id}" })
-    public String getCourseDetails(@PathVariable Long id, Model model, Principal principal) {
+    public String getCourseDetails(@PathVariable("id") Long id, Model model, Principal principal) {
         // Fetch entity
         com.skillhub.model.Course course = courseService.getCourseById(id);
 
@@ -152,8 +152,8 @@ public class CourseController {
     }
 
     @GetMapping({ "/course/{id}/learn", "/user/course/{id}/learn" })
-    public String getLearningRoom(@PathVariable Long id,
-            @RequestParam(required = false) Long lectureId,
+    public String getLearningRoom(@PathVariable("id") Long id,
+            @RequestParam(name = "lectureId", required = false) Long lectureId,
             Model model,
             Principal principal) {
         if (principal == null) {
@@ -234,7 +234,7 @@ public class CourseController {
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
     @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/add")
-    public String addToWishlist(@RequestParam Long courseId, Principal principal,
+    public String addToWishlist(@RequestParam("courseId") Long courseId, Principal principal,
             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (principal == null) {
             return "redirect:/login";
@@ -253,7 +253,7 @@ public class CourseController {
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/remove")
-    public String removeFromWishlist(@RequestParam Long courseId, Principal principal) {
+    public String removeFromWishlist(@RequestParam("courseId") Long courseId, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -267,7 +267,7 @@ public class CourseController {
     }
 
     @GetMapping("/user/course/{id}/exam")
-    public String getExamPage(@PathVariable Long id, Model model, Principal principal) {
+    public String getExamPage(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -284,7 +284,7 @@ public class CourseController {
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/user/course/{id}/exam/pass")
-    public String passExam(@PathVariable Long id, Principal principal) {
+    public String passExam(@PathVariable("id") Long id, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -301,7 +301,7 @@ public class CourseController {
     }
 
     @GetMapping("/course/enroll/{id}")
-    public String enrollCourse(@PathVariable Long id, Principal principal) {
+    public String enrollCourse(@PathVariable("id") Long id, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -311,7 +311,7 @@ public class CourseController {
     }
 
     @org.springframework.web.bind.annotation.GetMapping("/user/course/{id}/generate-sample")
-    public String generateSample(@PathVariable Long id, Principal principal) {
+    public String generateSample(@PathVariable("id") Long id, Principal principal) {
         if (principal == null)
             return "redirect:/login";
         courseService.generateSampleCurriculum(id);
@@ -321,7 +321,7 @@ public class CourseController {
     @Transactional
     @org.springframework.web.bind.annotation.PostMapping("/user/lecture/{id}/save-note")
     @org.springframework.web.bind.annotation.ResponseBody
-    public java.util.Map<String, Object> saveNote(@PathVariable Long id,
+    public java.util.Map<String, Object> saveNote(@PathVariable("id") Long id,
             @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Object> payload,
             Principal principal) {
         java.util.Map<String, Object> response = new java.util.HashMap<>();

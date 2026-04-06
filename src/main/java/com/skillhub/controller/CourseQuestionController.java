@@ -33,9 +33,9 @@ public class CourseQuestionController {
     private EmailService emailService;
 
     @PostMapping
-    public String addQuestion(@RequestParam Long courseId,
-            @RequestParam String title,
-            @RequestParam String content,
+    public String addQuestion(@RequestParam("courseId") Long courseId,
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 

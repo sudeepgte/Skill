@@ -34,7 +34,7 @@ public class CurriculumController {
     // --- Sections ---
 
     @PostMapping("/sections/add")
-    public String addSection(@RequestParam Long courseId, @RequestParam String title,
+    public String addSection(@RequestParam("courseId") Long courseId, @RequestParam("title") String title,
             Model model) {
         Course course = courseService.getCourseById(courseId);
         if (course != null) {
@@ -53,7 +53,7 @@ public class CurriculumController {
     }
 
     @PostMapping("/sections/delete")
-    public String deleteSection(@RequestParam Long sectionId, @RequestParam Long courseId,
+    public String deleteSection(@RequestParam("sectionId") Long sectionId, @RequestParam("courseId") Long courseId,
             Model model) {
         sectionRepository.deleteById(sectionId);
         courseService.updateCourseStats(courseId);
@@ -67,14 +67,14 @@ public class CurriculumController {
 
     @PostMapping("/lectures/add")
     public String addLecture(
-            @RequestParam Long sectionId,
-            @RequestParam Long courseId,
-            @RequestParam String title,
-            @RequestParam(required = false) MultipartFile videoFile,
-            @RequestParam(required = false) String youtubeUrl,
-            @RequestParam(defaultValue = "false") boolean isPreview,
-            @RequestParam(required = false, defaultValue = "0") Integer durationMinutes,
-            @RequestParam(required = false, defaultValue = "0") Integer durationSeconds,
+            @RequestParam("sectionId") Long sectionId,
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("title") String title,
+            @RequestParam(name = "videoFile", required = false) MultipartFile videoFile,
+            @RequestParam(name = "youtubeUrl", required = false) String youtubeUrl,
+            @RequestParam(name = "isPreview", defaultValue = "false") boolean isPreview,
+            @RequestParam(name = "durationMinutes", required = false, defaultValue = "0") Integer durationMinutes,
+            @RequestParam(name = "durationSeconds", required = false, defaultValue = "0") Integer durationSeconds,
             Model model) {
 
         CourseSection section = sectionRepository.findById(sectionId).orElse(null);
@@ -109,7 +109,7 @@ public class CurriculumController {
     }
 
     @PostMapping("/lectures/delete")
-    public String deleteLecture(@RequestParam Long lectureId, @RequestParam Long courseId,
+    public String deleteLecture(@RequestParam("lectureId") Long lectureId, @RequestParam("courseId") Long courseId,
             Model model) {
         lectureRepository.deleteById(lectureId);
         courseService.updateCourseStats(courseId);

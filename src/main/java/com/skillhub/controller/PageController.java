@@ -43,8 +43,8 @@ public class PageController {
 
     @GetMapping("/")
     public String index(Model model, Principal principal, HttpServletRequest request,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String query) {
+            @RequestParam(name = "categoryId", required = false) Long categoryId,
+            @RequestParam(name = "query", required = false) String query) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
@@ -72,8 +72,8 @@ public class PageController {
 
     @GetMapping("/user/home")
     public String home(Model model, Principal principal, HttpServletRequest request,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String query) {
+            @RequestParam(name = "categoryId", required = false) Long categoryId,
+            @RequestParam(name = "query", required = false) String query) {
         if (principal == null) {
             return "redirect:/login";
         }

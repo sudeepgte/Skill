@@ -33,8 +33,8 @@ public class CourseAnswerController {
     private EmailService emailService;
 
     @PostMapping
-    public String addAnswer(@RequestParam Long questionId,
-            @RequestParam String content,
+    public String addAnswer(@RequestParam("questionId") Long questionId,
+            @RequestParam("content") String content,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 

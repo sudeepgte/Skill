@@ -89,7 +89,7 @@ public class CertificationController {
 
     // ─── EXAM INTRO ─────────────────────────────────────────────────────────────
     @GetMapping("/user/course/{id}/exam-start")
-    public String startExam(@PathVariable Long id, Model model, Principal principal) {
+    public String startExam(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null)
             return "redirect:/login";
         User user = userService.findByEmail(principal.getName());
@@ -110,7 +110,7 @@ public class CertificationController {
 
     // ─── EXAM SIMULATION ────────────────────────────────────────────────────────
     @GetMapping("/user/course/{id}/exam-simulation")
-    public String examSimulation(@PathVariable Long id, Model model, Principal principal) {
+    public String examSimulation(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null)
             return "redirect:/login";
         User user = userService.findByEmail(principal.getName());
@@ -124,7 +124,7 @@ public class CertificationController {
 
     // ─── EXAM SUBMIT ─────────────────────────────────────────────────────────────
     @PostMapping("/user/course/{id}/exam/submit")
-    public String submitExam(@PathVariable Long id, @RequestParam Map<String, String> allParams,
+    public String submitExam(@PathVariable("id") Long id, @RequestParam Map<String, String> allParams,
             Principal principal, Model model) {
         if (principal == null)
             return "redirect:/login";
@@ -147,7 +147,7 @@ public class CertificationController {
 
     // ─── VIEW CERTIFICATE ────────────────────────────────────────────────────────
     @GetMapping({ "/user/certificate/{id}", "/user/course/{id}/certificate" })
-    public String viewCertificate(@PathVariable Long id, Model model, Principal principal) {
+    public String viewCertificate(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null)
             return "redirect:/login";
         User user = userService.findByEmail(principal.getName());

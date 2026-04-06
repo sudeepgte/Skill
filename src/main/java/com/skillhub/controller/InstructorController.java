@@ -235,7 +235,7 @@ public class InstructorController {
     }
 
     @GetMapping("/courses/{id}/edit")
-    public String editCourse(@PathVariable Long id, Model model) {
+    public String editCourse(@PathVariable("id") Long id, Model model) {
         Course course = courseService.getCourseById(id);
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -244,7 +244,7 @@ public class InstructorController {
 
     @PostMapping("/courses/{id}/status")
     @org.springframework.web.bind.annotation.ResponseBody
-    public org.springframework.http.ResponseEntity<?> updateCourseStatus(@PathVariable Long id, @RequestParam boolean published) {
+    public org.springframework.http.ResponseEntity<?> updateCourseStatus(@PathVariable("id") Long id, @RequestParam("published") boolean published) {
         try {
             if (published) {
                 courseService.publishCourse(id);
@@ -258,14 +258,14 @@ public class InstructorController {
     }
 
     @PostMapping("/courses/{id}/sections/add")
-    public String addSection(@PathVariable Long id, @RequestParam String title, RedirectAttributes redirectAttributes) {
+    public String addSection(@PathVariable("id") Long id, @RequestParam("title") String title, RedirectAttributes redirectAttributes) {
         courseService.addSectionToCourse(id, title);
         redirectAttributes.addFlashAttribute("success", "Section added successfully!");
         return "redirect:/vendor/courses/" + id + "/edit?tab=curriculum";
     }
 
     @PostMapping("/sections/{id}/lectures/add")
-    public String addLecture(@PathVariable Long id,
+    public String addLecture(@PathVariable("id") Long id,
             @RequestParam("title") String title,
             @RequestParam("durationSeconds") Integer durationSeconds,
             @RequestParam(value = "videoFile", required = false) org.springframework.web.multipart.MultipartFile videoFile,
@@ -307,7 +307,7 @@ public class InstructorController {
     }
 
     @PostMapping("/reviews/{id}/reply")
-    public String replyToReview(@PathVariable Long id, @RequestParam String reply, RedirectAttributes redirectAttributes) {
+    public String replyToReview(@PathVariable("id") Long id, @RequestParam("reply") String reply, RedirectAttributes redirectAttributes) {
         com.skillhub.model.Review review = reviewRepository.findById(id).orElse(null);
         if (review != null) {
             review.setReply(reply);
@@ -319,7 +319,7 @@ public class InstructorController {
     }
 
     @PostMapping("/questions/{id}/reply")
-    public String replyToQuestion(@PathVariable Long id, @RequestParam String content, Principal principal, RedirectAttributes redirectAttributes) {
+    public String replyToQuestion(@PathVariable("id") Long id, @RequestParam("content") String content, Principal principal, RedirectAttributes redirectAttributes) {
         com.skillhub.model.CourseQuestion question = courseQuestionRepository.findById(id).orElse(null);
         if (question != null) {
             com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
@@ -334,7 +334,7 @@ public class InstructorController {
     }
 
     @PostMapping("/enrollments/{id}/certificate")
-    public String generateCertificate(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String generateCertificate(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         com.skillhub.model.Enrollment enrollment = enrollmentRepository.findById(id).orElse(null);
         if (enrollment != null) {
             enrollment.setExamPassed(true);
@@ -369,7 +369,7 @@ public class InstructorController {
     }
 
     @GetMapping("/courses/{id}/questions")
-    public String manageExamQuestions(@PathVariable Long id, Model model, Principal principal) {
+    public String manageExamQuestions(@PathVariable("id") Long id, Model model, Principal principal) {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         String email = principal.getName();
         
@@ -384,13 +384,13 @@ public class InstructorController {
     }
 
     @PostMapping("/courses/{id}/questions/add")
-    public String addExamQuestion(@PathVariable Long id,
-            @RequestParam String questionText,
-            @RequestParam String optionA,
-            @RequestParam String optionB,
-            @RequestParam String optionC,
-            @RequestParam String optionD,
-            @RequestParam String correctOption,
+    public String addExamQuestion(@PathVariable("id") Long id,
+            @RequestParam("questionText") String questionText,
+            @RequestParam("optionA") String optionA,
+            @RequestParam("optionB") String optionB,
+            @RequestParam("optionC") String optionC,
+            @RequestParam("optionD") String optionD,
+            @RequestParam("correctOption") String correctOption,
             Principal principal) {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         String email = principal.getName();
@@ -405,8 +405,8 @@ public class InstructorController {
     }
 
     @PostMapping("/courses/{id}/questions/delete/{qid}")
-    public String deleteExamQuestion(@PathVariable Long id,
-            @PathVariable Long qid,
+    public String deleteExamQuestion(@PathVariable("id") Long id,
+            @PathVariable("qid") Long qid,
             Principal principal) {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         String email = principal.getName();

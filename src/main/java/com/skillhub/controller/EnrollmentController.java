@@ -21,7 +21,7 @@ public class EnrollmentController {
     private UserService userService;
 
     @PostMapping("/{courseId}")
-    public ResponseEntity<?> enrollUser(@PathVariable Long courseId, Principal principal) {
+    public ResponseEntity<?> enrollUser(@PathVariable("courseId") Long courseId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -31,7 +31,7 @@ public class EnrollmentController {
     }
 
     @PostMapping("/progress/{lectureId}/complete")
-    public ResponseEntity<?> markLectureComplete(@PathVariable Long lectureId, Principal principal) {
+    public ResponseEntity<?> markLectureComplete(@PathVariable("lectureId") Long lectureId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -41,7 +41,7 @@ public class EnrollmentController {
     }
 
     @PostMapping("/progress/{lectureId}/incomplete")
-    public ResponseEntity<?> markLectureIncomplete(@PathVariable Long lectureId, Principal principal) {
+    public ResponseEntity<?> markLectureIncomplete(@PathVariable("lectureId") Long lectureId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -55,7 +55,7 @@ public class EnrollmentController {
      * Called from certifications page when localStorage shows 100% but DB shows 0%.
      */
     @PostMapping("/sync/{courseId}")
-    public ResponseEntity<?> syncCourseProgress(@PathVariable Long courseId, Principal principal) {
+    public ResponseEntity<?> syncCourseProgress(@PathVariable("courseId") Long courseId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }
@@ -73,8 +73,8 @@ public class EnrollmentController {
      * Called from learning room every 10s so instructor dashboard shows real-time progress.
      */
     @PostMapping("/video-progress/{courseId}")
-    public ResponseEntity<?> saveVideoProgress(@PathVariable Long courseId,
-            @RequestParam double pct, Principal principal) {
+    public ResponseEntity<?> saveVideoProgress(@PathVariable("courseId") Long courseId,
+            @RequestParam("pct") double pct, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).body("Unauthorized");
         }

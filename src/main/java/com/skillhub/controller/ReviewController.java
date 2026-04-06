@@ -30,9 +30,9 @@ public class ReviewController {
     private UserService userService;
 
     @PostMapping("/add")
-    public String addReview(@RequestParam Long courseId,
-            @RequestParam int rating,
-            @RequestParam String comment,
+    public String addReview(@RequestParam("courseId") Long courseId,
+            @RequestParam("rating") int rating,
+            @RequestParam("comment") String comment,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
