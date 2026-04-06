@@ -49,7 +49,7 @@ public class ProfileController {
     private com.skillhub.repository.NoteRepository noteRepository;
 
     @GetMapping("/profile")
-    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "welcome") String tab,
+    public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "documents") String tab,
             Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
@@ -243,5 +243,55 @@ public class ProfileController {
 
         redirectAttributes.addFlashAttribute("success", "Password changed successfully.");
         return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/upload-documents")
+    public String uploadDocuments(
+            @RequestParam(value = "resume", required = false) MultipartFile resume,
+            @RequestParam(value = "tenthCert", required = false) MultipartFile tenthCert,
+            @RequestParam(value = "puCert", required = false) MultipartFile puCert,
+            @RequestParam(value = "ugCert", required = false) MultipartFile ugCert,
+            @RequestParam(value = "pgCert", required = false) MultipartFile pgCert,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        if (principal == null)
+            return "redirect:/login";
+
+        User user = userService.findByEmail(principal.getName());
+
+        try {
+            boolean updated = false;
+            if (resume != null && !resume.isEmpty()) {
+                user.setResumeUrl(fileStorageService.store(resume));
+                updated = true;
+            }
+            if (tenthCert != null && !tenthCert.isEmpty()) {
+                user.setTenthCertUrl(fileStorageService.store(tenthCert));
+                updated = true;
+            }
+            if (puCert != null && !puCert.isEmpty()) {
+                user.setPuCertUrl(fileStorageService.store(puCert));
+                updated = true;
+            }
+            if (ugCert != null && !ugCert.isEmpty()) {
+                user.setUgCertUrl(fileStorageService.store(ugCert));
+                updated = true;
+            }
+            if (pgCert != null && !pgCert.isEmpty()) {
+                user.setPgCertUrl(fileStorageService.store(pgCert));
+                updated = true;
+            }
+
+            if (updated) {
+                userService.updateUser(user);
+                redirectAttributes.addFlashAttribute("success", "Documents updated successfully!");
+            } else {
+                redirectAttributes.addFlashAttribute("info", "No new documents selected.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Document upload failed: " + e.getMessage());
+        }
+
+        return "redirect:/profile?tab=documents";
     }
 }

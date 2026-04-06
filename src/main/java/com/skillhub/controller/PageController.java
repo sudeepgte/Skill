@@ -81,7 +81,7 @@ public class PageController {
         com.skillhub.model.User user = userService.findByEmail(email);
         
         if (user != null && "INSTRUCTOR".equalsIgnoreCase(user.getRole())) {
-            return "redirect:/instructor/dashboard";
+            return "redirect:/vendor/dashboard";
         }
         
         model.addAttribute("user", user);

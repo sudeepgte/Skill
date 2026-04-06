@@ -50,6 +50,13 @@ public class User {
     @Column(length = 2000)
     private String badges; // Comma-separated badge IDs or names (e.g., "QUIZ_MASTER,FAST_LEARNER")
 
+    // Documents
+    private String resumeUrl;
+    private String tenthCertUrl;
+    private String puCertUrl;
+    private String ugCertUrl;
+    private String pgCertUrl;
+
     public User() {
     }
 
@@ -274,4 +281,16 @@ public class User {
             return java.util.Collections.emptyList();
         return java.util.Arrays.asList(badges.split(","));
     }
+
+    // Document Getters/Setters
+    public String getResumeUrl() { return resumeUrl; }
+    public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
+    public String getTenthCertUrl() { return tenthCertUrl; }
+    public void setTenthCertUrl(String tenthCertUrl) { this.tenthCertUrl = tenthCertUrl; }
+    public String getPuCertUrl() { return puCertUrl; }
+    public void setPuCertUrl(String puCertUrl) { this.puCertUrl = puCertUrl; }
+    public String getUgCertUrl() { return ugCertUrl; }
+    public void setUgCertUrl(String ugCertUrl) { this.ugCertUrl = ugCertUrl; }
+    public String getPgCertUrl() { return pgCertUrl; }
+    public void setPgCertUrl(String pgCertUrl) { this.pgCertUrl = pgCertUrl; }
 }

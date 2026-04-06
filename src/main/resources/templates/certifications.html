@@ -371,11 +371,6 @@
                             <div class="progress-fill" th:style="|width: ${info['percent']}%|"></div>
                         </div>
 
-                        <div th:if="${!enrollment.isExamPassed}">
-                            <div class="badge badge-unlocked">
-                                <i class="fa-solid fa-unlock"></i> You're eligible for exam anytime
-                            </div>
-                        </div>
                         <div th:if="${enrollment.isExamPassed}">
                             <div class="badge" style="background: #e6f4ea; color: #137333; border: 1px solid #ceead6;">
                                 <i class="fa-solid fa-certificate"></i> Certified!
@@ -407,7 +402,7 @@
                             Continue Learning
                         </a>
                         <a th:href="@{/user/course/{id}/exam-start(id=${enrollment.course.id})}" class="btn-exam"
-                            style="flex: 1; padding: 1.2rem 1rem; font-size: 1.2rem;" title="Take the exam anytime">
+                            style="flex: 1; padding: 1.2rem 1rem; font-size: 1.2rem;">
                             Take Exam
                         </a>
                     </div>
