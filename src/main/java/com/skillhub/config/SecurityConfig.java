@@ -62,7 +62,7 @@ public class SecurityConfig {
                                 "/course/**", "/error", "/uploads/**")
                 .permitAll()
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/instructor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
+                .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
                 .requestMatchers("/user/**").authenticated()
                 .anyRequest().authenticated())
             .formLogin(form -> form

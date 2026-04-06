@@ -498,6 +498,11 @@
                 <i class="fas fa-comment-alt"></i>
                 <span>Communications</span>
             </a>
+            <a href="/instructor/exams" 
+               th:class="${activeTab == 'exams' ? 'nav-item active' : 'nav-item'}">
+                <i class="fas fa-file-alt"></i>
+                <span>Manage Exams</span>
+            </a>
             <a th:href="@{/instructor/dashboard(tab='profile')}" 
                th:class="${activeTab == 'profile' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-user-circle"></i>
@@ -538,7 +543,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>Total Enrolled</h3>
-                    <div class="value" th:text="${totalStudents}">0</div>
+                    <div id="statEnrolled" class="value" th:text="${totalStudents}">0</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -547,7 +552,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>Course Views</h3>
-                    <div class="value" th:text="${totalViews}">0</div>
+                    <div id="statViews" class="value" th:text="${totalViews}">0</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -556,7 +561,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>Avg. Rating</h3>
-                    <div class="value" th:text="${averageRating}">0.0</div>
+                    <div id="statRating" class="value" th:text="${averageRating}">0.0</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -565,7 +570,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>Student Questions</h3>
-                    <div class="value" th:text="${totalQuestions}">0</div>
+                    <div id="statQuestions" class="value" th:text="${totalQuestions}">0</div>
                 </div>
             </div>
             <div class="stat-card">
@@ -574,7 +579,7 @@
                 </div>
                 <div class="stat-info">
                     <h3>Total Reviews</h3>
-                    <div class="value" th:text="${totalReviews}">0</div>
+                    <div id="statReviews" class="value" th:text="${totalReviews}">0</div>
                 </div>
             </div>
         </div>
@@ -908,7 +913,26 @@
 
     <script th:inline="javascript">
         // Real-time Student Progress Polling
-        const POLL_INTERVAL = 10000; // 10 seconds
+        const POLL_INTERVAL = 15000; // 15 seconds
+
+        function updateDashboardStats() {
+            fetch('/instructor/api/dashboard-overview')
+                .then(res => res.json())
+                .then(data => {
+                    if (document.getElementById('statEnrolled')) document.getElementById('statEnrolled').innerText = data.totalEnrolled;
+                    if (document.getElementById('statViews')) document.getElementById('statViews').innerText = data.totalViews;
+                    if (document.getElementById('statRating')) document.getElementById('statRating').innerText = data.averageRating;
+                    if (document.getElementById('statQuestions')) document.getElementById('statQuestions').innerText = data.totalQuestions;
+                    if (document.getElementById('statReviews')) document.getElementById('statReviews').innerText = data.totalReviews;
+                    
+                    // Also update badges in Communications tab if visible
+                    const revBadge = document.querySelector('.comm-tab-btn i.fa-star').parentNode.querySelector('.comm-badge');
+                    const quesBadge = document.querySelector('.comm-tab-btn i.fa-question-circle').parentNode.querySelector('.comm-badge');
+                    if (revBadge) revBadge.innerText = data.totalReviews;
+                    if (quesBadge) quesBadge.innerText = data.totalQuestions;
+                })
+                .catch(err => console.error('Error polling stats:', err));
+        }
 
         function updateProgressData() {
             // Only poll if we are on the students tab
@@ -932,8 +956,14 @@
                 .catch(err => console.error('Error polling progress:', err));
         }
 
-        // Initialize polling if on students tab
+        // Initialize polling
         window.addEventListener('DOMContentLoaded', () => {
+            // Initial call
+            updateDashboardStats();
+            
+            // Set intervals
+            setInterval(updateDashboardStats, POLL_INTERVAL);
+            
             const activeTab = /*[[${activeTab}]]*/ 'courses';
             if (activeTab === 'students') {
                 setInterval(updateProgressData, POLL_INTERVAL);

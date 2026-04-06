@@ -420,9 +420,14 @@
             </div>
 
             <nav class="nav-menu">
+<<<<<<< HEAD
                
                 <button type="button" class="nav-item active" data-tab="welcome">
                     <i class="fas fa-chart-line"></i> Overview
+=======
+                <button type="button" class="nav-item active" data-tab="documents">
+                    <i class="fas fa-file-alt"></i> My Documents
+>>>>>>> 3c8d18ffc982a26929ecf7235f16acbf8dc775da
                 </button>
                 <button type="button" class="nav-item" data-tab="profile">
                     <i class="fas fa-user-circle"></i> Edit Profile
@@ -454,98 +459,90 @@
             <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
             <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-            <!-- Overview Dashboard (Welcome Section) -->
-            <div id="welcome" class="tab-content active">
-                <div class="welcome-header"
-                    style="padding-bottom: 3.2rem; margin-bottom: 3.2rem; border-bottom: 1px solid var(--border);">
-                    <h1 style="font-size: 3.2rem; font-weight: 800; color: #1c1d1f; margin-bottom: 0.8rem;"
-                        th:text="|Welcome back, ${user.name}!|">Welcome back!</h1>
-                    <p style="font-size: 1.6rem; color: var(--muted);">Here's how your learning journey is progressing
-                        today.</p>
+            <!-- My Documents Tab -->
+            <div id="documents" class="tab-content active">
+                <div class="welcome-header" style="padding-bottom: 2rem; margin-bottom: 3rem; border-bottom: 1px solid var(--border);">
+                    <h1 style="font-size: 2.8rem; font-weight: 800; color: #1c1d1f; margin-bottom: 0.8rem;">My Documents</h1>
+                    <p style="font-size: 1.5rem; color: var(--muted);">Manage and upload your educational and professional documents.</p>
                 </div>
 
-                <!-- Stats Strip (Horizontal) -->
-                <div class="stats-strip"
-                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 4rem;">
-                    <div class="stat-box transition-transform hover:-translate-y-1"
-                        onclick="document.querySelector('.nav-item[data-tab=\'courses\']').click()"
-                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center; cursor: pointer; transition: transform 0.2s;">
-                        <div style="color: var(--primary); font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
-                            th:text="${#lists.size(enrollments)}">0</div>
-                        <div
-                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
-                            Courses</div>
-                    </div>
-                    <div class="stat-box transition-transform hover:-translate-y-1"
-                        onclick="document.querySelector('.nav-item[data-tab=\'certificates\']').click()"
-                        style="padding: 2rem; background: #f8f9fa; border-radius: 1.2rem; text-align: center; cursor: pointer; transition: transform 0.2s;">
-                        <div style="color: #b4690e; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
-                            th:text="${#lists.size(certificates)}">0</div>
-                        <div
-                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
-                            Certs</div>
-                    </div>
-                    <div class="stat-box"
-                        style="padding: 2rem; background: #fff5f5; border-radius: 1.2rem; text-align: center;">
-                        <div style="color: #ff4757; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;">
-                            <i class="fas fa-fire"></i> <span th:text="${user.streakCount}">0</span>
-                        </div>
-                        <div
-                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
-                            Streak</div>
-                    </div>
-                    <div class="stat-box"
-                        style="padding: 2rem; background: #f0f7ff; border-radius: 1.2rem; text-align: center;">
-                        <div style="color: #0066cc; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem;"
-                            th:text="${user.totalXP}">0</div>
-                        <div
-                            style="font-size: 1.2rem; color: var(--muted); text-transform: uppercase; font-weight: 700;">
-                            Total XP</div>
-                    </div>
-                </div>
+                <div th:if="${info}" class="alert alert-info" style="background:#e3f2fd; color:#0d47a1; padding: 1rem; border-radius: 4px; margin-bottom: 2rem;" th:text="${info}"></div>
 
-                <div style="display: grid; grid-template-columns: 1fr 34rem; gap: 3.2rem;">
-                    <!-- Skill Radar -->
-                    <div class="dashboard-card"
-                        style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2.4rem;">
-                        <h3 style="font-size: 1.8rem; margin-bottom: 2rem;"><i class="fas fa-bullseye"
-                                style="color: var(--primary);"></i> Expertise Radar</h3>
-                        <div class="radar-container" style="max-width: 100%; margin: 0 auto;">
-                            <canvas id="skillRadarChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Side Actions / Achievements -->
-                    <div class="dashboard-card"
-                        style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2.4rem;">
-                        <h3 style="font-size: 1.8rem; margin-bottom: 1.6rem;"><i class="fas fa-magic"
-                                style="color: #ff9f43;"></i> Quick Actions</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1.2rem;">
-                            <a href="/user/home"
-                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #1c1d1f; color: #fff; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem;">
-                                <i class="fas fa-search"></i> Browse More Courses
-                            </a>
-                            <a href="/notifications"
-                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #f8f9fa; color: #1c1d1f; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem; border: 1px solid var(--border);">
-                                <i class="fas fa-bell"></i> Check Notifications
-                            </a>
-                            <a href="/student/wishlist"
-                                style="display: flex; align-items: center; gap: 1rem; padding: 1.2rem; background: #f8f9fa; color: #1c1d1f; text-decoration: none; border-radius: 0.6rem; font-weight: 600; font-size: 1.4rem; border: 1px solid var(--border);">
-                                <i class="fas fa-heart"></i> View Wishlist
-                            </a>
-                        </div>
-
-                        <div style="margin-top: 3.2rem;">
-                            <h3 style="font-size: 1.6rem; margin-bottom: 1.2rem;">Current Level</h3>
-                            <div
-                                style="background: #eee; height: 1rem; border-radius: 1rem; overflow: hidden; margin-bottom: 0.8rem;">
-                                <div style="background: var(--primary); height: 100%; width: 65%;"></div>
+                <div style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 3rem;">
+                    <form th:action="@{/profile/upload-documents}" method="post" enctype="multipart/form-data">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+                            <!-- Resume -->
+                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                                <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-file-pdf" style="color: #e74c3c;"></i> Resume / CV
+                                </label>
+                                <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx">
+                                <div th:if="${user.resumeUrl}" style="margin-top: 1rem; font-size: 1.2rem;">
+                                    <a th:href="${user.resumeUrl}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                        <i class="fas fa-eye"></i> View Current Resume
+                                    </a>
+                                </div>
                             </div>
-                            <p style="font-size: 1.2rem; color: var(--muted);">XP to Level [[${user.level + 1}]]:
-                                <strong>350</strong>
-                            </p>
+
+                            <!-- 10th Certificate -->
+                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                                <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-certificate" style="color: #f1c40f;"></i> 10th Certificate
+                                </label>
+                                <input type="file" name="tenthCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div th:if="${user.tenthCertUrl}" style="margin-top: 1rem; font-size: 1.2rem;">
+                                    <a th:href="${user.tenthCertUrl}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                        <i class="fas fa-eye"></i> View 10th Certificate
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- PU Certificate -->
+                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                                <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-certificate" style="color: #2ecc71;"></i> PU Certificate (12th)
+                                </label>
+                                <input type="file" name="puCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div th:if="${user.puCertUrl}" style="margin-top: 1rem; font-size: 1.2rem;">
+                                    <a th:href="${user.puCertUrl}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                        <i class="fas fa-eye"></i> View PU Certificate
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- UG Certificate -->
+                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                                <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-user-graduate" style="color: #3498db;"></i> UG Course Certificate
+                                </label>
+                                <input type="file" name="ugCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div th:if="${user.ugCertUrl}" style="margin-top: 1rem; font-size: 1.2rem;">
+                                    <a th:href="${user.ugCertUrl}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                        <i class="fas fa-eye"></i> View UG Certificate
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- PG Certificate -->
+                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                                <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-user-graduate" style="color: #9b59b6;"></i> PG Course Certificate
+                                </label>
+                                <input type="file" name="pgCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div th:if="${user.pgCertUrl}" style="margin-top: 1rem; font-size: 1.2rem;">
+                                    <a th:href="${user.pgCertUrl}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                        <i class="fas fa-eye"></i> View PG Certificate
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div style="margin-top: 3rem;">
+                            <button type="submit" class="btn-save" style="padding: 1.4rem 3rem;">
+                                <i class="fas fa-cloud-upload-alt" style="margin-right: 0.8rem;"></i> Save Documents
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -845,44 +842,6 @@
                 const btn = document.querySelector(`.nav-item[data-tab="${activeTab}"]`);
                 if (btn) btn.click();
             }
-
-            // Skill Radar Chart Initialization
-            const expertiseData = /*[[${expertiseMap}]]*/ {};
-            const labels = Object.keys(expertiseData);
-            const data = Object.values(expertiseData);
-
-            const ctx = document.getElementById('skillRadarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Skill Proficiency (%)',
-                        data: data,
-                        backgroundColor: 'rgba(124, 58, 237, 0.2)',
-                        borderColor: '#7c3aed',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#7c3aed',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#7c3aed'
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            angleLines: { display: true },
-                            suggestedMin: 0,
-                            suggestedMax: 100,
-                            ticks: { stepSize: 20 }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    maintainAspectRatio: true
-                }
-            });
         });
 
         function downloadSingleNote(course, lecture, content) {

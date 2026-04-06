@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -11,7 +11,7 @@
 
 <body>
 
-    <!-- â•â• SIDEBAR â•â• -->
+    <!-- ══ SIDEBAR ══ -->
     <aside class="admin-sidebar" id="adminSidebar">
 
         <div class="sidebar-brand">
@@ -45,17 +45,11 @@
                 <i class="fas fa-tags"></i> Categories
             </a>
 
-            <a href="/admin/exams" class="nav-item">
-                <i class="fas fa-file-alt"></i> Exams
-            </a>
-
             <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
 
             <a href="/admin/broadcast" class="nav-item">
                 <i class="fas fa-envelope"></i> Broadcast Email
             </a>
-
-
 
         </nav>
 
@@ -69,7 +63,7 @@
 
     </aside>
 
-    <!-- â•â• MAIN BODY â•â• -->
+    <!-- ══ MAIN BODY ══ -->
     <div class="admin-body">
 
         <!-- Top Bar -->
@@ -100,7 +94,7 @@
             <div class="page-header">
                 <div class="page-header-left">
                     <h1>Dashboard Overview</h1>
-                    <p>Welcome back, Admin &mdash; here's what's happening on SkillHub today.</p>
+                    <p>Welcome back, Admin — here's what's happening on SkillHub today.</p>
                 </div>
                 <a href="/admin/courses" class="btn-primary-admin">
                     <i class="fas fa-plus"></i> Add New Course
@@ -165,18 +159,18 @@
                         <i class="fas fa-check-circle" th:unless="${pendingReports > 0}"></i>
                         <span th:text="${pendingReports > 0} ? 'Needs attention' : 'All clear'">All clear</span>
                     </div>
-                    <a href="#" class="stat-link" th:if="${pendingReports > 0}">Review Now <i class="fas fa-arrow-right"></i></a>
+                    <a href="/admin/reports" class="stat-link" th:if="${pendingReports > 0}">Review Now <i class="fas fa-arrow-right"></i></a>
                 </div>
 
             </div>
 
-            <!-- Content Grid â€” Most Watched + System Health -->
+            <!-- Content Grid — Most Watched + System Health -->
             <div class="content-grid">
 
                 <!-- Most Watched Course -->
                 <div>
                     <div class="most-watched" th:if="${mostWatchedCourse != null}">
-                        <div class="most-watched-label">ðŸ”¥ Most Watched Course</div>
+                        <div class="most-watched-label">🔥 Most Watched Course</div>
                         <div class="most-watched-title" th:text="${mostWatchedCourse.title}">Course Title</div>
                         <div>
                             <div class="most-watched-stat" th:text="${mostWatchedCourse.viewCount}">0</div>
@@ -239,10 +233,6 @@
                 <a href="/admin/users" class="action-card">
                     <div class="action-card-icon bg-blue"><i class="fas fa-user-shield"></i></div>
                     <span class="action-card-label">Manage Users</span>
-                </a>
-                <a href="/admin/exams" class="action-card">
-                    <div class="action-card-icon bg-dark"><i class="fas fa-file-alt"></i></div>
-                    <span class="action-card-label">Manage Exams</span>
                 </a>
                 <a href="/admin/broadcast" class="action-card">
                     <div class="action-card-icon" style="background:rgba(155,89,182,0.12); color:#9b59b6;"><i class="fas fa-envelope"></i></div>

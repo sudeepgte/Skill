@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/instructor")
+@RequestMapping("/vendor")
 public class InstructorController {
 
     @Autowired
@@ -139,6 +139,41 @@ public class InstructorController {
         return ResponseEntity.ok(result);
     }
 
+    /** REST endpoint – returns overall stats (JSON) */
+    @GetMapping("/api/dashboard-overview")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDashboardOverview(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        String email = principal.getName();
+        List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
+
+        int totalEnrolled = 0;
+        long totalViews = 0;
+        double totalRating = 0.0;
+        int totalReviews = 0;
+
+        for (com.skillhub.model.Course course : courses) {
+            totalEnrolled += (course.getEnrollments() != null ? course.getEnrollments().size() : 0);
+            totalViews += (course.getViewCount() != null ? course.getViewCount() : 0);
+            Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
+            Integer count = reviewRepository.countByCourseId(course.getId());
+            totalRating += avg * count;
+            totalReviews += count;
+        }
+
+        int totalQuestions = courseQuestionRepository.findByInstructorEmail(email).size();
+        double avgRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalEnrolled", totalEnrolled);
+        stats.put("totalViews", totalViews);
+        stats.put("averageRating", String.format("%.1f", avgRating));
+        stats.put("totalReviews", totalReviews);
+        stats.put("totalQuestions", totalQuestions);
+
+        return ResponseEntity.ok(stats);
+    }
+
     @GetMapping("/courses/create")
     public String createCourseForm(Model model) {
         Course course = new Course();
@@ -196,7 +231,7 @@ public class InstructorController {
 
         courseService.saveCourse(course);
         redirectAttributes.addFlashAttribute("success", "Course created successfully!");
-        return "redirect:/instructor/dashboard";
+        return "redirect:/vendor/dashboard";
     }
 
     @GetMapping("/courses/{id}/edit")
@@ -226,7 +261,7 @@ public class InstructorController {
     public String addSection(@PathVariable Long id, @RequestParam String title, RedirectAttributes redirectAttributes) {
         courseService.addSectionToCourse(id, title);
         redirectAttributes.addFlashAttribute("success", "Section added successfully!");
-        return "redirect:/instructor/courses/" + id + "/edit?tab=curriculum";
+        return "redirect:/vendor/courses/" + id + "/edit?tab=curriculum";
     }
 
     @PostMapping("/sections/{id}/lectures/add")
@@ -252,7 +287,7 @@ public class InstructorController {
         courseService.addLectureToSection(id, lecture);
 
         redirectAttributes.addFlashAttribute("success", "Lecture added successfully!");
-        return (referer != null) ? "redirect:" + referer : "redirect:/instructor/dashboard";
+        return (referer != null) ? "redirect:" + referer : "redirect:/vendor/dashboard";
     }
 
     @PostMapping("/profile/update")
@@ -268,7 +303,7 @@ public class InstructorController {
         
         userService.saveUser(user);
         redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
-        return "redirect:/instructor/dashboard?tab=profile";
+        return "redirect:/vendor/dashboard?tab=profile";
     }
 
     @PostMapping("/reviews/{id}/reply")
@@ -280,7 +315,7 @@ public class InstructorController {
             reviewRepository.save(review);
             redirectAttributes.addFlashAttribute("success", "Reply sent!");
         }
-        return "redirect:/instructor/dashboard?tab=communications";
+        return "redirect:/vendor/dashboard?tab=communications";
     }
 
     @PostMapping("/questions/{id}/reply")
@@ -295,7 +330,7 @@ public class InstructorController {
             courseAnswerRepository.save(answer);
             redirectAttributes.addFlashAttribute("success", "Answer posted successfully!");
         }
-        return "redirect:/instructor/dashboard?tab=communications";
+        return "redirect:/vendor/dashboard?tab=communications";
     }
 
     @PostMapping("/enrollments/{id}/certificate")
@@ -307,6 +342,79 @@ public class InstructorController {
             enrollmentRepository.save(enrollment);
             redirectAttributes.addFlashAttribute("success", "Certificate generated for student: " + enrollment.getStudent().getName());
         }
-        return "redirect:/instructor/dashboard?tab=students";
+        return "redirect:/vendor/dashboard?tab=students";
+    }
+
+    @GetMapping("/exams")
+    public String listExams(Model model, Principal principal) {
+        String email = principal.getName();
+        model.addAttribute("courses", courseService.getCoursesByInstructor(email));
+        model.addAttribute("activeTab", "exams");
+        model.addAttribute("instructor", userService.findByEmail(email));
+        return "instructor/exams";
+    }
+
+    /** REST endpoint – returns question counts for each course (JSON) */
+    @GetMapping("/api/exams-stats")
+    @ResponseBody
+    public ResponseEntity<Map<Long, Integer>> getExamsStats(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        String email = principal.getName();
+        List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
+        Map<Long, Integer> stats = new HashMap<>();
+        for (com.skillhub.model.Course course : courses) {
+            stats.put(course.getId(), course.getExamQuestions() != null ? course.getExamQuestions().size() : 0);
+        }
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/courses/{id}/questions")
+    public String manageExamQuestions(@PathVariable Long id, Model model, Principal principal) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        String email = principal.getName();
+        
+        if (course == null || !course.getInstructor().getEmail().equals(email)) {
+            return "redirect:/vendor/exams";
+        }
+
+        model.addAttribute("course", course);
+        model.addAttribute("questions", course.getExamQuestions());
+        model.addAttribute("instructor", userService.findByEmail(email));
+        return "instructor/manage_questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/add")
+    public String addExamQuestion(@PathVariable Long id,
+            @RequestParam String questionText,
+            @RequestParam String optionA,
+            @RequestParam String optionB,
+            @RequestParam String optionC,
+            @RequestParam String optionD,
+            @RequestParam String correctOption,
+            Principal principal) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        String email = principal.getName();
+
+        if (course != null && course.getInstructor().getEmail().equals(email)) {
+            com.skillhub.model.ExamQuestion q = new com.skillhub.model.ExamQuestion(course, questionText, optionA,
+                    optionB, optionC, optionD, correctOption);
+            course.getExamQuestions().add(q);
+            courseService.saveCourse(course);
+        }
+        return "redirect:/vendor/courses/" + id + "/questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/delete/{qid}")
+    public String deleteExamQuestion(@PathVariable Long id,
+            @PathVariable Long qid,
+            Principal principal) {
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        String email = principal.getName();
+
+        if (course != null && course.getInstructor().getEmail().equals(email)) {
+            course.getExamQuestions().removeIf(q -> q.getId().equals(qid));
+            courseService.saveCourse(course);
+        }
+        return "redirect:/vendor/courses/" + id + "/questions";
     }
 }
