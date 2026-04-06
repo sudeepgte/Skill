@@ -49,19 +49,17 @@
             width: 100%;
             margin: 0 auto;
             padding: 4rem 2.4rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 1.6rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
         }
 
         .header-content h1 {
-            font-size: 4rem;
+            font-size: 5.6rem;
             font-weight: 800;
-            margin-bottom: 3.2rem;
+            margin-bottom: 0;
             color: #fff;
-            letter-spacing: -1px;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            font-family: 'Outfit', sans-serif;
         }
 
         .header-tabs {
@@ -292,14 +290,10 @@
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <header class="dashboard-header">
+    <header class="dashboard-header" 
+            style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/wishlist_hero.png'); min-height: 400px;">
         <div class="header-content">
             <h1>My Learning</h1>
-            <div class="header-tabs">
-                <a href="/user/home" class="header-tab">All Courses</a>
-                <a href="/student/wishlist" class="header-tab active">Wishlist</a>
-                <a href="/user/certifications" class="header-tab">Certifications</a>
-            </div>
         </div>
     </header>
 

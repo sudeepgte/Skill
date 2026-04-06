@@ -307,7 +307,7 @@ public class CourseController {
         }
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
         enrollmentService.enrollUser(user, id);
-        return "redirect:/student/dashboard";
+        return "redirect:/profile?tab=courses";
     }
 
     @org.springframework.web.bind.annotation.GetMapping("/user/course/{id}/generate-sample")
