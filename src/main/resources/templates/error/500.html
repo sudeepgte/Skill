@@ -37,9 +37,10 @@
 
     <div class="container error-container">
         <div class="error-code">500</div>
-        <h2 class="error-message">Something went wrong.</h2>
-        <p th:text="${error}" style="color: #6a6f73; margin-bottom: 2rem;">An unexpected error occurred.</p>
-        <a href="/" class="btn btn-primary">Return Home</a>
+        <h2 class="error-message">Something went wrong (Status: <span th:text="${status}">500</span>)</h2>
+        <p th:text="${message}" style="color: #2d2f31; font-weight: bold; margin-bottom: 1rem;"></p>
+        <p th:text="${exception}" style="color: #6a6f73; font-family: monospace; font-size: 0.9rem; background: #f8f9fa; padding: 1rem; border-radius: 4px; max-width: 800px; overflow: auto; text-align: left; margin-bottom: 2rem;">Error details</p>
+        <a href="/" class="btn btn-primary" style="background: #a435f0; color: #fff; padding: 10px 24px; border-radius: 4px; text-decoration: none; font-weight: bold;">Return Home</a>
     </div>
 
     <footer>

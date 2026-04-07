@@ -38,25 +38,25 @@ public class InstructorController {
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
- 
+
     @Autowired
     private ReviewRepository reviewRepository;
- 
+
     @Autowired
     private FileStorageService fileStorageService;
 
     @Autowired
     private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
-    
+
     @Autowired
     private com.skillhub.repository.CourseQuestionRepository courseQuestionRepository;
-    
+
     @Autowired
     private com.skillhub.repository.CourseAnswerRepository courseAnswerRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
-                           Model model, Principal principal) {
+            Model model, Principal principal) {
         String email = principal.getName();
         User instructor = userService.findByEmail(email);
         List<Course> courses = courseService.getCoursesByInstructor(email);
@@ -91,7 +91,7 @@ public class InstructorController {
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("totalQuestions", questionsList.size());
         model.addAttribute("activeTab", tab);
-        
+
         if ("communications".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
             model.addAttribute("questions", questionsList);
@@ -101,7 +101,8 @@ public class InstructorController {
                 long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
                 double lectureBasedPct = 0.0;
                 if (total > 0) {
-                    long completed = lectureProgressRepository.countCompletedLecturesByCourse(enrollment.getStudent().getId(), enrollment.getCourse().getId());
+                    long completed = lectureProgressRepository.countCompletedLecturesByCourse(
+                            enrollment.getStudent().getId(), enrollment.getCourse().getId());
                     lectureBasedPct = Math.min(100.0, (double) completed / total * 100.0);
                 }
                 // Use whichever is higher: discrete lecture completion OR partial video watch %
@@ -118,7 +119,8 @@ public class InstructorController {
     @GetMapping("/api/students-progress")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getStudentsProgress(Principal principal) {
-        if (principal == null) return ResponseEntity.status(401).build();
+        if (principal == null)
+            return ResponseEntity.status(401).build();
         String email = principal.getName();
         List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -143,7 +145,8 @@ public class InstructorController {
     @GetMapping("/api/dashboard-overview")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDashboardOverview(Principal principal) {
-        if (principal == null) return ResponseEntity.status(401).build();
+        if (principal == null)
+            return ResponseEntity.status(401).build();
         String email = principal.getName();
         List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
 
@@ -192,24 +195,26 @@ public class InstructorController {
         User instructor = userService.findByEmail(email);
 
         course.setInstructor(instructor);
-        
+
         if (thumbnail != null && !thumbnail.isEmpty()) {
             course.setImageUrl(fileStorageService.store(thumbnail));
         } else if (course.getId() == null) {
             course.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg"); // Default for new
         } else {
-            // For edits, if no new thumbnail is uploaded, we should keep the existing imageUrl
-            // Fetch the current course from DB to get the existing image URL if it was not in the form
+            // For edits, if no new thumbnail is uploaded, we should keep the existing
+            // imageUrl
+            // Fetch the current course from DB to get the existing image URL if it was not
+            // in the form
             Course existingCourse = courseService.getCourseById(course.getId());
             if (course.getImageUrl() == null || course.getImageUrl().isEmpty()) {
                 course.setImageUrl(existingCourse.getImageUrl());
             }
         }
-        
+
         if (course.getId() == null) {
             course.setPublished(true);
         }
-        
+
         course.setLastUpdated(java.time.LocalDate.now().toString());
 
         // Process Curriculum Videos
@@ -244,7 +249,8 @@ public class InstructorController {
 
     @PostMapping("/courses/{id}/status")
     @org.springframework.web.bind.annotation.ResponseBody
-    public org.springframework.http.ResponseEntity<?> updateCourseStatus(@PathVariable("id") Long id, @RequestParam("published") boolean published) {
+    public org.springframework.http.ResponseEntity<?> updateCourseStatus(@PathVariable("id") Long id,
+            @RequestParam("published") boolean published) {
         try {
             if (published) {
                 courseService.publishCourse(id);
@@ -258,7 +264,8 @@ public class InstructorController {
     }
 
     @PostMapping("/courses/{id}/sections/add")
-    public String addSection(@PathVariable("id") Long id, @RequestParam("title") String title, RedirectAttributes redirectAttributes) {
+    public String addSection(@PathVariable("id") Long id, @RequestParam("title") String title,
+            RedirectAttributes redirectAttributes) {
         courseService.addSectionToCourse(id, title);
         redirectAttributes.addFlashAttribute("success", "Section added successfully!");
         return "redirect:/vendor/courses/" + id + "/edit?tab=curriculum";
@@ -291,7 +298,8 @@ public class InstructorController {
     }
 
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute User userUpdate, Principal principal, RedirectAttributes redirectAttributes) {
+    public String updateProfile(@ModelAttribute User userUpdate, Principal principal,
+            RedirectAttributes redirectAttributes) {
         User user = userService.findByEmail(principal.getName());
         user.setName(userUpdate.getName());
         user.setBio(userUpdate.getBio());
@@ -300,14 +308,15 @@ public class InstructorController {
         user.setInstagramUrl(userUpdate.getInstagramUrl());
         user.setLinkedinUrl(userUpdate.getLinkedinUrl());
         user.setYoutubeUrl(userUpdate.getYoutubeUrl());
-        
+
         userService.saveUser(user);
         redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
         return "redirect:/vendor/dashboard?tab=profile";
     }
 
     @PostMapping("/reviews/{id}/reply")
-    public String replyToReview(@PathVariable("id") Long id, @RequestParam("reply") String reply, RedirectAttributes redirectAttributes) {
+    public String replyToReview(@PathVariable("id") Long id, @RequestParam("reply") String reply,
+            RedirectAttributes redirectAttributes) {
         com.skillhub.model.Review review = reviewRepository.findById(id).orElse(null);
         if (review != null) {
             review.setReply(reply);
@@ -319,7 +328,8 @@ public class InstructorController {
     }
 
     @PostMapping("/questions/{id}/reply")
-    public String replyToQuestion(@PathVariable("id") Long id, @RequestParam("content") String content, Principal principal, RedirectAttributes redirectAttributes) {
+    public String replyToQuestion(@PathVariable("id") Long id, @RequestParam("content") String content,
+            Principal principal, RedirectAttributes redirectAttributes) {
         com.skillhub.model.CourseQuestion question = courseQuestionRepository.findById(id).orElse(null);
         if (question != null) {
             com.skillhub.model.User instructor = userService.findByEmail(principal.getName());
@@ -340,7 +350,8 @@ public class InstructorController {
             enrollment.setExamPassed(true);
             enrollment.setCertificateDate(java.time.LocalDateTime.now());
             enrollmentRepository.save(enrollment);
-            redirectAttributes.addFlashAttribute("success", "Certificate generated for student: " + enrollment.getStudent().getName());
+            redirectAttributes.addFlashAttribute("success",
+                    "Certificate generated for student: " + enrollment.getStudent().getName());
         }
         return "redirect:/vendor/dashboard?tab=students";
     }
@@ -358,7 +369,8 @@ public class InstructorController {
     @GetMapping("/api/exams-stats")
     @ResponseBody
     public ResponseEntity<Map<Long, Integer>> getExamsStats(Principal principal) {
-        if (principal == null) return ResponseEntity.status(401).build();
+        if (principal == null)
+            return ResponseEntity.status(401).build();
         String email = principal.getName();
         List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
         Map<Long, Integer> stats = new HashMap<>();
@@ -372,7 +384,7 @@ public class InstructorController {
     public String manageExamQuestions(@PathVariable("id") Long id, Model model, Principal principal) {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         String email = principal.getName();
-        
+
         if (course == null || !course.getInstructor().getEmail().equals(email)) {
             return "redirect:/vendor/exams";
         }

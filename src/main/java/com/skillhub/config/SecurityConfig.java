@@ -45,33 +45,33 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder)
+            throws Exception {
         http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
-            .exceptionHandling(exception -> exception
-                .defaultAuthenticationEntryPointFor(
-                    unauthorizedHandler, 
-                    new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
-                )
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/register/admin", "/admin/register", "/saveUser",
+                .exceptionHandling(exception -> exception
+                        .defaultAuthenticationEntryPointFor(
+                                unauthorizedHandler,
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/register", "/register/admin", "/admin/register", "/saveUser",
                                 "/login", "/forgot-password", "/reset-password",
                                 "/api/auth/**",
                                 "/css/**", "/js/**", "/images/**",
-                                "/course/**", "/error", "/uploads/**")
-                .permitAll()
-                .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
-                .requestMatchers("/user/**").authenticated()
-                .anyRequest().authenticated())
-            .formLogin(form -> form
-                .loginPage("/login")
-                .successHandler(successHandler)
-                .permitAll())
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .permitAll());
+                                "/course/**", "/error", "/uploads/**",
+                                "/about", "/contact", "/submit-contact-form")
+                        .permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
+                        .requestMatchers("/user/**").authenticated()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(successHandler)
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll());
 
         http.authenticationProvider(authenticationProvider(userService, passwordEncoder));
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

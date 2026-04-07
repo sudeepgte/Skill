@@ -32,18 +32,25 @@ public class GlobalModelAdvice {
                 // Find current course (unfinished one with highest progress or latest
                 // enrollment)
                 if (user.getEnrollments() != null && !user.getEnrollments().isEmpty()) {
-                    Optional<Enrollment> currentEnrollment = user.getEnrollments().stream()
-                            .filter(e -> e.getProgressPercentage() < 100.0)
-                            .max(Comparator.comparing(Enrollment::getProgressPercentage)
-                                    .thenComparing(Enrollment::getEnrolledAt));
+                    // Filter out null elements or enrollments without courses
+                    java.util.List<Enrollment> validEnrollments = user.getEnrollments().stream()
+                            .filter(e -> e != null && e.getCourse() != null)
+                            .collect(java.util.stream.Collectors.toList());
 
-                    // Fallback to latest enrollment if all completed
-                    if (currentEnrollment.isEmpty()) {
-                        currentEnrollment = user.getEnrollments().stream()
-                                .max(Comparator.comparing(Enrollment::getEnrolledAt));
+                    if (!validEnrollments.isEmpty()) {
+                        Optional<Enrollment> currentEnrollment = validEnrollments.stream()
+                                .filter(e -> e.getProgressPercentage() < 100.0)
+                                .max(Comparator.comparing(Enrollment::getProgressPercentage)
+                                        .thenComparing(e -> e.getEnrolledAt() != null ? e.getEnrolledAt() : java.time.LocalDateTime.MIN));
+
+                        // Fallback to latest enrollment if all completed
+                        if (currentEnrollment.isEmpty()) {
+                            currentEnrollment = validEnrollments.stream()
+                                    .max(Comparator.comparing(e -> e.getEnrolledAt() != null ? e.getEnrolledAt() : java.time.LocalDateTime.MIN));
+                        }
+
+                        currentEnrollment.ifPresent(e -> model.addAttribute("currentCourseId", e.getCourse().getId()));
                     }
-
-                    currentEnrollment.ifPresent(e -> model.addAttribute("currentCourseId", e.getCourse().getId()));
                 }
             }
         }

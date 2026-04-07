@@ -402,7 +402,7 @@
         .hero-btns {
             display: flex;
             gap: 1.2rem;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .hero-cta-primary {
@@ -418,6 +418,7 @@
             border: none;
             cursor: pointer;
             font-family: inherit;
+            white-space: nowrap;
         }
 
         .hero-cta-primary:hover {
@@ -435,6 +436,7 @@
             text-decoration: none;
             border-radius: 0.4rem;
             border: 2px solid #5624d0;
+            white-space: nowrap;
             transition: background 0.15s;
         }
 
@@ -799,6 +801,7 @@
             margin-bottom: 1.2rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -880,6 +883,7 @@
             margin-bottom: 0.3rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -1138,8 +1142,8 @@
                     <h1>Lead with Confidence</h1>
                     <p>Build essential leadership and business strategies for the modern global marketplace.</p>
                     <div class="hero-btns">
-                        <a href="#courses" class="hero-cta-primary">Personal Learning Plan</a>
                         <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: #fff; color: #fff;">Corporate Training</a>
+                        <a href="#courses" class="hero-cta-primary">Personal Learning Plan</a>
                     </div>
                 </div>
             </div>
@@ -1217,16 +1221,16 @@
                             th:text="${course.instructor != null ? course.instructor.name : 'Instructor'}">Instructor
                         </div>
                         <div class="ci-rating">
-                            <span class="ci-rating-num" th:text="${course.averageRating}">4.7</span>
+                            <span class="ci-rating-num" th:text="${course.averageRating != null ? course.averageRating : 0.0}">4.7</span>
                             <div class="ci-stars">
                                 <span th:each="i : ${#numbers.sequence(1,5)}">
-                                    <i class="fas fa-star" th:if="${course.averageRating >= i}"></i>
+                                    <i class="fas fa-star" th:if="${course.averageRating != null and course.averageRating >= i}"></i>
                                     <i class="fas fa-star-half-alt"
-                                        th:if="${course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
-                                    <i class="far fa-star" th:if="${course.averageRating < i - 0.5}"></i>
+                                        th:if="${course.averageRating != null and course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
+                                    <i class="far fa-star" th:if="${course.averageRating == null or course.averageRating < i - 0.5}"></i>
                                 </span>
                             </div>
-                            <span class="ci-count" th:text="'(' + ${course.reviewCount} + ')'"></span>
+                            <span class="ci-count" th:text="'(' + ${course.reviewCount != null ? course.reviewCount : 0} + ')'"></span>
                         </div>
                     </a>
 

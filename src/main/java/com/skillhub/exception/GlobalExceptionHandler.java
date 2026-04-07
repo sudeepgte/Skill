@@ -17,11 +17,18 @@ public class GlobalExceptionHandler {
         return "error/404";
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception ex) {
-        // Return a plain text/JSON error to avoid View Rendering (getWriter) issues
-        // if getOutputStream was already called.
-        // Also helps isolate the error source.
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<String> handleGeneralException(Throwable ex) {
+        try {
+            java.io.PrintWriter pw = new java.io.PrintWriter(new java.io.FileWriter("error_debug.txt", true));
+            pw.println("--- Error at " + java.time.LocalDateTime.now() + " ---");
+            ex.printStackTrace(pw);
+            pw.println("--------------------------------------------------");
+            pw.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("An unexpected error occurred: " + ex.getMessage());
     }

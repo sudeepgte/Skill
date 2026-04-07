@@ -34,7 +34,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         // Track login
         userService.trackLogin(authentication.getName());
 
-        // Check if there's a saved request (e.g. from trying to access a restricted page)
+        // Check if there's a saved request (e.g. from trying to access a restricted
+        // page)
         SavedRequest savedRequest = requestCache.getRequest(request, response);
 
         if (savedRequest != null) {
@@ -48,9 +49,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Default Redirect based on role
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("ADMIN") || ga.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("ADMIN")
+                        || ga.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
         boolean isInstructor = authentication.getAuthorities().stream()
-                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("INSTRUCTOR") || ga.getAuthority().equalsIgnoreCase("ROLE_INSTRUCTOR"));
+                .anyMatch(ga -> ga.getAuthority().equalsIgnoreCase("INSTRUCTOR")
+                        || ga.getAuthority().equalsIgnoreCase("ROLE_INSTRUCTOR"));
 
         if (isAdmin) {
             response.sendRedirect("/admin/dashboard");

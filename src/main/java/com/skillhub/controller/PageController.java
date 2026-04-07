@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,10 +34,12 @@ public class PageController {
 
     @ModelAttribute
     public void forceSessionAndCsrf(HttpServletRequest request) {
-        // Force session creation and set a dummy attribute to ensure headers are sent early
+        // Force session creation and set a dummy attribute to ensure headers are sent
+        // early
         request.getSession(true).setAttribute("init", true);
         // Eagerly resolve CSRF token
-        org.springframework.security.web.csrf.CsrfToken token = (org.springframework.security.web.csrf.CsrfToken) request.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+        org.springframework.security.web.csrf.CsrfToken token = (org.springframework.security.web.csrf.CsrfToken) request
+                .getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
         if (token != null) {
             token.getToken(); // Forces generation/loading in the controller phase
         }
@@ -59,10 +63,15 @@ public class PageController {
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         } else if (categoryId != null) {
             Category category = categoryService.getCategoryById(categoryId);
-            model.addAttribute("courses", courseService.getCoursesByCategory(category));
-            model.addAttribute("activeCategory", category.getName()); // Changed from ID to Name
-            model.addAttribute("selectedCategoryId", categoryId); // Keep ID for highlighting tabs
-            model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
+            if (category != null) {
+                model.addAttribute("courses", courseService.getCoursesByCategory(category));
+                model.addAttribute("activeCategory", category.getName());
+                model.addAttribute("selectedCategoryId", categoryId);
+                model.addAttribute("videos", videoResourceRepository.findByCategoryOrderByUploadDateDesc(category));
+            } else {
+                model.addAttribute("courses", courseService.getPublishedCourses());
+                model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
+            }
         } else {
             model.addAttribute("courses", courseService.getPublishedCourses());
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
@@ -79,11 +88,11 @@ public class PageController {
         }
         String email = principal.getName();
         com.skillhub.model.User user = userService.findByEmail(email);
-        
+
         if (user != null && "INSTRUCTOR".equalsIgnoreCase(user.getRole())) {
             return "redirect:/vendor/dashboard";
         }
-        
+
         model.addAttribute("user", user);
         model.addAttribute("categories", categoryService.getAllCategories());
 
@@ -96,7 +105,7 @@ public class PageController {
         if (user.getEnrollments() != null) {
             for (com.skillhub.model.Enrollment e : user.getEnrollments()) {
                 if (e.isExamPassed()) {
-                    if (latestCert == null || e.getCertificateDate().isAfter(latestCert.getCertificateDate())) {
+                    if (e.getCertificateDate() != null && (latestCert == null || (latestCert.getCertificateDate() != null && e.getCertificateDate().isAfter(latestCert.getCertificateDate())))) {
                         latestCert = e;
                     }
                 } else if (pendingCert == null && e.getProgressPercentage() >= 100.0) {
@@ -139,7 +148,7 @@ public class PageController {
     }
 
     @GetMapping("/contact")
-    public String contact(Model model, Principal principal, HttpServletRequest request) {
+    public String showContactPage(Model model, Principal principal, HttpServletRequest request) {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
