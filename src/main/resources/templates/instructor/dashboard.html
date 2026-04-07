@@ -474,36 +474,36 @@
         </div>
 
         <nav class="nav-menu">
-            <a th:href="@{/instructor/dashboard(tab='courses')}" 
+            <a th:href="@{/vendor/dashboard(tab='courses')}" 
                th:class="${activeTab == 'courses' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-layer-group"></i>
                 <span>My Courses</span>
             </a>
-            <a href="/instructor/courses/create" class="nav-item" style="margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);">
+            <a href="/vendor/courses/create" class="nav-item" style="margin-top: 1rem; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);">
                 <i class="fas fa-plus-circle" style="color: var(--primary);"></i>
                 <span style="font-weight: 600;">Create New Course</span>
             </a>
-            <a th:href="@{/instructor/dashboard(tab='students')}" 
+            <a th:href="@{/vendor/dashboard(tab='students')}" 
                th:class="${activeTab == 'students' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-users-cog"></i>
                 <span>Students</span>
             </a>
-            <a th:href="@{/instructor/dashboard(tab='analytics')}" 
+            <a th:href="@{/vendor/dashboard(tab='analytics')}" 
                th:class="${activeTab == 'analytics' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-chart-pie"></i>
                 <span>Analytics</span>
             </a>
-            <a th:href="@{/instructor/dashboard(tab='communications')}" 
+            <a th:href="@{/vendor/dashboard(tab='communications')}" 
                th:class="${activeTab == 'communications' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-comment-alt"></i>
                 <span>Communications</span>
             </a>
-            <a href="/instructor/exams" 
+            <a href="/vendor/exams" 
                th:class="${activeTab == 'exams' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-file-alt"></i>
                 <span>Manage Exams</span>
             </a>
-            <a th:href="@{/instructor/dashboard(tab='profile')}" 
+            <a th:href="@{/vendor/dashboard(tab='profile')}" 
                th:class="${activeTab == 'profile' ? 'nav-item active' : 'nav-item'}">
                 <i class="fas fa-user-circle"></i>
                 <span>Profile Management</span>
@@ -525,11 +525,11 @@
         <!-- Header -->
         <header>
             <div class="welcome-text">
-                <h1 th:text="'Welcome back, ' + ${instructor.name}">Welcome back, Instructor</h1>
+                <h1 th:text="'Welcome back, ' + ${vendor.name}">Welcome back, Instructor</h1>
                 <p>Track your performance and manage your content.</p>
             </div>
             <div class="header-actions">
-                <a href="/instructor/courses/create" class="btn btn-primary">
+                <a href="/vendor/courses/create" class="btn btn-primary">
                     <i class="fas fa-plus"></i> New Course
                 </a>
             </div>
@@ -599,7 +599,7 @@
                             <option>Published</option>
                             <option>Draft</option>
                         </select>
-                        <a href="/instructor/courses/create" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                        <a href="/vendor/courses/create" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
                             <i class="fas fa-plus"></i> New Course
                         </a>
                     </div>
@@ -643,7 +643,7 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 0.5rem;">
-                                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.id})}" class="btn btn-outline" style="padding: 0.5rem 0.75rem;">
+                                        <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn btn-outline" style="padding: 0.5rem 0.75rem;">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-outline" style="padding: 0.5rem 0.75rem; color: #ef4444;">
@@ -705,7 +705,7 @@
                                         <span class="status-badge status-live"><i class="fas fa-check"></i> Certified</span>
                                     </div>
                                     <div th:unless="${enrollment.examPassed}">
-                                        <form th:action="@{/instructor/enrollments/{id}/certificate(id=${enrollment.id})}" method="post">
+                                        <form th:action="@{/vendor/enrollments/{id}/certificate(id=${enrollment.id})}" method="post">
                                             <button type="submit" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
                                                 Generate Certificate
                                             </button>
@@ -797,7 +797,7 @@
                             <p th:text="${review.reply}" style="margin:0;"></p>
                         </div>
                         <div th:unless="${review.reply != null}" style="margin-top: 1rem;">
-                            <form th:action="@{/instructor/reviews/{id}/reply(id=${review.id})}" method="post">
+                            <form th:action="@{/vendor/reviews/{id}/reply(id=${review.id})}" method="post">
                                 <textarea name="reply" placeholder="Thank the student for their feedback..." rows="2" style="font-size: 0.9rem; margin-bottom: 8px;"></textarea>
                                 <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Post Reply</button>
                             </form>
@@ -832,7 +832,7 @@
                         <!-- Previous Answers -->
                         <div th:each="answer : ${question.answers}" class="reply-box" style="border-left-color: #22c55e; margin-bottom: 10px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="font-weight: 700; font-size: 0.7rem; color: #16a34a;" th:text="${answer.user.name} + ' (Instructor)'">Instructor Name</span>
+                                <span style="font-weight: 700; font-size: 0.7rem; color: #16a34a;" th:text="${answer.user.name} + ' (vendor)'">Instructor Name</span>
                                 <span style="font-size: 0.65rem; color: var(--text-muted);" th:text="${#temporals.format(answer.createdAt, 'dd MMM')}">Date</span>
                             </div>
                             <p th:text="${answer.content}" style="margin: 0;"></p>
@@ -840,7 +840,7 @@
 
                         <!-- Add Answer Form -->
                         <div style="margin-top: 1rem;">
-                            <form th:action="@{/instructor/questions/{id}/reply(id=${question.id})}" method="post">
+                            <form th:action="@{/vendor/questions/{id}/reply(id=${question.id})}" method="post">
                                 <textarea name="content" placeholder="Provide a helpful answer to this question..." rows="2" style="font-size: 0.9rem; margin-bottom: 8px;"></textarea>
                                 <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: #0ea5e9;">Post Answer</button>
                             </form>
@@ -853,21 +853,21 @@
         <!-- Profile Tab -->
         <div th:class="${activeTab == 'profile' ? 'tab-content active' : 'tab-content'}">
             <div class="card">
-                <form th:action="@{/instructor/profile/update}" th:object="${instructor}" method="post">
+                <form th:action="@{/vendor/profile/update}" th:object="${vendor}" method="post">
                     <div class="profile-grid">
                         <div class="profile-upload">
-                            <img id="avatarPreview" th:src="${instructor.profileImageUrl != null ? instructor.profileImageUrl : 'https://ui-avatars.com/api/?name=' + instructor.name + '&background=random'}" 
+                            <img id="avatarPreview" th:src="${vendor.profileImageUrl != null ? vendor.profileImageUrl : 'https://ui-avatars.com/api/?name=' + vendor.name + '&background=random'}" 
                                  class="avatar-preview" alt="Profile">
                             <button type="button" class="btn btn-outline" style="width: 100%;">
                                 <i class="fas fa-camera"></i> Change Photo
                             </button>
-                            <input type="hidden" name="profileImageUrl" th:value="${instructor.profileImageUrl}">
+                            <input type="hidden" name="profileImageUrl" th:value="${vendor.profileImageUrl}">
                             
                             <div style="margin-top: 2.5rem; text-align: left;">
                                 <h3 style="font-size: 1rem; margin-bottom: 1rem;">Social Presence</h3>
                                 <div class="form-group">
                                     <label><i class="fab fa-linkedin" style="color: #0077b5;"></i> LinkedIn</label>
-                                    <input type="url" name="linkedinUrl" th:value="${instructor.linkedinUrl}" placeholder="https://linkedin.com/in/...">
+                                    <input type="url" name="linkedinUrl" th:value="${vendor.linkedinUrl}" placeholder="https://linkedin.com/in/...">
                                 </div>
                             </div>
                         </div>
@@ -878,7 +878,7 @@
                             
                             <div class="form-group">
                                 <label>Full Name</label>
-                                <input type="text" name="name" th:value="${instructor.name}" required>
+                                <input type="text" name="name" th:value="${vendor.name}" required>
                             </div>
                             
                             <div class="form-group">
@@ -888,12 +888,12 @@
 
                             <div class="form-group">
                                 <label>Headline / Bio Summary</label>
-                                <input type="text" name="headline" th:value="${instructor.headline}" placeholder="Briefly describe your expertise">
+                                <input type="text" name="headline" th:value="${vendor.headline}" placeholder="Briefly describe your expertise">
                             </div>
                             
                             <div class="form-group">
                                 <label>Detailed Bio</label>
-                                <textarea name="bio" rows="5" th:text="${instructor.bio}" placeholder="Tell students about your experience and methodology..."></textarea>
+                                <textarea name="bio" rows="5" th:text="${vendor.bio}" placeholder="Tell students about your experience and methodology..."></textarea>
                             </div>
                             
                             <div class="form-group">
@@ -916,7 +916,7 @@
         const POLL_INTERVAL = 15000; // 15 seconds
 
         function updateDashboardStats() {
-            fetch('/instructor/api/dashboard-overview')
+            fetch('/vendor/api/dashboard-overview')
                 .then(res => res.json())
                 .then(data => {
                     if (document.getElementById('statEnrolled')) document.getElementById('statEnrolled').innerText = data.totalEnrolled;
@@ -939,7 +939,7 @@
             const activeTab = /*[[${activeTab}]]*/ 'courses';
             if (activeTab !== 'students') return;
 
-            fetch('/instructor/api/students-progress')
+            fetch('/vendor/api/students-progress')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(enrollment => {

@@ -247,13 +247,13 @@
 
 <body>
     <nav class="navbar">
-        <a href="/instructor/dashboard" class="logo">SkillHub <span style="font-weight: 300; font-size: 0.9rem; color: var(--text-secondary);">Instructor</span></a>
+        <a href="/vendor/dashboard" class="logo">SkillHub <span style="font-weight: 300; font-size: 0.9rem; color: var(--text-secondary);">Instructor</span></a>
         <div>
-            <a href="/instructor/dashboard" style="text-decoration: none; color: var(--primary); font-weight: 700;">Cancel</a>
+            <a href="/vendor/dashboard" style="text-decoration: none; color: var(--primary); font-weight: 700;">Cancel</a>
         </div>
     </nav>
 
-    <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
+    <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
         <div class="container">
             <!-- Sidebar Navigation -->
             <div class="sidebar">

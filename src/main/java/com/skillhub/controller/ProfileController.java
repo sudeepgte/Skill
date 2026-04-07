@@ -294,4 +294,33 @@ public class ProfileController {
 
         return "redirect:/profile?tab=documents";
     }
+
+    @PostMapping("/profile/delete-document")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> deleteDocument(@RequestParam("type") String type, Principal principal) {
+        if (principal == null) return org.springframework.http.ResponseEntity.status(401).build();
+
+        User user = userService.findByEmail(principal.getName());
+        boolean deleted = false;
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+
+        switch (type) {
+            case "resume": fileStorageService.delete(user.getResumeUrl()); user.setResumeUrl(null); deleted = true; break;
+            case "tenthCert": fileStorageService.delete(user.getTenthCertUrl()); user.setTenthCertUrl(null); deleted = true; break;
+            case "puCert": fileStorageService.delete(user.getPuCertUrl()); user.setPuCertUrl(null); deleted = true; break;
+            case "ugCert": fileStorageService.delete(user.getUgCertUrl()); user.setUgCertUrl(null); deleted = true; break;
+            case "pgCert": fileStorageService.delete(user.getPgCertUrl()); user.setPgCertUrl(null); deleted = true; break;
+        }
+
+        if (deleted) {
+            userService.updateUser(user);
+            response.put("success", true);
+            response.put("message", "Document deleted successfully!");
+            return org.springframework.http.ResponseEntity.ok(response);
+        } else {
+            response.put("success", false);
+            response.put("message", "Unknown type: " + type);
+            return org.springframework.http.ResponseEntity.badRequest().body(response);
+        }
+    }
 }

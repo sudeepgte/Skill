@@ -3,6 +3,11 @@
 
 <body>
     <nav th:fragment="navbar" class="navbar">
+        <!-- Hamburger Menu Button -->
+        <button type="button" class="nav-mobile-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
         <!-- Logo -->
         <a th:href="${user != null} ? '/user/home' : '/'" class="nav-logo">SkillHub</a>
 
@@ -79,6 +84,25 @@
             <button class="nav-globe"><i class="fas fa-globe"></i></button>
         </div>
     </nav>
+    <script>
+        function toggleMobileMenu() {
+            const rightSide = document.querySelector('.nav-right');
+            const dropdown = document.querySelector('.nav-dropdown');
+            const search = document.querySelector('.nav-search');
+            
+            // Toggle classes or use a simplified approach
+            const isVisible = rightSide.classList.contains('mobile-visible');
+            if (isVisible) {
+                rightSide.classList.remove('mobile-visible');
+                if (dropdown) dropdown.style.display = 'none';
+                if (search) search.style.display = 'none';
+            } else {
+                rightSide.classList.add('mobile-visible');
+                if (dropdown) dropdown.style.display = 'flex';
+                if (search) search.style.display = 'flex';
+            }
+        }
+    </script>
 </body>
 
 </html>

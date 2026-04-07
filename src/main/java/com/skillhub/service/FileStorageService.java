@@ -47,4 +47,16 @@ public class FileStorageService {
             throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
         }
     }
+
+    public void delete(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) return;
+        try {
+            String filename = fileUrl.replace("/uploads/", "");
+            Path filePath = this.rootLocation.resolve(filename);
+            Files.deleteIfExists(filePath);
+            System.out.println("FILE DELETED: " + fileUrl);
+        } catch (IOException e) {
+            System.err.println("COULD NOT DELETE FILE: " + fileUrl + " -> " + e.getMessage());
+        }
+    }
 }
