@@ -597,3 +597,70 @@ footer {
   background-color: #86efac;
   color: #14532d;
 }
+
+/* ─── GLOBAL MOBILE RESPONSIVE (Pixel 7 / 768px) ─── */
+@media (max-width: 768px) {
+    html { font-size: 56.25%; /* 1rem = 9px approx */ }
+
+    .container {
+        padding: 0 1.6rem;
+    }
+
+    /* Hero Section */
+    .hero-image-wrapper {
+        height: 200px;
+    }
+
+    .hero-content-box {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 2.4rem 1.6rem;
+        box-shadow: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .hero-title {
+        font-size: 2.4rem;
+    }
+
+    /* Course Grid */
+    .course-grid {
+        gap: 1.2rem;
+        overflow-x: auto;
+        padding-bottom: 2rem;
+        display: flex;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .course-card {
+        min-width: 18rem;
+        max-width: 18rem;
+    }
+
+    /* Trusted Logos */
+    .trusted-logos {
+        gap: 2.4rem;
+    }
+
+    .trusted-logos img {
+        height: 2.4rem;
+    }
+
+    /* Footer */
+    footer {
+        padding: 2.4rem 1.6rem;
+    }
+    
+    .footer-logo {
+        font-size: 2.4rem;
+    }
+}
+
+@media (max-width: 412px) {
+    /* Pixel 7 Specific Fine-Tuning */
+    .hero-title { font-size: 2.2rem; }
+    .btn { height: 4.4rem; font-size: 1.4rem; }
+}

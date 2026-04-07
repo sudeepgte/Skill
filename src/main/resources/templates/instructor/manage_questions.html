@@ -209,15 +209,15 @@
         </div>
 
         <nav class="nav-menu">
-            <a th:href="@{/instructor/dashboard(tab='courses')}" class="nav-item">
+            <a th:href="@{/vendor/dashboard(tab='courses')}" class="nav-item">
                 <i class="fas fa-layer-group"></i>
                 <span>My Courses</span>
             </a>
-            <a th:href="@{/instructor/dashboard(tab='students')}" class="nav-item">
+            <a th:href="@{/vendor/dashboard(tab='students')}" class="nav-item">
                 <i class="fas fa-users-cog"></i>
                 <span>Students</span>
             </a>
-            <a href="/instructor/exams" class="nav-item active">
+            <a href="/vendor/exams" class="nav-item active">
                 <i class="fas fa-file-alt"></i>
                 <span>Manage Exams</span>
             </a>
@@ -239,14 +239,14 @@
                 <h1 th:text="'Exam questions: ' + ${course.title}">Exam Questions</h1>
                 <p>Manage assessment questions for final certification.</p>
             </div>
-            <a href="/instructor/exams" class="btn btn-outline">
+            <a href="/vendor/exams" class="btn btn-outline">
                 <i class="fas fa-arrow-left"></i> Back to Exams
             </a>
         </header>
 
         <div class="card" style="border-top: 4px solid var(--primary);">
             <h3 style="margin-bottom: 1.5rem;">Add New Question</h3>
-            <form th:action="@{/instructor/courses/{id}/questions/add(id=${course.id})}" method="post">
+            <form th:action="@{/vendor/courses/{id}/questions/add(id=${course.id})}" method="post">
                 <textarea name="questionText" class="form-control" rows="3" placeholder="Enter Question Text..." required></textarea>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -281,7 +281,7 @@
                     <span th:text="${stat.count}" style="color: var(--primary);">1</span>. 
                     <span th:text="${q.questionText}">Question text</span>
                 </div>
-                <form th:action="@{/instructor/courses/{id}/questions/delete/{qid}(id=${course.id}, qid=${q.id})}" method="post">
+                <form th:action="@{/vendor/courses/{id}/questions/delete/{qid}(id=${course.id}, qid=${q.id})}" method="post">
                     <button type="submit" class="btn" style="padding: 0.5rem; color: var(--danger); background: #fef2f2; border-radius: 8px;">
                         <i class="fas fa-trash-alt"></i>
                     </button>

@@ -84,6 +84,7 @@ public class InstructorController {
         List<com.skillhub.model.CourseQuestion> questionsList = courseQuestionRepository.findByInstructorEmail(email);
 
         model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
         model.addAttribute("courses", courses);
         model.addAttribute("totalStudents", totalStudents);
         model.addAttribute("totalViews", totalViews);
@@ -348,9 +349,11 @@ public class InstructorController {
     @GetMapping("/exams")
     public String listExams(Model model, Principal principal) {
         String email = principal.getName();
+        User instructor = userService.findByEmail(email);
         model.addAttribute("courses", courseService.getCoursesByInstructor(email));
         model.addAttribute("activeTab", "exams");
-        model.addAttribute("instructor", userService.findByEmail(email));
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
         return "instructor/exams";
     }
 
@@ -379,7 +382,9 @@ public class InstructorController {
 
         model.addAttribute("course", course);
         model.addAttribute("questions", course.getExamQuestions());
-        model.addAttribute("instructor", userService.findByEmail(email));
+        User instructor = userService.findByEmail(email);
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
         return "instructor/manage_questions";
     }
 

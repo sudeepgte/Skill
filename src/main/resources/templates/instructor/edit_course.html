@@ -181,7 +181,7 @@
     <div class="container">
         <div class="header">
             <div>
-                <a href="/instructor/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Courses</a>
+                <a href="/vendor/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Courses</a>
                 <h1 th:text="'Manage: ' + ${course.title}">Edit Course</h1>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -199,7 +199,7 @@
         <!-- Details Tab -->
         <div id="details" class="tab-content active">
             <div class="card">
-                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
+                <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:field="*{id}">
 
                     <div class="form-group">
@@ -276,7 +276,7 @@
                 <div id="addSectionForm"
                     style="display: none; background: #f0f7ff; padding: 1.5rem; border: 1px solid #cce3ff; margin-bottom: 2rem;">
                     <h4>Add New Section</h4>
-                    <form th:action="@{/instructor/courses/{id}/sections/add(id=${course.id})}" method="post">
+                    <form th:action="@{/vendor/courses/{id}/sections/add(id=${course.id})}" method="post">
                         <div class="form-group">
                             <input type="text" name="title" placeholder="e.g. Introduction to React" required>
                         </div>
@@ -297,7 +297,7 @@
                     <div th:id="'addLectureForm-' + ${section.id}"
                         style="display: none; padding: 1.5rem; background: white; border: 1px solid var(--border); margin: 1rem 0;">
                         <h5>Add Lecture: <span th:text="${section.title}" style="color: var(--primary);"></span></h5>
-                        <form th:action="@{/instructor/sections/{id}/lectures/add(id=${section.id})}" method="post"
+                        <form th:action="@{/vendor/sections/{id}/lectures/add(id=${section.id})}" method="post"
                             enctype="multipart/form-data">
                             <div class="form-group">
                                 <label>Lecture Title</label>
@@ -347,7 +347,7 @@
         <div id="pricing" class="tab-content">
             <div class="card">
                 <h2>Pricing & Promo Video</h2>
-                <form th:action="@{/instructor/courses/save}" th:object="${course}" method="post">
+                <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post">
                     <input type="hidden" th:field="*{id}">
                     <!-- Need to include essential hidden fields for save to work if not present in this tab -->
                     <input type="hidden" th:field="*{title}">
