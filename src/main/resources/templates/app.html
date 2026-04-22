@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Download SkillHub App | Learn on the Go</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style>
+        .app-hero {
+            padding: 100px 0;
+            background: #f7f9fa;
+            border-bottom: 1px solid #d1d7dc;
+        }
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 80px;
+            padding: 0 24px;
+        }
+        .app-text {
+            flex: 1;
+        }
+        .app-text h1 {
+            font-size: 4.2rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 2.4rem;
+        }
+        .app-text p {
+            font-size: 1.8rem;
+            margin-bottom: 3.2rem;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        .download-btns {
+            display: flex;
+            gap: 1.6rem;
+        }
+        .btn-store {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            background: #1c1d1f;
+            color: white;
+            padding: 1.2rem 2.4rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-store:hover {
+            background: #000;
+        }
+        .btn-store i {
+            font-size: 3.2rem;
+        }
+        .store-text span {
+            display: block;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        .store-text strong {
+            font-size: 1.6rem;
+        }
+        .app-mockup {
+            flex: 1;
+            text-align: center;
+        }
+        .app-mockup img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <section class="app-hero">
+        <div class="app-container">
+            <div class="app-text">
+                <h1>Learning that fits in your pocket</h1>
+                <p>Take your learning with you. Download the SkillHub app to watch courses offline, get notifications, and stay on track with your goals.</p>
+                <div class="download-btns">
+                    <a href="#" class="btn-store">
+                        <i class="fab fa-apple"></i>
+                        <div class="store-text">
+                            <span>Download on the</span>
+                            <strong>App Store</strong>
+                        </div>
+                    </a>
+                    <a href="#" class="btn-store">
+                        <i class="fab fa-google-play"></i>
+                        <div class="store-text">
+                            <span>Get it on</span>
+                            <strong>Google Play</strong>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="app-mockup">
+                <!-- Using a professional placeholder image for mobile app -->
+                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=2670" alt="Mobile App Mockup">
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

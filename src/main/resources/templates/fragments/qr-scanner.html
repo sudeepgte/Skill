@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="qr-scanner">
+        <!-- QR Scanner Modal -->
+        <div id="scannerModal" class="scanner-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(86, 36, 208, 0.4); backdrop-filter: blur(8px); z-index: 5000; align-items: center; justify-content: center; padding: 20px;">
+            
+            <!-- Redesigned Card (Screenshot 2 Style) -->
+            <div class="scanner-card" style="width: 100%; max-width: 500px; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 40px 30px; position: relative; animation: modalAppear 0.3s ease-out;">
+                
+                <h2 style="font-size: 2.2rem; font-weight: 800; color: #4b5563; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Scan Assessment QR</h2>
+                <p style="font-size: 1.4rem; color: #6b7280; text-align: center; margin-bottom: 30px; line-height: 1.5;">Select or drop the assessment QR image to verify your certification.</p>
+
+                <!-- Drop Zone / Camera Display -->
+                <div id="qr-drop-zone" style="width: 100%; height: 220px; border: 2px dashed #a5b4fc; border-radius: 16px; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;">
+                    
+                    <!-- Default State (Upload) -->
+                    <div id="qr-upload-ui" style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="background: white; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: #6366f1;"></i>
+                        </div>
+                        <p style="font-size: 1.5rem; font-weight: 600; color: #475569;">Drag & Drop your QR here</p>
+                        <p style="font-size: 1.2rem; color: #94a3b8; margin-top: 4px;">OR</p>
+                    </div>
+
+                    <!-- Live Camera View (Hidden by default) -->
+                    <div id="reader" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none;"></div>
+                </div>
+
+                <!-- Action Bar -->
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 30px;">
+                    <button id="browseBtn" style="background: #4f46e5; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1.5rem; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                        Browse Images
+                    </button>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="toggleCamera()" style="flex: 1; background: #f1f5f9; color: #334155; border: none; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 1.3rem; cursor: pointer;">
+                            <i class="fas fa-camera" style="margin-right: 8px;"></i> Use Camera
+                        </button>
+                        <button onclick="closeScanner()" style="flex: 1; background: #fee2e2; color: #ef4444; border: none; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 1.3rem; cursor: pointer;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden Input -->
+                <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+                
+                <!-- Scanning Indicator (Dummy Progress) -->
+                <div id="scan-progress" style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 25px; display: none; overflow: hidden;">
+                    <div style="width: 100%; height: 100%; background: #6366f1; animation: progressAnim 1.5s infinite linear; transform-origin: 0% 50%;"></div>
+                </div>
+            </div>
+            
+            <style>
+                @keyframes modalAppear {
+                    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+                    to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                @keyframes progressAnim {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+                #qr-drop-zone.dragover {
+                    background: #e0e7ff;
+                    border-color: #6366f1;
+                }
+            </style>
+        </div>
+
+        <script src="https://unpkg.com/html5-qrcode"></script>
+        <script th:inline="javascript">
+            let html5Qr = null;
+            let cameraActive = false;
+
+            const modal = document.getElementById('scannerModal');
+            const fileInput = document.getElementById('qr-file-input');
+            const browseBtn = document.getElementById('browseBtn');
+            const dropZone = document.getElementById('qr-drop-zone');
+            const progressBar = document.getElementById('scan-progress');
+            const uploadUI = document.getElementById('qr-upload-ui');
+            const readerDiv = document.getElementById('reader');
+
+            function openScanner() {
+                modal.style.display = 'flex';
+                html5Qr = new Html5Qrcode("reader");
+            }
+
+            // Click to browse
+            browseBtn.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('click', () => { if(!cameraActive) fileInput.click(); });
+
+            // File selection
+            fileInput.addEventListener('change', e => {
+                if (e.target.files.length === 0) return;
+                handleFile(e.target.files[0]);
+            });
+
+            // Drag and Drop
+            dropZone.addEventListener('dragover', e => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            async function handleFile(file) {
+                progressBar.style.display = 'block';
+                try {
+                    const decodedText = await html5Qr.scanFile(file, true);
+                    onScanSuccess(decodedText);
+                } catch (err) {
+                    alert("No QR code found in this image.");
+                } finally {
+                    progressBar.style.display = 'none';
+                    fileInput.value = ''; // Reset
+                }
+            }
+
+            async function toggleCamera() {
+                if (!cameraActive) {
+                    uploadUI.style.display = 'none';
+                    readerDiv.style.display = 'block';
+                    try {
+                        await html5Qr.start(
+                            { facingMode: "environment" }, 
+                            { fps: 10, qrbox: { width: 250, height: 250 } },
+                            onScanSuccess,
+                            onScanFailure
+                        );
+                        cameraActive = true;
+                    } catch (err) {
+                        alert("Could not start camera.");
+                        resetUI();
+                    }
+                } else {
+                    stopCamera();
+                }
+            }
+
+            async function stopCamera() {
+                if (html5Qr && cameraActive) {
+                    await html5Qr.stop();
+                    resetUI();
+                }
+            }
+
+            function resetUI() {
+                cameraActive = false;
+                uploadUI.style.display = 'flex';
+                readerDiv.style.display = 'none';
+                progressBar.style.display = 'none';
+            }
+
+            function onScanSuccess(decodedText) {
+                console.log(`Scan matched = ${decodedText}`);
+                if (decodedText.includes('/exam')) {
+                    stopCamera().then(() => {
+                        window.location.href = decodedText;
+                    });
+                } else {
+                    alert("Invalid SkillHub Assessment QR code.");
+                }
+            }
+
+            function onScanFailure(error) {}
+
+            function closeScanner() {
+                stopCamera().then(() => {
+                    modal.style.display = 'none';
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

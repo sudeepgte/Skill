@@ -9,15 +9,6 @@ public class CommonController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.skillhub.service.CourseService courseService;
 
-
-
-
-
-    @GetMapping("/teaching")
-    public String teaching() {
-        return "common/teaching";
-    }
-
     @GetMapping("/courses/{category}")
     public String browseCategory(@org.springframework.web.bind.annotation.PathVariable String category,
             org.springframework.ui.Model model) {

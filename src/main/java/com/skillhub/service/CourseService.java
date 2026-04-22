@@ -81,7 +81,7 @@ public class CourseService {
         // Assuming the repository for user exists and we can find by email
         // Logic to set instructor handled in Controller or here if we inject
         // UserRepository
-        course.setPublished(false); // Default to draft
+        course.setPublished(true); // Always published
         course.setViewCount(0L);
         courseRepository.save(course);
     }
@@ -99,11 +99,7 @@ public class CourseService {
     }
 
     public void unpublishCourse(Long id) {
-        Course course = courseRepository.findById(id).orElse(null);
-        if (course != null) {
-            course.setPublished(false);
-            courseRepository.save(course);
-        }
+        // Disabling unpublish functionality as requested - courses are always published
     }
 
     public List<Course> searchCourses(String query) {

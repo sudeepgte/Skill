@@ -333,7 +333,7 @@
                         <div class="instructor" th:text="'By ' + ${item.course.instructor.name}">Instructor Name</div>
 
                         <div class="price-row">
-                            <div class="price" th:text="'₹' + ${item.course.price}">₹0</div>
+                            <div class="price" th:text="${item.course.price == null or item.course.price == 0} ? 'Free' : '₹' + ${item.course.price}">₹0</div>
                             <a th:href="@{/course/{id}(id=${item.course.id})}" class="btn-view">View Details</a>
                         </div>
                     </div>

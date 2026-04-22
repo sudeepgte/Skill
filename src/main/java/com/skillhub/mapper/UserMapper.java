@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.skillhub.service.PresenceService presenceService;
+
     public UserDTO toDTO(User user) {
         if (user == null)
             return null;
@@ -17,6 +20,7 @@ public class UserMapper {
                 user.getRole(),
                 user.getHeadline(),
                 user.getBio(),
-                user.getProfileImageUrl());
+                user.getProfileImageUrl(),
+                presenceService.isOnline(user.getEmail()));
     }
 }

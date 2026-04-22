@@ -195,6 +195,27 @@
     background-color: #f7f9fa;
 }
 
+.nav-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #ff4d4d;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 10rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff; /* Authentic cutout border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    z-index: 50;
+    line-height: normal;
+    padding: 0 0.4rem;
+}
+
 .nav-avatar {
     width: 3.6rem;
     height: 3.6rem;
@@ -359,8 +380,6 @@
         display: none; /* Hide in mobile menu or show at top */
     }
 
-    .nav-globe {
-        display: none;
     }
 }
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Receipt | SkillHub</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #333; line-height: 1.5; }
+        .receipt-box { max-width: 800px; margin: auto; padding: 40px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #5624d0; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: bold; color: #5624d0; }
+        .invoice-info { text-align: right; }
+        .details-section { display: flex; justify-content: space-between; margin-bottom: 40px; }
+        .section-title { font-weight: bold; text-transform: uppercase; color: #777; font-size: 12px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        th { background: #f9f9f9; text-align: left; padding: 12px; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .total-section { text-align: right; }
+        .total-row { display: flex; justify-content: flex-end; gap: 40px; margin-top: 10px; }
+        .grand-total { font-size: 20px; font-weight: bold; color: #5624d0; margin-top: 10px; }
+        .footer { margin-top: 50px; text-align: center; color: #777; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+            .receipt-box { box-shadow: none; border: none; }
+        }
+        .btn-print { background: #5624d0; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; float: right; }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print no-print" onclick="window.print()">Print Receipt</button>
+
+    <div class="receipt-box">
+        <div class="header">
+            <div class="logo">SkillHub</div>
+            <div class="invoice-info">
+                <div style="font-weight: bold;">RECEIPT / INVOICE</div>
+                <div th:text="'#' + ${payment.transactionId}">#TXN-123456</div>
+                <div th:text="${#temporals.format(payment.paymentDate, 'dd MMMM yyyy')}">12 April 2024</div>
+            </div>
+        </div>
+
+        <div class="details-section">
+            <div>
+                <div class="section-title">Billed To:</div>
+                <div style="font-weight: bold; font-size: 18px;" th:text="${payment.user.name}">Student Name</div>
+                <div th:text="${payment.user.email}">student@email.com</div>
+                <div th:text="${payment.user.phone ?: ''}">+91 9876543210</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="section-title">Sold By:</div>
+                <div style="font-weight: bold;">SkillHub Learning Pvt Ltd</div>
+                <div>123 EdTech Tower, HSR Layout</div>
+                <div>Bangalore, KA 560102, India</div>
+                <div>GSTIN: 29AAAAA0000A1Z5</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div style="font-weight: bold;" th:text="${payment.course.title}">Advanced Digital Marketing Masterclass</div>
+                        <div style="font-size: 12px; color: #777;">Full Lifetime Access + Professional Certification</div>
+                    </td>
+                    <td style="text-align: right;" th:text="'₹' + ${payment.amount}">₹2000.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span style="color: #777;">Subtotal</span>
+                <span th:text="'₹' + ${payment.amount}">₹2000.00</span>
+            </div>
+            <div class="total-row">
+                <span style="color: #777;">Tax (GST 0%)</span>
+                <span>₹0.00</span>
+            </div>
+            <div class="total-row grand-total">
+                <span>Total Amount</span>
+                <span th:text="'₹' + ${payment.amount}">₹2000.00</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #fcfcfc; border-radius: 4px; font-size: 0.9rem;">
+            <div style="font-weight: bold; margin-bottom: 5px;">Payment Information:</div>
+            <div>Method: <span th:text="${payment.paymentMethod}">UPI</span></div>
+            <div>Status: <span style="color: #059669; font-weight: bold;">Paid</span></div>
+        </div>
+
+        <div class="footer">
+            This is a computer-generated document and does not require a physical signature.<br>
+            For any queries, please contact support@skillhub.com
+        </div>
+    </div>
+
+</body>
+</html>

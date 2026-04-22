@@ -32,6 +32,7 @@ public class Lecture {
     private CourseSection section;
 
     private Long viewCount = 0L;
+    private Long downloadCount = 0L;
 
     @Column(columnDefinition = "TEXT")
     private String content; // Lesson article or transcript
@@ -104,6 +105,14 @@ public class Lecture {
 
     public void setViewCount(Long viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public Long getDownloadCount() {
+        return downloadCount;
+    }
+
+    public void setDownloadCount(Long downloadCount) {
+        this.downloadCount = downloadCount;
     }
 
     public boolean isAllowComments() {

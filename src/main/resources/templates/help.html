@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Help Centre | SkillHub Support</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+
+    <style>
+        :root { --primary: #5624d0; --primary-dark: #1c1d1f; --text-muted: #6a6f73; --bg-light: #f7f9fa; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--primary-dark); margin: 0; }
+
+        .help-hero {
+            background: linear-gradient(135deg, #5624d0 0%, #a435f0 100%);
+            padding: 10rem 2.4rem 8rem;
+            text-align: center;
+            color: #fff;
+        }
+        .help-hero h1 { font-family: 'Merriweather', serif; font-size: 4.4rem; font-weight: 800; margin-bottom: 1.6rem; }
+        .help-hero p { font-size: 1.8rem; opacity: 0.9; max-width: 600px; margin: 0 auto 3rem; }
+        .help-search { max-width: 560px; margin: 0 auto; position: relative; }
+        .help-search input { width: 100%; padding: 1.8rem 2rem 1.8rem 5rem; font-size: 1.6rem; border: none; border-radius: 1.2rem; outline: none; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+        .help-search i { position: absolute; left: 2rem; top: 50%; transform: translateY(-50%); font-size: 1.8rem; color: #aaa; }
+
+        .help-container { max-width: 1200px; margin: 0 auto; padding: 6rem 2.4rem 8rem; }
+        .help-container h2 { font-size: 3.2rem; font-weight: 800; text-align: center; margin-bottom: 4rem; }
+
+        .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.4rem; }
+        .help-card {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 1.6rem; padding: 3.2rem 2.4rem;
+            text-align: center; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block;
+        }
+        .help-card:hover { transform: translateY(-6px); box-shadow: 0 1.6rem 3.2rem rgba(86,36,208,0.1); border-color: var(--primary); }
+        .help-card-icon { width: 6.4rem; height: 6.4rem; background: var(--bg-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; font-size: 2.4rem; color: var(--primary); }
+        .help-card:hover .help-card-icon { background: var(--primary); color: #fff; }
+        .help-card h3 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+        .help-card p { font-size: 1.4rem; color: var(--text-muted); line-height: 1.6; }
+
+        .contact-strip { background: var(--bg-light); padding: 6rem 2.4rem; text-align: center; margin-top: 4rem; border-radius: 1.6rem; }
+        .contact-strip h3 { font-size: 2.6rem; font-weight: 700; margin-bottom: 1.2rem; }
+        .contact-strip p { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 2.4rem; }
+        .contact-options { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .contact-btn { display: inline-flex; align-items: center; gap: 1rem; padding: 1.4rem 3rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.5rem; transition: all 0.3s; }
+        .contact-btn.primary { background: var(--primary); color: #fff; }
+        .contact-btn.primary:hover { background: #a435f0; }
+        .contact-btn.outline { background: #fff; color: var(--primary-dark); border: 2px solid #e8e8e8; }
+        .contact-btn.outline:hover { border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <section class="help-hero">
+        <h1>How can we help you?</h1>
+        <p>Search our knowledge base or browse topics below to find answers fast.</p>
+        <div class="help-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search for help articles...">
+        </div>
+    </section>
+
+    <div class="help-container">
+        <h2>Browse by Topic</h2>
+        <div class="help-grid">
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-user-circle"></i></div>
+                <h3>Account & Profile</h3>
+                <p>Manage your account settings, update your profile, and handle login issues.</p>
+            </a>
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-book-open"></i></div>
+                <h3>Courses & Enrollment</h3>
+                <p>Learn how to enroll, access courses, and track your learning progress.</p>
+            </a>
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-credit-card"></i></div>
+                <h3>Payments & Billing</h3>
+                <p>Understand pricing, manage payments, and request refunds.</p>
+            </a>
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-certificate"></i></div>
+                <h3>Certificates</h3>
+                <p>Download, share, and verify your course completion certificates.</p>
+            </a>
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <h3>Teaching & Instructors</h3>
+                <p>Get started as an instructor, create courses, and manage your content.</p>
+            </a>
+            <a href="/faq" class="help-card">
+                <div class="help-card-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Trust & Safety</h3>
+                <p>Report issues, understand our policies, and stay safe on the platform.</p>
+            </a>
+        </div>
+
+        <div class="contact-strip">
+            <h3>Can't find what you need?</h3>
+            <p>Our support team is available to assist you with any questions or issues.</p>
+            <div class="contact-options">
+                <a href="/contact" class="contact-btn primary"><i class="fas fa-envelope"></i> Email Support</a>
+                <a href="/faq" class="contact-btn outline"><i class="fas fa-comments"></i> Browse FAQs</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

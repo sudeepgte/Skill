@@ -1,70 +1,183 @@
-package com.skillhub.controller;
+  package com.skillhub.controller;
 
+import com.skillhub.dto.DashboardAnalyticsDTO;
+import com.skillhub.model.*;
 import com.skillhub.repository.*;
+import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@RestController
+@RequestMapping("/api/analytics")
 public class AnalyticsController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
-    private CourseRepository courseRepository;
+    private LectureProgressRepository lectureProgressRepository;
 
-    @GetMapping("/stats")
-    public String getPremiumAnalytics(Model model) {
-        // 1. Basic Counts
-        model.addAttribute("totalUsers", userRepository.count());
-        model.addAttribute("totalStudents", userRepository.countByRole("STUDENT"));
-        model.addAttribute("totalInstructors", userRepository.countByRole("INSTRUCTOR"));
-        model.addAttribute("totalCourses", courseRepository.count());
-        model.addAttribute("totalEnrollments", enrollmentRepository.count());
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-        // 2. User Activity (Active in last 30 days)
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        long activeUsers = userRepository.countByLastLoginDateAfter(thirtyDaysAgo);
-        long totalUsers = userRepository.count();
-        model.addAttribute("activeUsers", activeUsers);
-        model.addAttribute("inactiveUsers", totalUsers - activeUsers);
+    @Autowired
+    private ExamAttemptRepository examAttemptRepository;
 
-        // 3. Enrollment Trends (Last 7 Days)
-        Map<String, Long> enrollmentTrends = new LinkedHashMap<>();
-        for (int i = 6; i >= 0; i--) {
-            LocalDateTime dayStart = LocalDateTime.now().minusDays(i).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            LocalDateTime dayEnd = dayStart.plusDays(1);
-            long count = enrollmentRepository.findAll().stream()
-                    .filter(e -> e.getEnrolledAt().isAfter(dayStart) && e.getEnrolledAt().isBefore(dayEnd))
-                    .count();
-            String label = dayStart.getDayOfWeek().name().substring(0, 3);
-            enrollmentTrends.put(label, count);
+    @GetMapping("/student")
+    public ResponseEntity<DashboardAnalyticsDTO> getStudentAnalytics(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        User user = userService.findByEmail(principal.getName());
+
+        DashboardAnalyticsDTO dto = new DashboardAnalyticsDTO();
+        dto.setCurrentStreak(user.getStreakCount());
+        dto.setTotalXP(user.getTotalXP());
+        dto.setLevel(user.getLevel());
+
+        // 1. Overall Completion
+        List<Enrollment> enrollments = enrollmentRepository.findByStudent(user);
+        double totalProgress = 0;
+        for (Enrollment e : enrollments) {
+            long total = lectureProgressRepository.countTotalLecturesByCourse(e.getCourse().getId());
+            if (total > 0) {
+                long completed = lectureProgressRepository.countCompletedLecturesByCourse(user.getId(), e.getCourse().getId());
+                totalProgress += (double) completed / total;
+            }
         }
-        model.addAttribute("enrollmentLabels", enrollmentTrends.keySet());
-        model.addAttribute("enrollmentValues", enrollmentTrends.values());
+        dto.setOverallCompletion(enrollments.isEmpty() ? 0 : (totalProgress / enrollments.size()) * 100);
 
-        // 4. Category Popularity
-        Map<String, Long> categoryStats = enrollmentRepository.findAll().stream()
-                .filter(e -> e.getCourse() != null && e.getCourse().getCategory() != null)
-                .collect(Collectors.groupingBy(e -> e.getCourse().getCategory().getName(), Collectors.counting()));
+        // 2. Category Expertise (Radar)
+        List<Category> categories = categoryRepository.findAll();
+        Map<String, Double> expertiseMap = new HashMap<>();
+        for (Category cat : categories) {
+            long completed = lectureProgressRepository.countCompletedLecturesByCategory(user.getId(), cat.getId());
+            long total = cat.getCourses().stream()
+                    .flatMap(c -> c.getSections().stream())
+                    .flatMap(s -> s.getLectures().stream())
+                    .count();
+            expertiseMap.put(cat.getName(), total > 0 ? (completed * 100.0 / total) : 0.0);
+        }
+        dto.setCategoryExpertise(expertiseMap);
+
+        // 3. Strengths and Weaknesses
+        List<Map.Entry<String, Double>> sorted = expertiseMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toList());
         
-        // Ensure at least empty map if no enrollments
-        model.addAttribute("categoryLabels", categoryStats.keySet());
-        model.addAttribute("categoryValues", categoryStats.values());
+        dto.setStrengths(sorted.stream().limit(3).map(Map.Entry::getKey).collect(Collectors.toList()));
+        Collections.reverse(sorted);
+        dto.setWeaknesses(sorted.stream().limit(3).map(Map.Entry::getKey).collect(Collectors.toList()));
 
-        return "admin/analytics";
+        // 4. Learning Activity Timeline (Last 14 Days) - Zero Padded
+        List<Object[]> activityData = lectureProgressRepository.findActivityData(user.getId());
+        Map<String, Integer> activityMap = activityData.stream()
+                .collect(Collectors.toMap(row -> row[0].toString(), row -> ((Long) row[1]).intValue()));
+
+        Map<String, Integer> paddedActivity = new LinkedHashMap<>();
+        java.time.LocalDate today = java.time.LocalDate.now();
+        for (int i = 13; i >= 0; i--) {
+            String dateStr = today.minusDays(i).toString();
+            paddedActivity.put(dateStr, activityMap.getOrDefault(dateStr, 0));
+        }
+        dto.setWeeklyActivity(paddedActivity);
+
+        return ResponseEntity.ok(dto);
+    }
+    
+    @GetMapping("/vendor")
+    public ResponseEntity<Map<String, Object>> getVendorAnalytics(Principal principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+        String email = principal.getName();
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        // 1. Course Distribution (Enrollments per Course)
+        List<Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
+        Map<String, Long> courseEnrollments = enrollments.stream()
+                .collect(Collectors.groupingBy(e -> e.getCourse().getTitle(), Collectors.counting()));
+        response.put("coursePopularity", courseEnrollments);
+        
+        // 2. Exam Performance (Success Rate)
+        List<ExamAttempt> attempts = examAttemptRepository.findByInstructorEmail(email);
+        long passed = attempts.stream().filter(ExamAttempt::isPassed).count();
+        long failed = attempts.size() - passed;
+        Map<String, Long> examStats = new HashMap<>();
+        examStats.put("Passed", passed);
+        examStats.put("Failed", failed);
+        response.put("examPerformance", examStats);
+        
+        // 3. Average Scores per Course
+        Map<String, Double> avgScores = attempts.stream()
+                .collect(Collectors.groupingBy(a -> a.getCourse().getTitle(), 
+                        Collectors.averagingInt(ExamAttempt::getScore)));
+        response.put("avgScores", avgScores);
+        
+        // 4. Enrollment Timeline (Last 30 Days)
+        java.time.LocalDateTime thirtyDaysAgo = java.time.LocalDateTime.now().minusDays(30);
+        Map<String, Long> timeline = enrollments.stream()
+                .filter(e -> e.getEnrolledAt().isAfter(thirtyDaysAgo))
+                .collect(Collectors.groupingBy(e -> e.getEnrolledAt().toLocalDate().toString(), 
+                        TreeMap::new, Collectors.counting()));
+        response.put("enrollmentTimeline", timeline);
+        
+        response.put("totalStudents", enrollments.stream().map(e -> e.getStudent().getId()).distinct().count());
+        response.put("totalExams", attempts.size());
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/revenue")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> getAdminRevenue() {
+        Map<String, Object> response = new HashMap<>();
+
+        // 1. Total Revenue
+        Double total = enrollmentRepository.getTotalRevenue();
+        response.put("totalRevenue", total != null ? total : 0.0);
+
+        // 2. Monthly Revenue (Current Year)
+        int currentYear = java.time.LocalDate.now().getYear();
+        List<Object[]> monthlyData = enrollmentRepository.getMonthlyRevenue(currentYear);
+        
+        Map<Integer, Double> monthlyMap = new HashMap<>();
+        for (Object[] row : monthlyData) {
+            monthlyMap.put(((Number) row[0]).intValue(), ((Number) row[1]).doubleValue());
+        }
+
+        List<String> months = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+        List<Double> monthlyValues = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            monthlyValues.add(monthlyMap.getOrDefault(i, 0.0));
+        }
+        
+        Map<String, Object> monthlyRevenue = new HashMap<>();
+        monthlyRevenue.put("labels", months);
+        monthlyRevenue.put("data", monthlyValues);
+        response.put("monthlyRevenue", monthlyRevenue);
+
+        // 3. Yearly Revenue
+        List<Object[]> yearlyData = enrollmentRepository.getYearlyRevenue();
+        List<String> yearlyLabels = new ArrayList<>();
+        List<Double> yearlyValues = new ArrayList<>();
+        for (Object[] row : yearlyData) {
+            yearlyLabels.add(row[0].toString());
+            yearlyValues.add(((Number) row[1]).doubleValue());
+        }
+        
+        Map<String, Object> yearlyRevenue = new HashMap<>();
+        yearlyRevenue.put("labels", yearlyLabels);
+        yearlyRevenue.put("data", yearlyValues);
+        response.put("yearlyRevenue", yearlyRevenue);
+
+        return ResponseEntity.ok(response);
     }
 }

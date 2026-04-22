@@ -3,6 +3,7 @@
 
 <head>
     <title>Notifications | SkillHub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
@@ -16,24 +17,40 @@
 
         .notification-card {
             background: white;
-            border: 1px solid #d1d7dc;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
+            padding: 2rem;
+            margin-bottom: 1.6rem;
             display: flex;
             gap: 2rem;
-            border-radius: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .notification-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-color: #d1d5db;
         }
 
         .notification-card.unread {
-            border-left: 4px solid #a435f0;
-            background: #fcfcfc;
+            background: #fbf9ff;
+            border-left: 4px solid #7c3aed;
+        }
+
+        .notification-card.unread::after {
+            content: "NEW";
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #7c3aed;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
         }
 
         .icon-box {
@@ -42,55 +59,72 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1c1d1f 0%, #2d2f31 100%);
-            color: white;
-            border-radius: 50%;
+            border-radius: 12px;
             flex-shrink: 0;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
+
+        /* Modern Color Coding */
+        .icon-chat { background: #f3e8ff; color: #7c3aed; }
+        .icon-success { background: #dcfce7; color: #16a34a; }
+        .icon-info { background: #e0f2fe; color: #0284c7; }
+        .icon-warning { background: #fef9c3; color: #ca8a04; }
+        .icon-promo { background: #fee2e2; color: #dc2626; }
+        .icon-default { background: #f3f4f6; color: #4b5563; }
 
         .content {
             flex-grow: 1;
         }
 
         .content h3 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            color: #1c1d1f;
-            margin-bottom: 0.8rem;
+            color: #111827;
+            margin-bottom: 0.4rem;
         }
 
         .content p {
             font-size: 1.4rem;
-            color: #2d2f31;
+            color: #4b5563;
             line-height: 1.6;
+            margin: 0;
         }
 
         .time {
-            color: #6a6f73;
+            color: #9ca3af;
             font-size: 1.2rem;
-            margin-top: 0.8rem;
-            font-weight: 500;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
         .mark-read-btn {
-            background: none;
-            border: none;
-            color: #a435f0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 1.8rem;
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
 
         .mark-read-btn:hover {
-            transform: scale(1.2);
+            background: #f3f4f6;
+            color: #7c3aed;
+            border-color: #7c3aed;
         }
 
         h1.page-title {
-            font-size: 3.2rem;
+            font-size: 3rem;
             font-weight: 800;
-            margin-bottom: 4rem;
-            color: #1c1d1f;
+            margin-bottom: 3rem;
+            color: #111827;
+            letter-spacing: -0.025em;
         }
     </style>
 </head>
@@ -109,11 +143,17 @@
         </div>
 
         <div th:each="note : ${notifications}" class="notification-card" th:classappend="${!note.read} ? 'unread'">
-            <div class="icon-box">
-                <i class="fas fa-info" th:if="${note.type == 'INFO'}"></i>
+            <div class="icon-box" th:classappend="${
+                note.type == 'CHAT' ? 'icon-chat' : 
+                (note.type == 'SUCCESS' ? 'icon-success' : 
+                (note.type == 'WARNING' ? 'icon-warning' : 
+                (note.type == 'PROMO' ? 'icon-promo' : 'icon-info')))
+            }">
+                <i class="far fa-comments" th:if="${note.type == 'CHAT'}"></i>
                 <i class="fas fa-check" th:if="${note.type == 'SUCCESS'}"></i>
-                <i class="fas fa-exclamation" th:if="${note.type == 'WARNING'}"></i>
-                <i class="fas fa-bolt" th:if="${note.type == 'PROMO'}"></i>
+                <i class="fas fa-exclamation-triangle" th:if="${note.type == 'WARNING'}"></i>
+                <i class="fas fa-gift" th:if="${note.type == 'PROMO'}"></i>
+                <i class="fas fa-info-circle" th:if="${note.type == 'INFO'}"></i>
                 <i class="fas fa-bell" th:unless="${note.type}"></i>
             </div>
             <div class="content">

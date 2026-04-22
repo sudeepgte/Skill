@@ -4,18 +4,17 @@
 <head>
     <title>Sign Up | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --color-primary: #a435f0;
-            --color-primary-hover: #8710d8;
-            --color-text-main: #1c1d1f;
-            --color-text-secondary: #6a6f73;
-            --color-border: #d1d7dc;
-            --color-bg: #ffffff;
-            --radius: 8px;
+            --brand-purple: #6c5ce7;
+            --brand-pink: #cc2b5e;
+            --brand-primary: linear-gradient(135deg, #6c5ce7, #cc2b5e);
+            --form-bg: #f8faff;
+            --text-dark: #1c1d1f;
+            --text-muted: #6a6f73;
         }
 
         * {
@@ -25,111 +24,123 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #ffffff;
-            color: var(--color-text-main);
-            line-height: 1.5;
+            font-family: 'Inter', sans-serif;
+            background: #eef2f7;
             min-height: 100vh;
-        }
-
-        /* Navbar Style */
-        .nav-minimal {
-            height: 72px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             display: flex;
-            align-items: center;
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-logo {
-            font-family: 'Merriweather', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #1c1d1f;
-            text-decoration: none;
-        }
-
-        /* Split Layout Container */
-        .auth-split-wrapper {
-            display: flex;
-            min-height: calc(100vh - 72px);
             align-items: center;
             justify-content: center;
-            padding: 40px 24px;
-            gap: 64px;
-            max-width: 1000px;
-            margin: 0 auto;
+            padding: 2rem;
         }
 
-        /* Left Side: Illustration */
-        .auth-illustration {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .auth-illustration img {
-            max-width: 400px;
-            height: auto;
-            width: 100%;
-        }
-
-        /* Right Side: Card */
         .auth-card {
-            flex: 1;
             background: #fff;
             width: 100%;
-            max-width: 380px;
-            padding: 10px;
+            max-width: 1100px;
+            min-height: 700px;
+            display: flex;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            position: relative;
         }
 
-        .auth-card h1 {
-            font-family: 'Merriweather', serif;
-            font-size: 24px;
-            margin-bottom: 24px;
-            color: #1c1d1f;
-            text-align: left;
+        .auth-brand-side {
+            flex: 1.1;
+            background: linear-gradient(135deg, #6c5ce7, #cc2b5e);
+            position: relative;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #fff;
+            overflow: hidden;
         }
 
-        /* Form Controls */
-        .form-group {
-            margin-bottom: 20px;
+        .ornament {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .o-1 { width: 400px; height: 400px; top: -150px; left: -150px; }
+        .o-2 { width: 300px; height: 300px; bottom: -80px; right: -80px; opacity: 0.5; }
+
+        .auth-brand-side h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 4.8rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
         }
 
-        .form-group label {
-            display: block;
-            font-size: 14px;
+        .auth-brand-side p {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 450px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .auth-form-side {
+            flex: 1.2;
+            padding: 50px;
+            background: #fff;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .form-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            color: #4a4a4a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 20px;
+            top: 28px;
+            transform: translateY(-50%);
+            color: var(--brand-purple);
+            font-size: 1.6rem;
+            z-index: 5;
         }
 
         .form-control {
             width: 100%;
-            height: 50px;
-            padding: 0 16px;
-            border: 1px solid #1c1d1f;
-            font-size: 16px;
+            height: 56px;
+            padding: 0 20px 0 55px;
+            background: #f0f3ff;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            font-size: 1.5rem;
             font-family: inherit;
-            outline: none;
-            border-radius: 0;
-            transition: all 0.1s;
+            transition: all 0.3s ease;
         }
 
         .form-control:focus {
-            border-color: #1c1d1f;
-            box-shadow: inset 0 0 0 1px #1c1d1f;
+            background: #fff;
+            border-color: #d1d9ff;
+            outline: none;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.1);
         }
 
-        /* Role Switcher (Tabs Style) */
-        .role-switch {
+        .role-selector {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 15px;
+            margin: 2rem 0;
         }
 
         .role-option {
@@ -140,208 +151,139 @@
         .role-option input {
             position: absolute;
             opacity: 0;
-            width: 0;
-            height: 0;
         }
 
         .role-label {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 12px;
-            border: 1px solid #1c1d1f;
+            padding: 15px;
+            background: #f0f3ff;
+            border-radius: 16px;
+            border: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            background: #fff;
+            transition: all 0.3s;
         }
 
-        .role-label i {
-            font-size: 20px;
-            margin-bottom: 6px;
-            color: #1c1d1f;
-        }
-
-        .role-label span {
-            font-size: 14px;
-            font-weight: 700;
-        }
+        .role-label i { font-size: 2rem; margin-bottom: 5px; color: var(--text-muted); }
+        .role-label span { font-weight: 700; font-size: 1.3rem; color: var(--text-dark); }
 
         .role-option input:checked + .role-label {
-            background-color: #5624d0;
-            border-color: #5624d0;
-            color: #fff;
+            background: #fff;
+            border-color: var(--brand-purple);
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.15);
         }
+        .role-option input:checked + .role-label i { color: var(--brand-purple); }
 
-        .role-option input:checked + .role-label i {
-            color: #fff;
-        }
-
-        /* Vendor Section */
-        .vendor-fields {
-            background: #f7f9fa;
-            border: 1px solid #d1d7dc;
+        .vendor-box {
+            background: #f8faff;
+            border: 1px dashed #d1d9ff;
+            border-radius: 16px;
             padding: 20px;
-            margin-bottom: 24px;
+            margin-bottom: 1.5rem;
             display: none;
-            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Button */
         .btn-submit {
             width: 100%;
-            height: 48px;
-            background-color: #a435f0;
+            height: 56px;
+            background: linear-gradient(135deg, #cc66ff, #6c5ce7);
             color: #fff;
             border: none;
-            font-size: 16px;
+            border-radius: 28px;
+            font-size: 1.8rem;
             font-weight: 700;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 8px;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.3);
+            transition: transform 0.2s;
+            margin-top: 1rem;
         }
 
-        .btn-submit:hover {
-            background-color: #8710d8;
-        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(108, 92, 231, 0.4); }
 
-        .auth-footer {
-            margin-top: 24px;
-            text-align: center;
-            font-size: 14px;
-            color: #1c1d1f;
-            padding-top: 16px;
-            border-top: 1px solid #d1d7dc;
-        }
+        .auth-footer { margin-top: 2rem; text-align: center; color: var(--text-muted); font-size: 1.4rem; }
+        .auth-footer a { color: var(--brand-purple); font-weight: 700; text-decoration: none; }
 
-        .auth-footer a {
-            color: #5624d0;
-            text-decoration: underline;
-            font-weight: 700;
-        }
-
-        .terms-row {
-            display: flex;
-            gap: 12px;
-            font-size: 12px;
-            margin-bottom: 20px;
-            align-items: flex-start;
-        }
-
-        .terms-row input {
-            transform: scale(1.2);
-            margin-top: 4px;
-            accent-color: #a435f0;
-        }
-
-        @media (max-width: 850px) {
-            .auth-illustration {
-                display: none;
-            }
-            .auth-split-wrapper {
-                padding: 40px 16px;
-                justify-content: center;
-            }
-            .auth-card {
-                max-width: 100%;
-                text-align: center;
-            }
-            .auth-card h1 {
-                text-align: center;
-            }
+        @media (max-width: 950px) {
+            .auth-brand-side { display: none; }
+            .auth-card { max-width: 500px; }
         }
     </style>
 </head>
 
 <body>
 
-    <nav class="nav-minimal">
-        <a href="/" class="nav-logo">SkillHub</a>
-    </nav>
+    <div class="auth-card">
+        <div class="ornament o-1"></div>
 
-    <div class="auth-split-wrapper">
-        <!-- Illustration (Left) -->
-        <div class="auth-illustration">
-            <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x1.webp" alt="Join SkillHub">
+        <div class="auth-brand-side">
+            <div class="ornament o-2"></div>
+            <h1>Welcome to SkillHub</h1>
+            <p>Join a community of 5M+ learners and instructors. Start your journey toward professional excellence today.</p>
         </div>
 
-        <!-- Form (Right) -->
-        <div class="auth-card">
-            <h1 th:text="${isAdmin} ? 'Admin Registration' : 'Sign up and start learning'">Sign up</h1>
-
-            <!-- Error Messages -->
-            <div th:if="${param.error}" class="alert" style="background: #fff2f2; color: #b32d2e; padding: 12px; border: 1px solid #ffc9c9; margin-bottom: 20px; font-size: 14px;">
-                <i class="fas fa-exclamation-circle"></i> This email is already registered. Please login or use a different email.
+        <div class="auth-form-side">
+            <div class="form-header">
+                <h2 th:text="${isAdmin} ? 'Admin Registration' : 'Create Account'">USER SIGNUP</h2>
             </div>
 
             <form th:action="@{/saveUser}" th:object="${user}" method="post" id="registrationForm">
-                <div class="form-group">
-                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" required>
+                <div class="input-group">
+                    <i class="far fa-id-badge"></i>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" 
+                           required pattern="[a-zA-Z\s]+" title="Please enter only alphabets and spaces"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
                 </div>
 
-                <div class="form-group">
-                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                <div class="input-group">
+                    <i class="far fa-envelope"></i>
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email Address" required>
                 </div>
 
-                <div class="form-group">
-                    <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Create Password" required>
                 </div>
 
-                <div class="form-group">
-                    <label>Join SkillHub as:</label>
-                    <div class="role-switch">
-                        <div class="role-option">
-                            <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
-                            <label for="roleUser" class="role-label">
-                                <i class="fas fa-user"></i>
-                                <span>User</span>
-                            </label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
-                            <label for="roleVendor" class="role-label">
-                                <i class="fas fa-briefcase"></i>
-                                <span>Vendor</span>
-                            </label>
-                        </div>
+                <p style="font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-top:20px;">Join as:</p>
+                <div class="role-selector">
+                    <div class="role-option">
+                        <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
+                        <label for="roleUser" class="role-label">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Student</span>
+                        </label>
+                    </div>
+                    <div class="role-option">
+                        <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
+                        <label for="roleVendor" class="role-label">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Instructor</span>
+                        </label>
                     </div>
                 </div>
 
-                <!-- Vendor Section -->
-                <div id="vendorSection" class="vendor-fields">
-                    <p style="font-weight:700; font-size:14px; margin-bottom:12px; color:#5624d0;">Vendor Information</p>
-                    <div class="form-group">
-                        <select id="categorySelect" name="categoryName" class="form-control" onchange="checkOther(this.value)">
-                            <option value="" disabled selected>Select your professional field</option>
+                <div id="vendorSection" class="vendor-box">
+                    <div class="input-group">
+                        <select id="categorySelect" name="categoryName" class="form-control" style="padding-left:20px;" onchange="checkOther(this.value)">
+                            <option value="" disabled selected>Select Expertise</option>
                             <option th:each="cat : ${categories}" th:if="${cat.name != 'Other'}" th:value="${cat.name}" th:text="${cat.name}"></option>
-                            <option value="Other">Other / Not in list</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
-
-                    <div id="otherInput" class="form-group" style="display: none;">
-                        <input type="text" name="newCategoryName" class="form-control" placeholder="Specify your talent">
+                    <div id="otherInput" class="input-group" style="display: none;">
+                        <input type="text" name="newCategoryName" class="form-control" placeholder="Specify Specialty" style="padding-left:20px;">
                     </div>
-
-                    <div class="form-group">
-                        <input type="text" th:field="*{headline}" class="form-control" placeholder="e.g. Master Chef / Web Developer">
+                    <div class="input-group">
+                        <input type="text" th:field="*{headline}" class="form-control" placeholder="Professional Headline (e.g. Senior Java Dev)" style="padding-left:20px;">
                     </div>
                 </div>
 
-                <div class="terms-row">
-                    <input type="checkbox" required>
-                    <span>I agree to the Terms of Use and Privacy Policy.</span>
-                </div>
-
-                <button type="submit" class="btn-submit">Sign up</button>
+                <button type="submit" class="btn-submit">Sign Up</button>
 
                 <div class="auth-footer">
-                    Already have an account? <a href="/login">Log in</a>
+                    Already have an account? <a href="/login">Login here</a>
                 </div>
             </form>
         </div>
@@ -350,26 +292,13 @@
     <script>
         function toggleVendorSection(show) {
             const section = document.getElementById('vendorSection');
-            const select = document.getElementById('categorySelect');
             section.style.display = show ? 'block' : 'none';
-            if (show) {
-                select.setAttribute('required', 'required');
-            } else {
-                select.removeAttribute('required');
-            }
         }
 
         function checkOther(val) {
-            const otherDiv = document.getElementById('otherInput');
-            const input = otherDiv.querySelector('input');
-            if (val === 'Other') {
-                otherDiv.style.display = 'block';
-                input.setAttribute('required', 'required');
-            } else {
-                otherDiv.style.display = 'none';
-                input.removeAttribute('required');
-            }
+            document.getElementById('otherInput').style.display = (val === 'Other' ? 'block' : 'none');
         }
     </script>
 </body>
-</html>
+
+</html>

@@ -220,6 +220,50 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
         }
+
+        /* QR Modal Styles */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .qr-modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        #qrcode {
+            margin: 1.5rem auto;
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .qr-help-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 
@@ -297,9 +341,15 @@
                     </div>
                 </div>
 
-                <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" class="btn btn-primary">
-                    <i class="fas fa-edit"></i> Manage Questions
-                </a>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Manage Questions
+                    </a>
+                    <button class="btn" style="background: #f1f5f9; color: var(--text-main); font-size: 1.25rem; padding: 0 1rem;" 
+                            th:attr="onclick=|generateQR('${course.id}', '${course.title}')|" title="Generate QR Code">
+                        <i class="fas fa-qrcode"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -311,7 +361,76 @@
         </div>
     </div>
 
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-modal-content">
+            <h2 id="qrTitle" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Exam Quick Access</h2>
+            <p class="qr-help-text">Share this code with students for instant entry.</p>
+            <div id="qrcode"></div>
+            <div id="qrUrl" style="font-size: 0.75rem; color: #64748b; word-break: break-all; margin-bottom: 1.5rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;"></div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button onclick="downloadQR()" class="btn btn-primary" style="background: var(--success);">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button onclick="closeQR()" class="btn" style="background: #f1f5f9; color: var(--text-main); flex: 1;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script th:inline="javascript">
+        let currentQR = null;
+
+        function generateQR(courseId, title) {
+            const modal = document.getElementById('qrModal');
+            const qrTitle = document.getElementById('qrTitle');
+            const qrContainer = document.getElementById('qrcode');
+            const qrUrlDiv = document.getElementById('qrUrl');
+            
+            qrTitle.innerText = title;
+            qrContainer.innerHTML = '';
+            
+            // Generate full access URL
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const accessUrl = `${protocol}//${host}/user/course/${courseId}/exam`;
+            qrUrlDiv.innerText = accessUrl;
+
+            currentQR = new QRCode(qrContainer, {
+                text: accessUrl,
+                width: 200,
+                height: 200,
+                colorDark: "#1e293b",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function closeQR() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function downloadQR() {
+            const img = document.querySelector('#qrcode img');
+            if (!img) return;
+            
+            const link = document.createElement('a');
+            link.download = `exam-qr-${Date.now()}.png`;
+            link.href = img.src;
+            link.click();
+        }
+
+        // Close on backdrop click
+        window.onclick = function(event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target == modal) closeQR();
+        }
+
         /** Polling function for real-time exam stats */
         async function updateExamStats() {
             try {

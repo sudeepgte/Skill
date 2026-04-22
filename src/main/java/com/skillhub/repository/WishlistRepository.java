@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface WishlistRepository extends JpaRepository<Wishlist, Long> {
     List<Wishlist> findByUser(User user);
 
+    long countByUser(User user);
+
     Optional<Wishlist> findByUserAndCourse(User user, Course course);
 }

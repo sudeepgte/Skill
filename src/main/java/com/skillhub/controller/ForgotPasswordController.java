@@ -75,6 +75,8 @@ public class ForgotPasswordController {
 
         String link = appUrl + "/reset-password?token=" + token;
 
+        // SKIP EMAIL SENDING as requested for direct website verification & reset
+        /*
         String subject = "Reset your SkillHub Password";
         String content = "Hello " + user.getName() + ",\n\n" +
                 "You have requested to reset your password on SkillHub.\n" +
@@ -82,11 +84,10 @@ public class ForgotPasswordController {
                 link + "\n\n" +
                 "This link will expire in 15 minutes.\n" +
                 "Ignore this email if you do remember your password, or you have not made the request.";
-
         emailService.sendSimpleMessage(user.getEmail(), subject, content);
+        */
 
-        model.addAttribute("message", "We have sent a reset link to your email address.");
-        return "forgot_password";
+        return "redirect:/reset-password?token=" + token;
     }
 
     @GetMapping("/reset-password")

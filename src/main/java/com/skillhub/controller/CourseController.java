@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.skillhub.dto.CourseDTO;
 import com.skillhub.mapper.CourseMapper;
+import com.skillhub.model.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,9 @@ public class CourseController {
     @Autowired
     private com.skillhub.repository.CourseQuestionRepository questionRepository;
 
+    @Autowired
+    private com.skillhub.service.NotificationService notificationService;
+
     @GetMapping({ "/course/{id}", "/user/course/{id}" })
     public String getCourseDetails(@PathVariable("id") Long id, Model model, Principal principal) {
         // Fetch entity
@@ -59,6 +63,10 @@ public class CourseController {
         if (course == null) {
             return "redirect:/?error=CourseNotFound";
         }
+
+        // Increment and Save View Count
+        course.setViewCount((course.getViewCount() == null ? 0 : course.getViewCount()) + 1);
+        courseService.saveCourse(course);
 
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
@@ -163,12 +171,25 @@ public class CourseController {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
-        // Use provided lectureId or find first/last played
+        // Use provided lectureId or find last played, else first lecture
         Long targetLectureId = lectureId;
         if (targetLectureId == null) {
-            // Default to first lecture of first section
-            if (!course.getSections().isEmpty() && !course.getSections().get(0).getLectures().isEmpty()) {
-                targetLectureId = course.getSections().get(0).getLectures().get(0).getId();
+            // Check enrollment for lastPlayedLectureId
+            com.skillhub.model.User user = userService.findByEmail(principal.getName());
+            enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(e -> {
+                if (e.getLastPlayedLectureId() != null) {
+                    model.addAttribute("resumedFrom", e.getLastPlayedLectureId());
+                }
+            });
+            
+            // Priority: param > lastPlayed > first lecture
+            targetLectureId = (Long) model.getAttribute("resumedFrom");
+            
+            if (targetLectureId == null) {
+                // Default to first lecture of first section
+                if (!course.getSections().isEmpty() && !course.getSections().get(0).getLectures().isEmpty()) {
+                    targetLectureId = course.getSections().get(0).getLectures().get(0).getId();
+                }
             }
         }
 
@@ -234,22 +255,46 @@ public class CourseController {
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
     @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/add")
-    public String addToWishlist(@RequestParam("courseId") Long courseId, Principal principal,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.Map<String, Object> addToWishlist(@RequestParam("courseId") Long courseId, Principal principal) {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
         if (principal == null) {
-            return "redirect:/login";
+            response.put("success", false);
+            response.put("redirect", "/login");
+            return response;
         }
         String email = principal.getName();
         com.skillhub.model.User user = userService.findByEmail(email);
         com.skillhub.model.Course course = courseService.getCourseById(courseId);
 
-        if (course != null && wishlistRepository.findByUserAndCourse(user, course).isEmpty()) {
-            com.skillhub.model.Wishlist wishlist = new com.skillhub.model.Wishlist(user, course);
-            wishlistRepository.save(wishlist);
-            redirectAttributes.addFlashAttribute("success", "Added to wishlist!");
+        if (course != null) {
+            // Add to wishlist
+            if (wishlistRepository.findByUserAndCourse(user, course).isEmpty()) {
+                com.skillhub.model.Wishlist wishlist = new com.skillhub.model.Wishlist(user, course);
+                wishlistRepository.save(wishlist);
+                
+                // Trigger notification for the user
+                notificationService.createAndSend(
+                    user, 
+                    "Wishlist Update", 
+                    "Added '" + course.getTitle() + "' to your wishlist", 
+                    "WISHLIST"
+                );
+            }
+            
+            // Automatically add to learning (Enroll) if the course is free
+            if (course.getPrice() == null || course.getPrice() <= 0) {
+                enrollmentService.enrollUser(user, courseId);
+            }
+
+            response.put("success", true);
+            response.put("message", "This item is added in your wishlist");
+        } else {
+            response.put("success", false);
+            response.put("message", "Course not found");
         }
 
-        return "redirect:/student/wishlist";
+        return response;
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/remove")

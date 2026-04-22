@@ -35,4 +35,9 @@ public interface LectureProgressRepository extends JpaRepository<LectureProgress
                         "AND lp.lecture.section.course.category.id = :categoryId " +
                         "AND lp.isCompleted = true")
         long countCompletedLecturesByCategory(@Param("userId") Long userId, @Param("categoryId") Long categoryId);
+
+        @Query("SELECT DATE(lp.completedAt) as date, COUNT(lp) as count FROM LectureProgress lp " +
+                        "WHERE lp.user.id = :userId AND lp.completedAt IS NOT NULL " +
+                        "GROUP BY DATE(lp.completedAt) ORDER BY DATE(lp.completedAt) DESC")
+        List<Object[]> findActivityData(@Param("userId") Long userId);
 }

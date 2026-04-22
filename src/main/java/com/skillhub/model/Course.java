@@ -30,6 +30,7 @@ public class Course {
     private User instructor;
 
     private Double price;
+    private Double salePrice;
     private String imageUrl; // Thumbnail
 
     private String language;
@@ -146,6 +147,14 @@ public class Course {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getSalePrice() {
+        return salePrice;
+    }
+
+    public void setSalePrice(Double salePrice) {
+        this.salePrice = salePrice;
     }
 
     public String getImageUrl() {

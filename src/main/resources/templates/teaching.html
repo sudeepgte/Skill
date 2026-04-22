@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Teach on SkillHub | Share Your Knowledge</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style>
+        .hero-section {
+            background: linear-gradient(rgba(28, 29, 31, 1), rgba(28, 29, 31, 0.9)), url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2670');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+        }
+        .hero-content h1 {
+            font-size: 4.8rem;
+            font-weight: 800;
+            margin-bottom: 2.4rem;
+            letter-spacing: -0.02em;
+        }
+        .hero-content p {
+            font-size: 2rem;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            opacity: 0.9;
+        }
+        .btn-premium {
+            background: #a435f0;
+            color: white;
+            padding: 1.6rem 3.2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-premium:hover {
+            background: #8710d8;
+            transform: translateY(-2px);
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        .feature-item {
+            text-align: center;
+            padding: 40px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .feature-item i {
+            font-size: 4rem;
+            color: #a435f0;
+            margin-bottom: 24px;
+        }
+        .feature-item h3 {
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Come teach with us</h1>
+            <p>Become an instructor and change lives — including your own. Reach millions of students worldwide on the fastest-growing learning platform.</p>
+            <a href="/register?role=INSTRUCTOR" class="btn-premium">Get Started Today</a>
+        </div>
+    </section>
+
+    <div class="feature-grid">
+        <div class="feature-item">
+            <i class="fas fa-bullseye"></i>
+            <h3>Teach your way</h3>
+            <p>Publish the course you want, in the way you want, and always have control of your own content.</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-users"></i>
+            <h3>Inspire learners</h3>
+            <p>Teach what you know and help learners explore their interests, gain new skills, and advance their careers.</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-award"></i>
+            <h3>Get rewarded</h3>
+            <p>Expand your professional network, build your expertise, and earn money on each paid enrollment.</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

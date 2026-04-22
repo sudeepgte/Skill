@@ -39,6 +39,30 @@ public class DataInitializer {
                 userRepository.save(vendor);
             }
 
+            // Ensure nchakore467@gmail.com exists and is approved
+            User specificUser = userRepository.findByEmail("nchakore467@gmail.com");
+            if (specificUser == null) {
+                specificUser = newUser("N Chakore", "nchakore467@gmail.com", "vyshu123", "INSTRUCTOR", passwordEncoder);
+                specificUser.setApproved(true);
+                userRepository.save(specificUser);
+            } else {
+                specificUser.setApproved(true);
+                userRepository.save(specificUser);
+            }
+
+            // Ensure ikram@gmail.com exists as an INSTRUCTOR
+            User ikram = userRepository.findByEmail("ikram@gmail.com");
+            if (ikram == null) {
+                ikram = newUser("Ikram", "ikram@gmail.com", "123", "INSTRUCTOR", passwordEncoder);
+                ikram.setApproved(true);
+                userRepository.save(ikram);
+            } else {
+                ikram.setPassword(passwordEncoder.encode("123"));
+                ikram.setRole("INSTRUCTOR");
+                ikram.setApproved(true);
+                userRepository.save(ikram);
+            }
+
             if (userRepository.count() == 1) { // If only vendor was found/added
                 // Admin
                 User admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
@@ -86,6 +110,25 @@ public class DataInitializer {
                     }
                 }
             }
+
+            // 4. Polish Course ID 2 (Digital Marketing Mastery) Content
+            courseRepository.findById(2L).ifPresent(course -> {
+                course.setLearningObjectives(
+                    "Build a comprehensive digital marketing strategy from scratch for any business.\n" +
+                    "Master Search Engine Optimization (SEO) to naturally rank #1 on Google and Bing.\n" +
+                    "Launch high-conversion ad campaigns across Facebook, Instagram, and Google Ads.\n" +
+                    "Growth-hack your social media presence to build a massive, engaged following.\n" +
+                    "Leverage Google Analytics to make data-driven decisions and scale your results.\n" +
+                    "Gain hands-on mastery over pro tools like SEMrush, Mailchimp, and Canva."
+                );
+                course.setRequirements(
+                    "Absolutely no prior marketing knowledge required – we start from zero! " +
+                    "A computer or smartphone with an internet connection. " +
+                    "A passion for growing businesses and learning the latest digital tools. " +
+                    "Perfect for entrepreneurs, freelancers, or career-switchers."
+                );
+                courseRepository.save(course);
+            });
         };
     }
 

@@ -4,8 +4,12 @@ import com.skillhub.service.CourseService;
 import com.skillhub.service.UserService;
 import com.skillhub.service.CategoryService;
 import com.skillhub.model.Category;
+import com.skillhub.model.User;
+import com.skillhub.model.Enrollment;
 
 import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,6 +36,9 @@ public class PageController {
     @Autowired
     private com.skillhub.repository.VideoResourceRepository videoResourceRepository;
 
+    @Autowired
+    private com.skillhub.repository.WishlistRepository wishlistRepository;
+
     @ModelAttribute
     public void forceSessionAndCsrf(HttpServletRequest request) {
         // Force session creation and set a dummy attribute to ensure headers are sent
@@ -49,8 +56,22 @@ public class PageController {
     public String index(Model model, Principal principal, HttpServletRequest request,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
             @RequestParam(name = "query", required = false) String query) {
-        if (principal != null) {
-            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            User user = userService.findByEmail(principal.getName());
+            model.addAttribute("user", user);
+            if (user != null) {
+                if (user.getEnrollments() != null) {
+                    Set<Long> enrolledIds = user.getEnrollments().stream()
+                            .map(e -> e.getCourse().getId())
+                            .collect(Collectors.toSet());
+                    model.addAttribute("enrolledCourseIds", enrolledIds);
+                }
+                // Add wishlist Ids
+                java.util.Set<Long> wishlistIds = wishlistRepository.findByUser(user).stream()
+                        .map(w -> w.getCourse().getId())
+                        .collect(java.util.stream.Collectors.toSet());
+                model.addAttribute("wishlistCourseIds", wishlistIds);
+            }
         }
         model.addAttribute("categories", categoryService.getAllCategories());
 
@@ -59,7 +80,12 @@ public class PageController {
 
         if (query != null && !query.isEmpty()) {
             model.addAttribute("courses", courseService.searchCourses(query));
+            model.addAttribute("searchedCategories", categoryService.searchCategories(query));
             model.addAttribute("searchQuery", query);
+            
+            // For Exams, we return courses matching the query as reachable exams
+            model.addAttribute("exams", courseService.searchCourses(query));
+            
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         } else if (categoryId != null) {
             Category category = categoryService.getCategoryById(categoryId);
@@ -83,7 +109,7 @@ public class PageController {
     public String home(Model model, Principal principal, HttpServletRequest request,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
             @RequestParam(name = "query", required = false) String query) {
-        if (principal == null) {
+        if (principal == null || principal.getName().equals("anonymousUser")) {
             return "redirect:/login";
         }
         String email = principal.getName();
@@ -94,6 +120,18 @@ public class PageController {
         }
 
         model.addAttribute("user", user);
+        if (user != null && user.getEnrollments() != null) {
+            Set<Long> enrolledIds = user.getEnrollments().stream()
+                    .map(e -> e.getCourse().getId())
+                    .collect(Collectors.toSet());
+            model.addAttribute("enrolledCourseIds", enrolledIds);
+        }
+        // Add wishlist Ids
+        java.util.Set<Long> wishlistIds = wishlistRepository.findByUser(user).stream()
+                .map(w -> w.getCourse().getId())
+                .collect(java.util.stream.Collectors.toSet());
+        model.addAttribute("wishlistCourseIds", wishlistIds);
+
         model.addAttribute("categories", categoryService.getAllCategories());
 
         // CERTIFICATE LOGIC
@@ -118,6 +156,8 @@ public class PageController {
 
         if (query != null && !query.isEmpty()) {
             model.addAttribute("courses", courseService.searchCourses(query));
+            model.addAttribute("searchedCategories", categoryService.searchCategories(query));
+            model.addAttribute("exams", courseService.searchCourses(query));
             model.addAttribute("searchQuery", query);
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         } else if (categoryId != null) {
@@ -140,7 +180,7 @@ public class PageController {
 
     @GetMapping("/about")
     public String about(Model model, Principal principal, HttpServletRequest request) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -149,7 +189,7 @@ public class PageController {
 
     @GetMapping("/contact")
     public String showContactPage(Model model, Principal principal, HttpServletRequest request) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -158,7 +198,7 @@ public class PageController {
 
     @GetMapping("/terms")
     public String terms(Model model, Principal principal, HttpServletRequest request) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -167,7 +207,7 @@ public class PageController {
 
     @GetMapping("/privacy")
     public String privacy(Model model, Principal principal, HttpServletRequest request) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -176,10 +216,73 @@ public class PageController {
 
     @GetMapping("/blog")
     public String blog(Model model, Principal principal, HttpServletRequest request) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("categories", categoryService.getAllCategories());
         return "blog";
+    }
+
+    @GetMapping("/business")
+    public String business(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "business";
+    }
+
+    @GetMapping("/faq")
+    public String faq(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "faq";
+    }
+
+    @GetMapping("/help")
+    public String help(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "help";
+    }
+
+    @GetMapping("/cookies")
+    public String cookies(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "cookies";
+    }
+
+    @GetMapping("/accessibility")
+    public String accessibility(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "accessibility";
+    }
+
+    @GetMapping("/teaching")
+    public String teaching(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "teaching";
+    }
+
+    @GetMapping("/app")
+    public String getApp(Model model, Principal principal, HttpServletRequest request) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "app";
     }
 }

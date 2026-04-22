@@ -168,10 +168,11 @@
                         <img th:src="${course.imageUrl}" alt="Course" onerror="this.src='/images/banner1.webp'">
                     </a>
                     <!-- Wishlist Heart Overlay -->
-                    <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
+                    <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay" onsubmit="handleWishlistSubmit(event, this)">
                         <input type="hidden" name="courseId" th:value="${course.id}" />
-                        <button type="submit" class="wish-btn" title="Add to Wishlist">
-                            <i class="far fa-heart"></i>
+                        <button type="submit" class="wish-btn" th:title="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'In Wishlist' : 'Add to Wishlist'">
+                            <i th:class="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'fas fa-heart' : 'far fa-heart'"
+                               th:style="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'color: #ff4757' : ''"></i>
                         </button>
                     </form>
                 </div>
@@ -207,6 +208,42 @@
         function scrollTabs(containerId, amount) {
             const container = document.getElementById(containerId);
             container.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+
+        async function handleWishlistSubmit(event, form) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const courseId = formData.get('courseId');
+            
+            try {
+                const response = await fetch('/course/wishlist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `courseId=${courseId}`
+                });
+                
+                const data = await response.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    if (window.showGlobalNotification) {
+                        window.showGlobalNotification("Wishlist", data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                    // Update heart icon to solid
+                    const icon = form.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#ff4757';
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
+            }
         }
     </script>
     <script th:src="@{/js/script.js}"></script>

@@ -313,10 +313,6 @@
                                     <input type="number" name="durationSeconds" value="0">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>OR Promotional/External Video URL</label>
-                                <input type="text" name="videoUrl" placeholder="YouTube/Vimeo URL">
-                            </div>
                             <div style="background: #f8fafc; padding: 1rem; margin-bottom: 1rem; border: 1px solid #d1d7dc;">
                                 <label><i class="fas fa-paperclip"></i> Supporting Materials (Optional)</label>
                                 <small style="display: block; color: #666; margin-bottom: 0.5rem;">PDFs, Source Code, Slides</small>
@@ -347,25 +343,36 @@
         <div id="pricing" class="tab-content">
             <div class="card">
                 <h2>Pricing & Promo Video</h2>
-                <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post">
+                <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
                     <input type="hidden" th:field="*{id}">
                     <!-- Need to include essential hidden fields for save to work if not present in this tab -->
                     <input type="hidden" th:field="*{title}">
                     <input type="hidden" th:field="*{category.id}">
 
                     <div class="form-group">
-                        <label>Price (USD)</label>
+                        <label>Price (INR)</label>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.2rem; font-weight: 700;">$</span>
-                            <input type="number" th:field="*{price}" step="0.01" min="0" style="max-width: 200px;" placeholder="0.00">
+                            <span style="font-size: 1.2rem; font-weight: 700;">₹</span>
+                            <input type="number" th:field="*{price}" step="1" min="0" style="max-width: 200px;" placeholder="0">
                         </div>
                         <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Set to 0.00 for a free course.</p>
                     </div>
 
                     <div class="form-group">
-                        <label>Promotional Video URL</label>
-                        <input type="text" th:field="*{videoUrl}" placeholder="e.g. YouTube link to course preview">
+                        <label>Promotional Video</label>
+                        <div style="border: 1px dashed var(--border); padding: 1.5rem; text-align: center; background: #f8fafc; border-radius: 4px; cursor: pointer; transition: border-color 0.2s;" 
+                             onclick="document.getElementById('promoVideo').click()">
+                            <div id="videoEditStatus" th:style="${course.videoUrl != null ? 'display:block; color:var(--primary); font-weight:700;' : 'display:none; color:var(--primary); font-weight:700;'}">
+                                <i class="fas fa-check-circle"></i> <span th:text="${course.videoUrl != null ? 'Video already exists' : 'Video selected!'}"></span>
+                            </div>
+                            <div id="videoEditPlaceholder" th:style="${course.videoUrl != null ? 'display:none' : 'display:block'}">
+                                <i class="fas fa-video" style="font-size: 2rem; color: var(--border); margin-bottom: 0.5rem;"></i>
+                                <p style="font-size: 0.9rem;">Click to upload a new promotional video (.mp4)</p>
+                            </div>
+                            <input type="file" id="promoVideo" name="promoVideo" accept="video/mp4" style="display: none;" onchange="handleEditVideoSelect(event)">
+                        </div>
                     </div>
+
 
                     <button type="submit" class="btn btn-success btn-save-fixed">Save Pricing</button>
                 </form>
@@ -393,6 +400,16 @@
                 document.getElementById('editImagePreview').src = reader.result;
             }
             if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function handleEditVideoSelect(event) {
+            const status = document.getElementById('videoEditStatus');
+            const placeholder = document.getElementById('videoEditPlaceholder');
+            if (event.target.files[0]) {
+                status.style.display = 'block';
+                status.querySelector('span').innerText = 'Video selected: ' + event.target.files[0].name;
+                placeholder.style.display = 'none';
+            }
         }
     </script>
 </body>

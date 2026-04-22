@@ -21,13 +21,23 @@ public class GlobalModelAdvice {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private com.skillhub.service.NotificationService notificationService;
+
+    @Autowired
+    private com.skillhub.repository.WishlistRepository wishlistRepository;
+
     @ModelAttribute
     public void addGlobalAttributes(Model model, Principal principal) {
-        if (principal != null) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
             String email = principal.getName();
             User user = userService.findByEmail(email);
             if (user != null) {
                 model.addAttribute("user", user);
+
+                // Unread Counts
+                model.addAttribute("unreadNotificationCount", notificationService.getUnreadCount(user));
+                model.addAttribute("wishlistCount", wishlistRepository.countByUser(user));
 
                 // Find current course (unfinished one with highest progress or latest
                 // enrollment)
@@ -53,7 +63,11 @@ public class GlobalModelAdvice {
                     }
                 }
             }
+        } else {
+            model.addAttribute("unreadNotificationCount", 0L);
+            model.addAttribute("wishlistCount", 0L);
         }
+
         // Always provide categories for the navbar dropdown
         model.addAttribute("categories", categoryService.getAllCategories());
     }

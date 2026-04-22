@@ -65,6 +65,7 @@ public class InstructorController {
         double totalRating = 0.0;
         int totalReviews = 0;
         long totalViews = 0;
+        int totalExamsPassed = 0;
 
         for (Course course : courses) {
             if (course.getEnrollments() != null) {
@@ -76,8 +77,22 @@ public class InstructorController {
             // Populate ratings
             Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
             Integer count = reviewRepository.countByCourseId(course.getId());
+            
+            // Set transient fields for individual course display
+            course.setAverageRating(Math.round(avg * 10.0) / 10.0);
+            course.setReviewCount(count);
+            
             totalRating += avg * count;
             totalReviews += count;
+            
+            // Count total exams passed across all courses
+            if (course.getEnrollments() != null) {
+                for (com.skillhub.model.Enrollment e : course.getEnrollments()) {
+                    if (e.isExamPassed()) {
+                        totalExamsPassed++;
+                    }
+                }
+            }
         }
 
         double averageRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
@@ -85,12 +100,14 @@ public class InstructorController {
 
         model.addAttribute("instructor", instructor);
         model.addAttribute("vendor", instructor);
+        model.addAttribute("user", instructor); // Explicitly add for chat widget alignment
         model.addAttribute("courses", courses);
         model.addAttribute("totalStudents", totalStudents);
         model.addAttribute("totalViews", totalViews);
         model.addAttribute("averageRating", String.format("%.1f", averageRating));
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("totalQuestions", questionsList.size());
+        model.addAttribute("totalExamsPassed", totalExamsPassed);
         model.addAttribute("activeTab", tab);
 
         if ("communications".equals(tab)) {
@@ -111,6 +128,15 @@ public class InstructorController {
                 enrollment.setProgressPercentage(Math.max(lectureBasedPct, storedPct));
             }
             model.addAttribute("enrollments", enrollments);
+        } else if ("analytics".equals(tab)) {
+            List<com.skillhub.model.Enrollment> allEnrollments = enrollmentRepository.findByInstructorEmail(email);
+            List<com.skillhub.model.Enrollment> passedExams = new java.util.ArrayList<>();
+            for (com.skillhub.model.Enrollment e : allEnrollments) {
+                if (e.isExamPassed()) {
+                    passedExams.add(e);
+                }
+            }
+            model.addAttribute("passedExams", passedExams);
         }
 
         return "instructor/dashboard";
@@ -190,6 +216,7 @@ public class InstructorController {
     @PostMapping("/courses/save")
     public String saveCourse(@ModelAttribute Course course,
             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "promoVideo", required = false) MultipartFile promoVideo,
             Principal principal,
             RedirectAttributes redirectAttributes) {
         String email = principal.getName();
@@ -211,6 +238,11 @@ public class InstructorController {
                 course.setImageUrl(existingCourse.getImageUrl());
             }
         }
+        
+        // Process Promotional Video
+        if (promoVideo != null && !promoVideo.isEmpty()) {
+            course.setVideoUrl(fileStorageService.store(promoVideo));
+        }
 
         if (course.getId() == null) {
             course.setPublished(true);
@@ -218,12 +250,41 @@ public class InstructorController {
 
         course.setLastUpdated(java.time.LocalDate.now().toString());
 
-        // Process Curriculum Videos
+        // Backend Validation: Must start with a letter
+        java.util.function.Predicate<String> startsWithLetter = s -> s != null && !s.trim().isEmpty() && Character.isLetter(s.trim().charAt(0));
+
+        if (!startsWithLetter.test(course.getTitle())) {
+            redirectAttributes.addFlashAttribute("error", "Course Title must start with a letter.");
+            return "redirect:/vendor/courses/create";
+        }
+        if (course.getSubtitle() != null && !course.getSubtitle().trim().isEmpty() && !startsWithLetter.test(course.getSubtitle())) {
+            redirectAttributes.addFlashAttribute("error", "Course Subtitle must start with a letter.");
+            return "redirect:/vendor/courses/create";
+        }
+        if (!startsWithLetter.test(course.getDescription())) {
+            redirectAttributes.addFlashAttribute("error", "Course Description must start with a letter.");
+            return "redirect:/vendor/courses/create";
+        }
+        if (course.getLearningObjectives() != null && !course.getLearningObjectives().trim().isEmpty() && !startsWithLetter.test(course.getLearningObjectives())) {
+            redirectAttributes.addFlashAttribute("error", "Learning Objectives must start with a letter.");
+            return "redirect:/vendor/courses/create";
+        }
+
+
+        // Process Curriculum Videos and Validate Titles
         if (course.getSections() != null) {
             for (com.skillhub.model.CourseSection section : course.getSections()) {
+                if (!startsWithLetter.test(section.getTitle())) {
+                    redirectAttributes.addFlashAttribute("error", "Section titles must start with a letter.");
+                    return "redirect:/vendor/courses/create";
+                }
                 section.setCourse(course);
                 if (section.getLectures() != null) {
                     for (com.skillhub.model.Lecture lecture : section.getLectures()) {
+                        if (!startsWithLetter.test(lecture.getTitle())) {
+                            redirectAttributes.addFlashAttribute("error", "Lecture titles must start with a letter.");
+                            return "redirect:/vendor/courses/create";
+                        }
                         lecture.setSection(section);
                         // If file uploaded, store it
                         if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
@@ -255,13 +316,27 @@ public class InstructorController {
         try {
             if (published) {
                 courseService.publishCourse(id);
-            } else {
-                courseService.unpublishCourse(id);
             }
+            // Logic to unpublish is removed as courses are now always published
             return org.springframework.http.ResponseEntity.ok().build();
         } catch (Exception e) {
             return org.springframework.http.ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/courses/{id}/delete")
+    public String deleteCourse(@PathVariable("id") Long id, Principal principal,
+            RedirectAttributes redirectAttributes) {
+        String email = principal.getName();
+        Course course = courseService.getCourseById(id);
+
+        if (course != null && course.getInstructor().getEmail().equals(email)) {
+            courseService.deleteCourse(id);
+            redirectAttributes.addFlashAttribute("success", "Course deleted successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Unable to delete course.");
+        }
+        return "redirect:/vendor/dashboard?tab=courses";
     }
 
     @PostMapping("/courses/{id}/sections/add")
@@ -288,8 +363,6 @@ public class InstructorController {
         if (videoFile != null && !videoFile.isEmpty()) {
             String fileUrl = fileStorageService.store(videoFile);
             lecture.setVideoUrl(fileUrl);
-        } else if (videoUrl != null && !videoUrl.isEmpty()) {
-            lecture.setVideoUrl(videoUrl);
         }
 
         courseService.addLectureToSection(id, lecture);

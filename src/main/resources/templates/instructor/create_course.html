@@ -254,6 +254,12 @@
     </nav>
 
     <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data">
+        <!-- Error Alert -->
+        <div th:if="${error}" style="max-width: 1100px; margin: 1rem auto; padding: 1rem; background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; border-radius: 4px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}">Error message</span>
+        </div>
+
         <div class="container">
             <!-- Sidebar Navigation -->
             <div class="sidebar">
@@ -287,19 +293,19 @@
                     
                     <div class="form-group">
                         <label for="title">Course Title</label>
-                        <input type="text" id="title" th:field="*{title}" placeholder="Insert your course title." required maxlength="60">
+                        <input type="text" id="title" th:field="*{title}" placeholder="Insert your course title." required maxlength="60" oninput="validateAlphaStart(this)">
                         <p class="helper-text">Your title should be a mix of actionable, keyword-rich, and representative of the topic. (Max 60 characters)</p>
                     </div>
 
                     <div class="form-group">
                         <label for="subtitle">Course Subtitle</label>
-                        <input type="text" id="subtitle" th:field="*{subtitle}" placeholder="Insert your course subtitle.">
+                        <input type="text" id="subtitle" th:field="*{subtitle}" placeholder="Insert your course subtitle." oninput="validateAlphaStart(this)">
                         <p class="helper-text">Use 1 or 2 sentences to hook students and summarize what they'll learn.</p>
                     </div>
 
                     <div class="form-group">
                         <label for="description">Course Description</label>
-                        <textarea id="description" th:field="*{description}" rows="8" placeholder="Insert your course description." required></textarea>
+                        <textarea id="description" th:field="*{description}" rows="8" placeholder="Insert your course description." required oninput="validateAlphaStart(this)"></textarea>
                         <p class="helper-text">Description should be at least 200 words. It's where you sell your course!</p>
                     </div>
 
@@ -344,16 +350,16 @@
                         
                         <div id="objectivesList">
                             <div class="objective-input-container">
-                                <input type="text" placeholder="Example: Build 10 professional web applications.">
+                                <input type="text" placeholder="Example: Build 10 professional web applications." oninput="validateAlphaStart(this)">
                             </div>
                             <div class="objective-input-container">
-                                <input type="text" placeholder="Example: Master React.js from scratch.">
+                                <input type="text" placeholder="Example: Master React.js from scratch." oninput="validateAlphaStart(this)">
                             </div>
                             <div class="objective-input-container">
-                                <input type="text" placeholder="Example: Understand advanced CSS layouts.">
+                                <input type="text" placeholder="Example: Understand advanced CSS layouts." oninput="validateAlphaStart(this)">
                             </div>
                             <div class="objective-input-container">
-                                <input type="text" placeholder="Example: Implement secure authentication.">
+                                <input type="text" placeholder="Example: Implement secure authentication." oninput="validateAlphaStart(this)">
                             </div>
                         </div>
                         <button type="button" class="btn-add-obj" onclick="addObjective()">+ Add more to your response</button>
@@ -362,7 +368,7 @@
 
                     <div class="form-group">
                         <label for="requirements">Are there any course requirements or prerequisites?</label>
-                        <textarea id="requirements" th:field="*{requirements}" rows="4" placeholder="Example: Basic knowledge of HTML and CSS."></textarea>
+                        <textarea id="requirements" th:field="*{requirements}" rows="4" placeholder="Example: Basic knowledge of HTML and CSS." oninput="validateAlphaStart(this)"></textarea>
                     </div>
                 </div>
 
@@ -402,10 +408,20 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="videoUrl">Promotional Video URL (Preview)</label>
-                        <input type="text" id="videoUrl" th:field="*{videoUrl}" placeholder="e.g. https://www.youtube.com/watch?v=...">
-                        <p class="helper-text">Your promo video is a quick way for students to preview your course content. YouTube links are recommended.</p>
+                        <label>Promotional Video</label>
+                        <div class="upload-area" id="videoUploadArea" onclick="document.getElementById('promoVideo').click()">
+                            <div id="videoStatus" style="display: none; margin-bottom: 1.5rem; color: var(--primary);">
+                                <i class="fas fa-check-circle"></i> Video selected!
+                            </div>
+                            <div id="videoPlaceholder">
+                                <i class="fas fa-video" style="font-size: 3rem; color: var(--border); margin-bottom: 1rem;"></i>
+                                <p>Click to upload your promotional video (.mp4)</p>
+                                <p class="helper-text">Your promo video helps students preview your content.</p>
+                            </div>
+                            <input type="file" id="promoVideo" name="promoVideo" accept="video/mp4" style="display: none;" onchange="handleVideoSelect(event)">
+                        </div>
                     </div>
+
                 </div>
 
                 <!-- Tab: Pricing -->
@@ -426,12 +442,10 @@
                         <div id="priceContainer">
                             <div class="input-grid">
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label for="price">Base Price (USD)</label>
-                                    <input type="number" id="price" th:field="*{price}" step="0.01" min="0" placeholder="e.g. 19.99">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 0;">
-                                    <label>Sale Price (Optional)</label>
-                                    <input type="number" placeholder="Discounted price..." step="0.01" disabled>
+                                    <label for="price">Base Price (INR)</label>
+                                    <input type="number" id="price" th:field="*{price}" step="1" min="0" max="99999" placeholder="e.g. 1000"
+                                        oninput="if(this.value > 99999) this.value = 99999; if(this.value < 0) this.value = 0;">
+                                    <p class="helper-text">Maximum price: ₹99,999</p>
                                 </div>
                             </div>
                         </div>
@@ -467,11 +481,20 @@
             });
         }
 
+        function validateAlphaStart(input) {
+            // Strips any leading non-alphabet characters (like numbers or spaces)
+            const val = input.value;
+            if (val.length > 0 && /^[^a-zA-Z]/.test(val)) {
+                input.value = val.replace(/^[^a-zA-Z]+/, '');
+            }
+        }
+
+
         function addObjective() {
             const container = document.getElementById('objectivesList');
             const div = document.createElement('div');
             div.className = 'objective-input-container';
-            div.innerHTML = '<input type="text" placeholder="Another outcome or skill learners will gain...">';
+            div.innerHTML = '<input type="text" placeholder="Another outcome or skill learners will gain..." oninput="validateAlphaStart(this)">';
             container.appendChild(div);
         }
 
@@ -488,11 +511,20 @@
             if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
         }
 
+        function handleVideoSelect(event) {
+            const status = document.getElementById('videoStatus');
+            const placeholder = document.getElementById('videoPlaceholder');
+            if (event.target.files[0]) {
+                status.style.display = 'block';
+                placeholder.style.display = 'none';
+            }
+        }
+
         function togglePrice(isFree) {
             const priceInput = document.getElementById('price');
             const container = document.getElementById('priceContainer');
             if (isFree) {
-                priceInput.value = "0.0";
+                priceInput.value = "0";
                 container.style.opacity = "0.4";
                 priceInput.disabled = true;
             } else {
@@ -515,7 +547,7 @@
                     <label style="margin:0;">Section ${sectionCount + 1}</label>
                     <button type="button" class="btn-outline" onclick="removeSection(${sectionCount})" style="padding: 5px 10px; color: red; border-color: red; font-size: 0.8rem;">Remove</button>
                 </div>
-                <input type="text" name="sections[${sectionCount}].title" placeholder="e.g. Introduction to React" required style="margin-bottom: 1.5rem;">
+                <input type="text" name="sections[${sectionCount}].title" placeholder="e.g. Introduction to React" required style="margin-bottom: 1.5rem;" oninput="validateAlphaStart(this)">
                 <div id="lectures-${sectionCount}" style="padding-left: 2rem;">
                     <!-- Lectures go here -->
                 </div>
@@ -548,20 +580,11 @@
                 </div>
                 <div class="form-group">
                     <label style="font-size: 0.85rem;">Title</label>
-                    <input type="text" name="sections[${secId}].lectures[${lecId}].title" placeholder="e.g. Setting up environment" required>
+                    <input type="text" name="sections[${secId}].lectures[${lecId}].title" placeholder="e.g. Setting up environment" required oninput="validateAlphaStart(this)">
                 </div>
                 <div class="form-group">
-                    <label style="font-size: 0.85rem;">Content Type</label>
-                    <div style="display: flex; gap: 20px; font-size: 0.9rem;">
-                        <label><input type="radio" name="source-${secId}-${lecId}" value="file" checked onclick="toggleLecSource(${secId}, ${lecId}, 'file')"> Video Upload (MP4)</label>
-                        <label><input type="radio" name="source-${secId}-${lecId}" value="url" onclick="toggleLecSource(${secId}, ${lecId}, 'url')"> Video URL</label>
-                    </div>
-                </div>
-                <div id="file-cont-${secId}-${lecId}">
+                    <label style="font-size: 0.85rem;">Video File (MP4)</label>
                     <input type="file" name="sections[${secId}].lectures[${lecId}].videoFile" accept="video/*">
-                </div>
-                <div id="url-cont-${secId}-${lecId}" style="display:none;">
-                    <input type="text" name="sections[${secId}].lectures[${lecId}].videoUrl" placeholder="e.g. https://www.youtube.com/watch?v=...">
                 </div>
                 <div class="form-group" style="margin-top: 10px;">
                     <label style="font-size: 0.85rem;">Duration (Seconds)</label>
@@ -577,17 +600,6 @@
             if (el) el.remove();
         }
 
-        function toggleLecSource(secId, lecId, type) {
-            const fCont = document.getElementById(`file-cont-${secId}-${lecId}`);
-            const uCont = document.getElementById(`url-cont-${secId}-${lecId}`);
-            if (type === 'file') {
-                fCont.style.display = 'block';
-                uCont.style.display = 'none';
-            } else {
-                fCont.style.display = 'none';
-                uCont.style.display = 'block';
-            }
-        }
 
         document.querySelector('form').addEventListener('submit', function() {
             const inputs = document.querySelectorAll('#objectivesList input');

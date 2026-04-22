@@ -40,8 +40,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
-            // Don't redirect back to login or error pages if possible
-            if (!targetUrl.contains("/login") && !targetUrl.contains("/error")) {
+            // Don't redirect back to login, error pages, or background workers/scripts
+            boolean isBackgroundRequest = targetUrl.contains("/sw.js") 
+                                         || targetUrl.endsWith(".js") 
+                                         || targetUrl.endsWith(".json")
+                                         || targetUrl.contains("/manifest.json");
+
+            if (!targetUrl.contains("/login") && !targetUrl.contains("/error") && !isBackgroundRequest) {
                 response.sendRedirect(targetUrl);
                 return;
             }

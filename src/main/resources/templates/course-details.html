@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${course.title}">Course Details</title>
+    <!-- CSRF Meta Tags for AJAX -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <!-- Modern Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -193,22 +196,26 @@
 
         .obj-list {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px 32px;
             list-style: none;
             padding: 0;
+            margin-top: 16px;
         }
 
         .obj-list li {
             display: flex;
             gap: 12px;
             font-size: 0.95rem;
+            color: var(--text-dark);
+            line-height: 1.4;
         }
 
         .obj-list i {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-top: 5px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin-top: 4px;
+            flex-shrink: 0;
         }
 
         .course-section {
@@ -321,14 +328,27 @@
         }
 
         .requirements-list {
-            list-style: disc;
-            padding-left: 20px;
+            list-style: none;
+            padding-left: 0;
             margin-bottom: 20px;
         }
 
         .requirements-list li {
-            margin-bottom: 8px;
-            color: #1c1d1f;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+
+        .requirements-list li::before {
+            content: "\f054"; /* Chevron right */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 5px;
         }
 
         .description-content {
@@ -544,7 +564,16 @@
                         Now</a>
                 </th:block>
                 <th:block th:unless="${isEnrolled}">
-                    <button class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
+                    <!-- For Paid: Link to Checkout -->
+                    <a th:if="${course.price > 0}" th:href="'/checkout/' + ${course.id}" class="btn-buy price-mobile" style="display:block; text-align:center; text-decoration:none;">Buy Now</a>
+                    
+                    <!-- For Free: Button for API enrollment -->
+                    <button th:unless="${course.price > 0}" class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
+                    
+                    <div class="price-mobile" style="text-align: center; margin-top: 10px; font-weight: 700; font-size: 1.2rem;">
+                        <span th:if="${course.price != null and course.price > 0}" th:text="'₹' + ${course.price}">₹2000</span>
+                        <span th:unless="${course.price != null and course.price > 0}">Free</span>
+                    </div>
                 </th:block>
             </div>
 
@@ -555,15 +584,7 @@
                     <div id="videoContainer"
                         style="background: black; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                         <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
-                            <!-- Check if YouTube -->
-                            <iframe
-                                th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
-                                th:src="${course.embedUrl}" width="100%" height="200" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen></iframe>
-                            <!-- Else Local Video -->
                             <video id="coursePreviewVideo"
-                                th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}"
                                 width="100%" height="200" style="object-fit: cover;" controls>
                                 <source th:src="@{${course.videoUrl}}" type="video/mp4">
                                 Your browser does not support the video tag.
@@ -602,7 +623,21 @@
                             Now</a>
                     </th:block>
                     <th:block th:unless="${isEnrolled}">
-                        <button class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
+                        <!-- Sidebar Price Display -->
+                        <div style="padding: 15px 0; border-bottom: 1px solid #d1d7dc; margin-bottom: 15px;">
+                             <div th:if="${course.price != null and course.price > 0}" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+                                 <span style="font-size: 2.4rem; font-weight: 800; color: #1c1d1f;">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
+                             </div>
+                             <div th:unless="${course.price != null and course.price > 0}">
+                                 <span style="font-size: 2rem; font-weight: 800; color: #1c1d1f;">Free</span>
+                             </div>
+                        </div>
+                        
+                        <!-- For Paid: Link to Checkout -->
+                        <a th:if="${course.price > 0}" th:href="'/checkout/' + ${course.id}" class="btn-buy" style="display:block; text-align:center; text-decoration:none;">Buy Now</a>
+                        
+                        <!-- For Free: Button for API enrollment -->
+                        <button th:unless="${course.price > 0}" class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
                     </th:block>
 
                     <!-- Wishlist Button -->
@@ -651,21 +686,16 @@
     <div class="main-container">
         <div class="main-left">
             <!-- Learning Objectives -->
-            <div class="learning-objectives">
-                <h2>What you'll learn</h2>
-                <ul class="obj-list">
-                    <th:block
-                        th:if="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
-                        <li th:each="obj : ${#strings.arraySplit(course.learningObjectives, '\n')}">
-                            <i class="fas fa-check"></i> <span th:text="${obj}">Objective</span>
-                        </li>
+            <div class="learning-objectives" style="background: #fff; border: 1px solid var(--border-color); padding: 32px; border-radius: 8px;">
+                <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark);">What you'll learn in this course</h2>
+                <div class="learning-description" style="font-size: 1.1rem; line-height: 1.8; color: #3c3b37; text-align: justify;">
+                    <th:block th:if="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
+                        <span th:text="${#strings.replace(course.learningObjectives, '\n', ' ')}"></span>
                     </th:block>
-                    <th:block
-                        th:unless="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
-                        <li><i class="fas fa-check"></i><span>Master core concepts</span></li>
-                        <li><i class="fas fa-check"></i><span>Build real-world projects</span></li>
+                    <th:block th:unless="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
+                        Embark on a transformative journey to master the digital landscape. This comprehensive curriculum empowers you to architect sophisticated marketing strategies that drive measurable growth. From the intricate mechanics of SEO to precision-engineered ad campaigns on major platforms, you will gain the tactical expertise needed to dominate today's market. We delve into hands-on mastery of industry-leading tools, ensuring you emerge as a versatile, results-oriented digital strategist.
                     </th:block>
-                </ul>
+                </div>
             </div>
 
             <!-- Course Content -->
@@ -727,15 +757,14 @@
             <!-- Requirements -->
             <div class="course-section">
                 <h2>Requirements</h2>
-                <ul class="requirements-list">
-                    <th:block th:if="${course.requirements != null and !#strings.isEmpty(course.requirements)}">
-                        <li th:each="req : ${#strings.arraySplit(course.requirements, '\n')}" th:text="${req}">
-                            Requirement</li>
-                    </th:block>
-                    <th:block th:unless="${course.requirements != null and !#strings.isEmpty(course.requirements)}">
-                        <li>No prerequisites required.</li>
-                    </th:block>
-                </ul>
+                <div class="requirements-box" style="padding: 16px; background: #f8faff; border-radius: 8px; border-left: 4px solid var(--primary);">
+                    <p style="font-size: 1.1rem; line-height: 1.8; color: #3c3b37; margin: 0;">
+                        <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 8px;"></i>
+                        <span th:if="${course.requirements != null and !#strings.isEmpty(course.requirements)}" 
+                              th:text="${#strings.replace(course.requirements, '\n', ' ')}">Requirement text here</span>
+                        <span th:unless="${course.requirements != null and !#strings.isEmpty(course.requirements)}">No prerequisites required.</span>
+                    </p>
+                </div>
             </div>
 
             <!-- Description -->
@@ -1009,10 +1038,10 @@
         // Wishlist Logic
         document.getElementById('addToWishlistBtn')?.addEventListener('click', function () {
             const courseId = this.getAttribute('data-course-id');
-            // Use CSRF token if protected
             const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
-            const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }; // Controller expects param
+            
+            const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
             if (csrfToken && csrfHeader) {
                 headers[csrfHeader] = csrfToken;
             }
@@ -1021,12 +1050,40 @@
                 method: 'POST',
                 headers: headers,
                 body: 'courseId=' + courseId
-            }).then(r => {
-                if (r.redirected && r.url.includes('login')) {
-                    window.location.href = '/login';
-                } else if (r.ok || r.redirected) {
-                    alert('Added to favorites!');
-                    this.innerHTML = '<i class="fas fa-heart" style="color:red"></i> In Favorites';
+            })
+            .then(response => {
+                if (response.status === 403) {
+                    alert("Security session expired. Please refresh the page.");
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    if (window.showGlobalNotification) {
+                        window.showGlobalNotification("Wishlist", data.message);
+                    } else {
+                        alert(data.message || 'Added to favorites!');
+                    }
+                    this.innerHTML = '<i class="fas fa-heart" style="color:#ff4757"></i> In Favorites';
+                    this.style.borderColor = '#ff4757';
+                    this.style.color = '#ff4757';
+                } else {
+                    if (window.showGlobalNotification) {
+                        window.showGlobalNotification("Wishlist Error", data.message || 'Unknown error');
+                    } else {
+                        alert('Failed to add: ' + (data.message || 'Unknown error'));
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Wishlist error:", err);
+                if (window.showGlobalNotification) {
+                    window.showGlobalNotification("Wishlist Error", "An error occurred. Please make sure you are logged in.");
+                } else {
+                    alert("An error occurred. Please make sure you are logged in.");
                 }
             });
         });

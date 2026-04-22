@@ -385,11 +385,17 @@
                     <div class="form-row">
                         <div class="input-group">
                             <label for="full-name">Full Name</label>
-                            <input type="text" id="full-name" name="name" placeholder="John Doe" required>
+                            <input type="text" id="full-name" name="name" placeholder="John Doe" required
+                                pattern="[A-Za-z .'-]+" title="Only letters, spaces, dots, hyphens and apostrophes allowed"
+                                oninput="var v=this.value; if(/[0-9]/.test(v)){this.value=v.replace(/[0-9]/g,''); document.getElementById('nameErr').style.display='block'; this.style.borderColor='#d32f2f'; setTimeout(function(){document.getElementById('nameErr').style.display='none';},3000);}">
+                            <small id="nameErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Numbers are not allowed in Full Name</small>
                         </div>
                         <div class="input-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required
+                                pattern="[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" 
+                                title="Email must start with a letter (e.g. john@example.com)">
+                            <small id="emailErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Email must start with a letter, not a number</small>
                         </div>
                     </div>
 
@@ -405,7 +411,10 @@
                         </div>
                         <div class="input-group">
                             <label for="phone">Phone (Optional)</label>
-                            <input type="tel" id="phone" name="phone" placeholder="+1 (000) 000-0000">
+                            <input type="tel" id="phone" name="phone" placeholder="10-digit number"
+                                maxlength="10" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                            <small id="phoneErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Phone must be exactly 10 digits</small>
                         </div>
                     </div>
 
@@ -416,6 +425,40 @@
 
                     <button type="submit" class="submit-btn">Send Message <i class="fas fa-paper-plane" style="margin-left: 1rem;"></i></button>
                 </form>
+
+                <script>
+                    document.querySelector('.form-panel form').addEventListener('submit', function(e) {
+                        var valid = true;
+                        var nameEl = document.getElementById('full-name');
+                        var emailEl = document.getElementById('email');
+                        var phoneEl = document.getElementById('phone');
+
+                        // Validate name: no numbers
+                        if (/[0-9]/.test(nameEl.value)) {
+                            document.getElementById('nameErr').style.display = 'block';
+                            nameEl.style.borderColor = '#d32f2f';
+                            valid = false;
+                        }
+
+                        // Validate email: must start with a letter
+                        if (/^[0-9]/.test(emailEl.value)) {
+                            document.getElementById('emailErr').style.display = 'block';
+                            emailEl.style.borderColor = '#d32f2f';
+                            valid = false;
+                        }
+
+                        // Validate phone: if filled, must be exactly 10 digits
+                        if (phoneEl.value.length > 0 && phoneEl.value.length !== 10) {
+                            document.getElementById('phoneErr').style.display = 'block';
+                            phoneEl.style.borderColor = '#d32f2f';
+                            valid = false;
+                        }
+
+                        if (!valid) {
+                            e.preventDefault();
+                        }
+                    });
+                </script>
 
                 <!-- Embedded-like Map Section -->
                 <div class="map-section">

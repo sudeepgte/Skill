@@ -18,4 +18,13 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     @org.springframework.data.jpa.repository.Query("SELECT e FROM Enrollment e WHERE e.course.instructor.email = :email ORDER BY e.enrolledAt DESC")
     List<Enrollment> findByInstructorEmail(@org.springframework.data.repository.query.Param("email") String email);
+
+    @org.springframework.data.jpa.repository.Query(value = "SELECT SUM(c.price) FROM enrollments e JOIN courses c ON e.course_id = c.id", nativeQuery = true)
+    Double getTotalRevenue();
+
+    @org.springframework.data.jpa.repository.Query(value = "SELECT MONTH(e.enrolled_at) as month, SUM(c.price) as revenue FROM enrollments e JOIN courses c ON e.course_id = c.id WHERE YEAR(e.enrolled_at) = :year GROUP BY month", nativeQuery = true)
+    List<Object[]> getMonthlyRevenue(@org.springframework.data.repository.query.Param("year") int year);
+
+    @org.springframework.data.jpa.repository.Query(value = "SELECT YEAR(e.enrolled_at) as year, SUM(c.price) as revenue FROM enrollments e JOIN courses c ON e.course_id = c.id GROUP BY year", nativeQuery = true)
+    List<Object[]> getYearlyRevenue();
 }

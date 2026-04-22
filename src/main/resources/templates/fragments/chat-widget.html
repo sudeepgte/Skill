@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style th:fragment="chat-styles">
+        .chat-widget-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chat-fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(86, 36, 208, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .chat-fab:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-header {
+            padding: 1.25rem;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .connection-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .status-online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-offline { background: #ef4444; }
+
+        .chat-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: #f8fafc;
+        }
+
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .contact-item:hover {
+            background: rgba(86, 36, 208, 0.05);
+        }
+
+        .contact-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-sent {
+            align-self: flex-end;
+            background: #5624d0;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message-received {
+            align-self: flex-start;
+            background: white;
+            color: #1c1d1f;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-attachment-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .chat-attachment-preview:hover {
+            opacity: 0.9;
+        }
+
+        .file-bubble {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .message-sent .file-bubble {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+            display: block;
+            text-align: right;
+        }
+
+        .message-sent .message-time {
+            color: #e0e7ff;
+        }
+
+        .message-received .message-time {
+            color: #64748b;
+        }
+
+        .chat-footer {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            background: #5624d0;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div th:fragment="chat-widget" class="chat-widget-container" id="chatWidgetContainer">
+        <!-- FAB -->
+        <div class="chat-fab" id="chatFab">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div id="statusDot" class="connection-status"></div>
+                    <h3 id="chatHeaderTitle">SkillHub Chat</h3>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <i class="fas fa-chevron-left" id="backToContacts" style="display:none; cursor:pointer;"></i>
+                    <i class="fas fa-times" id="closeChat" style="cursor:pointer;"></i>
+                </div>
+            </div>
+
+            <!-- Body - Switches between Contacts and Messages -->
+            <div class="chat-body" id="chatBody">
+                <div id="contactList" class="contact-list">
+                    <!-- Contacts will be loaded here -->
+                </div>
+                <div id="messageList" class="message-list" style="display:none; flex-direction: column; gap: 8px; flex: 1;">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div id="chatLoading" style="display:none; text-align:center; padding: 2rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin"></i><br><small>Loading history...</small>
+                </div>
+            </div>
+
+            <div class="chat-footer" id="chatFooter" style="display:none; flex-direction: column; gap: 8px;">
+                <div id="typingIndicator" style="display:none; font-size: 11px; color: #6366f1; font-style: italic; margin-left: 0.5rem;">
+                    User is typing...
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="file" id="chatFileInput" style="display:none;" accept="image/*,.pdf,.doc,.docx,.zip">
+                    <button class="send-btn" id="attachBtn" style="background:#f1f5f9; color:#64748b;" title="Attach File">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" id="chatInput" placeholder="Type a message...">
+                    <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script th:inline="javascript">
+            let stompClient = null;
+            let currentRecipientEmail = null;
+            const currentUserEmail = /*[[${user != null ? user.email : null}]]*/ null;
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (!currentUserEmail) return;
+
+                const chatFab = document.getElementById('chatFab');
+                const chatWindow = document.getElementById('chatWindow');
+                const closeChat = document.getElementById('closeChat');
+                const backToContacts = document.getElementById('backToContacts');
+                const chatBody = document.getElementById('chatBody');
+                const contactList = document.getElementById('contactList');
+                const messageList = document.getElementById('messageList');
+                const chatFooter = document.getElementById('chatFooter');
+                const chatInput = document.getElementById('chatInput');
+                const sendBtn = document.getElementById('sendBtn');
+                const headerTitle = document.getElementById('chatHeaderTitle');
+                const statusDot = document.getElementById('statusDot');
+
+                chatFab.onclick = () => {
+                    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+                    if (chatWindow.style.display === 'flex') loadContacts();
+                };
+
+                closeChat.onclick = () => chatWindow.style.display = 'none';
+
+                backToContacts.onclick = () => {
+                    messageList.style.display = 'none';
+                    chatFooter.style.display = 'none';
+                    contactList.style.display = 'flex';
+                    backToContacts.style.display = 'none';
+                    headerTitle.innerText = 'SkillHub Chat';
+                    currentRecipientEmail = null;
+                };
+
+                function connect() {
+                    const socket = new SockJS('/ws');
+                    stompClient = Stomp.over(socket);
+                    stompClient.debug = console.log; // Enable logging for verification
+                    stompClient.connect({}, function (frame) {
+                        statusDot.classList.add('status-online');
+                        statusDot.classList.remove('status-offline');
+                        console.log("WebSocket Connected: " + frame);
+                        
+                        stompClient.subscribe('/user/queue/messages', function (message) {
+                            const chatMessage = JSON.parse(message.body);
+                            
+                            // If this is our own message echoed back, skip it — we already appended it optimistically
+                            if (chatMessage.senderEmail === currentUserEmail) {
+                                return;
+                            }
+
+                            // Verify if it belongs to current open chat
+                            if (currentRecipientEmail && 
+                                chatMessage.senderEmail === currentRecipientEmail) {
+                                appendMessage(chatMessage);
+                            } else if (!currentRecipientEmail) {
+                                // Logic for notifications when chat window is closed or on contact list
+                                chatFab.style.background = '#22c55e'; // Green notification
+                            }
+                        });
+
+                        // Presence Listener
+                        stompClient.subscribe('/topic/presence', function (message) {
+                            const status = JSON.parse(message.body);
+                            const dot = document.querySelector(`.contact-item[data-email="${status.email}"] .status-dot`);
+                            if (dot) {
+                                dot.className = `status-dot ${status.online ? 'status-online' : ''}`;
+                            }
+                        });
+
+                        // Typing Listener
+                        stompClient.subscribe('/user/queue/typing', function (message) {
+                            const status = JSON.parse(message.body);
+                            if (currentRecipientEmail === status.senderEmail) {
+                                document.getElementById('typingIndicator').style.display = status.isTyping ? 'block' : 'none';
+                            }
+                        });
+                    }, function(error) {
+                        statusDot.classList.add('status-offline');
+                        statusDot.classList.remove('status-online');
+                        setTimeout(connect, 5000); // Reconnect
+                    });
+                }
+
+                function loadContacts() {
+                    fetch('/api/chat/contacts')
+                        .then(r => r.json())
+                        .then(contacts => {
+                            contactList.innerHTML = '';
+                            contacts.forEach(contact => {
+                                const el = document.createElement('div');
+                                el.className = 'contact-item';
+                                el.setAttribute('data-email', contact.email);
+                                el.innerHTML = `
+                                    <div class="contact-avatar">
+                                        ${contact.name.charAt(0)}
+                                        <div class="status-dot ${contact.online ? 'status-online' : ''}" style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:#cbd5e1; border:2px solid white;"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 14px;">${contact.name}</div>
+                                        <div style="font-size: 11px; color: #64748b;">${contact.role}</div>
+                                    </div>
+                                `;
+                                if (contact.online) {
+                                    el.querySelector('.status-dot').classList.add('status-online');
+                                }
+                                el.onclick = () => openChat(contact);
+                                contactList.appendChild(el);
+                            });
+                        });
+                }
+
+                function openChat(contact) {
+                    if (!contact || !contact.email) return;
+                    currentRecipientEmail = contact.email;
+                    headerTitle.innerText = contact.name;
+                    
+                    // Toggle UI visibility strictly
+                    contactList.style.setProperty('display', 'none', 'important');
+                    messageList.style.setProperty('display', 'flex', 'important');
+                    chatFooter.style.setProperty('display', 'flex', 'important');
+                    backToContacts.style.setProperty('display', 'block', 'important');
+                    
+                    const chatLoading = document.getElementById('chatLoading');
+                    chatLoading.style.display = 'block';
+                    messageList.innerHTML = '';
+                    
+                    fetch(`/api/chat/history?otherUserEmail=${encodeURIComponent(contact.email)}`)
+                        .then(r => r.json())
+                        .then(messages => {
+                            chatLoading.style.display = 'none';
+                            messages.forEach(appendMessage);
+                            setTimeout(() => chatInput.focus(), 100);
+                        })
+                        .catch(err => {
+                            console.error("Failed to load history:", err);
+                            chatLoading.style.display = 'none';
+                            messageList.innerHTML = '<div style="color:red; font-size:12px; text-align:center; padding:10px;">Failed to load history. You can still send messages.</div>';
+                            setTimeout(() => chatInput.focus(), 100);
+                        });
+                }
+
+                // EXPOSE GLOBALLY for direct message buttons
+                window.openDirectChat = function(email, name, role) {
+                    const contact = { email, name, role };
+                    chatWindow.style.display = 'flex';
+                    openChat(contact);
+                };
+
+                function appendMessage(msg) {
+                    const el = document.createElement('div');
+                    const isSent = msg.senderEmail === currentUserEmail;
+                    el.className = `message-bubble ${isSent ? 'message-sent' : 'message-received'}`;
+                    
+                    let contentHtml = '';
+                    
+                    // Handle File Content
+                    if (msg.fileUrl) {
+                        const isImage = msg.fileType && msg.fileType.startsWith('image/');
+                        if (isImage) {
+                            contentHtml = `<img src="${msg.fileUrl}" class="chat-attachment-preview" onclick="window.open('${msg.fileUrl}', '_blank')">`;
+                        } else {
+                            const iconMap = {
+                                'application/pdf': 'fa-file-pdf',
+                                'application/zip': 'fa-file-archive',
+                                'application/x-zip-compressed': 'fa-file-archive',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fa-file-word'
+                            };
+                            const icon = iconMap[msg.fileType] || 'fa-file-alt';
+                            contentHtml = `
+                                <a href="${msg.fileUrl}" target="_blank" class="file-bubble">
+                                    <i class="fas ${icon}" style="font-size: 1.2rem;"></i>
+                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">
+                                        <div style="font-weight:600; font-size:12px;">${msg.fileName || 'Attachment'}</div>
+                                        <div style="font-size:10px; opacity:0.8;">Click to download</div>
+                                    </div>
+                                </a>
+                            `;
+                        }
+                    }
+
+                    if (msg.content) {
+                        contentHtml += `<div>${msg.content}</div>`;
+                    }
+                    
+                    el.innerHTML = `
+                        ${contentHtml}
+                        <span class="message-time">${msg.timestamp || ''}</span>
+                    `;
+                    
+                    messageList.appendChild(el);
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
+
+                function sendMessage(fileData = null) {
+                    const content = chatInput.value.trim();
+                    if ((content || fileData) && stompClient && currentRecipientEmail) {
+                        const now = new Date();
+                        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+                        
+                        const msgObj = {
+                            recipientEmail: currentRecipientEmail,
+                            content: content
+                        };
+
+                        if (fileData) {
+                            msgObj.fileUrl = fileData.url;
+                            msgObj.fileType = fileData.type;
+                            msgObj.fileName = fileData.name;
+                        }
+
+                        // Optimistic append
+                        appendMessage({
+                            senderEmail: currentUserEmail,
+                            content: content,
+                            timestamp: timeStr,
+                            fileUrl: msgObj.fileUrl,
+                            fileType: msgObj.fileType,
+                            fileName: msgObj.fileName
+                        });
+
+                        stompClient.send("/app/chat.send", {}, JSON.stringify(msgObj));
+                        chatInput.value = '';
+                    }
+                }
+
+                // File Upload Logic
+                const chatFileInput = document.getElementById('chatFileInput');
+                const attachBtn = document.getElementById('attachBtn');
+
+                attachBtn.onclick = () => chatFileInput.click();
+
+                chatFileInput.onchange = () => {
+                    const file = chatFileInput.files[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    attachBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    attachBtn.disabled = true;
+
+                    fetch('/api/chat/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        attachBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
+                        attachBtn.disabled = false;
+                        sendMessage(data);
+                        chatFileInput.value = '';
+                    })
+                    .catch(err => {
+                        console.error("Upload failed", err);
+                        attachBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
+                        attachBtn.disabled = false;
+                        alert("Upload failed. Please try again.");
+                    });
+                };
+
+                sendBtn.onclick = () => sendMessage();
+                chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+
+                // Typing Logic SENDER
+                let typingTimeout = null;
+                chatInput.oninput = () => {
+                    if (!currentRecipientEmail || !stompClient) return;
+                    
+                    if (typingTimeout) clearTimeout(typingTimeout);
+                    else {
+                        stompClient.send("/app/chat.typing", {}, JSON.stringify({
+                            recipientEmail: currentRecipientEmail,
+                            isTyping: true
+                        }));
+                    }
+
+                    typingTimeout = setTimeout(() => {
+                        stompClient.send("/app/chat.typing", {}, JSON.stringify({
+                            recipientEmail: currentRecipientEmail,
+                            isTyping: false
+                        }));
+                        typingTimeout = null;
+                    }, 2000);
+                };
+
+                connect();
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout | SkillHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5624d0;
+            --primary-hover: #401b9c;
+            --text-dark: #1c1d1f;
+            --text-muted: #6a6f73;
+            --bg-light: #f7f9fa;
+            --border: #d1d7dc;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .checkout-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .payment-section {
+            background: var(--white);
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .order-summary {
+            background: var(--white);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 2rem;
+        }
+
+        .method-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            cursor: pointer;
+            margin-bottom: 1.2rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .method-card:hover {
+            border-color: var(--primary);
+            background: #f8f7ff;
+        }
+
+        .method-card.active {
+            border-color: var(--primary);
+            background: #f8f7ff;
+        }
+
+        .method-card input[type="radio"] {
+            position: absolute;
+            right: 1.5rem;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .method-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+            width: 40px;
+            text-align: center;
+        }
+
+        .course-preview {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .course-thumb {
+            width: 100px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px dashed var(--border);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .btn-pay {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background 0.2s;
+        }
+
+        .btn-pay:hover {
+            background: var(--primary-hover);
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-container">
+        <!-- Left: Payment Methods -->
+        <div class="payment-section">
+            <h2>Select Payment Method</h2>
+            <form id="paymentForm" th:action="@{/payment/process}" method="post">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+                
+                <div class="method-card active" onclick="selectMethod('CARD')">
+                    <div class="method-icon"><i class="fas fa-credit-card"></i></div>
+                    <div>
+                        <div style="font-weight: 700;">Credit / Debit Card</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Visa, Mastercard, RuPay</div>
+                    </div>
+                    <input type="radio" name="method" value="CARD" checked>
+                </div>
+
+                <div class="method-card" onclick="selectMethod('UPI')">
+                    <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <div>
+                        <div style="font-weight: 700;">UPI / Google Pay</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Instant with PhonePe, GPay, BHIM</div>
+                    </div>
+                    <input type="radio" name="method" value="UPI">
+                </div>
+
+                <div class="method-card" onclick="selectMethod('WALLET')">
+                    <div class="method-icon"><i class="fas fa-wallet"></i></div>
+                    <div>
+                        <div style="font-weight: 700;">Wallets</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Paytm, PhonePe Wallet, MobiKwik</div>
+                    </div>
+                    <input type="radio" name="method" value="WALLET">
+                </div>
+
+                <button type="submit" class="btn-pay">Complete Purchase</button>
+                <div class="secure-badge">
+                    <i class="fas fa-lock"></i> SSL Secure 256-bit Encryption
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: Order Summary -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div class="course-preview">
+                <img th:src="${course.imageUrl}" class="course-thumb" alt="Course">
+                <div style="font-weight: 600; font-size: 0.95rem;" th:text="${course.title}">Course Title</div>
+            </div>
+
+            <div class="price-row">
+                <span>Course Price</span>
+                <span th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹2000</span>
+            </div>
+            <div class="price-row">
+                <span>Service Fee</span>
+                <span>₹0</span>
+            </div>
+
+            <div class="total-row">
+                <span>Total</span>
+                <span th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹2000</span>
+            </div>
+
+            <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted);">
+                By completing your purchase, you agree to SkillHub's <a href="#">Terms of Service</a>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script th:inline="javascript">
+        const courseId = [[${course.id}]];
+        
+        function selectMethod(method) {
+            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
+            const cards = document.querySelectorAll('.method-card');
+            cards.forEach(card => {
+                if(card.querySelector('input').value === method) {
+                    card.classList.add('active');
+                    card.querySelector('input').checked = true;
+                }
+            });
+        }
+
+        // Handle Razorpay Payment
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('.btn-pay');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            // Step 1: Create Order on Server
+            fetch('/payment/create-order?courseId=' + courseId, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    openRazorpay(data);
+                } else {
+                    alert('Error: ' + data.message);
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to initiate payment. Please try again.');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+        });
+
+        function openRazorpay(orderData) {
+            const options = {
+                "key": [[${@environment.getProperty('razorpay.key.id')}]], // Dynamically fetch from backend properties
+                "amount": orderData.amount,
+                "currency": "INR",
+                "name": "SkillHub",
+                "description": "Course Purchase",
+                "image": "/images/logo.png",
+                "order_id": orderData.orderId,
+                "handler": function (response) {
+                    // Step 2: Verify Payment on Server
+                    verifyPayment(response);
+                },
+                "prefill": {
+                    "name": orderData.userName,
+                    "email": orderData.userEmail,
+                    "contact": orderData.userPhone || ""
+                },
+                "theme": {
+                    "color": "#5624d0"
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        const btn = document.querySelector('.btn-pay');
+                        btn.innerText = "Complete Purchase";
+                        btn.disabled = false;
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        function verifyPayment(razorpayResponse) {
+            fetch('/payment/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    razorpay_order_id: razorpayResponse.razorpay_order_id,
+                    razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                    razorpay_signature: razorpayResponse.razorpay_signature
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert('Payment verification failed: ' + data.message);
+                    location.reload();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Server error during verification.');
+            });
+        }
+    </script>
+</body>
+</html>

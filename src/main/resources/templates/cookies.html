@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Cookie Settings | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+
+    <style>
+        :root { --primary: #5624d0; --primary-dark: #1c1d1f; --text-muted: #6a6f73; --bg-light: #f7f9fa; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--primary-dark); margin: 0; }
+
+        .legal-container { max-width: 800px; margin: 0 auto; padding: 6.4rem 2.4rem 8rem; }
+        .legal-title { font-family: 'Merriweather', serif; font-size: 3.6rem; font-weight: 700; margin-bottom: 1.2rem; }
+        .legal-subtitle { color: var(--text-muted); font-size: 1.5rem; margin-bottom: 4rem; }
+
+        .cookie-section { margin-bottom: 4rem; }
+        .cookie-section h2 { font-size: 2.4rem; font-weight: 700; margin-bottom: 1.6rem; padding-top: 2rem; border-top: 1px solid #eee; }
+        .cookie-section:first-of-type h2 { border-top: none; padding-top: 0; }
+        .cookie-section p { font-size: 1.6rem; line-height: 1.8; color: #444; margin-bottom: 1.6rem; }
+
+        .cookie-toggle { display: flex; justify-content: space-between; align-items: center; background: var(--bg-light); padding: 2rem 2.4rem; border-radius: 1.2rem; margin-bottom: 1.6rem; }
+        .cookie-toggle-info h3 { font-size: 1.8rem; font-weight: 700; margin: 0 0 0.4rem; }
+        .cookie-toggle-info p { font-size: 1.4rem; color: var(--text-muted); margin: 0; }
+
+        .toggle-switch { position: relative; width: 5.2rem; height: 2.8rem; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 2.8rem; transition: 0.3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 2rem; width: 2rem; left: 0.4rem; bottom: 0.4rem; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(2.4rem); }
+        .toggle-switch input:disabled + .toggle-slider { opacity: 0.7; cursor: not-allowed; }
+
+        .cookie-table { width: 100%; border-collapse: collapse; margin-top: 2rem; font-size: 1.4rem; }
+        .cookie-table th, .cookie-table td { padding: 1.2rem 1.6rem; text-align: left; border-bottom: 1px solid #eee; }
+        .cookie-table th { font-weight: 700; background: var(--bg-light); font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .cookie-table td { color: #444; }
+
+        .btn-save-prefs { display: inline-block; background: var(--primary); color: #fff; padding: 1.6rem 4rem; border: none; border-radius: 8px; font-size: 1.6rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 2rem; }
+        .btn-save-prefs:hover { background: #a435f0; transform: translateY(-2px); }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="legal-container">
+        <h1 class="legal-title">Cookie Settings</h1>
+        <p class="legal-subtitle">Last Updated: March 1, 2026</p>
+
+        <div class="cookie-section">
+            <h2>What Are Cookies?</h2>
+            <p>Cookies are small text files stored on your device when you visit our website. They help us provide a better user experience, remember your preferences, and understand how you interact with our platform.</p>
+        </div>
+
+        <div class="cookie-section">
+            <h2>Manage Your Preferences</h2>
+
+            <div class="cookie-toggle">
+                <div class="cookie-toggle-info">
+                    <h3>Essential Cookies</h3>
+                    <p>Required for the website to function. Cannot be disabled.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked disabled>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="cookie-toggle">
+                <div class="cookie-toggle-info">
+                    <h3>Performance Cookies</h3>
+                    <p>Help us understand how visitors interact with our website by collecting anonymous data.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked id="perfCookies">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="cookie-toggle">
+                <div class="cookie-toggle-info">
+                    <h3>Functionality Cookies</h3>
+                    <p>Remember your preferences like language, region, and login details for a personalized experience.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked id="funcCookies">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="cookie-toggle">
+                <div class="cookie-toggle-info">
+                    <h3>Marketing Cookies</h3>
+                    <p>Used to deliver relevant advertisements and track campaign effectiveness across websites.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="marketCookies">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <button class="btn-save-prefs" onclick="alert('Cookie preferences saved successfully!')">Save Preferences</button>
+        </div>
+
+        <div class="cookie-section">
+            <h2>Cookies We Use</h2>
+            <table class="cookie-table">
+                <thead>
+                    <tr><th>Cookie Name</th><th>Purpose</th><th>Duration</th><th>Type</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>JSESSIONID</td><td>Maintains user session</td><td>Session</td><td>Essential</td></tr>
+                    <tr><td>XSRF-TOKEN</td><td>CSRF protection</td><td>Session</td><td>Essential</td></tr>
+                    <tr><td>_ga</td><td>Google Analytics tracking</td><td>2 years</td><td>Performance</td></tr>
+                    <tr><td>lang_pref</td><td>Language preference</td><td>1 year</td><td>Functionality</td></tr>
+                    <tr><td>theme_mode</td><td>Dark/light mode preference</td><td>1 year</td><td>Functionality</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cookie-section">
+            <h2>More Information</h2>
+            <p>For more details about how we handle your data, please read our <a href="/privacy" style="color: var(--primary); font-weight: 600;">Privacy Policy</a>. If you have any questions about our cookie practices, please <a href="/contact" style="color: var(--primary); font-weight: 600;">contact us</a>.</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

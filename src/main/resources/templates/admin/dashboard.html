@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -33,11 +34,7 @@
                 <i class="fas fa-users"></i> Users
             </a>
 
-<<<<<<< HEAD
-            <a href="/admin/vendor" class="nav-item">
-=======
-            <a href="/admin/instructor" class="nav-item">
->>>>>>> 7579054df6da7f525dd9fe5344105409d9708b58
+            <a href="/admin/vendors" class="nav-item">
                 <i class="fas fa-store"></i> Vendors
             </a>
 
@@ -49,6 +46,10 @@
                 <i class="fas fa-tags"></i> Categories
             </a>
 
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
             <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
 
             <a href="/admin/broadcast" class="nav-item">
@@ -58,11 +59,9 @@
         </nav>
 
         <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
+            <a th:href="@{/logout}" class="logout-btn" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
 
     </aside>
@@ -108,6 +107,19 @@
             <!-- Stat Cards -->
             <div class="stats-grid">
 
+                <!-- Total Revenue -->
+                <div class="stat-card purple">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Total Revenue</span>
+                        <div class="stat-icon-wrap bg-purple" style="background: rgba(155, 89, 182, 0.12); color: #9b59b6;"><i class="fas fa-indian-rupee-sign"></i></div>
+                    </div>
+                    <div class="stat-value">₹<span id="totalRevenueVal">0</span></div>
+                    <div class="stat-change up">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Lifetime Earnings</span>
+                    </div>
+                </div>
+
                 <!-- Total Users -->
                 <div class="stat-card blue">
                     <div class="stat-card-header">
@@ -146,6 +158,19 @@
                     <div class="stat-change up">
                         <i class="fas fa-film"></i>
                         <span>Video resources</span>
+                    </div>
+                </div>
+
+                <!-- Course Views -->
+                <div class="stat-card dark">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Total Course Views</span>
+                        <div class="stat-icon-wrap bg-dark"><i class="fas fa-eye"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${totalViews}">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Engagement across platform</span>
                     </div>
                 </div>
 
@@ -221,6 +246,29 @@
 
             </div>
 
+            <!-- Revenue Charts -->
+            <div class="panel-header" style="padding: 2.4rem 0 1.6rem; background: none; border: none;">
+                <span class="panel-title" style="font-size:2rem;">Financial Analytics</span>
+            </div>
+            <div class="content-grid" style="margin-bottom: 3.2rem;">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class="fas fa-chart-line" style="color:var(--primary); margin-right:0.8rem;"></i>Monthly RevenueTrend</span>
+                    </div>
+                    <div class="panel-body" style="padding: 2rem;">
+                        <canvas id="monthlyRevenueChart" height="250"></canvas>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class="fas fa-chart-bar" style="color:var(--orange); margin-right:0.8rem;"></i>Yearly Performance</span>
+                    </div>
+                    <div class="panel-body" style="padding: 2rem;">
+                        <canvas id="yearlyRevenueChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="panel-header" style="padding: 0 0 1.6rem; background: none; border: none;">
                 <span class="panel-title" style="font-size:2rem;">Quick Actions</span>
@@ -260,6 +308,81 @@
                 sidebar.classList.remove('open');
             }
         });
+
+        // Revenue Analytics Implementation
+        async function loadRevenueAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/admin/revenue');
+                const data = await response.json();
+
+                // 1. Update Stat Card
+                document.getElementById('totalRevenueVal').innerText = Number(data.totalRevenue).toLocaleString();
+
+                // 2. Monthly Revenue Chart (Gradient Line)
+                const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+                const monthlyGradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
+                monthlyGradient.addColorStop(0, 'rgba(108, 92, 231, 0.4)');
+                monthlyGradient.addColorStop(1, 'rgba(108, 92, 231, 0)');
+
+                new Chart(monthlyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.monthlyRevenue.labels,
+                        datasets: [{
+                            label: 'Revenue (₹)',
+                            data: data.monthlyRevenue.data,
+                            borderColor: '#6c5ce7',
+                            backgroundColor: monthlyGradient,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#6c5ce7',
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { display: true, color: 'rgba(0,0,0,0.05)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // 3. Yearly Revenue Chart (Glow Bar)
+                const yearlyCtx = document.getElementById('yearlyRevenueChart').getContext('2d');
+                new Chart(yearlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.yearlyRevenue.labels,
+                        datasets: [{
+                            label: 'Annual Revenue (₹)',
+                            data: data.yearlyRevenue.data,
+                            backgroundColor: '#f39c12',
+                            borderRadius: 8,
+                            barThickness: 40
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading revenue analytics:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadRevenueAnalytics);
     </script>
 
 </body>

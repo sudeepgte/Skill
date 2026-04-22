@@ -15,6 +15,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/home.css}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style th:replace="~{fragments/chat-widget :: chat-styles}"></style>
     <style>
         *,
         *::before,
@@ -369,26 +372,35 @@
         .hero-content-box {
             position: relative;
             z-index: 2;
-            max-width: 52rem;
-            margin-left: 7%;
-            background: rgba(28, 29, 31, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            max-width: 72rem;
+            margin-left: 8%;
+            background: rgba(28, 29, 31, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 4rem;
-            border-radius: 1.2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 60%);
+            z-index: 1;
         }
 
         .hero-content-box h1 {
-            font-family: 'Merriweather', Georgia, serif;
-            font-size: 3.8rem;
-            font-weight: 800;
-            line-height: 1.2;
+            font-family: 'Outfit', 'Merriweather', sans-serif;
+            font-size: 5.6rem;
+            font-weight: 900;
+            line-height: 1.1;
             color: #fff;
-            margin-bottom: 1.8rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            letter-spacing: -0.5px;
+            margin-bottom: 2.4rem;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            letter-spacing: -1.5px;
         }
 
         .hero-content-box p {
@@ -407,7 +419,7 @@
 
         .hero-cta-primary {
             display: inline-block;
-            padding: 1.2rem 2rem;
+            padding: 1.2rem 1.8rem;
             background: #5624d0;
             color: #fff;
             font-size: 1.5rem;
@@ -428,7 +440,7 @@
 
         .hero-cta-secondary {
             display: inline-block;
-            padding: 1.2rem 2rem;
+            padding: 1.2rem 1.8rem;
             background: transparent;
             color: #5624d0;
             font-size: 1.5rem;
@@ -1091,6 +1103,96 @@
             font-size: 1.2rem;
             color: #6a6f73;
         }
+
+        /* Smart Entrance Styles */
+        .smart-entrance {
+            background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+            padding: 8rem 6rem;
+            margin: 6rem auto;
+            max-width: 1200px;
+            color: white;
+            border-radius: 3rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+            box-shadow: 0 30px 60px -12px rgba(30, 27, 75, 0.4);
+        }
+
+        .entrance-content h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 3.6rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+        }
+
+        .entrance-content p {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 55rem;
+            margin-bottom: 4rem;
+        }
+
+        .btn-scan-main {
+            background: #fff;
+            color: #4338ca;
+            padding: 1.8rem 4rem;
+            border-radius: 10rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+
+        .btn-scan-main:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            background: #f8fafc;
+        }
+
+        .qr-mock-container {
+            position: relative;
+            padding: 2rem;
+        }
+
+        .qr-mock {
+            width: 22rem;
+            height: 22rem;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10rem;
+            color: white;
+            animation: pulse-entrance 2.5s infinite ease-in-out;
+            box-shadow: 0 0 40px rgba(255,255,255,0.1);
+        }
+
+        @keyframes pulse-entrance {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+            50% { transform: scale(1.03); box-shadow: 0 0 50px rgba(255,255,255,0.3); border-color: white; }
+        }
+
+        @media (max-width: 991px) {
+            .smart-entrance {
+                flex-direction: column;
+                text-align: center;
+                padding: 6rem 3rem;
+            }
+            .entrance-content p { margin-left: auto; margin-right: auto; }
+        }
     </style>
 </head>
 
@@ -1107,17 +1209,96 @@
         <p style="font-size:1.5rem;color:#6a6f73;">Pick up where you left off</p>
     </div>
     <div class="hero">
+        <!-- Student Analytics Dashboard Section -->
+        <div th:if="${user != null}" class="analytics-dashboard" style="max-width: 1200px; margin: 2rem auto; padding: 0 2.4rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+                <h2 style="font-size: 2.2rem; font-weight: 700; color: #1c1d1f;">Your Learning Pulse</h2>
+                <div style="display: flex; gap: 1.5rem;">
+                   <div class="stat-pill" style="background:#fff; border:1px solid #d1d7dc; padding:0.8rem 1.6rem; border-radius:10rem; display:flex; align-items:center; gap:0.8rem;">
+                       <i class="fas fa-fire" style="color:#ff6b2b;"></i>
+                       <span style="font-weight:700; font-size:1.4rem;" th:text="${user.streakCount + ' Day Streak'}">0 Day Streak</span>
+                   </div>
+                   <div class="stat-pill" style="background:#fff; border:1px solid #d1d7dc; padding:0.8rem 1.6rem; border-radius:10rem; display:flex; align-items:center; gap:0.8rem;">
+                       <i class="fas fa-bolt" style="color:#5624d0;"></i>
+                       <span style="font-weight:700; font-size:1.4rem;" th:text="${user.totalXP + ' XP'}">0 XP</span>
+                   </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.4rem;">
+                <!-- Activity Chart Card -->
+                <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 0.8rem; padding: 2.4rem;">
+                    <h3 style="font-size: 1.6rem; margin-bottom: 2rem;">Learning Activity (Last 14 Days)</h3>
+                    <canvas id="activityChart" height="150"></canvas>
+                </div>
+                
+                <!-- Radar Chart Card -->
+                <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 0.8rem; padding: 2.4rem;">
+                    <h3 style="font-size: 1.6rem; margin-bottom: 2rem;">Skill Strengths</h3>
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', async () => {
+                    const response = await fetch('/api/analytics/student');
+                    const data = await response.json();
+                    
+                    // 1. Activity Bar Chart
+                    const actCtx = document.getElementById('activityChart').getContext('2d');
+                    new Chart(actCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(data.weeklyActivity),
+                            datasets: [{
+                                label: 'Lessons Completed',
+                                data: Object.values(data.weeklyActivity),
+                                backgroundColor: '#5624d0',
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                        }
+                    });
+
+                    // 2. Skill Radar Chart
+                    const radarCtx = document.getElementById('radarChart').getContext('2d');
+                    new Chart(radarCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: Object.keys(data.categoryExpertise),
+                            datasets: [{
+                                label: 'Expertise %',
+                                data: Object.values(data.categoryExpertise),
+                                fill: true,
+                                backgroundColor: 'rgba(86, 36, 208, 0.2)',
+                                borderColor: '#5624d0',
+                                pointBackgroundColor: '#5624d0'
+                            }]
+                        },
+                        options: {
+                            elements: { line: { borderWidth: 3 } },
+                            plugins: { legend: { display: false } },
+                            scales: { r: { suggestMin: 0, suggestMax: 100 } }
+                        }
+                    });
+                });
+            </script>
+        </div>
+
         <div class="hero-track" id="heroTrack">
 
             <!-- Slide 1 -->
             <div class="hero-slide">
-                <img th:src="@{/images/hero1.png}" alt="Unlock Your Potential">
+                <img th:src="@{/images/hero1.png}" alt="Welcome to SkillHub">
                 <div class="hero-content-box">
-                    <h1>Unlock Your Potential</h1>
+                    <h1>Welcome to SkillHub</h1>
                     <p>Advance your career with masterclass courses in technology, business, and creative arts.</p>
                     <div class="hero-btns">
-                        <a href="/register" class="hero-cta-primary">Get Started Now</a>
-                        <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: #fff; color: #fff;">Browse All Courses</a>
+                        <a href="/register" class="hero-cta-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #5624d0 100%); border: none;">Get Started Now</a>
+                        <a href="#courses" class="hero-cta-secondary" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); color: #fff;">Explore Courses</a>
                     </div>
                 </div>
             </div>
@@ -1165,6 +1346,111 @@
         <div class="hero-dots" id="heroDots"></div>
     </div>
 
+    <!-- ═══════════════════════════ UNIQUE HIGHLIGHTS SECTION ═══════════════════════════ -->
+    <section class="features-section">
+        <div class="features-inner">
+            <div class="features-header">
+                <div class="features-badge">
+                    <i class="fas fa-sparkles"></i> The SkillHub Edge
+                </div>
+                <h2>Experience a New Era of Learning</h2>
+                <p>SkillHub isn't just a video platform. It's a comprehensive ecosystem designed to bridge the gap between watching and mastering.</p>
+            </div>
+
+            <div class="features-grid">
+                <!-- Live Chat -->
+                <div class="feature-card" style="--fc-color-start: #7c3aed; --fc-color-end: #a78bfa;">
+                    <div class="feature-icon-wrap purple">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Real-time Chatting</h3>
+                    <p>Connect instantly with instructors and peers. Get your doubts cleared as you learn, without leaving the classroom.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Instant</span>
+                        <span class="feature-tag">Interactive</span>
+                    </div>
+                </div>
+
+                <!-- Progress Tracking -->
+                <div class="feature-card" style="--fc-color-start: #2563eb; --fc-color-end: #60a5fa;">
+                    <div class="feature-icon-wrap blue">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Visualize your growth. Track your daily learning streaks, XP gains, and skill proficiency across different domains.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Data-Driven</span>
+                        <span class="feature-tag">Visual</span>
+                    </div>
+                </div>
+
+                <!-- Downloads -->
+                <div class="feature-card" style="--fc-color-start: #059669; --fc-color-end: #34d399;">
+                    <div class="feature-icon-wrap emerald">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Offline Mastery</h3>
+                    <p>Learn on the go. Download high-definition video lectures and comprehensive study notes for offline access.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Offline</span>
+                        <span class="feature-tag">Portable</span>
+                    </div>
+                </div>
+
+                <!-- Certifications -->
+                <div class="feature-card" style="--fc-color-start: #d97706; --fc-color-end: #fcd34d;">
+                    <div class="feature-icon-wrap amber">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Verified Exams</h3>
+                    <p>Earn more than just a completion badge. Ace interactive exams and receive industry-recognized certifications.</p>
+                    <div class="feature-tags">
+                        <span class="feature-tag">Credentialed</span>
+                        <span class="feature-tag">Professional</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="features-stats-bar">
+                <div class="feat-stat">
+                    <div class="feat-stat-value">210K+</div>
+                    <div class="feat-stat-label">Active Learners</div>
+                </div>
+                <div class="feat-stat">
+                    <div class="feat-stat-value">4.8/5</div>
+                    <div class="feat-stat-label">Avg. Satisfaction</div>
+                </div>
+                <div class="feat-stat">
+                    <div class="feat-stat-value">150+</div>
+                    <div class="feat-stat-label">Expert Instructors</div>
+                </div>
+                <div class="feat-stat">
+                    <div class="feat-stat-value">24h</div>
+                    <div class="feat-stat-label">Avg. Doubt Resolve</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════ SMART QR ENTRANCE ═══════════════════════════ -->
+    <section class="smart-entrance">
+        <div class="entrance-content">
+            <h2 style="color: #ffffff;">The Smart Way to Enter Your Academy</h2>
+            <p>Skip the menus. Bypass the navigation. Scan any SkillHub assessment QR code to instantly teleport into your exam room. Your learning journey, now at light speed.</p>
+            <button onclick="openScanner()" class="btn-scan-main">
+                <i class="fas fa-qrcode"></i> Start Smart Scan
+            </button>
+        </div>
+        <div class="qr-mock-container">
+            <div class="qr-mock">
+                <i class="fas fa-expand"></i>
+            </div>
+            <!-- Decorative blobs -->
+            <div style="position: absolute; top: -20%; right: -20%; width: 15rem; height: 15rem; background: rgba(255,255,255,0.05); border-radius: 50%; blur: 40px;"></div>
+        </div>
+    </section>
+
     <!-- ═══════════════════════════ COURSE SECTION ═══════════════════════════ -->
     <div class="main" id="courses" style="margin-top: 6.4rem;">
 
@@ -1193,60 +1479,129 @@
                     class="fas fa-chevron-right"></i></button>
         </div>
 
-        <!-- Course grid -->
-        <div class="course-grid" th:unless="${#lists.isEmpty(courses)}">
-            <div th:each="course : ${courses}" class="course-card">
-                <!-- Thumbnail -->
-                <div class="course-thumb">
-                    <a th:href="@{/course/{id}(id=${course.id})}">
-                        <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt=""
-                            onerror="this.src='/images/banner1.webp'">
-                    </a>
-                    <span class="badge-bestseller" th:if="${course.averageRating >= 4.5}">Bestseller</span>
+        <!-- Search Results Summary -->
+        <div th:if="${searchQuery != null}" style="margin-bottom: 3rem; padding-bottom: 1rem; border-bottom: 1px solid #d1d7dc;">
+            <h2 style="font-size: 2.4rem; font-weight: 700; color: #1c1d1f;">
+                Search results for "<span th:text="${searchQuery}">query</span>"
+            </h2>
+        </div>
 
-                    <!-- Wishlist Heart Overlay -->
-                    <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay">
-                        <input type="hidden" name="courseId" th:value="${course.id}" />
-                        <button type="submit" class="wish-btn" title="Add to Wishlist">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </form>
-                </div>
+        <!-- Matching Categories Section -->
+        <div th:if="${searchedCategories != null and !#lists.isEmpty(searchedCategories)}" style="margin-bottom: 4rem;">
+            <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.5rem; color: #1c1d1f;">
+                <i class="fas fa-tags" style="color: #4f46e5; margin-right: 10px;"></i> Matching Categories
+            </h3>
+            <div class="cat-tabs" style="margin-bottom: 0;">
+                <a th:each="cat : ${searchedCategories}" 
+                   th:href="${user != null} ? @{/user/home(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}" 
+                   class="cat-tab" style="background: #f7f9fa;" th:text="${cat.name}">Category</a>
+            </div>
+        </div>
 
-                <!-- Info -->
-                <div class="course-info">
-                    <a th:href="@{/course/{id}(id=${course.id})}" style="text-decoration: none; color: inherit;">
-                        <div class="ci-title" th:text="${course.title}">Course Title</div>
-                        <div class="ci-author"
-                            th:text="${course.instructor != null ? course.instructor.name : 'Instructor'}">Instructor
-                        </div>
-                        <div class="ci-rating">
-                            <span class="ci-rating-num" th:text="${course.averageRating != null ? course.averageRating : 0.0}">4.7</span>
-                            <div class="ci-stars">
-                                <span th:each="i : ${#numbers.sequence(1,5)}">
-                                    <i class="fas fa-star" th:if="${course.averageRating != null and course.averageRating >= i}"></i>
-                                    <i class="fas fa-star-half-alt"
-                                        th:if="${course.averageRating != null and course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
-                                    <i class="far fa-star" th:if="${course.averageRating == null or course.averageRating < i - 0.5}"></i>
-                                </span>
+        <!-- Relevant Exams Section -->
+        <div th:if="${exams != null and !#lists.isEmpty(exams)}" style="margin-bottom: 4rem;">
+            <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.5rem; color: #1c1d1f;">
+                <i class="fas fa-certificate" style="color: #f1c40f; margin-right: 10px;"></i> Certification Exams
+            </h3>
+            <div class="course-grid">
+                <div th:each="exam : ${exams}" class="course-card" style="border: 2px solid #f1c40f; transform: none; transition: box-shadow 0.2s;">
+                    <div class="course-thumb">
+                        <a th:href="@{/user/course/{id}/exam-start(id=${exam.id})}">
+                            <img th:src="${exam.imageUrl != null ? exam.imageUrl : '/images/banner1.webp'}" alt="" style="filter: grayscale(0.5); opacity: 0.8;">
+                            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4);">
+                                <i class="fas fa-certificate" style="font-size: 3.5rem; color: #f1c40f;"></i>
                             </div>
-                            <span class="ci-count" th:text="'(' + ${course.reviewCount != null ? course.reviewCount : 0} + ')'"></span>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                    <div class="course-info">
+                        <div class="ci-title" style="font-weight: 700; height: auto;" th:text="${exam.title} + ' Exam'">Exam Title</div>
+                        <p style="font-size: 0.85rem; color: #6a6f73; margin: 0.8rem 0;">Official certification for mastering <span th:text="${exam.title}">Skill</span>.</p>
+                        <a th:href="@{/user/course/{id}/exam-start(id=${exam.id})}" class="btn-add-course" style="background: #1c1d1f; border-color: #1c1d1f; color: white; display: block; text-align: center; margin-top: 1rem;">
+                            Take Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- Action Button -->
-                    <a th:href="@{/course/{id}(id=${course.id})}" class="btn-add-course">
-                        Add to My Course
-                    </a>
+        <!-- Course grid -->
+        <div th:unless="${#lists.isEmpty(courses)}" style="margin-bottom: 4rem;">
+            <h3 th:if="${searchQuery != null}" style="font-size: 1.6rem; font-weight: 700; margin-bottom: 1.5rem; color: #1c1d1f;">
+                <i class="fas fa-graduation-cap" style="color: #1c1d1f; margin-right: 10px;"></i> All Courses
+            </h3>
+            <div class="course-grid">
+                <div th:each="course : ${courses}" class="course-card">
+                    <!-- Thumbnail -->
+                    <div class="course-thumb">
+                        <a th:href="@{/course/{id}(id=${course.id})}">
+                            <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}" alt=""
+                                onerror="this.src='/images/banner1.webp'">
+                        </a>
+                        <span class="badge-bestseller" th:if="${course.averageRating >= 4.5}">Bestseller</span>
+
+                        <!-- Wishlist Heart Overlay -->
+                        <form th:action="@{/course/wishlist/add}" method="post" class="wishlist-overlay" onsubmit="handleWishlistSubmit(event, this)">
+                            <input type="hidden" name="courseId" th:value="${course.id}" />
+                            <button type="submit" class="wish-btn" th:title="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'In Wishlist' : 'Add to Wishlist'">
+                                <i th:class="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'fas fa-heart' : 'far fa-heart'"
+                                   th:style="${wishlistCourseIds != null and wishlistCourseIds.contains(course.id)} ? 'color: #ff4757' : ''"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="course-info">
+                        <a th:href="@{/course/{id}(id=${course.id})}" style="text-decoration: none; color: inherit;">
+                            <div class="ci-title" th:text="${course.title}">Course Title</div>
+                            <div class="ci-author"
+                                th:text="${course.instructor != null ? course.instructor.name : 'Instructor'}">Instructor
+                            </div>
+                            <div class="ci-rating">
+                                <span class="ci-rating-num" th:text="${course.averageRating != null ? course.averageRating : 0.0}">4.7</span>
+                                <div class="ci-stars">
+                                    <span th:each="i : ${#numbers.sequence(1,5)}">
+                                        <i class="fas fa-star" th:if="${course.averageRating != null and course.averageRating >= i}"></i>
+                                        <i class="fas fa-star-half-alt"
+                                            th:if="${course.averageRating != null and course.averageRating >= i - 0.5 and course.averageRating < i}"></i>
+                                        <i class="far fa-star" th:if="${course.averageRating == null or course.averageRating < i - 0.5}"></i>
+                                    </span>
+                                </div>
+                                <span class="ci-count" th:text="'(' + ${course.reviewCount != null ? course.reviewCount : 0} + ')'"></span>
+                            </div>
+                        </a>
+
+                        <!-- Action Button -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem;">
+                            <!-- Enrolled Case -->
+                            <div th:if="${enrolledCourseIds != null and enrolledCourseIds.contains(course.id)}" style="width: 100%;">
+                                <a th:href="@{/course/{id}(id=${course.id})}" class="btn-add-course" style="margin-top: 0; width: 100%; background: #5624d0; border-color: #5624d0; color: white; display: block; text-align: center;">
+                                    Continue Learning
+                                </a>
+                            </div>
+                            
+                            <!-- Not Enrolled Case -->
+                            <th:block th:unless="${enrolledCourseIds != null and enrolledCourseIds.contains(course.id)}">
+                                <div class="ci-price" th:if="${course.price > 0}">
+                                     <span style="font-size: 1.5rem; font-weight: 700; color: #1c1d1f;">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
+                                </div>
+                                <div class="ci-price" th:unless="${course.price > 0}">
+                                    <span style="font-size: 1.5rem; font-weight: 700; color: #1c1d1f;">Free</span>
+                                </div>
+                                <a th:href="${course.price > 0 ? '/checkout/' + course.id : '/course/' + course.id}" class="btn-add-course" style="margin-top: 0; min-width: 120px;" th:text="${course.price > 0 ? 'Buy Now' : 'Add to My Course'}">
+                                    Buy Now
+                                </a>
+                            </th:block>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Empty state -->
-        <div th:if="${#lists.isEmpty(courses)}" class="empty-state">
-            <i class="fas fa-box-open"></i>
-            <h3>No courses available yet</h3>
-            <p>Instructors are working hard to create new content. Please check back later.</p>
+        <div th:if="${(searchQuery != null or categoryId != null) and #lists.isEmpty(courses) and #lists.isEmpty(exams) and #lists.isEmpty(searchedCategories)}" class="empty-state">
+            <i class="fas fa-search" style="font-size: 4rem; color: #6a6f73; margin-bottom: 1.5rem;"></i>
+            <h3 style="font-size: 1.8rem; font-weight: 700;" th:text="${searchQuery != null} ? 'No results found for \'' + ${searchQuery} + '\'' : 'No courses available yet'">No results found</h3>
+            <p>Try checking your spelling or using more general terms.</p>
         </div>
 
     </div>
@@ -1273,8 +1628,56 @@
             const container = document.getElementById(containerId);
             container.scrollBy({ left: amount, behavior: 'smooth' });
         }
+
+        async function handleWishlistSubmit(event, form) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const courseId = formData.get('courseId');
+            
+            try {
+                const response = await fetch('/course/wishlist/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `courseId=${courseId}`
+                });
+                
+                const data = await response.json();
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.success) {
+                    if (window.showGlobalNotification) {
+                        window.showGlobalNotification("Wishlist", data.message);
+                    } else {
+                        alert(data.message);
+                    }
+                    // Update heart icon to solid
+                    const icon = form.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#ff4757';
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding to wishlist:', error);
+            }
+        }
+    </script>
+    <link rel="manifest" th:href="@{/manifest.json}">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW Registered', reg))
+                .catch(err => console.log('SW Registration failed', err));
+        }
     </script>
     <script th:src="@{/js/script.js}"></script>
+    <div th:replace="~{fragments/chat-widget :: chat-widget}"></div>
+    
+    <!-- Shared QR Scanner Fragment -->
+    <div th:replace="~{fragments/qr-scanner :: qr-scanner}"></div>
 </body>
 
 </html>

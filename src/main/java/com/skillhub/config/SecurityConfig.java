@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -47,11 +48,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder)
             throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**"))
                 .exceptionHandling(exception -> exception
                         .defaultAuthenticationEntryPointFor(
                                 unauthorizedHandler,
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")))
+                                new AntPathRequestMatcher("/api/**")))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/register/admin", "/admin/register", "/saveUser",
@@ -59,7 +60,10 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/course/**", "/error", "/uploads/**",
-                                "/about", "/contact", "/submit-contact-form")
+                                "/about", "/contact", "/submit-contact-form",
+                                "/business", "/teaching", "/app", "/help", "/blog", "/faq", 
+                                "/terms", "/privacy", "/cookies", "/accessibility",
+                                "/sw.js", "/manifest.json", "/ws/**")
                         .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
@@ -67,10 +71,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .successHandler(successHandler)
                         .permitAll())
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll());
 
         http.authenticationProvider(authenticationProvider(userService, passwordEncoder));

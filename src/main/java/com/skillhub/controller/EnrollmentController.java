@@ -1,6 +1,6 @@
 package com.skillhub.controller;
 
-import com.skillhub.model.User;
+import com.skillhub.model.*;
 import com.skillhub.service.EnrollmentService;
 import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,9 @@ public class EnrollmentController {
 
     @Autowired
     private EnrollmentService enrollmentService;
+
+    @Autowired
+    private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
 
     @Autowired
     private UserService userService;
@@ -66,6 +69,40 @@ public class EnrollmentController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/last-played/{courseId}/{lectureId}")
+    public ResponseEntity<?> updateLastPlayed(@PathVariable("courseId") Long courseId,
+            @PathVariable("lectureId") Long lectureId, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        try {
+            User user = userService.findByEmail(principal.getName());
+            enrollmentService.updateLastPlayed(user, courseId, lectureId);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Poke endpoint: returns current progress for all user's enrollments.
+     * Used for real-time polling on the profile page.
+     */
+    @GetMapping("/progress/pokes")
+    public ResponseEntity<?> getAllProgress(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        User user = userService.findByEmail(principal.getName());
+        var enrollments = enrollmentRepository.findByStudent(user);
+        Map<Long, Double> progressMap = enrollments.stream()
+                .filter(e -> e.getCourse() != null)
+                .collect(java.util.stream.Collectors.toMap(
+                        e -> e.getCourse().getId(),
+                        e -> e.getProgressPercentage()));
+        return ResponseEntity.ok(progressMap);
     }
 
     /**

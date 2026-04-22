@@ -64,21 +64,59 @@ public class ExamService {
                     finalQuestions.add(q);
                 }
             } else {
-                // 3. Fallback to sample mock questions if API fails or is not configured
+                // 3. Fallback to varied sample mock questions
+                String[] templates = {
+                    "Which of the following best defines a primary goal of ${topic}?",
+                    "In a professional environment, how is ${topic} typically implemented?",
+                    "What is a fundamental challenge associated with ${topic}?",
+                    "Which key performance indicator is most relevant to ${topic}?",
+                    "When evaluating ${topic}, which factor should be prioritized first?",
+                    "How does ${topic} integrate with existing industry standards?",
+                    "What is a common misconception about ${topic} theory?",
+                    "Which of these strategies is most effective for improving ${topic} results?",
+                    "Which role is primarily responsible for managing ${topic} execution?",
+                    "Which technological advancement has most influenced ${topic} recently?",
+                    "Which of the following is an ethical consideration in ${topic}?",
+                    "What is the first step in a standard ${topic} workflow?",
+                    "Which tool is most commonly used for monitoring ${topic}?",
+                    "What is a long-term benefit of mastering ${topic}?",
+                    "How often should a ${topic} audit be performed?",
+                    "What is a prerequisite for understanding advanced ${topic}?",
+                    "Which of these is a secondary effect of ${topic} misconfiguration?",
+                    "Which department typically oversees ${topic} in a large organization?",
+                    "How has modern regulation impacted the practice of ${topic}?",
+                    "What defines the current industry standard for ${topic} success?"
+                };
+
+                String[][] optionSets = {
+                    {"Increased efficiency", "Reduced overhead", "Complex integration", "Simplified workflows"},
+                    {"Analyze data", "Engage stakeholders", "Allocate budget", "Perform testing"},
+                    {"Cost optimization", "User experience", "Security compliance", "Network latency"},
+                    {"Strategy phase", "Technical debt", "Resource management", "Market scaling"}
+                };
+
+                char[] answerKeys = {'a', 'b', 'c', 'd'};
+                java.util.Random rand = new java.util.Random(course.getId() + user.getId());
+
                 for (int i = 0; i < remainingQuestions; i++) {
                     Map<String, Object> q = new HashMap<>();
                     q.put("id", questionIdCounter++);
-                    q.put("question", "Question " + (finalQuestions.size() + 1) + " about " + course.getTitle()
-                            + ": This is a backup auto-generated question.");
+                    
+                    String template = templates[i % templates.length];
+                    q.put("question", template.replace("${topic}", course.getTitle()));
 
                     Map<String, String> options = new HashMap<>();
-                    options.put("a", "Option A is correct");
-                    options.put("b", "Option B is incorrect");
-                    options.put("c", "Option C is incorrect");
-                    options.put("d", "Option D is incorrect");
+                    String[] set = optionSets[i % optionSets.length];
+                    
+                    // Assign options a-d
+                    options.put("a", set[0]);
+                    options.put("b", set[1]);
+                    options.put("c", set[2]);
+                    options.put("d", set[3]);
 
                     q.put("options", options);
-                    q.put("correctAnswer", "a");
+                    // Cycle through answer keys a,b,c,d for variety
+                    q.put("correctAnswer", String.valueOf(answerKeys[rand.nextInt(4)]));
                     finalQuestions.add(q);
                 }
             }

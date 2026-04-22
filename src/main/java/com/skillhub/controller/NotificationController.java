@@ -26,9 +26,8 @@ public class NotificationController {
         if (userDetails != null) {
             User user = userService.findByEmail(userDetails.getUsername());
             model.addAttribute("notifications", notificationService.getUserNotifications(user));
-            // Mark all as read when viewing page? Or manual? Let's keep it manual or
-            // auto-mark top ONES.
-            // For simple UX, let's just listing them.
+            // Mark all as read when viewing page
+            notificationService.markAllAsRead(user);
         }
         return "common/notifications";
     }

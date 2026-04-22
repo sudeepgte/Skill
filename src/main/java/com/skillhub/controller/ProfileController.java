@@ -122,6 +122,17 @@ public class ProfileController {
         User user = userService.findByEmail(principal.getName());
 
         if (image != null && !image.isEmpty()) {
+            // Server-side validation for alphabets, numbers, and common punctuation
+            String projectRegex = "^[A-Za-z0-9 .!?',()-]+$";
+            if (!title.matches(projectRegex)) {
+                redirectAttributes.addFlashAttribute("error", "Title can only contain alphabets, numbers, and common punctuation.");
+                return "redirect:/profile?tab=creations";
+            }
+            if (description != null && !description.isEmpty() && !description.matches(projectRegex)) {
+                redirectAttributes.addFlashAttribute("error", "Description can only contain alphabets, numbers, and common punctuation.");
+                return "redirect:/profile?tab=creations";
+            }
+
             try {
                 String imagePath = fileStorageService.store(image);
                 com.skillhub.model.Creation creation = new com.skillhub.model.Creation();
@@ -155,6 +166,14 @@ public class ProfileController {
         User user = userService.findByEmail(principal.getName());
         if (user == null) {
             return "redirect:/login";
+        }
+
+        // Validate Phone Number
+        if (phone != null && !phone.isEmpty()) {
+            if (!phone.matches("^[0-9]{10}$")) {
+                redirectAttributes.addFlashAttribute("error", "Phone number must be exactly 10 digits.");
+                return "redirect:/profile?tab=profile";
+            }
         }
 
         user.setName(name);

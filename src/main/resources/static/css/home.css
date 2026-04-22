@@ -638,3 +638,222 @@
     object-fit: contain;
     opacity: 0.65;
 }
+
+/* ─── FEATURES HIGHLIGHT SECTION ─── */
+.features-section {
+    padding: 7rem 0 6rem;
+    background: linear-gradient(180deg, #f8f7ff 0%, #ffffff 100%);
+    border-top: 1px solid #ede9fe;
+}
+
+.features-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2.4rem;
+}
+
+.features-header {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+.features-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #6d28d9;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0.6rem 1.6rem;
+    border-radius: 10rem;
+    margin-bottom: 1.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.features-header h2 {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #1c1d1f;
+    line-height: 1.3;
+    margin-bottom: 1.2rem;
+}
+
+.features-header p {
+    font-size: 1.6rem;
+    color: #6a6f73;
+    max-width: 60rem;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.4rem;
+    margin-bottom: 4rem;
+}
+
+.feature-card {
+    background: #fff;
+    border: 1px solid #f3f4f6;
+    border-radius: 1.6rem;
+    padding: 3.2rem 2.4rem 2.8rem;
+    text-align: center;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--fc-color-start), var(--fc-color-end));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12);
+    border-color: transparent;
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-icon-wrap {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2.8rem;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover .feature-icon-wrap {
+    transform: scale(1.12) rotate(-3deg);
+}
+
+.feature-icon-wrap.purple {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #7c3aed;
+}
+
+.feature-icon-wrap.blue {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #2563eb;
+}
+
+.feature-icon-wrap.emerald {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #059669;
+}
+
+.feature-icon-wrap.amber {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
+.feature-icon-wrap.rose {
+    background: linear-gradient(135deg, #ffe4e6, #fecdd3);
+    color: #e11d48;
+}
+
+.feature-icon-wrap.cyan {
+    background: linear-gradient(135deg, #cffafe, #a5f3fc);
+    color: #0891b2;
+}
+
+.feature-card h3 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #1c1d1f;
+    margin-bottom: 0.8rem;
+}
+
+.feature-card p {
+    font-size: 1.3rem;
+    color: #6a6f73;
+    line-height: 1.6;
+}
+
+.feature-tags {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.4rem;
+}
+
+.feature-tag {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.4rem;
+    background: #f9fafb;
+    color: #4b5563;
+    border: 1px solid #f3f4f6;
+}
+
+/* Bottom stats bar */
+.features-stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 5rem;
+    padding: 3rem 0 0;
+    border-top: 1px solid #f3f4f6;
+}
+
+.feat-stat {
+    text-align: center;
+}
+
+.feat-stat-value {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #5624d0;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+}
+
+.feat-stat-label {
+    font-size: 1.2rem;
+    color: #6a6f73;
+    font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .features-header h2 {
+        font-size: 2.6rem;
+    }
+    .features-stats-bar {
+        gap: 3rem;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 500px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}

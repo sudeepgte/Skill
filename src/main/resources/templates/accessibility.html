@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Accessibility | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+
+    <style>
+        :root { --primary: #5624d0; --primary-dark: #1c1d1f; --text-muted: #6a6f73; --bg-light: #f7f9fa; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--primary-dark); margin: 0; }
+
+        .access-hero {
+            background: linear-gradient(135deg, #1c1d1f 0%, #2d1b69 100%);
+            padding: 10rem 2.4rem 8rem;
+            text-align: center;
+            color: #fff;
+        }
+        .access-hero h1 { font-family: 'Merriweather', serif; font-size: 4.4rem; font-weight: 800; margin-bottom: 1.6rem; }
+        .access-hero p { font-size: 1.8rem; opacity: 0.9; max-width: 650px; margin: 0 auto; line-height: 1.7; }
+
+        .access-container { max-width: 900px; margin: 0 auto; padding: 6rem 2.4rem 8rem; }
+
+        .access-section { margin-bottom: 4rem; }
+        .access-section h2 { font-size: 2.8rem; font-weight: 700; margin-bottom: 2rem; }
+        .access-section p { font-size: 1.6rem; line-height: 1.8; color: #444; margin-bottom: 1.6rem; }
+        .access-section ul { padding-left: 2.4rem; margin-bottom: 2rem; }
+        .access-section li { font-size: 1.5rem; line-height: 1.8; color: #444; margin-bottom: 1rem; padding-left: 0.8rem; }
+
+        .commitment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2.4rem; margin-top: 3rem; }
+        .commitment-card { background: var(--bg-light); border-radius: 1.2rem; padding: 3rem 2.4rem; }
+        .commitment-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 1.6rem; display: block; }
+        .commitment-card h3 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
+        .commitment-card p { font-size: 1.4rem; color: var(--text-muted); line-height: 1.7; }
+
+        .contact-cta { background: var(--bg-light); padding: 4rem 3rem; border-radius: 1.6rem; margin-top: 4rem; text-align: center; }
+        .contact-cta h3 { font-size: 2.4rem; font-weight: 700; margin-bottom: 1rem; }
+        .contact-cta p { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .contact-cta a { display: inline-block; background: var(--primary); color: #fff; padding: 1.4rem 3.2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.5rem; transition: all 0.3s; }
+        .contact-cta a:hover { background: #a435f0; }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <section class="access-hero">
+        <h1>Accessibility at SkillHub</h1>
+        <p>We believe learning should be accessible to everyone. We are committed to ensuring our platform meets the needs of all users, regardless of ability.</p>
+    </section>
+
+    <div class="access-container">
+        <div class="access-section">
+            <h2>Our Commitment</h2>
+            <p>SkillHub is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone, and applying the relevant accessibility standards.</p>
+
+            <div class="commitment-grid">
+                <div class="commitment-card">
+                    <i class="fas fa-universal-access"></i>
+                    <h3>WCAG 2.1 Compliance</h3>
+                    <p>We strive to conform to Level AA of the Web Content Accessibility Guidelines (WCAG) 2.1.</p>
+                </div>
+                <div class="commitment-card">
+                    <i class="fas fa-keyboard"></i>
+                    <h3>Keyboard Navigation</h3>
+                    <p>All functionality is accessible via keyboard for users who cannot use a mouse or touch screen.</p>
+                </div>
+                <div class="commitment-card">
+                    <i class="fas fa-closed-captioning"></i>
+                    <h3>Captioned Content</h3>
+                    <p>We encourage instructors to add captions and transcripts to all video content on the platform.</p>
+                </div>
+                <div class="commitment-card">
+                    <i class="fas fa-adjust"></i>
+                    <h3>High Contrast</h3>
+                    <p>Our design ensures sufficient color contrast ratios for readability across all elements.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="access-section">
+            <h2>Accessibility Features</h2>
+            <ul>
+                <li><strong>Screen Reader Support:</strong> Our platform is built with semantic HTML and ARIA attributes to work well with popular screen readers like JAWS, NVDA, and VoiceOver.</li>
+                <li><strong>Resizable Text:</strong> All text on our platform can be resized up to 200% without loss of content or functionality using browser zoom controls.</li>
+                <li><strong>Alternative Text:</strong> Images include descriptive alternative text to convey information to users who cannot see images.</li>
+                <li><strong>Focus Indicators:</strong> Visible focus indicators are provided for all interactive elements to assist keyboard-only users.</li>
+                <li><strong>Consistent Navigation:</strong> Navigation mechanisms are consistent across pages with clear, descriptive link text.</li>
+                <li><strong>Form Labels:</strong> All form fields have associated labels and provide clear error messages and instructions.</li>
+            </ul>
+        </div>
+
+        <div class="access-section">
+            <h2>Known Limitations</h2>
+            <p>While we strive for comprehensive accessibility, some third-party content or older course materials may not fully meet all accessibility standards. We are actively working with our instructors to improve the accessibility of all content on the platform.</p>
+        </div>
+
+        <div class="access-section">
+            <h2>Continuous Improvement</h2>
+            <p>We regularly review our platform for accessibility issues and prioritize fixes in our development roadmap. Our team undergoes accessibility training to ensure new features are built with inclusivity in mind from the start.</p>
+        </div>
+
+        <div class="contact-cta">
+            <h3>Feedback & Assistance</h3>
+            <p>If you encounter any accessibility barriers or have suggestions for improvement, we want to hear from you.</p>
+            <a href="/contact"><i class="fas fa-envelope" style="margin-right: 0.8rem;"></i>Contact Our Accessibility Team</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

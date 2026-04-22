@@ -57,9 +57,23 @@ public class EnrollmentService {
             progress.setCompletedAt(java.time.LocalDateTime.now());
             lectureProgressRepository.saveAndFlush(progress);
 
+            // Update last played to this one
+            updateLastPlayed(user, lecture.getSection().getCourse().getId(), lectureId);
+
             // Update Course Progress
             updateCourseProgress(user, lecture.getSection().getCourse());
         }
+    }
+
+    @Transactional
+    public void updateLastPlayed(User user, Long courseId, Long lectureId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
+                .orElseThrow(() -> new RuntimeException("Not enrolled"));
+
+        enrollment.setLastPlayedLectureId(lectureId);
+        enrollmentRepository.save(enrollment);
     }
 
     @Transactional
@@ -116,8 +130,6 @@ public class EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElseThrow(() -> new RuntimeException("User not enrolled in this course"));
 
-        // Use JPQL to count total lectures — avoids Hibernate lazy-loading returning
-        // wrong count
         long totalLectures = lectureProgressRepository.countTotalLecturesByCourse(course.getId());
 
         if (totalLectures == 0)
@@ -126,21 +138,45 @@ public class EnrollmentService {
         long completedLectures = lectureProgressRepository
                 .countCompletedLecturesByCourse(user.getId(), course.getId());
 
-        double percentage = Math.min(100.0, (double) completedLectures / totalLectures * 100.0);
+        // Standardized clean division for discrete completion
+        double percentage = (double) completedLectures / totalLectures * 100.0;
+        
+        // If all lectures are done, ensure it's exactly 100
+        if (completedLectures >= totalLectures) {
+            percentage = 100.0;
+            // Bonus: Unlock certificate automatically at 100%
+            if (!enrollment.isExamPassed()) {
+                enrollment.setExamPassed(true);
+                enrollment.setCertificateDate(java.time.LocalDateTime.now());
+            }
+        }
+
         enrollment.setProgressPercentage(percentage);
         enrollmentRepository.save(enrollment);
     }
 
     /** Updates enrollment progress percentage directly (for partial video watch tracking). */
     @Transactional
-    public void updateVideoProgress(User user, Long courseId, double percentage) {
+    public void updateVideoProgress(User user, Long courseId, double lecturePct) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElseThrow(() -> new RuntimeException("Not enrolled"));
-        // Only update if the new percentage is higher than stored
-        if (percentage > enrollment.getProgressPercentage()) {
-            enrollment.setProgressPercentage(Math.min(100.0, percentage));
+        
+        long totalLectures = lectureProgressRepository.countTotalLecturesByCourse(courseId);
+        if (totalLectures <= 0) return;
+
+        long completedCount = lectureProgressRepository.countCompletedLecturesByCourse(user.getId(), courseId);
+        
+        // Properly weighted calculation: 
+        // (Full Completed * 100 + Current Lecture Partial %) / Total Lectures
+        // We cap current lecture partial at 99% to distinguish from fully completed discrete state
+        double safeLecturePct = Math.min(99.0, lecturePct);
+        double calculatedTotalPct = ((completedCount * 100.0) + safeLecturePct) / totalLectures;
+        
+        // Only update if the new calculated total is higher (or if it's very close to next whole number)
+        if (calculatedTotalPct > enrollment.getProgressPercentage()) {
+            enrollment.setProgressPercentage(Math.min(99.9, calculatedTotalPct)); // Total cap at 99.9 for granular
             enrollmentRepository.save(enrollment);
         }
     }

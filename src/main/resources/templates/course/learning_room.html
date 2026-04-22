@@ -10,6 +10,9 @@
     <!-- CSRF Token -->
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <!-- PWA & Offline -->
+    <link rel="manifest" th:href="@{/manifest.json}">
+    <script th:src="@{/js/offline-manager.js}"></script>
     <style>
         *,
         *::before,
@@ -668,6 +671,9 @@
 <body>
 
     <!-- HEADER -->
+    <div id="offlineBanner" style="display:none; background:#ef4444; color:white; text-align:center; padding:5px; font-size:12px; font-weight:bold;">
+        <i class="fas fa-wifi-slash"></i> Offline Mode: Accessing Downloaded Lessons Only
+    </div>
     <div class="learning-header">
         <a href="/user/home" class="header-back">
             <i class="fas fa-chevron-left"></i> Dashboard
@@ -676,11 +682,6 @@
         <span class="header-title" th:text="${course.title}">Course Title</span>
 
         <div class="header-progress">
-            <span id="progressText">0% complete</span>
-            <div class="progress-bar-wrap">
-                <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-            </div>
-
             <button class="header-btn" id="sidebarToggle" onclick="toggleSidebar()">
                 <i class="fas fa-list-ul"></i>
                 <span>Course Content</span>
@@ -828,6 +829,14 @@
                                 </span>
                             </div>
                         </div>
+
+                        <!-- Offline Download Button -->
+                        <div class="download-btn-wrap" style="margin-left: auto;">
+                           <button class="download-btn" th:attr="onclick='handleDownload(event, ' + ${lesson.id} + ', `' + ${#strings.escapeJavaScript(lesson.title)} + '`, \'' + ${lesson.videoUrl} + '\', ' + ${course.id} + ')'" 
+                                   style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:5px;">
+                                <i class="fas fa-cloud-arrow-down" th:id="'dn-icon-' + ${lesson.id}"></i>
+                           </button>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -942,12 +951,16 @@
                 setCompleted(lectureId, false);
                 radioEl.classList.remove('watched');
                 updateProgressBar();
-                fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
-                    method: 'POST',
-                    headers: {
-                        [csrfHeader]: csrfToken
-                    }
-                }).catch(() => { });
+                if (!navigator.onLine) {
+                    offlineManager.queueProgressSync(lectureId, false);
+                } else {
+                    fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
+                        method: 'POST',
+                        headers: {
+                            [csrfHeader]: csrfToken
+                        }
+                    }).catch(() => { });
+                }
             } else {
                 markLectureComplete(lectureId);
             }
@@ -964,13 +977,17 @@
             }
             updateProgressBar();
             showToast('Lecture marked as complete!');
-            fetch(`/api/enrollments/progress/${lectureId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
-                }
-            }).catch(() => { });
+            if (!navigator.onLine) {
+                offlineManager.queueProgressSync(lectureId, true);
+            } else {
+                fetch(`/api/enrollments/progress/${lectureId}/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [csrfHeader]: csrfToken
+                    }
+                }).catch(() => { });
+            }
         }
 
         function toggleComplete(btn) {
@@ -981,12 +998,16 @@
                 btn.querySelector('span').textContent = 'Mark Complete';
                 setRadioState(lectureId, 'playing');
                 updateProgressBar();
-                fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
-                    method: 'POST',
-                    headers: {
-                        [csrfHeader]: csrfToken
-                    }
-                }).catch(() => { });
+                if (!navigator.onLine) {
+                    offlineManager.queueProgressSync(lectureId, false);
+                } else {
+                    fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
+                        method: 'POST',
+                        headers: {
+                            [csrfHeader]: csrfToken
+                        }
+                    }).catch(() => { });
+                }
             } else {
                 markLectureComplete(lectureId);
             }
@@ -1001,24 +1022,38 @@
                 total++;
                 if (isCompleted(item.dataset.lectureId)) done++;
             });
-            let pct = total ? Math.round((done / total) * 100) : 0;
+
+            // Weighted calculation logic (matches backend)
+            // Base percentage from fully completed lectures
+            let basePct = total > 0 ? (done / total) * 100 : 0;
             
-            // Mirror granular video watch completion if available
-            const localPctStr = localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID);
-            if (localPctStr && pct < 100) {
-                const localPct = parseInt(localPctStr);
-                if (localPct > pct) {
-                    pct = localPct >= 99 ? 100 : localPct;
+            // Add granular current video progress
+            let extraPct = 0;
+            if (total > 0 && CURRENT_LECTURE_ID && !isCompleted(CURRENT_LECTURE_ID)) {
+                const currentVideoPct = parseInt(localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID) || '0');
+                if (currentVideoPct > 0) {
+                    // This video's contribution = (Video % / 100) * (100 / Total Lectures)
+                    extraPct = (currentVideoPct / 100.0) * (100.0 / total);
                 }
             }
 
-            document.getElementById('progressFill').style.width = pct + '%';
-            document.getElementById('progressText').textContent = pct + '% complete';
+            let displayPct = basePct + extraPct;
+            
+            // Cap at 99% for granular to ensure 100% only comes from Marks/Sync
+            if (displayPct >= 99 && done < total) displayPct = 99;
+            if (done >= total) displayPct = 100;
+
+            const finalPct = Math.floor(displayPct);
+
+            const fill = document.getElementById('progressFill');
+            if (fill) fill.style.width = finalPct + '%';
+            const text = document.getElementById('progressText');
+            if (text) text.textContent = finalPct + '% complete';
             document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
 
             // Hide Mark Complete button when 100% is reached
             const markBtn = document.getElementById('markCompleteBtn');
-            if (markBtn && pct >= 100) {
+            if (markBtn && finalPct >= 100) {
                 markBtn.style.display = 'none';
             }
 
@@ -1056,10 +1091,9 @@
                     if (video.duration) {
                         const pct = Math.round((video.currentTime / video.duration) * 100);
                         localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
-                        if (pct < 100 && document.getElementById('progressText').textContent.indexOf('100%') === -1) {
-                             document.getElementById('progressFill').style.width = pct + '%';
-                             document.getElementById('progressText').textContent = pct + '% complete';
-                        }
+                        
+                        // Recalculate course-wide progress instead of overwriting with video-local pct
+                        updateProgressBar();
                         // Sync pct to server every 10 seconds
                         const now = Date.now();
                         if (now - lastSyncTime > 10000) {
@@ -1286,6 +1320,20 @@
 
         // ─── ON LOAD ───
         document.addEventListener('DOMContentLoaded', () => {
+            // Sync last played lecture to DB
+            if (CURRENT_LECTURE_ID && COURSE_ID) {
+                fetch(`/api/enrollments/last-played/${COURSE_ID}/${CURRENT_LECTURE_ID}`, {
+                    method: 'POST',
+                    headers: { [csrfHeader]: csrfToken }
+                }).catch(() => {});
+            }
+
+            // Show resume notification if this was an automatic redirect
+            const resumedId = /*[[${resumedFrom}]]*/ null;
+            if (resumedId && resumedId == CURRENT_LECTURE_ID) {
+                 showToast('Resuming from your last session', false);
+            }
+
             // Apply saved completion states
             document.querySelectorAll('[data-radio-id]').forEach(radio => {
                 const id = radio.dataset.radioId;
@@ -1453,6 +1501,89 @@
                 toast.style.transform = 'translateY(20px)';
             }, 3000);
         }
+
+        /* --- Offline & PWA Logic --- */
+        async function handleDownload(event, lectureId, title, videoUrl, courseId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const icon = document.getElementById('dn-icon-' + lectureId);
+            const originalClass = icon.className;
+            icon.className = 'fas fa-spinner fa-spin';
+            
+            try {
+                // Ensure offline manager is initialized
+                if (!window.offlineManager.db) await window.offlineManager.init();
+                
+                const lessonBody = document.getElementById('lessonText');
+                const lesson = { 
+                    id: lectureId, 
+                    title, 
+                    videoUrl, 
+                    courseId, 
+                    content: lessonBody ? lessonBody.innerHTML : "" 
+                };
+                
+                await offlineManager.downloadLecture(lesson);
+                
+                icon.className = 'fas fa-cloud-check';
+                icon.style.color = 'var(--success)';
+                showToast("Lesson ready for offline use!");
+            } catch (err) {
+                console.error("Download failed:", err);
+                icon.className = originalClass;
+                
+                let errorMsg = "Download failed. Check your connection.";
+                if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
+                    errorMsg = "Storage full! Please clear some space in your browser.";
+                } else if (err.name === 'NotFoundError') {
+                    errorMsg = "Storage initialization error. Please refresh the page.";
+                }
+                
+                showToast(errorMsg, false);
+            }
+        }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW Registered', reg))
+                .catch(err => console.log('SW Registration failed', err));
+        }
+
+        // Handle Connectivity Change
+        function updateOnlineStatus() {
+            const banner = document.getElementById('offlineBanner');
+            if (navigator.onLine) {
+                banner.style.display = 'none';
+                offlineManager.syncNow();
+            } else {
+                banner.style.display = 'block';
+                showToast("You are offline. Accessing cached content.", false);
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await offlineManager.init();
+                updateOnlineStatus();
+                
+                // Check which lessons are already downloaded and update icons
+                const allDns = document.querySelectorAll('.download-btn i');
+                for(let icon of allDns) {
+                    const id = icon.id.replace('dn-icon-', '');
+                    if (id && await offlineManager.isDownloaded(parseInt(id))) {
+                        icon.className = 'fas fa-cloud-check';
+                        icon.style.color = 'var(--success)';
+                    }
+                }
+            } catch (initErr) {
+                console.warn("Offline initialization deferred:", initErr);
+            }
+        });
         /*]]>*/
     </script>
 </body>

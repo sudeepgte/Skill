@@ -14,4 +14,7 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     List<ExamAttempt> findByUserAndCourse(User user, Course course);
 
     Optional<ExamAttempt> findTopByUserAndCourseOrderByScoreDesc(User user, Course course);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM ExamAttempt a WHERE a.course.instructor.email = :email")
+    List<ExamAttempt> findByInstructorEmail(@org.springframework.data.repository.query.Param("email") String email);
 }

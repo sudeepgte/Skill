@@ -472,6 +472,60 @@
             h1 { font-size: 2rem; }
             h2 { font-size: 1.8rem; }
         }
+
+        /* QR Scanner Styles */
+        .qr-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 6rem;
+            height: 6rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(86, 36, 208, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .qr-fab:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .scanner-close {
+            margin-top: 2rem;
+            background: white;
+            color: black;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -508,19 +562,8 @@
             </div>
 
             <nav class="nav-menu">
-<<<<<<< HEAD
-
-               
-                <button type="button" class="nav-item active" data-tab="welcome">
-                    <i class="fas fa-chart-line"></i> Overview  </button>
-
                 <button type="button" class="nav-item active" data-tab="documents">
                     <i class="fas fa-file-alt"></i> My Documents
-
-=======
-                <button type="button" class="nav-item active" data-tab="documents">
-                    <i class="fas fa-file-alt"></i> My Documents
->>>>>>> 7579054df6da7f525dd9fe5344105409d9708b58
                 </button>
                 <button type="button" class="nav-item" data-tab="profile">
                     <i class="fas fa-user-circle"></i> Edit Profile
@@ -711,7 +754,10 @@
                     </div>
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" name="name" th:value="${user.name}" class="form-control" required>
+                        <input type="text" name="name" id="profileName" th:value="${user.name}" class="form-control" required
+                            oninput="validateAlphaField(this, 'nameError')"
+                            pattern="[A-Za-z .'-]+" title="Only letters, spaces, dots, hyphens and apostrophes allowed">
+                        <small id="nameError" class="field-error" style="color:#d32f2f; font-size:1.2rem; display:none;">Numbers are not allowed in Full Name</small>
                     </div>
                     <div class="form-group">
                         <label>Email Address</label>
@@ -721,23 +767,31 @@
                     </div>
                     <div class="form-group">
                         <label>Phone Number</label>
-                        <input type="text" name="phone" th:value="${user.phone}" class="form-control"
-                            placeholder="+1 234 567 890">
+                        <input type="tel" name="phone" th:value="${user.phone}" class="form-control"
+                            placeholder="10-digit number" maxlength="10" 
+                            pattern="[0-9]{10}" title="Please enter a 10-digit phone number"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                     </div>
                     <div class="form-group">
                         <label>Headline</label>
-                        <input type="text" name="headline" th:value="${user.headline}" class="form-control"
-                            placeholder="e.g. Software Engineer Student">
+                        <input type="text" name="headline" id="profileHeadline" th:value="${user.headline}" class="form-control"
+                            placeholder="e.g. Software Engineer Student"
+                            oninput="validateStartsWithAlpha(this, 'headlineError')">
+                        <small id="headlineError" class="field-error" style="color:#d32f2f; font-size:1.2rem; display:none;">Must start with a letter</small>
                     </div>
                     <div class="form-group">
                         <label>Skills (Comma separated)</label>
-                        <input type="text" name="skills" th:value="${user.skills}" class="form-control"
-                            placeholder="Java, Spring Boot, React...">
+                        <input type="text" name="skills" id="profileSkills" th:value="${user.skills}" class="form-control"
+                            placeholder="Java, Spring Boot, React..."
+                            oninput="validateStartsWithAlpha(this, 'skillsError')">
+                        <small id="skillsError" class="field-error" style="color:#d32f2f; font-size:1.2rem; display:none;">Must start with a letter</small>
                     </div>
                     <div class="form-group">
                         <label>Biography</label>
-                        <textarea name="bio" class="form-control" rows="4" th:text="${user.bio}"
-                            placeholder="Tell us about yourself..."></textarea>
+                        <textarea name="bio" id="profileBio" class="form-control" rows="4" th:text="${user.bio}"
+                            placeholder="Tell us about yourself..."
+                            oninput="validateStartsWithAlpha(this, 'bioError')"></textarea>
+                        <small id="bioError" class="field-error" style="color:#d32f2f; font-size:1.2rem; display:none;">Must start with a letter</small>
                     </div>
                     <div class="form-group" th:if="${user.lastLoginDate != null}">
                         <label>Last Login</label>
@@ -746,11 +800,119 @@
                     </div>
                     <button type="submit" class="btn-save">Save Changes</button>
                 </form>
+                <script>
+                    function validateAlphaField(input, errorId) {
+                        var errorEl = document.getElementById(errorId);
+                        if (/[0-9]/.test(input.value)) {
+                            input.value = input.value.replace(/[0-9]/g, '');
+                            errorEl.style.display = 'block';
+                            input.style.borderColor = '#d32f2f';
+                            setTimeout(function() {
+                                errorEl.style.display = 'none';
+                                input.style.borderColor = '';
+                            }, 3000);
+                        }
+                    }
+
+                    function validateStartsWithAlpha(input, errorId) {
+                        var errorEl = document.getElementById(errorId);
+                        var val = input.value.trimStart();
+                        if (val.length > 0 && /^[0-9]/.test(val)) {
+                            input.value = input.value.replace(/^[0-9\s]+/, '');
+                            errorEl.style.display = 'block';
+                            input.style.borderColor = '#d32f2f';
+                            setTimeout(function() {
+                                errorEl.style.display = 'none';
+                                input.style.borderColor = '';
+                            }, 3000);
+                        }
+                    }
+
+                    // Strict validation for Portfolio: Only alphabets and spaces
+                    function validateAlphaOnly(input, errorId) {
+                        var errorEl = document.getElementById(errorId);
+                        if (/[^A-Za-z ]/.test(input.value)) {
+                            input.value = input.value.replace(/[^A-Za-z ]/g, '');
+                            errorEl.style.display = 'block';
+                            input.style.borderColor = '#d32f2f';
+                            setTimeout(function() {
+                                errorEl.style.display = 'none';
+                                input.style.borderColor = '';
+                            }, 3000);
+                        }
+                    }
+
+                    // Also validate on form submit as a safety net
+                    document.querySelector('#profile form').addEventListener('submit', function(e) {
+                        var fields = [
+                            { el: document.getElementById('profileName'), label: 'Full Name', checkFirst: false },
+                            { el: document.getElementById('profileHeadline'), label: 'Headline', checkFirst: true },
+                            { el: document.getElementById('profileSkills'), label: 'Skills', checkFirst: true },
+                            { el: document.getElementById('profileBio'), label: 'Biography', checkFirst: true }
+                        ];
+                        var invalidNumbers = [];
+                        var invalidStart = [];
+
+                        fields.forEach(function(f) {
+                            if (!f.el || !f.el.value) return;
+                            
+                            var val = f.el.value.trim();
+                            if (f.label === 'Full Name' && /[0-9]/.test(val)) {
+                                invalidNumbers.push(f.label);
+                                f.el.style.borderColor = '#d32f2f';
+                            } else if (f.checkFirst && val.length > 0 && /^[0-9]/.test(val)) {
+                                invalidStart.push(f.label);
+                                f.el.style.borderColor = '#d32f2f';
+                            }
+                        });
+
+                        if (invalidNumbers.length > 0) {
+                            e.preventDefault();
+                            alert('Numbers are not allowed in: ' + invalidNumbers.join(', '));
+                        } else if (invalidStart.length > 0) {
+                            e.preventDefault();
+                            alert('The following fields must start with a letter: ' + invalidStart.join(', '));
+                        }
+                    });
+
+                    // Relax Creation Modal validation
+                    document.querySelector('#creationModal form').addEventListener('submit', function(e) {
+                        var title = document.getElementById('creationTitle');
+                        var desc = document.getElementById('creationDescription');
+                        var invalid = false;
+
+                        // Allow numbers and common punctuation in projects
+                        var projectRegex = /^[A-Za-z0-9 .!?',()-]+$/;
+
+                        if (title && title.value && !projectRegex.test(title.value)) {
+                            title.style.borderColor = '#d32f2f';
+                            invalid = true;
+                        }
+                        if (desc && desc.value && !projectRegex.test(desc.value)) {
+                            desc.style.borderColor = '#d32f2f';
+                            invalid = true;
+                        }
+
+                        if (invalid) {
+                            e.preventDefault();
+                            alert('Special characters are restricted in Project Title and Description.');
+                        }
+                    });
+                </script>
             </div>
 
             <!-- My Courses Tab -->
             <div id="courses" class="tab-content">
-                <h2 style="border-bottom: 1px solid var(--border); padding-bottom: 1.6rem;">My Enrolled Courses</h2>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 1.6rem; margin-bottom: 3rem;">
+                    <div>
+                        <h2 style="margin: 0;">My Enrolled Courses</h2>
+                        <p style="color: var(--muted); margin-top: 0.5rem;">Track your progress and certifications.</p>
+                    </div>
+                    <button class="btn-save" style="background: var(--primary); display: flex; align-items: center; gap: 0.8rem;" onclick="openScanner()">
+                        <i class="fas fa-qrcode"></i> Scan to Join Exam
+                    </button>
+                </div>
+
                 <div th:if="${#lists.isEmpty(enrollments)}"
                     style="padding: 4rem; text-align: center; border: 1px solid var(--border);">
                     <p style="color: var(--muted); margin-bottom: 1.6rem;">You haven't enrolled in any courses yet.</p>
@@ -782,10 +944,9 @@
                                 th:text="${enrollment.course.instructor != null ? enrollment.course.instructor.name : 'SkillHub Instructor'}">
                                 Instructor</p>
 
-                            <div
-                                style="font-size: 1.2rem; font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:if="${enrollment.progressPercentage >= 99.9}">Completed</span>
-                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:unless="${enrollment.progressPercentage >= 99.9}" th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 1, 0)} + '% complete'">0% complete</span>
+                            <div class="course-prog-container" style="margin-top: 1.5rem;">
+                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:if="${enrollment.progressPercentage >= 100}">Completed</span>
+                                <span class="course-prog-text" th:attr="data-prog-text-id=${enrollment.course.id}" th:unless="${enrollment.progressPercentage >= 100}" th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 1, 0)} + '% complete'">0% complete</span>
                             </div>
                             <div style="background: #eee; height: 8px; overflow: hidden; margin-bottom: 2rem;">
                                 <div class="course-prog-bar" th:attr="data-prog-bar-id=${enrollment.course.id}"
@@ -840,12 +1001,12 @@
                     <form th:action="@{/profile/creations/add}" method="post" enctype="multipart/form-data">
                         <div class="form-group">
                             <label>Creation Title</label>
-                            <input type="text" name="title" class="form-control" placeholder="e.g. Handmade Silk Gown"
+                            <input type="text" name="title" id="creationTitle" class="form-control" placeholder="e.g. Handmade Silk Gown"
                                 required>
                         </div>
                         <div class="form-group">
                             <label>Description (Tell the story)</label>
-                            <textarea name="description" class="form-control" rows="3"
+                            <textarea name="description" id="creationDescription" class="form-control" rows="3"
                                 placeholder="How did you make this?"></textarea>
                         </div>
                         <div class="form-group">
@@ -967,7 +1128,77 @@
 
     <script th:inline="javascript">
         const activeTab = /*[[${activeTab}]]*/ 'welcome';
+        
+        // Real-time Course Progress Polling
+        let progressInterval;
+        
+        function startProgressPolling() {
+            if (progressInterval) return;
+            console.log('Starting progress polling...');
+            progressInterval = setInterval(fetchLatestProgress, 10000); // 10 seconds
+        }
+
+        function stopProgressPolling() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+                console.log('Stopped progress polling.');
+            }
+        }
+
+        function fetchLatestProgress() {
+            fetch('/api/enrollments/progress/pokes')
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch progress');
+                    return response.json();
+                })
+                .then(data => {
+                    // data is { courseId: percentage }
+                    Object.keys(data).forEach(courseId => {
+                        const pct = data[courseId];
+                        updateCourseUI(courseId, pct);
+                    });
+                })
+                .catch(err => console.error('Polling error:', err));
+        }
+
+        function updateCourseUI(courseId, pct) {
+            const formattedPct = Math.floor(pct);
+            
+            // 1. Update progress bar width
+            const bar = document.querySelector(`.course-prog-bar[data-prog-bar-id="${courseId}"]`);
+            if (bar) {
+                bar.style.width = formattedPct + '%';
+            }
+
+            // 2. Update progress text
+            const text = document.querySelector(`.course-prog-text[data-prog-text-id="${courseId}"]`);
+            if (text) {
+                if (formattedPct >= 100) {
+                    text.textContent = 'Completed';
+                } else {
+                    text.textContent = formattedPct + '% complete';
+                }
+            }
+
+            // 3. Update top-right Completed Badge
+            const badge = document.querySelector(`.course-done-badge[data-badge-id="${courseId}"]`);
+            if (badge) {
+                if (formattedPct >= 99.9) {
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+             // Start polling if we're on the courses tab initially
+            const currentTab = new URLSearchParams(window.location.search).get('tab');
+            if (currentTab === 'courses' || activeTab === 'courses') {
+                startProgressPolling();
+            }
+
             document.querySelectorAll('.nav-item[data-tab]').forEach(button => {
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
@@ -980,6 +1211,13 @@
                     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     const target = document.getElementById(tabId);
                     if (target) target.classList.add('active');
+
+                    // Polling management
+                    if (tabId === 'courses') {
+                        startProgressPolling();
+                    } else {
+                        stopProgressPolling();
+                    }
 
                     // Handle full-width for My Courses
                     const container = document.querySelector('.profile-container');
@@ -1122,6 +1360,8 @@
             });
         });
     </script>
+    <!-- Shared QR Scanner Fragment -->
+    <div th:replace="~{fragments/qr-scanner :: qr-scanner}"></div>
 </body>
 
 </html>

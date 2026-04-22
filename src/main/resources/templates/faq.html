@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>FAQ | SkillHub - Frequently Asked Questions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+
+    <style>
+        :root { --primary: #5624d0; --primary-dark: #1c1d1f; --text-muted: #6a6f73; --bg-light: #f7f9fa; }
+        body { font-family: 'Outfit', sans-serif; background: #fff; color: var(--primary-dark); margin: 0; }
+
+        .faq-hero {
+            background: linear-gradient(135deg, #1c1d1f 0%, #2d1b69 100%);
+            padding: 10rem 2.4rem 8rem;
+            text-align: center;
+            color: #fff;
+        }
+        .faq-hero h1 { font-family: 'Merriweather', serif; font-size: 4.4rem; font-weight: 800; margin-bottom: 1.6rem; }
+        .faq-hero p { font-size: 1.8rem; opacity: 0.85; max-width: 600px; margin: 0 auto; }
+
+        .faq-container { max-width: 800px; margin: 0 auto; padding: 6rem 2.4rem 8rem; }
+
+        .faq-category { margin-bottom: 4rem; }
+        .faq-category h2 { font-size: 2.6rem; font-weight: 700; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--primary); display: inline-block; }
+
+        .faq-item { border: 1px solid #e8e8e8; border-radius: 1rem; margin-bottom: 1.2rem; overflow: hidden; transition: all 0.3s; }
+        .faq-item:hover { border-color: var(--primary); }
+
+        .faq-question {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 2rem 2.4rem; cursor: pointer; font-size: 1.7rem; font-weight: 600;
+            background: #fff; transition: background 0.2s;
+        }
+        .faq-question:hover { background: var(--bg-light); }
+        .faq-question i { font-size: 1.4rem; color: var(--primary); transition: transform 0.3s; }
+        .faq-item.open .faq-question i { transform: rotate(180deg); }
+
+        .faq-answer {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s;
+            padding: 0 2.4rem; font-size: 1.5rem; line-height: 1.8; color: var(--text-muted);
+        }
+        .faq-item.open .faq-answer { max-height: 300px; padding: 0 2.4rem 2.4rem; }
+
+        .faq-cta { text-align: center; padding: 6rem 2.4rem; background: var(--bg-light); border-radius: 1.6rem; margin-top: 4rem; }
+        .faq-cta h3 { font-size: 2.4rem; font-weight: 700; margin-bottom: 1.2rem; }
+        .faq-cta p { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .faq-cta a { display: inline-block; background: var(--primary); color: #fff; padding: 1.4rem 3.2rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1.6rem; transition: all 0.3s; }
+        .faq-cta a:hover { background: #a435f0; transform: translateY(-2px); }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <section class="faq-hero">
+        <h1>Frequently Asked Questions</h1>
+        <p>Find quick answers to the most common questions about SkillHub.</p>
+    </section>
+
+    <div class="faq-container">
+        <div class="faq-category">
+            <h2>Getting Started</h2>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How do I create an account on SkillHub?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Click the "Sign Up" button on the top-right corner. You can register with your email address or use social login. Once registered, you can start browsing and enrolling in courses immediately.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>Is SkillHub free to use?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">SkillHub offers both free and paid courses. Many instructors provide free content, while premium courses come at various price points. Browse our catalog to find courses that fit your budget.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>What devices can I use to access SkillHub?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">SkillHub works on any device with a web browser — desktop, laptop, tablet, or mobile phone. Our responsive design ensures a great learning experience on any screen size.</div>
+            </div>
+        </div>
+
+        <div class="faq-category">
+            <h2>Courses & Learning</h2>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How long do I have access to a purchased course?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Once you enroll in a course, you have lifetime access. Learn at your own pace, revisit content anytime, and benefit from future updates the instructor makes to the course.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>Do I earn a certificate after completing a course?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Yes! Upon completing all lectures and passing the course exam, you receive an official SkillHub certificate. You can download it as a PDF and share it on LinkedIn or add it to your resume.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>Can I download course videos for offline viewing?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Currently, courses are available for streaming only. However, you can take notes within the platform which are saved to your profile and can be downloaded for offline reference.</div>
+            </div>
+        </div>
+
+        <div class="faq-category">
+            <h2>Payments & Refunds</h2>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>What payment methods are accepted?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">We accept credit cards, debit cards, UPI, net banking, and major digital wallets. All payments are processed securely through Razorpay, our trusted payment gateway.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>What is the refund policy?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">SkillHub offers a 30-day refund policy for most course purchases. If you're not satisfied with a course, you can request a full refund within 30 days of enrollment by contacting our support team.</div>
+            </div>
+        </div>
+
+        <div class="faq-category">
+            <h2>Teaching on SkillHub</h2>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How can I become an instructor?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Register as an instructor during sign-up or update your role in your profile. Once approved, you can create courses, upload videos, set pricing, and start earning from your expertise.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    <span>How do instructors get paid?</span><i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">Instructors earn revenue from each course sale. Payments are processed monthly and deposited directly into your linked bank account. You can track your earnings in the instructor dashboard.</div>
+            </div>
+        </div>
+
+        <div class="faq-cta">
+            <h3>Still have questions?</h3>
+            <p>Our support team is always ready to help you out.</p>
+            <a href="/contact"><i class="fas fa-envelope" style="margin-right: 0.8rem;"></i>Contact Support</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

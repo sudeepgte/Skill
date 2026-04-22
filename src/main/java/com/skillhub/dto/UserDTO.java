@@ -8,12 +8,13 @@ public class UserDTO {
     private String headline;
     private String bio;
     private String profileImageUrl;
+    private boolean isOnline;
 
     public UserDTO() {
     }
 
     public UserDTO(Long id, String name, String email, String role, String headline, String bio,
-            String profileImageUrl) {
+            String profileImageUrl, boolean isOnline) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -21,9 +22,12 @@ public class UserDTO {
         this.headline = headline;
         this.bio = bio;
         this.profileImageUrl = profileImageUrl;
+        this.isOnline = isOnline;
     }
 
     // Getters and Setters
+    public boolean isOnline() { return isOnline; }
+    public void setOnline(boolean online) { isOnline = online; }
     public Long getId() {
         return id;
     }
