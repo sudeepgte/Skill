@@ -3,12 +3,12 @@
  * Manages IndexedDB storage for lectures and background sync for progress.
  */
 const DB_NAME = 'SkillHubOffline';
-const DB_VERSION = 2; // Bumped to 2 to force schema update
+const DB_VERSION = 2;
 
 const offlineManager = {
     db: null,
 
-    async init() {
+    init: async function() {
         if (this.db) return Promise.resolve();
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -33,14 +33,11 @@ const offlineManager = {
         });
     },
 
-    // Wrap IDB operations in Promises
-    _request(storeName, method, ...args) {
+    _request: async function(storeName, method, ...args) {
+        if (!this.db) {
+            await this.init();
+        }
         return new Promise((resolve, reject) => {
-            if (!this.db) {
-                console.error("IDB Request failed: DB not init");
-                reject(new Error("Database not initialized"));
-                return;
-            }
             try {
                 const tx = this.db.transaction(storeName, method === 'get' || method === 'getAll' ? 'readonly' : 'readwrite');
                 const store = tx.objectStore(storeName);
@@ -54,14 +51,12 @@ const offlineManager = {
         });
     },
 
-    async downloadLecture(lesson) {
+    downloadLecture: async function(lesson) {
         console.log("Starting download for:", lesson.title);
-        
         try {
-            // 1. Cache the Metadata in IndexedDB
             const lectureData = {
-                id: parseInt(lesson.id), // Ensure ID is a number
-                courseId: parseInt(lesson.courseId),
+                id: parseInt(lesson.id, 10),
+                courseId: parseInt(lesson.courseId, 10),
                 title: lesson.title,
                 content: lesson.content || "",
                 videoUrl: lesson.videoUrl || "",
@@ -71,12 +66,9 @@ const offlineManager = {
             await this._request('lectures', 'put', lectureData);
             console.log("Metadata saved to IndexedDB");
 
-            // 2. Cache the Media file in Cache API
             if (lesson.videoUrl && (lesson.videoUrl.startsWith('/uploads/') || lesson.videoUrl.startsWith('http'))) {
                 try {
                     const cache = await caches.open('skillhub-media-v1');
-                    console.log("Fetching media for cache:", lesson.videoUrl);
-                    
                     const response = await fetch(lesson.videoUrl, {
                         mode: 'cors',
                         credentials: 'include'
@@ -85,41 +77,37 @@ const offlineManager = {
                     if (response.ok) {
                         await cache.put(lesson.videoUrl, response);
                         console.log("Media cached successfully");
-                    } else {
-                        console.warn("Media server returned error status:", response.status);
                     }
                 } catch (mediaErr) {
-                    console.error("Media caching failed (likely CORS or Disk Quota):", mediaErr);
-                    // Non-fatal: user can still see text content
+                    console.error("Media caching failed:", mediaErr);
                 }
-            } else {
-                console.log("No valid video URL for caching or YouTube video detected.");
             }
-            
             return true;
         } catch (err) {
             console.error("Critical download error:", err);
-            throw err; // Re-throw critical errors (IDB failures)
+            throw err;
         }
     },
 
-    async isDownloaded(lectureId) {
+    isDownloaded: async function(lectureId) {
         try {
-            const lecture = await this._request('lectures', 'get', lectureId);
+            const id = parseInt(lectureId, 10);
+            const lecture = await this._request('lectures', 'get', id);
             return !!lecture;
         } catch (e) {
             return false;
         }
     },
 
-    async getOfflineLecture(lectureId) {
-        return this._request('lectures', 'get', lectureId);
+    getOfflineLecture: async function(lectureId) {
+        const id = parseInt(lectureId, 10);
+        return this._request('lectures', 'get', id);
     },
 
-    async queueProgressSync(lectureId, isCompleted) {
+    queueProgressSync: async function(lectureId, isCompleted) {
         const action = {
-            lectureId,
-            isCompleted,
+            lectureId: lectureId,
+            isCompleted: isCompleted,
             timestamp: new Date().toISOString(),
             status: 'PENDING'
         };
@@ -130,24 +118,25 @@ const offlineManager = {
         }
     },
 
-    async syncNow() {
+    syncNow: async function() {
         if (!navigator.onLine) return;
-        
         try {
             const requests = await this._request('syncQueue', 'getAll');
             if (!requests || requests.length === 0) return;
 
-            for (const req of requests) {
+            for (let i = 0; i < requests.length; i++) {
+                const req = requests[i];
                 try {
                     const url = req.isCompleted 
                         ? `/api/enrollments/progress/${req.lectureId}/complete`
                         : `/api/enrollments/progress/${req.lectureId}/incomplete`;
                     
+                    const csrfMeta = document.querySelector('meta[name="_csrf"]');
+                    const csrfToken = csrfMeta ? csrfMeta.content : '';
+                    
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-                        }
+                        headers: { 'X-CSRF-TOKEN': csrfToken }
                     });
 
                     if (response.ok) {
@@ -163,5 +152,5 @@ const offlineManager = {
     }
 };
 
-window.addEventListener('online', () => offlineManager.syncNow());
+window.addEventListener('online', function() { offlineManager.syncNow(); });
 window.offlineManager = offlineManager;

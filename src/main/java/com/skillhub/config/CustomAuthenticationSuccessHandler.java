@@ -65,7 +65,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         } else if (isInstructor) {
             response.sendRedirect("/vendor/dashboard");
         } else {
-            response.sendRedirect("/user/home");
+            response.sendRedirect("/");
         }
     }
 }

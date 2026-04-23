@@ -36,10 +36,10 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            padding: 12rem 2.4rem 8rem;
+            padding: 18rem 2.4rem 14rem;
             text-align: center;
             color: #ffffff;
-            min-height: 45vh;
+            min-height: 70vh;
             display: flex;
             align-items: center;
         }
@@ -97,42 +97,84 @@
         }
 
         .info-card {
-            background: white;
             padding: 3.2rem;
-            border-radius: 1.2rem;
-            box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
+            border-radius: 2rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.04);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .info-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px);
+            box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.1);
         }
 
+        /* Box 1: Email */
+        .info-card.email-box {
+            background-color: #f0f9ff;
+            border-color: #bae6fd;
+        }
+        .info-card.email-box i { background: #bae6fd; color: #0369a1; }
+        .info-card.email-box h3 { color: #0c4a6e; }
+
+        /* Box 2: Call */
+        .info-card.call-box {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+        .info-card.call-box i { background: #bbf7d0; color: #15803d; }
+        .info-card.call-box h3 { color: #064e3b; }
+
+        /* Box 3: Visit */
+        .info-card.visit-box {
+            background-color: #fffbeb;
+            border-color: #fef08a;
+        }
+        .info-card.visit-box i { background: #fef08a; color: #a16207; }
+        .info-card.visit-box h3 { color: #451a03; }
+
+        /* Box 4: Social */
+        .info-card.social-box {
+            background-color: #faf5ff;
+            border-color: #e9d5ff;
+        }
+        .info-card.social-box i { background: #e9d5ff; color: #7e22ce; }
+        .info-card.social-box h3 { color: #3b0764; }
+
         .info-card i {
-            font-size: 2.4rem;
-            color: var(--primary-purple);
-            margin-bottom: 1.6rem;
-            background: rgba(86, 36, 208, 0.1);
-            padding: 1.6rem;
-            border-radius: 1rem;
+            font-size: 2.8rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 2rem;
         }
 
         .info-card h3 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            font-family: 'Outfit', sans-serif;
         }
 
         .info-card p, .info-card a {
-            font-size: 1.6rem;
-            color: var(--text-muted);
+            font-size: 1.7rem;
+            color: #4b5563;
             text-decoration: none;
             line-height: 1.6;
             display: block;
+            font-weight: 500;
+        }
+
+        .info-card a {
+            color: var(--primary-purple);
+            font-weight: 700;
         }
 
         .info-card a:hover {
-            color: var(--primary-purple);
+            text-decoration: underline;
         }
 
         /* Social Section */
@@ -162,25 +204,30 @@
 
         /* Right Column: Contact Form */
         .form-panel {
-            background: white;
-            padding: 4.8rem;
-            border-radius: 1.2rem;
-            box-shadow: 0 1.2rem 4.8rem rgba(0, 0, 0, 0.08);
-        }
-
-        .form-header {
-            margin-bottom: 3.2rem;
+            background: linear-gradient(135deg, #004aad 0%, #00bf9a 100%);
+            padding: 5.4rem;
+            border-radius: 2.4rem;
+            box-shadow: 0 3rem 6rem rgba(0, 74, 173, 0.3);
+            border: none;
+            color: #ffffff;
         }
 
         .form-header h2 {
             font-size: 3.2rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 1rem;
+            color: #ffffff;
         }
 
         .form-header p {
             font-size: 1.8rem;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-group label {
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #ffffff;
         }
 
         .form-row {
@@ -226,23 +273,25 @@
         }
 
         .submit-btn {
-            background: var(--primary-purple);
-            color: white;
+            background: #ffffff;
+            color: #004aad;
             border: none;
             padding: 1.8rem 3.2rem;
             font-size: 1.8rem;
-            font-weight: 700;
-            border-radius: 0.8rem;
+            font-weight: 800;
+            border-radius: 1.2rem;
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
             margin-top: 1.6rem;
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
         }
 
         .submit-btn:hover {
-            background: #401b9c;
-            transform: translateY(-2px);
-            box-shadow: 0 0.8rem 2rem rgba(86, 36, 208, 0.3);
+            background: #f8fafc;
+            transform: translateY(-4px);
+            box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.2);
+            color: #00bf9a;
         }
 
         /* Map Section */
@@ -339,7 +388,7 @@
         
         <!-- Sidebar Info -->
         <aside class="info-panel">
-            <div class="info-card">
+            <div class="info-card email-box">
                 <i class="fas fa-envelope-open-text"></i>
                 <h3>Email Us</h3>
                 <p>Support & General Inquiries</p>
@@ -347,20 +396,21 @@
                 <a href="mailto:partners@skillhub.com" style="margin-top: 0.8rem;">partners@skillhub.com</a>
             </div>
 
-            <div class="info-card">
+            <div class="info-card call-box">
                 <i class="fas fa-phone-volume"></i>
                 <h3>Call Our Experts</h3>
                 <p>Mon - Fri: 9:00 AM - 6:00 PM EST</p>
                 <a href="tel:+15551234567">+1 (555) 123-4567</a>
             </div>
 
-            <div class="info-card">
+            <div class="info-card visit-box">
                 <i class="fas fa-map-marked-alt"></i>
                 <h3>Visit Headquarters</h3>
                 <p>123 Learning Way, Suite 400<br>Innovative District, NY 10001</p>
             </div>
 
-            <div class="info-card">
+            <div class="info-card social-box">
+                <i class="fas fa-hashtag" style="margin-bottom: 2rem;"></i>
                 <h3>Follow Our Journey</h3>
                 <div class="social-row">
                     <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
@@ -460,15 +510,6 @@
                     });
                 </script>
 
-                <!-- Embedded-like Map Section -->
-                <div class="map-section">
-                    <img th:src="@{/images/contact_map_bg.png}" alt="SkillHub Headquarters Location">
-                    <div class="map-overlay">
-                        <div class="map-pin">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 

@@ -33,7 +33,7 @@ public class PaymentController {
         if (principal == null) return "redirect:/login";
         
         Course course = courseService.getCourseById(courseId);
-        if (course == null) return "redirect:/user/home";
+        if (course == null) return "redirect:/";
         
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("course", course);
@@ -123,7 +123,7 @@ public class PaymentController {
         if (principal == null) return "redirect:/login";
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);
-        if (payment == null) return "redirect:/user/home";
+        if (payment == null) return "redirect:/";
         
         model.addAttribute("payment", payment);
         return "course/payment_success";
@@ -134,7 +134,7 @@ public class PaymentController {
         if (principal == null) return "redirect:/login";
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);
-        if (payment == null) return "redirect:/user/home";
+        if (payment == null) return "redirect:/";
         
         model.addAttribute("payment", payment);
         return "course/payment_receipt";

@@ -64,6 +64,11 @@ public class CourseController {
             return "redirect:/?error=CourseNotFound";
         }
 
+        // For Course 1, add a sample promotional video if missing to make it "work in real"
+        if (id == 1 && (course.getVideoUrl() == null || course.getVideoUrl().isEmpty())) {
+            course.setVideoUrl("https://video.wixstatic.com/video/11062b_77a941a31b99484ba3ee77a28469d4d4/1080p/mp4/file.mp4");
+        }
+
         // Increment and Save View Count
         course.setViewCount((course.getViewCount() == null ? 0 : course.getViewCount()) + 1);
         courseService.saveCourse(course);
@@ -342,7 +347,7 @@ public class CourseController {
             enrollmentRepository.save(enrollment);
         });
 
-        return "redirect:/user/home?certificateData=earned";
+        return "redirect:/?certificateData=earned";
     }
 
     @GetMapping("/course/enroll/{id}")

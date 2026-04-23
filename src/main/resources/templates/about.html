@@ -163,75 +163,123 @@
 
         .value-card {
             padding: 4.8rem 3.2rem;
-            background: white;
-            border: 1px solid #e0e4e8;
-            border-radius: 1.6rem;
+            border-radius: 2.4rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: left;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .value-card:hover {
-            transform: translateY(-12px);
-            border-color: var(--primary);
-            box-shadow: 0 2rem 4rem rgba(86, 36, 208, 0.08);
+            transform: translateY(-15px);
+            box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.1);
         }
 
+        /* Value 1: Impact */
+        .value-card.impact-box {
+            background-color: #f0f9ff;
+            border-color: #bae6fd;
+        }
+        .value-card.impact-box .value-icon { background: #0369a1; box-shadow: 0 1rem 2rem rgba(3, 105, 161, 0.3); }
+        .value-card.impact-box h3 { color: #0c4a6e; }
+
+        /* Value 2: Collaboration */
+        .value-card.collab-box {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+        .value-card.collab-box .value-icon { background: #15803d; box-shadow: 0 1rem 2rem rgba(21, 128, 61, 0.3); }
+        .value-card.collab-box h3 { color: #064e3b; }
+
+        /* Value 3: Innovation */
+        .value-card.innov-box {
+            background-color: #fffbeb;
+            border-color: #fef08a;
+        }
+        .value-card.innov-box .value-icon { background: #a16207; box-shadow: 0 1rem 2rem rgba(161, 98, 7, 0.3); }
+        .value-card.innov-box h3 { color: #451a03; }
+
         .value-icon {
-            font-size: 3.2rem;
+            font-size: 3rem;
             color: white;
-            background: var(--primary);
-            width: 6.4rem;
-            height: 6.4rem;
+            width: 7rem;
+            height: 7rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 1.2rem;
-            margin-bottom: 2.4rem;
-            box-shadow: 0 0.8rem 1.6rem rgba(86, 36, 208, 0.3);
+            border-radius: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .value-card h3 {
-            font-size: 2.4rem;
-            margin-bottom: 1.6rem;
-            font-weight: 700;
-            color: var(--primary-dark);
+            font-size: 2.6rem;
+            margin-bottom: 1.8rem;
+            font-weight: 800;
         }
 
         .value-card p {
-            font-size: 1.6rem;
-            line-height: 1.7;
-            color: var(--text-muted);
+            font-size: 1.7rem;
+            line-height: 1.8;
+            color: #4b5563;
+            font-weight: 500;
         }
 
         /* ── CTA Section ── */
         .cta-section {
-            background: var(--primary-dark);
-            color: #ffffff;
-            padding: 8rem 2.4rem;
+            background: #1e1b4b; /* Deep Indigo */
+            padding: 12rem 2.4rem;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(86, 36, 208, 0.4) 0%, transparent 70%);
         }
 
         .cta-section h2 {
             color: #ffffff !important;
+            font-size: 4.8rem !important;
+            font-weight: 900;
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 1;
         }
 
         .cta-section p {
             color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 2.2rem !important;
+            max-width: 750px;
+            margin: 0 auto 5rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
         }
 
         .btn-large {
             display: inline-flex;
             align-items: center;
-            gap: 1.2rem;
-            background: white;
-            color: var(--primary-dark);
-            padding: 2rem 4rem;
-            font-size: 2rem;
+            gap: 1.5rem;
+            background: #00bf9a; /* Vibrant Green */
+            color: white;
+            padding: 2.2rem 5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             text-decoration: none;
-            border-radius: 1.2rem;
-            transition: all 0.3s ease;
-            margin-top: 3.2rem;
+            border-radius: 10rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 1.5rem 3.5rem rgba(0, 191, 154, 0.4);
+            position: relative;
+            z-index: 1;
+            border: none;
+        }
+
+        .btn-large:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 2.5rem 5rem rgba(0, 191, 154, 0.6);
+            background: #00e6b8;
         }
 
         .btn-large:hover {
@@ -271,27 +319,6 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>62M+</h3>
-                <p>Global Learners</p>
-            </div>
-            <div class="stat-item">
-                <h3>75K+</h3>
-                <p>Expert Mentors</p>
-            </div>
-            <div class="stat-item">
-                <h3>210K+</h3>
-                <p>Video Courses</p>
-            </div>
-            <div class="stat-item">
-                <h3>180+</h3>
-                <p>Countries Reached</p>
-            </div>
-        </div>
-    </section>
 
     <!-- Values Section -->
     <section class="content-section">
@@ -302,17 +329,17 @@
             </div>
 
             <div class="values-grid">
-                <div class="value-card">
+                <div class="value-card impact-box">
                     <div class="value-icon"><i class="fas fa-bullseye"></i></div>
                     <h3>Impact First</h3>
                     <p>We are dedicated to creating access to knowledge for everyone. Every part of our platform is designed to maximize learning outcomes and career advancement.</p>
                 </div>
-                <div class="value-card">
+                <div class="value-card collab-box">
                     <div class="value-icon"><i class="fas fa-users"></i></div>
                     <h3>Radical Collaboration</h3>
                     <p>We believe in the power of connecting learners and instructors. Our platform is a thriving ecosystem of shared wisdom and mutual support.</p>
                 </div>
-                <div class="value-card">
+                <div class="value-card innov-box">
                     <div class="value-icon"><i class="fas fa-lightbulb"></i></div>
                     <h3>Infinite Innovation</h3>
                     <p>We practice what we preach. We are constantly innovating ourselves to ensure SkillHub stays at the cutting edge of modern education technology.</p>

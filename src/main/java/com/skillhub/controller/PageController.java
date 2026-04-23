@@ -71,6 +71,26 @@ public class PageController {
                         .map(w -> w.getCourse().getId())
                         .collect(java.util.stream.Collectors.toSet());
                 model.addAttribute("wishlistCourseIds", wishlistIds);
+
+                // CERTIFICATE LOGIC
+                // Find latest earned certificate
+                com.skillhub.model.Enrollment latestCert = null;
+                // Find a course ready for exam (100% progress but no exam passed)
+                com.skillhub.model.Enrollment pendingCert = null;
+
+                if (user.getEnrollments() != null) {
+                    for (com.skillhub.model.Enrollment e : user.getEnrollments()) {
+                        if (e.isExamPassed()) {
+                            if (e.getCertificateDate() != null && (latestCert == null || (latestCert.getCertificateDate() != null && e.getCertificateDate().isAfter(latestCert.getCertificateDate())))) {
+                                latestCert = e;
+                            }
+                        } else if (pendingCert == null && e.getProgressPercentage() >= 100.0) {
+                            pendingCert = e;
+                        }
+                    }
+                }
+                model.addAttribute("latestCert", latestCert);
+                model.addAttribute("pendingCert", pendingCert);
             }
         }
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -175,7 +195,7 @@ public class PageController {
             model.addAttribute("courses", courseService.getPublishedCourses());
             model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
         }
-        return "main_index";
+        return "redirect:/";
     }
 
     @GetMapping("/about")

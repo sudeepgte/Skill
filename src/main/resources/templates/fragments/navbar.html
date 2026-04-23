@@ -9,7 +9,13 @@
         </button>
 
         <!-- Logo -->
-        <a th:href="${user != null} ? '/user/home' : '/'" class="nav-logo">SkillHub</a>
+        <a th:href="'/'" class="nav-logo">
+            <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" class="logo-icon">
+            <div class="logo-wrapper">
+                <div class="logo-main"><span class="skill-text">Skill</span><span class="hub-text">Hub</span></div>
+                <div class="logo-tagline">Learn.Grow.Succeed</div>
+            </div>
+        </a>
 
         <!-- Categories Dropdown -->
         <div class="nav-dropdown">
@@ -20,7 +26,7 @@
                 <!-- Check if categories list null -->
                 <th:block th:if="${categories != null}">
                     <a th:each="cat : ${categories}"
-                        th:href="${user != null} ? @{/user/home(categoryId=${cat.id})} : @{/(categoryId=${cat.id})}"
+                        th:href="@{/(categoryId=${cat.id})}"
                         class="nav-dropdown-item">
                         <span th:text="${cat.name}">Category</span>
                         <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
@@ -32,7 +38,7 @@
         <!-- Search -->
         <div class="nav-search">
             <button class="nav-search-icon"><i class="fas fa-search"></i></button>
-            <form th:action="${user != null} ? '/user/home' : '/'">
+            <form th:action="'/'">
                 <input type="text" name="query" placeholder="Search for anything" th:value="${searchQuery}">
             </form>
         </div>

@@ -25,7 +25,10 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #eef2f7;
+            background: url('/images/auth-page-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -49,7 +52,9 @@
         /* ─── LEFT SIDE (BRAND) ─── */
         .auth-brand-side {
             flex: 1.2;
-            background: linear-gradient(135deg, #6c5ce7, #cc2b5e);
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/welcome-bg.png');
+            background-size: cover;
+            background-position: center;
             position: relative;
             padding: 60px;
             display: flex;
@@ -233,11 +238,10 @@
         <!-- Decoration from screenshot 2 -->
         <div class="ornament o-1"></div>
 
-        <div class="auth-brand-side">
+        <div class="auth-brand-side" style="text-align: center; align-items: center;">
             <div class="ornament o-2"></div>
             <div class="ornament o-3"></div>
-            <h1>Welcome to SkillHub</h1>
-            <p>Elevate your career with industry-leading courses and hands-on projects. Your path to mastery starts here.</p>
+            <h1 style="margin-bottom: 0;">Welcome to SkillHub</h1>
         </div>
 
         <div class="auth-form-side">
@@ -283,10 +287,4 @@
     </div>
 
 </body>
-
-</html>
-   </footer>
-
-</body>
-
 </html>

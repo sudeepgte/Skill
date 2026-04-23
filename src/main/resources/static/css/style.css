@@ -4,7 +4,7 @@
 */
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Merriweather:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;700;900&family=Outfit:wght@400;700;800&display=swap');
 
 :root {
   /* Colors */
@@ -59,7 +59,7 @@ html {
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
   /* Udemy primary font (approx) */
   font-size: 1.6rem;
   /* 16px */

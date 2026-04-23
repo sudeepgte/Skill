@@ -34,6 +34,7 @@
             background-color: var(--white);
             color: var(--text-dark);
             line-height: 1.6;
+            font-size: 1.25rem;
         }
 
         /* Navbar Styles from User Request */
@@ -103,11 +104,11 @@
 
         /* Course Header */
         .course-header {
-            background: var(--bg-light);
-            color: var(--text-dark);
+            background: #1c1d1f;
+            color: #fff;
             padding: 40px 0;
             position: relative;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #1c1d1f;
         }
 
         .header-content {
@@ -123,26 +124,27 @@
         }
 
         .course-title {
-            font-size: 2.2rem;
+            font-size: 3.2rem;
             font-weight: 700;
             margin-bottom: 12px;
             line-height: 1.2;
-            color: var(--text-dark) !important;
+            color: #fff !important;
         }
 
         .course-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.6rem;
             margin-bottom: 16px;
-            color: var(--text-muted);
+            color: #d1d7dc;
         }
 
         .course-meta {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 0.95rem;
+            font-size: 1.4rem;
             margin-bottom: 8px;
             flex-wrap: wrap;
+            color: #fff;
         }
 
         /* Absolute Sidebar (Anchored to Header) */
@@ -153,19 +155,43 @@
             width: 340px;
             min-height: 400px;
             background: var(--white);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            border-radius: 8px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
             overflow: hidden;
             z-index: 50;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-content {
+            padding: 24px;
         }
 
         @media (max-width: 1080px) {
+            .header-content {
+                flex-direction: column;
+            }
             .course-sidebar {
                 position: static;
                 width: 100%;
                 margin-top: 24px;
                 box-shadow: var(--shadow);
+            }
+            .course-sidebar .sidebar-preview {
+                display: none; /* Hidden on mobile in favor of inline preview */
+            }
+        }
+
+        .mobile-preview {
+            display: none;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 1080px) {
+            .mobile-preview {
+                display: block;
             }
         }
 
@@ -190,7 +216,7 @@
         }
 
         .learning-objectives h2 {
-            font-size: 1.5rem;
+            font-size: 2.2rem;
             margin-top: 0;
         }
 
@@ -206,7 +232,7 @@
         .obj-list li {
             display: flex;
             gap: 12px;
-            font-size: 0.95rem;
+            font-size: 1.25rem;
             color: var(--text-dark);
             line-height: 1.4;
         }
@@ -223,7 +249,7 @@
         }
 
         .course-section h2 {
-            font-size: 1.5rem;
+            font-size: 2.2rem;
             margin-bottom: 16px;
         }
 
@@ -237,7 +263,7 @@
             align-items: center;
             cursor: pointer;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.3rem;
             transition: background 0.2s;
         }
 
@@ -247,7 +273,7 @@
             border-top: none;
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
         }
 
         .btn-buy {
@@ -259,7 +285,7 @@
             border: none;
             margin-bottom: 10px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
 
         .btn-buy:hover {
@@ -284,7 +310,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 0.9rem;
+            font-size: 1.4rem;
             color: var(--text-dark);
             margin-bottom: 12px;
             transition: transform 0.2s;
@@ -295,10 +321,10 @@
         }
 
         .includes-list i {
-            width: 18px;
+            width: 22px;
             text-align: center;
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 1.2rem;
         }
 
 
@@ -354,7 +380,7 @@
         .description-content {
             color: #1c1d1f;
             line-height: 1.6;
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
 
         .description-content p {
@@ -403,7 +429,7 @@
             align-items: center;
             cursor: pointer;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
 
         .section-toggle:first-child {
@@ -482,6 +508,81 @@
             margin-bottom: 10px;
             font-family: inherit;
         }
+        /* Video Preview Styles */
+        .sidebar-preview {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            background: #000;
+            height: 200px;
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+            z-index: 2;
+        }
+
+        .sidebar-preview:hover .preview-overlay {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .play-icon-circle {
+            width: 64px;
+            height: 64px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1c1d1f;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sidebar-preview:hover .play-icon-circle {
+            transform: scale(1.15);
+        }
+
+        .preview-text {
+            color: white;
+            font-weight: 700;
+            margin-top: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 1rem;
+        }
+
+        #coursePreviewVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+        }
+
+        .preview-image-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .sidebar-preview:hover .preview-image-bg {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
@@ -513,9 +614,9 @@
 
         <div class="header-content">
             <div class="header-text">
-                <div style="color: var(--primary); font-weight: 700; font-size: 0.9rem; margin-bottom: 16px;">
+                <div style="color: #cec0fc; font-weight: 700; font-size: 1.1rem; margin-bottom: 16px;">
                     <a th:href="${isLoggedIn} ? '/user/home' : '/'"
-                        style="color: var(--primary); text-decoration: none;">Courses</a>
+                        style="color: #cec0fc; text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>
@@ -550,52 +651,62 @@
                             Name</a></span>
                 </div>
 
-                <div class="course-meta" style="color: var(--text-dark);">
+                <div class="course-meta">
                     <span><i class="fas fa-exclamation-circle"></i> Last updated <span
                             th:text="${course.lastUpdated != null ? course.lastUpdated : 'Recently'}"></span></span>
                     <span><i class="fas fa-globe lang-icon"></i> <span
                             th:text="${course.language != null ? course.language : 'English'}">English</span></span>
                 </div>
 
-                <!-- Mobile Enroll Button -->
-                <th:block th:if="${isEnrolled}">
-                    <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy price-mobile"
-                        style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
-                        Now</a>
-                </th:block>
-                <th:block th:unless="${isEnrolled}">
-                    <!-- For Paid: Link to Checkout -->
-                    <a th:if="${course.price > 0}" th:href="'/checkout/' + ${course.id}" class="btn-buy price-mobile" style="display:block; text-align:center; text-decoration:none;">Buy Now</a>
+                <!-- Mobile Thumbnail Preview -->
+                <div class="mobile-preview sidebar-preview" id="mobilePromoVideoContainer" 
+                     th:attr="onclick=${course.videoUrl != null ? 'startPromoVideo(true, true)' : ''},
+                             onmouseenter=${course.videoUrl != null ? 'startPromoVideo(false, true)' : ''},
+                             onmouseleave='stopPromoVideo(true)'">
                     
-                    <!-- For Free: Button for API enrollment -->
-                    <button th:unless="${course.price > 0}" class="btn-buy price-mobile" id="enrollBtnMobile">Enroll for Free</button>
-                    
-                    <div class="price-mobile" style="text-align: center; margin-top: 10px; font-weight: 700; font-size: 1.2rem;">
-                        <span th:if="${course.price != null and course.price > 0}" th:text="'₹' + ${course.price}">₹2000</span>
-                        <span th:unless="${course.price != null and course.price > 0}">Free</span>
+                    <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
+                         alt="Course Preview" class="preview-image-bg" id="mobilePreviewImage">
+
+                    <div th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}" class="preview-overlay" id="mobilePreviewOverlay">
+                        <div class="play-icon-circle">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="preview-text">Preview this course</div>
                     </div>
-                </th:block>
+
+                    <video th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}" 
+                           id="mobileCoursePreviewVideo" preload="metadata" playsinline>
+                        <source th:src="@{${course.videoUrl}}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
             </div>
 
             <!-- Sidebar (Desktop - Absolute Positioned within Header) -->
             <div class="course-sidebar">
-                <div class="sidebar-preview">
-                    <!-- Video Player Logic -->
-                    <div id="videoContainer"
-                        style="background: black; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <th:block th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}">
-                            <video id="coursePreviewVideo"
-                                width="100%" height="200" style="object-fit: cover;" controls>
-                                <source th:src="@{${course.videoUrl}}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </th:block>
-                        <!-- Fallback Image -->
-                        <img th:unless="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}"
-                            th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
-                            alt="Course Preview" style="width: 100%; height: 200px; object-fit: cover;"
-                            id="previewImage">
+                <div class="sidebar-preview" id="promoVideoContainer" 
+                     th:attr="onclick=${course.videoUrl != null ? 'startPromoVideo(true)' : ''},
+                             onmouseenter=${course.videoUrl != null ? 'startPromoVideo(false)' : ''},
+                             onmouseleave='stopPromoVideo()'">
+                    
+                    <!-- Static Image -->
+                    <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
+                         alt="Course Preview" class="preview-image-bg" id="previewImage">
+
+                    <!-- Play Overlay (Only if video exists) -->
+                    <div th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}" class="preview-overlay" id="previewOverlay">
+                        <div class="play-icon-circle">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="preview-text">Preview this course</div>
                     </div>
+
+                    <!-- Hidden Video Element -->
+                    <video th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}" 
+                           id="coursePreviewVideo" preload="metadata" playsinline>
+                        <source th:src="@{${course.videoUrl}}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
 
                     <!-- Video Restriction Overlay -->
                     <div id="videoOverlay">
@@ -626,10 +737,10 @@
                         <!-- Sidebar Price Display -->
                         <div style="padding: 15px 0; border-bottom: 1px solid #d1d7dc; margin-bottom: 15px;">
                              <div th:if="${course.price != null and course.price > 0}" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
-                                 <span style="font-size: 2.4rem; font-weight: 800; color: #1c1d1f;">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
+                                 <span style="font-size: 3rem; font-weight: 800; color: #1c1d1f;">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
                              </div>
                              <div th:unless="${course.price != null and course.price > 0}">
-                                 <span style="font-size: 2rem; font-weight: 800; color: #1c1d1f;">Free</span>
+                                 <span style="font-size: 2.6rem; font-weight: 800; color: #1c1d1f;">Free</span>
                              </div>
                         </div>
                         
@@ -648,7 +759,7 @@
                     <p class="guarantee">30-Day Money-Back Guarantee</p>
 
                     <div class="includes">
-                        <p style="font-weight: 700; font-size: 0.9rem; margin: 24px 0 12px; color: var(--text-dark);">
+                        <p style="font-weight: 700; font-size: 1.6rem; margin: 24px 0 12px; color: var(--text-dark);">
                             This
                             course includes:</p>
                         <ul class="includes-list">
@@ -688,7 +799,7 @@
             <!-- Learning Objectives -->
             <div class="learning-objectives" style="background: #fff; border: 1px solid var(--border-color); padding: 32px; border-radius: 8px;">
                 <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark);">What you'll learn in this course</h2>
-                <div class="learning-description" style="font-size: 1.1rem; line-height: 1.8; color: #3c3b37; text-align: justify;">
+                <div class="learning-description" style="font-size: 1.3rem; line-height: 1.8; color: #3c3b37; text-align: justify;">
                     <th:block th:if="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
                         <span th:text="${#strings.replace(course.learningObjectives, '\n', ' ')}"></span>
                     </th:block>
@@ -701,7 +812,7 @@
             <!-- Course Content -->
             <div class="course-section">
                 <h2>Course content</h2>
-                <div style="font-size: 0.9rem; margin-bottom: 20px;">
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
                     <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections •
                     <span th:text="${course.contentLength != null ? course.contentLength : '0h 0m'}">10 lectures • 5h
                         30m</span> total length
@@ -731,9 +842,9 @@
                                     <div style="display: flex; align-items: center;">
                                         <i class="fas fa-play-circle" style="color: #6a6f73; margin-right: 10px;"></i>
                                         <span th:text="${lecture.title}"
-                                            style="color: #1c1d1f; font-size: 0.9rem;">Lecture Title</span>
+                                            style="color: #1c1d1f; font-size: 1.25rem;">Lecture Title</span>
                                     </div>
-                                    <span style="font-size: 0.85rem; color: #6a6f73;"
+                                    <span style="font-size: 1.2rem; color: #6a6f73;"
                                         th:if="${lecture.durationSeconds != null}"
                                         th:text="${lecture.durationSeconds / 60} + ':' + ${lecture.durationSeconds % 60 < 10 ? '0' + (lecture.durationSeconds % 60) : (lecture.durationSeconds % 60)}">
                                         10:00
@@ -758,7 +869,7 @@
             <div class="course-section">
                 <h2>Requirements</h2>
                 <div class="requirements-box" style="padding: 16px; background: #f8faff; border-radius: 8px; border-left: 4px solid var(--primary);">
-                    <p style="font-size: 1.1rem; line-height: 1.8; color: #3c3b37; margin: 0;">
+                    <p style="font-size: 1.3rem; line-height: 1.8; color: #3c3b37; margin: 0;">
                         <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 8px;"></i>
                         <span th:if="${course.requirements != null and !#strings.isEmpty(course.requirements)}" 
                               th:text="${#strings.replace(course.requirements, '\n', ' ')}">Requirement text here</span>
@@ -815,7 +926,7 @@
                             <div>
                                 <div style="font-weight: 700; margin-bottom: 4px;"
                                     th:text="${review.user != null ? review.user.name : 'Unknown User'}">User Name</div>
-                                <div style="color: #6a6f73; font-size: 0.8rem; margin-bottom: 8px;">
+                                <div style="color: #6a6f73; font-size: 1.1rem; margin-bottom: 8px;">
                                     <span style="color: #f4c150; font-weight: 700; margin-right: 10px;"
                                         th:text="${review.rating} + ' Stars'">5 Stars</span>
                                     <span
@@ -885,7 +996,7 @@
                                 <p style="margin: 0 0 12px; color: #1c1d1f; line-height: 1.5;" th:text="${q.content}">
                                     Question content goes here...</p>
                                 <div
-                                    style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #6a6f73;">
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: #6a6f73;">
                                     <span style="color: #5624d0; font-weight: 700;"
                                         th:text="${q.user != null ? q.user.name : 'User'}">Student Name</span>
                                     <span>•</span>
@@ -959,6 +1070,51 @@
                 content.style.display = 'none';
                 icon.style.transform = 'rotate(0deg)';
             }
+        }
+
+        // Promotional Video Logic
+        let isVideoManuallyStarted = false;
+
+        function startPromoVideo(withSound, isMobile = false) {
+            const videoId = isMobile ? 'mobileCoursePreviewVideo' : 'coursePreviewVideo';
+            const overlayId = isMobile ? 'mobilePreviewOverlay' : 'previewOverlay';
+            const imgId = isMobile ? 'mobilePreviewImage' : 'previewImage';
+
+            const video = document.getElementById(videoId);
+            const overlay = document.getElementById(overlayId);
+            const previewImg = document.getElementById(imgId);
+            
+            if (!video) return;
+
+            video.style.display = 'block';
+            if (overlay) overlay.style.display = 'none';
+            if (previewImg) previewImg.style.opacity = '0';
+
+            video.muted = !withSound;
+            if (withSound) {
+                video.controls = true;
+                isVideoManuallyStarted = true;
+            }
+
+            video.play().catch(err => console.log("Auto-play blocked:", err));
+        }
+
+        function stopPromoVideo(isMobile = false) {
+            const videoId = isMobile ? 'mobileCoursePreviewVideo' : 'coursePreviewVideo';
+            const overlayId = isMobile ? 'mobilePreviewOverlay' : 'previewOverlay';
+            const imgId = isMobile ? 'mobilePreviewImage' : 'previewImage';
+
+            const video = document.getElementById(videoId);
+            const overlay = document.getElementById(overlayId);
+            const previewImg = document.getElementById(imgId);
+
+            if (!video || isVideoManuallyStarted) return;
+
+            video.pause();
+            video.currentTime = 0;
+            video.style.display = 'none';
+            if (overlay) overlay.style.display = 'flex';
+            if (previewImg) previewImg.style.opacity = '1';
         }
 
         function toggleReviewForm() {
