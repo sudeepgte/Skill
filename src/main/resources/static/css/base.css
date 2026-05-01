@@ -1,16 +1,25 @@
 /* Base Styles & Variables */
 :root {
-    --color-primary: #a435f0;
-    --color-primary-hover: #8710d8;
-    --color-black: #1c1d1f;
-    --color-gray-700: #2d2f31;
-    --color-gray-500: #6a6f73;
-    --color-gray-200: #d1d7dc;
-    --color-gray-100: #f7f9fa;
-    --color-white: #ffffff;
-    --font-heading: 'Merriweather', serif;
-    /* Or system stack if preferred */
-    --font-body: 'Udemy Sans', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    --color-bg-main: #F5F3FF;
+    --color-bg-surface: #EDE9FE;
+    --color-primary: #A78BFA;
+    --color-primary-hover: #8B5CF6;
+    --color-secondary: #8B5CF6;
+    --color-accent: #C4B5FD;
+    --color-highlight: #F472B6;
+    --color-text-main: #2E1065;
+    --color-text-muted: #8B5CF6;
+
+    /* Legacy Mapping for compatibility */
+    --color-black: var(--color-text-main);
+    --color-white: var(--color-bg-main);
+    --color-gray-700: var(--color-text-main);
+    --color-gray-500: var(--color-text-muted);
+    --color-gray-200: var(--color-accent);
+    --color-gray-100: var(--color-bg-surface);
+
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
 }
 
 * {
@@ -20,6 +29,7 @@
 body {
     font-family: var(--font-body);
     color: var(--color-black);
+    background-color: var(--color-bg-main);
     line-height: 1.4;
     margin: 0;
     padding: 0;

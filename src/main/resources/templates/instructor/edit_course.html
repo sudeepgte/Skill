@@ -7,13 +7,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #a435f0;
-            --primary-hover: #8710d8;
-            --text-main: #2d2f31;
-            --text-secondary: #6a6f73;
-            --bg-gray: #f7f9fa;
-            --border: #d1d7dc;
-            --white: #ffffff;
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --text-main: #2E1065;
+            --text-secondary: #8B5CF6;
+            --bg-gray: #F5F3FF;
+            --border: #C4B5FD;
+            --white: #EDE9FE;
+            --highlight: #F472B6;
         }
 
         body {
@@ -38,7 +39,7 @@
 
         .header h1 {
             font-weight: 700;
-            color: #2d2f31;
+            color: #2E1065;
             margin: 0;
         }
 
@@ -142,7 +143,7 @@
 
         /* Curriculum Styles */
         .section-item {
-            background: #f7f9fa;
+            background: #EDE9FE;
             border: 1px solid var(--border);
             margin-bottom: 1.5rem;
             padding: 1.5rem;
@@ -223,7 +224,7 @@
                             <label>Level</label>
                             <select th:field="*{level}">
                                 <option value="Beginner">Beginner Level</option>
-                                <option value="Intermediate">Intermediate Level</option>
+                                <option value="DM Sansmediate">DM Sansmediate Level</option>
                                 <option value="Advanced">Advanced Level</option>
                                 <option value="All Levels">All Levels</option>
                             </select>
@@ -247,7 +248,7 @@
 
                     <div class="form-group">
                         <label>Course Thumbnail</label>
-                        <div style="display: flex; gap: 1.5rem; align-items: start; background: #f8fafc; padding: 1rem; border: 1px solid var(--border);">
+                        <div style="display: flex; gap: 1.5rem; align-items: start; background: #EDE9FE; padding: 1rem; border: 1px solid var(--border);">
                             <img id="editImagePreview" th:src="${course.imageUrl}" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
                             <div style="flex: 1;">
                                 <label style="font-size: 0.9rem; margin-bottom: 0.5rem;">Upload New Thumbnail</label>
@@ -274,7 +275,7 @@
 
                 <!-- Add Section Form -->
                 <div id="addSectionForm"
-                    style="display: none; background: #f0f7ff; padding: 1.5rem; border: 1px solid #cce3ff; margin-bottom: 2rem;">
+                    style="display: none; background: #EDE9FE; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 2rem;">
                     <h4>Add New Section</h4>
                     <form th:action="@{/vendor/courses/{id}/sections/add(id=${course.id})}" method="post">
                         <div class="form-group">
@@ -313,7 +314,7 @@
                                     <input type="number" name="durationSeconds" value="0">
                                 </div>
                             </div>
-                            <div style="background: #f8fafc; padding: 1rem; margin-bottom: 1rem; border: 1px solid #d1d7dc;">
+                            <div style="background: #EDE9FE; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);">
                                 <label><i class="fas fa-paperclip"></i> Supporting Materials (Optional)</label>
                                 <small style="display: block; color: #666; margin-bottom: 0.5rem;">PDFs, Source Code, Slides</small>
                                 <input type="file" name="lectureResources" multiple>
@@ -360,7 +361,7 @@
 
                     <div class="form-group">
                         <label>Promotional Video</label>
-                        <div style="border: 1px dashed var(--border); padding: 1.5rem; text-align: center; background: #f8fafc; border-radius: 4px; cursor: pointer; transition: border-color 0.2s;" 
+                        <div style="border: 1px dashed var(--border); padding: 1.5rem; text-align: center; background: #EDE9FE; border-radius: 4px; cursor: pointer; transition: border-color 0.2s;" 
                              onclick="document.getElementById('promoVideo').click()">
                             <div id="videoEditStatus" th:style="${course.videoUrl != null ? 'display:block; color:var(--primary); font-weight:700;' : 'display:none; color:var(--primary); font-weight:700;'}">
                                 <i class="fas fa-check-circle"></i> <span th:text="${course.videoUrl != null ? 'Video already exists' : 'Video selected!'}"></span>

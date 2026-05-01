@@ -4,7 +4,7 @@
 <head>
     <title>My Certifications | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <!-- Copying standard imports from main_index -->
@@ -26,10 +26,10 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 1.4rem;
-            color: #1c1d1f;
-            background: #fff;
+            color: #2E1065;
+            background: #F5F3FF;
         }
 
         /* NAVBAR (simplified structure if needed, or rely on external css if it has one. Will use basic nav) */
@@ -130,13 +130,13 @@
         }
 
         .cert-card {
-            border: 1px solid #d1d7dc;
-            border-radius: 8px;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 12px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            background: #fff;
-            transition: box-shadow 0.2s;
+            background: #EDE9FE;
+            transition: all 0.3s ease;
         }
 
         .cert-card:hover {
@@ -189,7 +189,7 @@
 
         .progress-fill {
             height: 100%;
-            background: #5624d0;
+            background: #A78BFA;
             transition: width 0.3s ease;
         }
 
@@ -250,14 +250,14 @@
         }
 
         .btn-exam {
-            background: #5624d0;
-            color: #fff;
-            border: 1px solid #5624d0;
+            background: #A78BFA;
+            color: #ffffff;
+            border: 1px solid #A78BFA;
         }
 
         .btn-exam:hover {
-            background: #401b9c;
-            border-color: #401b9c;
+            background: #8B5CF6;
+            border-color: #8B5CF6;
         }
 
         .btn-cert {
@@ -358,7 +358,7 @@
                     th:src="@{${enrollment.course.imageUrl}}" alt="Course Image">
 
                 <img th:if="${enrollment.course.imageUrl == null or #strings.isEmpty(enrollment.course.imageUrl)}"
-                    src="https://via.placeholder.com/400x225.png?text=SkillHub" alt="Placeholder">
+                    src="https://images.openai.com/static-rsc-4/7-ypuJFvP2x0nnKtAgE_Xq4mHSP94geWLk9i16enO2gIlbAXce0yWfaeD0PC_WjXUyKqfMfy1VQSkbsn1gYHwSwWLaFe6ahgytx_Z0kfsDQXfkK5U6pcaC9Y6OaH8x1wA9ju5_N6fpo0eeRIwZolICN082UlqqN1Axy6EyxLcYVxBDDBNkIY_NoPXh_5jfc5?purpose=fullsize" alt="SkillHub Course">
 
                 <!-- Content -->
                 <div class="cert-content">

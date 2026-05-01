@@ -2,9 +2,9 @@
 
 .sidebar-nav {
     width: 260px;
-    border-right: 1px solid #d1d7dc;
+    border-right: 1px solid #8B5CF6;
     min-height: calc(100vh - 7.2rem);
-    background: white;
+    background: #EDE9FE;
 }
 
 .nav-item {
@@ -16,7 +16,8 @@
 
 .nav-item:hover,
 .nav-item.active {
-    background: #d1d7dc;
+    background: #8B5CF6;
+    color: #F5F3FF;
 }
 
 .dashboard-content {
@@ -25,8 +26,9 @@
 }
 
 .stat-card {
-    background: white;
+    background: #EDE9FE;
     padding: 2.4rem;
-    border: 1px solid #d1d7dc;
+    border: 1px solid #8B5CF6;
     text-align: center;
+    color: #2E1065;
 }

@@ -9,7 +9,7 @@
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <!-- Modern Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,19 +17,19 @@
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
         :root {
-            --primary: #5624d0;
-            --primary-hover: #401b9c;
-            --text-dark: #1c1d1f;
-            --text-muted: #6a6f73;
-            --bg-light: #f7f9fa;
-            --border-color: #d1d7dc;
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --text-dark: #2E1065;
+            --text-muted: #8B5CF6;
+            --bg-light: #F5F3FF;
+            --border-color: #C4B5FD;
             --white: #ffffff;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --header-bg: #1c1d1f;
+            --shadow: 0 4px 12px rgba(167, 139, 250, 0.1);
+            --header-bg: #EDE9FE;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Playfair Display', sans-serif;
             margin: 0;
             background-color: var(--white);
             color: var(--text-dark);
@@ -44,7 +44,7 @@
             justify-content: space-between;
             padding: 10px 20px;
             background-color: #fff;
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid var(--border-color);
             box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
             height: 72px;
             position: sticky;
@@ -55,7 +55,7 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #1c1d1f;
+            color: var(--text-dark);
             text-decoration: none;
         }
 
@@ -104,11 +104,11 @@
 
         /* Course Header */
         .course-header {
-            background: #1c1d1f;
-            color: #fff;
+            background: var(--header-bg);
+            color: var(--text-dark);
             padding: 40px 0;
             position: relative;
-            border-bottom: 1px solid #1c1d1f;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .header-content {
@@ -128,13 +128,13 @@
             font-weight: 700;
             margin-bottom: 12px;
             line-height: 1.2;
-            color: #fff !important;
+            color: var(--text-dark) !important;
         }
 
         .course-subtitle {
             font-size: 1.6rem;
             margin-bottom: 16px;
-            color: #d1d7dc;
+            color: var(--text-muted);
         }
 
         .course-meta {
@@ -144,7 +144,7 @@
             font-size: 1.4rem;
             margin-bottom: 8px;
             flex-wrap: wrap;
-            color: #fff;
+            color: var(--text-dark);
         }
 
         /* Absolute Sidebar (Anchored to Header) */
@@ -277,7 +277,7 @@
         }
 
         .btn-buy {
-            background-color: #a435f0;
+            background-color: var(--primary);
             color: white;
             width: 100%;
             padding: 12px;
@@ -286,10 +286,14 @@
             margin-bottom: 10px;
             cursor: pointer;
             font-size: 1.3rem;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
 
         .btn-buy:hover {
-            background-color: #8710d8;
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
         }
 
         .guarantee {
@@ -422,7 +426,7 @@
             padding: 15px;
             background: #f7f9fa;
             border: none;
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid var(--border-color);
             font-weight: 700;
             display: flex;
             justify-content: space-between;
@@ -433,7 +437,7 @@
         }
 
         .section-toggle:first-child {
-            border-top: 1px solid #d1d7dc;
+            border-top: 1px solid var(--border-color);
         }
 
         .section-toggle:hover {
@@ -441,15 +445,15 @@
         }
 
         .section-content {
-            border-left: 1px solid #d1d7dc;
-            border-right: 1px solid #d1d7dc;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
         }
 
         .lecture-item {
             cursor: pointer;
             transition: background 0.2s;
             padding: 12px 20px;
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -461,7 +465,7 @@
         }
 
         .reviews-list .review-item {
-            border-bottom: 1px solid #d1d7dc;
+            border-bottom: 1px solid var(--border-color);
             padding: 24px 0;
             display: flex;
             gap: 16px;
@@ -491,7 +495,7 @@
             margin-top: 20px;
             padding: 20px;
             background: #f7f9fa;
-            border: 1px solid #d1d7dc;
+            border: 1px solid var(--border-color);
         }
 
         textarea {
@@ -614,9 +618,9 @@
 
         <div class="header-content">
             <div class="header-text">
-                <div style="color: #cec0fc; font-weight: 700; font-size: 1.1rem; margin-bottom: 16px;">
+                <div style="color: var(--primary); font-weight: 700; font-size: 1.1rem; margin-bottom: 16px;">
                     <a th:href="${isLoggedIn} ? '/user/home' : '/'"
-                        style="color: #cec0fc; text-decoration: none;">Courses</a>
+                        style="color: var(--primary); text-decoration: none;">Courses</a>
                     <span th:if="${course.categoryName != null}"> > <span
                             th:text="${course.categoryName}">Category</span></span>
                 </div>
@@ -735,9 +739,9 @@
                     </th:block>
                     <th:block th:unless="${isEnrolled}">
                         <!-- Sidebar Price Display -->
-                        <div style="padding: 15px 0; border-bottom: 1px solid #d1d7dc; margin-bottom: 15px;">
+                        <div style="padding: 15px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 15px;">
                              <div th:if="${course.price != null and course.price > 0}" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
-                                 <span style="font-size: 3rem; font-weight: 800; color: #1c1d1f;">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
+                                 <span style="font-size: 3rem; font-weight: 800; color: var(--text-dark);">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
                              </div>
                              <div th:unless="${course.price != null and course.price > 0}">
                                  <span style="font-size: 2.6rem; font-weight: 800; color: #1c1d1f;">Free</span>
@@ -753,7 +757,7 @@
 
                     <!-- Wishlist Button -->
                     <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
-                        style="background-color: transparent; color: #1c1d1f; border: 1px solid #1c1d1f; margin-top: 10px;">
+                        style="background-color: transparent; color: var(--text-dark); border: 1px solid var(--text-dark); margin-top: 10px;">
                         <i class="far fa-heart"></i> Add to Favorites
                     </button>
                     <p class="guarantee">30-Day Money-Back Guarantee</p>
@@ -819,7 +823,7 @@
                 </div>
 
                 <!-- Dynamic Sections -->
-                <div style="border: 1px solid #d1d7dc; border-bottom: none;"
+                <div style="border: 1px solid var(--border-color); border-bottom: none;"
                     th:if="${course.sections != null and !course.sections.empty}">
                     <div th:each="section : ${course.sections}">
                         <button class="section-toggle" onclick="toggleSection(this)">
@@ -860,7 +864,7 @@
                 </div>
 
                 <div th:unless="${course.sections != null and !course.sections.empty}"
-                    style="padding: 15px; text-align: center; color: #6a6f73; border: 1px solid #d1d7dc;">
+                    style="padding: 15px; text-align: center; color: #6a6f73; border: 1px solid var(--border-color);">
                     No sections available yet.
                 </div>
             </div>
@@ -954,7 +958,7 @@
                 </div>
 
                 <div id="qaForm"
-                    style="display:none; margin-bottom: 20px; padding:20px; background:#f7f9fa; border:1px solid #d1d7dc;">
+                    style="display:none; margin-bottom: 20px; padding:20px; background:#f7f9fa; border:1px solid var(--border-color);">
                     <form th:action="@{/course/questions}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <input type="text" name="title" placeholder="Summary of your question"
@@ -968,7 +972,7 @@
 
                 <div class="qa-search" style="margin-bottom: 20px; display: flex; gap: 10px;">
                     <input type="text" id="qaSearchInput" placeholder="Search all course questions"
-                        style="flex:1; padding: 10px; border: 1px solid #d1d7dc;">
+                        style="flex:1; padding: 10px; border: 1px solid var(--border-color);">
                     <button class="btn-buy" onclick="searchQuestions()"
                         style="width: auto; margin:0; padding:10px 20px; border: 1px solid #1c1d1f; background: #fff; color: #1c1d1f;">Search</button>
                 </div>
@@ -976,8 +980,8 @@
                 <div class="qa-list">
                     <!-- Empty State -->
                     <div th:if="${#lists.isEmpty(questions)}" class="empty-qa"
-                        style="text-align:center; padding: 40px; background:#f7f9fa; border-radius:4px; border: 1px solid #d1d7dc;">
-                        <i class="far fa-comments" style="font-size: 2.5rem; color:#d1d7dc; margin-bottom: 10px;"></i>
+                        style="text-align:center; padding: 40px; background:#f7f9fa; border-radius:4px; border: 1px solid var(--border-color);">
+                        <i class="far fa-comments" style="font-size: 2.5rem; color:var(--border-color); margin-bottom: 10px;"></i>
                         <h4 style="margin: 0; color: #1c1d1f;">No questions asked yet</h4>
                         <p style="margin: 5px 0 0; color: #6a6f73; font-size: 0.9rem;">Be the first to ask about this
                             course!</p>
@@ -985,7 +989,7 @@
 
                     <!-- Question Items -->
                     <div th:each="q : ${questions}" class="qa-item"
-                        style="padding: 24px 0; border-bottom: 1px solid #d1d7dc;">
+                        style="padding: 24px 0; border-bottom: 1px solid var(--border-color);">
                         <div style="display: flex; gap: 16px;">
                             <div style="width: 40px; height: 40px; background: #1c1d1f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;"
                                 th:text="${q.user != null and q.user.name != null ? #strings.substring(q.user.name,0,1) : 'U'}">
@@ -1040,7 +1044,7 @@
                                         style="display: flex; gap: 10px;">
                                         <input type="hidden" name="questionId" th:value="${q.id}">
                                         <input type="text" name="content" placeholder="Share your answer..." required
-                                            style="flex: 1; padding: 10px 14px; border: 1px solid #d1d7dc; border-radius: 4px; font-size: 0.9rem;">
+                                            style="flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9rem;">
                                         <button type="submit" class="btn-buy"
                                             style="width: auto; margin: 0; padding: 10px 20px; background: #1c1d1f; color: white; border: none; font-weight: 700;">Reply</button>
                                     </form>

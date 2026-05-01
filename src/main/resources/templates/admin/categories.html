@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -156,7 +156,7 @@
                                 <tr th:each="cat : ${categories}">
                                     <td th:text="${cat.id}" style="color: var(--text-muted);">1</td>
                                     <td>
-                                        <div style="width: 3.2rem; height: 3.2rem; background: rgba(164,53,240,0.1); color: #a435f0; border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                                        <div style="width: 3.2rem; height: 3.2rem; background: rgba(167, 139, 250, 0.1); color: #A78BFA; border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
                                             <i th:class="${cat.icon}"></i>
                                         </div>
                                     </td>
@@ -167,7 +167,7 @@
                                                     th:data-id="${cat.id}" 
                                                     th:data-name="${cat.name}" 
                                                     th:data-icon="${cat.icon}"
-                                                    title="Edit" style="background: rgba(164,53,240,0.1); color: #a435f0; border: none; padding: 0.6rem 1rem; border-radius: 0.6rem; cursor: pointer;">
+                                                    title="Edit" style="background: rgba(167, 139, 250, 0.1); color: #A78BFA; border: none; padding: 0.6rem 1rem; border-radius: 0.6rem; cursor: pointer;">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <form th:action="@{/admin/categories/delete}" method="post" onsubmit="return confirm('Delete this category? This might fail if it contains courses.')">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -23,18 +23,18 @@
         }
 
         .status-PENDING {
-            background: #fff4e5;
-            color: #b4690e;
+            background: #C4B5FD;
+            color: #2E1065;
         }
 
         .status-RESOLVED {
-            background: #e6fcf5;
-            color: #087f5b;
+            background: #A78BFA;
+            color: #2E1065;
         }
 
         .status-DISMISSED {
-            background: #f1f3f5;
-            color: #495057;
+            background: #EDE9FE;
+            color: #8B5CF6;
         }
 
         .reports-table {
@@ -61,7 +61,7 @@
     </style>
 </head>
 
-<body style="background-color: #f7f9fa;">
+<body style="background-color: #F5F3FF;">
 
     <nav class="navbar">
         <a th:href="@{/admin/dashboard}" class="logo">
@@ -103,7 +103,7 @@
                     </td>
                     <td>
                         <span th:if="${report.reportedUser != null}">
-                            <i class="fas fa-user" style="color: #a435f0;"></i> 
+                            <i class="fas fa-user" style="color: #A78BFA;"></i> 
                             <span th:text="${report.reportedUser.name}">User</span>
                         </span>
                         <span th:if="${report.reportedCourse != null}">
@@ -121,7 +121,7 @@
                             <form th:action="@{/admin/reports/status}" method="post">
                                 <input type="hidden" name="id" th:value="${report.id}">
                                 <input type="hidden" name="status" value="RESOLVED">
-                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;">Resolve</button>
+                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; background-color: #2E1065; color: white;">Resolve</button>
                             </form>
                             <form th:action="@{/admin/reports/status}" method="post">
                                 <input type="hidden" name="id" th:value="${report.id}">

@@ -63,10 +63,11 @@ public class DataInitializer {
                 userRepository.save(ikram);
             }
 
-            if (userRepository.count() == 1) { // If only vendor was found/added
-                // Admin
-                User admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
-                userRepository.save(java.util.Objects.requireNonNull(admin));
+            // Admin
+            User admin = userRepository.findByEmail("admin@skillhub.com");
+            if (admin == null) {
+                admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
+                userRepository.save(admin);
             }
 
             // 2. Create Categories

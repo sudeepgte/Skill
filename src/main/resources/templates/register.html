@@ -5,13 +5,13 @@
     <title>Sign Up | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair Display:wght@400;600;700;800&family=DM Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --brand-purple: #6c5ce7;
-            --brand-pink: #cc2b5e;
-            --brand-primary: linear-gradient(135deg, #6c5ce7, #cc2b5e);
+            --brand-purple: #A78BFA;
+            --brand-pink: #8B5CF6;
+            --brand-primary: linear-gradient(135deg, #A78BFA, #8B5CF6);
             --form-bg: #f8faff;
             --text-dark: #1c1d1f;
             --text-muted: #6a6f73;
@@ -24,7 +24,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: url('/images/auth-page-bg.png');
             background-size: cover;
             background-position: center;
@@ -72,7 +72,7 @@
         .o-2 { width: 300px; height: 300px; bottom: -80px; right: -80px; opacity: 0.5; }
 
         .auth-brand-side h1 {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Playfair Display', sans-serif;
             font-size: 4.8rem;
             font-weight: 800;
             margin-bottom: 2rem;
@@ -98,7 +98,7 @@
         }
 
         .form-header h2 {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Playfair Display', sans-serif;
             font-size: 2.8rem;
             font-weight: 700;
             color: #4a4a4a;
@@ -192,7 +192,7 @@
         .btn-submit {
             width: 100%;
             height: 56px;
-            background: linear-gradient(135deg, #cc66ff, #6c5ce7);
+            background: linear-gradient(135deg, #cc66ff, #A78BFA);
             color: #fff;
             border: none;
             border-radius: 28px;
@@ -250,23 +250,29 @@
                     <input type="password" th:field="*{password}" class="form-control" placeholder="Create Password" required>
                 </div>
 
-                <p style="font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-top:20px;">Join as:</p>
-                <div class="role-selector">
-                    <div class="role-option">
-                        <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
-                        <label for="roleUser" class="role-label">
-                            <i class="fas fa-user-graduate"></i>
-                            <span>Student</span>
-                        </label>
-                    </div>
-                    <div class="role-option">
-                        <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
-                        <label for="roleVendor" class="role-label">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            <span>Instructor</span>
-                        </label>
-                    </div>
+                <div th:if="${isAdmin}">
+                    <input type="hidden" name="role" value="ADMIN">
                 </div>
+
+                <th:block th:unless="${isAdmin}">
+                    <p style="font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-top:20px;">Join as:</p>
+                    <div class="role-selector">
+                        <div class="role-option">
+                            <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
+                            <label for="roleUser" class="role-label">
+                                <i class="fas fa-user-graduate"></i>
+                                <span>Student</span>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
+                            <label for="roleVendor" class="role-label">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>Instructor</span>
+                            </label>
+                        </div>
+                    </div>
+                </th:block>
 
                 <div id="vendorSection" class="vendor-box">
                     <div class="input-group">
@@ -305,4 +311,4 @@
     </script>
 </body>
 
-</html>
+</html>

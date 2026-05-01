@@ -133,11 +133,13 @@
     font-size: 1.6rem;
     font-weight: 700;
     border-radius: 0;
-    background-color: #a435f0;
+    background-color: #A78BFA;
+    color: #F5F3FF;
 }
 
 .btn-full:hover {
-    background-color: #8710d8;
+    background-color: #8B5CF6;
+    color: #F5F3FF;
 }
 
 /* Hide illustration on mobile */
@@ -189,23 +191,24 @@
     align-items: center !important;
     text-align: center !important;
     padding: 1.2rem 1.6rem !important;
-    border: 1.5px solid #1c1d1f !important;
-    background-color: #ffffff !important;
+    border: 1.5px solid #8B5CF6 !important;
+    background-color: #EDE9FE !important;
     transition: all 0.2s ease !important;
     min-height: 8.5rem !important;
     justify-content: center !important;
+    color: #2E1065 !important;
 }
 
 .role-icon-box {
     width: 2.8rem !important;
     height: 2.8rem !important;
-    background-color: #f7f9fa !important;
+    background-color: #F5F3FF !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin-bottom: 0.6rem !important;
-    color: #1c1d1f !important;
+    color: #C4B5FD !important;
     font-size: 1.4rem !important;
 }
 
@@ -213,25 +216,25 @@
     display: block;
     font-weight: 700;
     font-size: 1.4rem;
-    color: #1c1d1f;
+    color: #2E1065;
     margin-bottom: 0.1rem;
 }
 
 .role-desc {
     display: block;
     font-size: 1.1rem;
-    color: #6a6f73;
+    color: #C4B5FD;
 }
 
-/* Checked State - Purple */
+/* Checked State - Primary */
 .role-card input[type="radio"]:checked + .role-card-content {
-    border-color: #5624d0;
-    background-color: #f0ebff;
+    border-color: #A78BFA;
+    background-color: #F5F3FF;
 }
 
 .role-card input[type="radio"]:checked + .role-card-content .role-icon-box {
-    background-color: #5624d0;
-    color: #fff;
+    background-color: #A78BFA;
+    color: #F5F3FF;
 }
 
 .role-card:hover .role-card-content {
@@ -242,4 +245,4 @@
     .role-selection-grid {
         grid-template-columns: 1fr;
     }
-}
+}

@@ -1164,7 +1164,7 @@
             });
         }
 
-        let ytProgressInterval;
+        let ytProgressDM Sansval;
 
         function onPlayerReady(event) {
             const saved = getProgress(CURRENT_LECTURE_ID);
@@ -1176,8 +1176,8 @@
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
                 updateControlBtnUI(false);
-                if (!ytProgressInterval) {
-                    ytProgressInterval = setInterval(() => {
+                if (!ytProgressDM Sansval) {
+                    ytProgressDM Sansval = setDM Sansval(() => {
                         if (ytPlayer && ytPlayer.getCurrentTime) {
                             const time = ytPlayer.getCurrentTime();
                             if (time > 3) setProgress(CURRENT_LECTURE_ID, time);
@@ -1215,9 +1215,9 @@
                         }
                     }
                 }
-                if (ytProgressInterval && event.data !== YT.PlayerState.BUFFERING) {
-                    clearInterval(ytProgressInterval);
-                    ytProgressInterval = null;
+                if (ytProgressDM Sansval && event.data !== YT.PlayerState.BUFFERING) {
+                    clearDM Sansval(ytProgressDM Sansval);
+                    ytProgressDM Sansval = null;
                 }
             }
         }

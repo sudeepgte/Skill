@@ -25,7 +25,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background-color: #fff;
             color: var(--text);
             margin: 0;
@@ -1130,18 +1130,18 @@
         const activeTab = /*[[${activeTab}]]*/ 'welcome';
         
         // Real-time Course Progress Polling
-        let progressInterval;
+        let progressDM Sansval;
         
         function startProgressPolling() {
-            if (progressInterval) return;
+            if (progressDM Sansval) return;
             console.log('Starting progress polling...');
-            progressInterval = setInterval(fetchLatestProgress, 10000); // 10 seconds
+            progressDM Sansval = setDM Sansval(fetchLatestProgress, 10000); // 10 seconds
         }
 
         function stopProgressPolling() {
-            if (progressInterval) {
-                clearInterval(progressInterval);
-                progressInterval = null;
+            if (progressDM Sansval) {
+                clearDM Sansval(progressDM Sansval);
+                progressDM Sansval = null;
                 console.log('Stopped progress polling.');
             }
         }

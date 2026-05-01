@@ -8,30 +8,30 @@
 
 :root {
   /* Colors */
-  --color-purple: #a435f0;
-  --color-purple-hover: #8710d8;
-  --color-black: #2d2f31;
-  --color-black-hover: #000000;
-  --color-white: #ffffff;
-  --color-gray-100: #f7f9fa;
+  --color-primary: #A78BFA;
+  --color-primary-hover: #8B5CF6;
+  --color-black: #2E1065;
+  --color-black-hover: #C4B5FD;
+  --color-white: #F5F3FF;
+  --color-gray-100: #EDE9FE;
   /* Backgrounds */
-  --color-surface: #ffffff;
-  --color-surface-alt: #f7f9fa;
-  --color-gray-200: #e4e8eb;
+  --color-surface: #EDE9FE;
+  --color-surface-alt: #F5F3FF;
+  --color-gray-200: #8B5CF6;
   /* Borders */
-  --color-border: #d1d7dc;
-  --color-gray-300: #d1d7dc;
+  --color-border: #8B5CF6;
+  --color-gray-300: #8B5CF6;
   /* Borders strong */
-  --color-gray-400: #9aa0a6;
-  --color-gray-500: #6a6f73;
+  --color-gray-400: #C4B5FD;
+  --color-gray-500: #C4B5FD;
   /* Secondary Text */
-  --color-text-secondary: #6a6f73;
-  --color-gray-700: #2d2f31;
+  --color-text-secondary: #C4B5FD;
+  --color-gray-700: #2E1065;
   /* Primary Text */
-  --color-text-main: #2d2f31;
+  --color-text-main: #2E1065;
 
-  --color-orange-rating: #e59819;
-  --color-brown-rating-text: #b4690e;
+  --color-orange-rating: #A78BFA;
+  --color-brown-rating-text: #C4B5FD;
 
   /* Spacing */
   --spacing-xs: 0.4rem;
@@ -71,12 +71,12 @@ body {
 
 a {
   text-decoration: none;
-  color: var(--color-purple);
+  color: var(--color-primary);
   font-weight: 700;
 }
 
 a:hover {
-  color: var(--color-purple-hover);
+  color: var(--color-primary-hover);
 }
 
 h1,
@@ -156,15 +156,15 @@ h3 {
 }
 
 .btn-primary {
-  background-color: var(--color-black);
-  color: var(--color-white);
-  border-color: var(--color-black);
+  background-color: var(--color-primary);
+  color: var(--color-black);
+  border-color: var(--color-primary);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-black-hover);
-  border-color: var(--color-black-hover);
-  color: var(--color-white);
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: var(--color-black);
 }
 
 .btn-outline {
@@ -186,8 +186,8 @@ h3 {
 }
 
 .btn-ghost:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-  color: var(--color-purple);
+  background-color: rgba(167, 139, 250, 0.1);
+  color: var(--color-primary);
   /* Udemy headers often modify this, but basics */
 }
 
@@ -202,15 +202,16 @@ h3 {
 /* Navbar */
 .navbar {
   height: var(--navbar-height);
-  background-color: var(--color-white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
-  /* Udemy precise shadow */
+  background-color: var(--color-surface);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
+  /* Darker shadows for dark UI */
   position: relative;
   z-index: 1000;
   display: flex;
   align-items: center;
   padding: 0 2.4rem;
   gap: 1.2rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .navbar .logo {
@@ -240,7 +241,7 @@ h3 {
 }
 
 .categories-link:hover {
-  color: var(--color-purple);
+  color: var(--color-primary);
 }
 
 /* Search Bar */
@@ -266,8 +267,8 @@ h3 {
 }
 
 .search-input:focus {
-  background-color: var(--color-white);
-  border-color: var(--color-black);
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
   /* Focus state */
 }
 
@@ -298,7 +299,7 @@ h3 {
 }
 
 .nav-link:hover {
-  color: var(--color-purple);
+  color: var(--color-primary);
 }
 
 /* Hero Section */
@@ -328,11 +329,12 @@ h3 {
   position: absolute;
   top: 6.4rem;
   left: 4.8rem;
-  background-color: var(--color-white);
+  background-color: var(--color-surface);
   padding: 2.4rem;
   width: 44rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
   /* Card shadow */
+  border: 1px solid var(--color-border);
 }
 
 .hero-title {
@@ -411,8 +413,15 @@ h3 {
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  background: white;
+  background: var(--color-surface);
   transition: opacity 0.1s;
+  padding: 1.2rem;
+  border-radius: 0.8rem;
+  border: 1px solid transparent;
+}
+
+.course-card:hover {
+  border-color: var(--color-primary);
 }
 
 .course-card:hover .course-image img {
@@ -521,11 +530,12 @@ h3 {
 
 /* Footer */
 footer {
-  background-color: #1c1d1f;
+  background-color: var(--color-bg-main);
   /* Dark footer */
-  color: #fff;
+  color: var(--color-text-main);
   padding: 3.2rem 2.4rem;
   margin-top: 6.4rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .footer-logo {

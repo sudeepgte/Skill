@@ -8,13 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #a435f0;
-            --primary-hover: #8710d8;
-            --text-main: #2d2f31;
-            --text-secondary: #6a6f73;
-            --bg-gray: #f7f9fa;
-            --border: #d1d7dc;
-            --white: #ffffff;
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --text-main: #2E1065;
+            --text-secondary: #8B5CF6;
+            --bg-gray: #F5F3FF;
+            --border: #C4B5FD;
+            --white: #EDE9FE;
+            --highlight: #F472B6;
         }
 
         body {
@@ -78,11 +79,11 @@
         }
 
         .tab-btn:hover {
-            background: #f8f9fb;
+            background: #EDE9FE;
         }
 
         .tab-btn.active {
-            background: #f8f9fb;
+            background: #EDE9FE;
             border-left-color: var(--primary);
             font-weight: 700;
         }
@@ -169,7 +170,7 @@
             border: 2px dashed var(--border);
             padding: 3rem;
             text-align: center;
-            background: #f8fafc;
+            background: #EDE9FE;
             border-radius: 4px;
             cursor: pointer;
             transition: border-color 0.2s;
@@ -183,7 +184,7 @@
         .curriculum-placeholder {
             text-align: center;
             padding: 4rem 2rem;
-            background: #fdfbff;
+            background: #F5F3FF;
             border: 1px dashed var(--primary);
         }
 
@@ -321,7 +322,7 @@
                             <label for="level">Level</label>
                             <select id="level" th:field="*{level}">
                                 <option value="Beginner">Beginner Level</option>
-                                <option value="Intermediate">Intermediate Level</option>
+                                <option value="DM Sansmediate">DM Sansmediate Level</option>
                                 <option value="Advanced">Advanced Level</option>
                                 <option value="All Levels">All Levels</option>
                             </select>
@@ -451,7 +452,7 @@
                         </div>
                     </div>
 
-                    <div style="background: #fffcf0; padding: 1.5rem; border: 1px solid #ffe799; border-radius: 4px;">
+                    <div style="background: #EDE9FE; padding: 1.5rem; border: 1px solid var(--border); border-radius: 4px;">
                         <p style="margin: 0; font-size: 0.9rem;">
                             <i class="fas fa-lightbulb" style="color: #b4690e; margin-right: 8px;"></i>
                             <strong>Tip:</strong> Free courses cannot have more than 2 hours of video content and don't include certificates.

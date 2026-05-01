@@ -1,13 +1,15 @@
 :root {
-    --vendor-sidebar-bg: #1e1b4b;
-    --vendor-sidebar-active: #4f46e5;
-    --vendor-content-bg: #fdfcf7;
-    --vendor-primary: #6d28d9;
-    --vendor-text-main: #1f2937;
-    --vendor-text-muted: #6b7280;
-    --vendor-card-border: #f3f4f6;
-    --vendor-status-published: #d1fae5;
-    --vendor-status-published-text: #065f46;
+    --vendor-sidebar-bg: #2E1065;
+    --vendor-sidebar-active: #8B5CF6;
+    --vendor-content-bg: #F5F3FF;
+    --vendor-primary: #A78BFA;
+    --vendor-text-main: #2E1065;
+    --vendor-text-muted: #8B5CF6;
+    --vendor-card-border: #A78BFA;
+    --vendor-status-published: #EDE9FE;
+    --vendor-status-published-text: #2E1065;
+    --vendor-accent: #C4B5FD;
+    --vendor-highlight: #F472B6;
 }
 
 body {
@@ -18,7 +20,6 @@ body {
 }
 
 .vendor-dashboard-container {
-    display: flex;
     min-height: 100vh;
 }
 
@@ -31,7 +32,11 @@ body {
     flex-direction: column;
     padding: 1.5rem 0;
     position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
     height: 100vh;
+    overflow-y: auto;
 }
 
 .vendor-sidebar-brand {
@@ -60,7 +65,7 @@ body {
     align-items: center;
     gap: 0.8rem;
     padding: 0.8rem 1rem;
-    color: #9ca3af;
+    color: #F5F3FF;
     text-decoration: none;
     border-radius: 0.5rem;
     transition: all 0.2s;
@@ -105,7 +110,7 @@ body {
     margin: 0;
     font-size: 2.2rem;
     font-weight: 700;
-    color: #111827;
+    color: #2E1065;
 }
 
 .vendor-welcome p {
@@ -135,7 +140,7 @@ body {
 }
 
 .stat-card {
-    background: white;
+    background: #EDE9FE;
     padding: 1.5rem;
     border-radius: 1rem;
     border: 1px solid var(--vendor-card-border);
@@ -174,11 +179,14 @@ body {
 
 /* ━━ COURSE PANEL ━━ */
 .vendor-panel {
-    background: white;
+    background: #EDE9FE;
     border-radius: 1.2rem;
     padding: 2rem;
     border: 1px solid var(--vendor-card-border);
     box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+    min-height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
 }
 
 .panel-header {
@@ -211,6 +219,7 @@ body {
 /* ━━ TABLE ━━ */
 .vendor-table-wrap {
     overflow-x: auto;
+    flex: 1;
 }
 
 .vendor-table {

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -35,8 +35,8 @@
         .category-label {
             display: inline-block;
             padding: 0.4rem 1.2rem;
-            background: rgba(44,62,80,0.08);
-            color: var(--primary);
+            background: rgba(167, 139, 250, 0.1);
+            color: var(--accent-dark);
             border-radius: 10rem;
             font-size: 1.1rem;
             font-weight: 700;
@@ -58,11 +58,12 @@
             align-items: center;
             gap: 0.8rem;
             font-size: 1.4rem;
-            color: var(--text-muted);
+            color: var(--text);
             margin-bottom: 2.4rem;
-            background: rgba(245,246,250,0.6);
+            background: var(--bg);
             padding: 1.2rem;
             border-radius: 0.8rem;
+            border: 1px solid var(--border);
         }
 
         .question-count strong { color: var(--text); font-size: 1.6rem; }
@@ -171,14 +172,14 @@
                         <div class="category-label" th:text="${course.category != null ? course.category.name : 'Uncategorized'}">Category</div>
                         <div class="course-title" th:text="${course.title}">Course Title</div>
                         <div class="question-count">
-                            <i class="fas fa-layer-group" style="color: var(--primary); font-size: 2rem;"></i>
+                            <i class="fas fa-layer-group" style="color: var(--accent-dark); font-size: 2rem;"></i>
                             <div>
                                 <strong th:text="${course.examQuestions != null ? course.examQuestions.size() : 0}">0</strong>
                                 <span>Questions Uploaded</span>
                             </div>
                         </div>
                     </div>
-                    <a th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn-primary-admin" style="background: var(--primary); width: 100%; justify-content: center;">
+                    <a th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn-primary-admin" style="background: var(--accent); color: #fff; width: 100%; justify-content: center;">
                         <i class="fas fa-edit"></i> Manage Questions
                     </a>
                 </div>

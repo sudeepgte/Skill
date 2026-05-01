@@ -9,17 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --secondary: #64748b;
-            --background: #f8fafc;
-            --sidebar: #1e293b;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #22c55e;
-            --warning: #f59e0b;
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --secondary: #8B5CF6;
+            --background: #F5F3FF;
+            --sidebar: #2E1065;
+            --card-bg: #EDE9FE;
+            --text-main: #2E1065;
+            --text-muted: #8B5CF6;
+            --border: #C4B5FD;
+            --success: #A78BFA;
+            --warning: #F472B6;
         }
 
         * {
@@ -32,8 +32,8 @@
         body {
             background-color: var(--background);
             color: var(--text-main);
-            display: flex;
             min-height: 100vh;
+            margin: 0;
         }
 
         /* Sidebar Styles */
@@ -45,7 +45,11 @@
             display: flex;
             flex-direction: column;
             position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
             height: 100vh;
+            overflow-y: auto;
             transition: all 0.3s ease;
         }
 
@@ -88,7 +92,7 @@
             padding: 0.875rem 1rem;
             border-radius: 12px;
             text-decoration: none;
-            color: #94a3b8;
+            color: #F5F3FF;
             font-weight: 500;
             transition: all 0.2s ease;
         }
@@ -101,7 +105,7 @@
         .nav-item.active {
             background-color: var(--primary);
             color: white;
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(167, 139, 250, 0.4);
         }
 
         .nav-item:hover:not(.active) {
@@ -161,7 +165,7 @@
         .category-label {
             display: inline-block;
             padding: 0.25rem 0.75rem;
-            background: #eef2ff;
+            background: #EDE9FE;
             color: var(--primary);
             border-radius: 100px;
             font-size: 0.75rem;
@@ -180,7 +184,7 @@
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            background: #f8fafc;
+            background: #F5F3FF;
             border-radius: 12px;
             color: var(--text-muted);
         }
@@ -218,7 +222,7 @@
         .btn-primary:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(167, 139, 250, 0.4);
         }
 
         /* QR Modal Styles */
@@ -234,7 +238,7 @@
         }
 
         .qr-modal-content {
-            background: white;
+            background: #F5F3FF;
             padding: 2.5rem;
             border-radius: 24px;
             text-align: center;
@@ -345,7 +349,7 @@
                     <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" class="btn btn-primary">
                         <i class="fas fa-edit"></i> Manage Questions
                     </a>
-                    <button class="btn" style="background: #f1f5f9; color: var(--text-main); font-size: 1.25rem; padding: 0 1rem;" 
+                    <button class="btn" style="background: #EDE9FE; color: var(--text-main); font-size: 1.25rem; padding: 0 1rem;" 
                             th:attr="onclick=|generateQR('${course.id}', '${course.title}')|" title="Generate QR Code">
                         <i class="fas fa-qrcode"></i>
                     </button>
@@ -354,7 +358,7 @@
         </div>
 
         <!-- Empty State -->
-        <div th:if="${courses == null or courses.empty}" style="text-align: center; padding: 5rem 2rem; background: white; border-radius: 20px; border: 1px dashed var(--border);">
+        <div th:if="${courses == null or courses.empty}" style="text-align: center; padding: 5rem 2rem; background: #EDE9FE; border-radius: 20px; border: 1px dashed var(--border);">
             <i class="fas fa-clipboard-list" style="font-size: 4rem; color: var(--border); margin-bottom: 1.5rem;"></i>
             <h3>No courses found</h3>
             <p style="color: var(--text-muted); margin-top: 0.5rem;">Create a course first to add assessment questions.</p>
@@ -367,12 +371,12 @@
             <h2 id="qrTitle" style="font-size: 1.25rem; margin-bottom: 0.5rem;">Exam Quick Access</h2>
             <p class="qr-help-text">Share this code with students for instant entry.</p>
             <div id="qrcode"></div>
-            <div id="qrUrl" style="font-size: 0.75rem; color: #64748b; word-break: break-all; margin-bottom: 1.5rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;"></div>
+            <div id="qrUrl" style="font-size: 0.75rem; color: #8B5CF6; word-break: break-all; margin-bottom: 1.5rem; padding: 0.5rem; background: #EDE9FE; border-radius: 8px;"></div>
             <div style="display: flex; gap: 0.75rem;">
                 <button onclick="downloadQR()" class="btn btn-primary" style="background: var(--success);">
                     <i class="fas fa-download"></i> Download
                 </button>
-                <button onclick="closeQR()" class="btn" style="background: #f1f5f9; color: var(--text-main); flex: 1;">
+                <button onclick="closeQR()" class="btn" style="background: #EDE9FE; color: var(--text-main); flex: 1;">
                     Close
                 </button>
             </div>
@@ -403,7 +407,7 @@
                 text: accessUrl,
                 width: 200,
                 height: 200,
-                colorDark: "#1e293b",
+                colorDark: "#2E1065",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
@@ -458,7 +462,7 @@
         }
 
         // Start polling every 15 seconds
-        setInterval(updateExamStats, 15000);
+        setDM Sansval(updateExamStats, 15000);
         // Initial run
         updateExamStats();
     </script>

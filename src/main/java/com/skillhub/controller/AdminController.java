@@ -53,6 +53,11 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @GetMapping({"", "/"})
+    public String adminRoot() {
+        return "redirect:/admin/dashboard";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // Analytics

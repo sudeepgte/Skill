@@ -67,8 +67,8 @@
                 </a>
             </header>
 
-            <!-- Stats Grid -->
-            <div class="vendor-stats-grid">
+            <!-- Stats Grid - Only show on main dashboard tab -->
+            <div class="vendor-stats-grid" th:if="${activeTab == 'courses' or activeTab == null}">
                 <!-- Total Enrolled -->
                 <div class="stat-card">
                     <div class="stat-icon purple"><i class="fas fa-users"></i></div>
@@ -106,7 +106,7 @@
 
                 <!-- Exams Passed -->
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: #4f46e5;"><i class="fas fa-check-double"></i></div>
+                    <div class="stat-icon" style="background: rgba(167, 139, 250, 0.1); color: #8B5CF6;"><i class="fas fa-check-double"></i></div>
                     <div class="stat-label">Exams Passed</div>
                     <div class="stat-value" th:text="${totalExamsPassed}">0</div>
                 </div>
@@ -163,7 +163,7 @@
                                         </a>
                                         <form th:action="@{/vendor/courses/{id}/delete(id=${course.id})}" method="post" style="display:inline;"
                                               onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
-                                            <button type="submit" class="btn-icon delete" title="Delete" style="background:none; border:none; cursor:pointer; color:#e11d48; padding:0;">
+                                            <button type="submit" class="btn-icon delete" title="Delete" style="background:none; border:none; cursor:pointer; color:#A78BFA; padding:0;">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
@@ -214,8 +214,8 @@
                                         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
                                             <span th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 0, 0) + '%'}">0%</span>
                                         </div>
-                                        <div style="width: 100%; height: 6px; background: #e5e7eb; border-radius: 10px; overflow: hidden;">
-                                            <div th:style="'width: ' + ${enrollment.progressPercentage} + '%; height: 100%; background: #4f46e5; border-radius: 10px;'"></div>
+                                        <div style="width: 100%; height: 6px; background: #C4B5FD; border-radius: 10px; overflow: hidden;">
+                                            <div th:style="'width: ' + ${enrollment.progressPercentage} + '%; height: 100%; background: #8B5CF6; border-radius: 10px;'"></div>
                                         </div>
                                     </div>
                                 </td>
@@ -232,7 +232,7 @@
                                         </form>
                                         <button class="btn-icon" title="Message Student" 
                                                 th:onclick="window.openDirectChat([[${enrollment.student.email}]], [[${enrollment.student.name}]], 'STUDENT')"
-                                                style="background:none; border:none; cursor:pointer; color: #4f46e5;">
+                                                style="background:none; border:none; cursor:pointer; color: #8B5CF6;">
                                             <i class="fas fa-envelope"></i>
                                         </button>
                                     </div>
@@ -251,52 +251,52 @@
 
             <!-- Analytics Panel -->
             <div class="vendor-panel" th:if="${activeTab == 'analytics'}">
-                <div class="panel-header">
-                    <h2>Performance Insights & Visual Analytics</h2>
+                <div class="panel-header" style="margin-bottom: 3rem;">
+                    <h2 style="font-size: 2.2rem; font-weight: 800; color: #2E1065;">Performance Insights & Visual Analytics</h2>
                     <div class="panel-controls">
                          <span class="status-badge published" th:text="${totalExamsPassed + ' Total Successes'}">0 Total Successes</span>
                     </div>
                 </div>
 
                 <!-- ══ CHARTS GRID ══ -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.4rem; margin-bottom: 3.2rem;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.4rem; margin-bottom: 3.2rem;">
                     
                     <!-- Chart 1: Course Popularity -->
-                    <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 12px; padding: 2.4rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1c1d1f; display: flex; align-items: center; gap: 0.8rem;">
-                            <i class="fas fa-pie-chart" style="color: #5624d0;"></i> Course Popularity
+                    <div style="background: #F5F3FF; border: 1.5px solid var(--vendor-card-border); border-radius: 16px; padding: 2.4rem; box-shadow: var(--shadow);">
+                        <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 2rem; color: #2E1065; display: flex; align-items: center; gap: 1rem;">
+                            <i class="fas fa-chart-pie" style="color: #8B5CF6;"></i> Course Popularity
                         </h3>
-                        <div style="position: relative; height: 250px;">
+                        <div style="position: relative; height: 280px;">
                             <canvas id="coursePopularityChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 2: Exam Success Rate -->
-                    <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 12px; padding: 2.4rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1c1d1f; display: flex; align-items: center; gap: 0.8rem;">
-                            <i class="fas fa-check-circle" style="color: #059669;"></i> Exam Success Rate
+                    <div style="background: #F5F3FF; border: 1.5px solid var(--vendor-card-border); border-radius: 16px; padding: 2.4rem; box-shadow: var(--shadow);">
+                        <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 2rem; color: #2E1065; display: flex; align-items: center; gap: 1rem;">
+                            <i class="fas fa-check-circle" style="color: #A78BFA;"></i> Exam Success Rate
                         </h3>
-                        <div style="position: relative; height: 250px;">
+                        <div style="position: relative; height: 280px;">
                             <canvas id="examPerformanceChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 3: Enrollment Trend -->
-                    <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 12px; padding: 2.4rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); grid-column: span 1;">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1c1d1f; display: flex; align-items: center; gap: 0.8rem;">
-                            <i class="fas fa-chart-line" style="color: #4f46e5;"></i> Enrollment Trends (30d)
+                    <div style="background: #F5F3FF; border: 1.5px solid var(--vendor-card-border); border-radius: 16px; padding: 2.4rem; box-shadow: var(--shadow);">
+                        <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 2rem; color: #2E1065; display: flex; align-items: center; gap: 1rem;">
+                            <i class="fas fa-chart-line" style="color: #8B5CF6;"></i> Enrollment Trends (30d)
                         </h3>
-                        <div style="position: relative; height: 250px;">
+                        <div style="position: relative; height: 280px;">
                             <canvas id="enrollmentTrendChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Chart 4: Avg Scores -->
-                    <div style="background: #fff; border: 1px solid #d1d7dc; border-radius: 12px; padding: 2.4rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                        <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1c1d1f; display: flex; align-items: center; gap: 0.8rem;">
-                            <i class="fas fa-graduation-cap" style="color: #ea580c;"></i> Avg. Student Scores
+                    <div style="background: #F5F3FF; border: 1.5px solid var(--vendor-card-border); border-radius: 16px; padding: 2.4rem; box-shadow: var(--shadow);">
+                        <h3 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 2rem; color: #2E1065; display: flex; align-items: center; gap: 1rem;">
+                            <i class="fas fa-graduation-cap" style="color: #F472B6;"></i> Avg. Student Scores
                         </h3>
-                        <div style="position: relative; height: 250px;">
+                        <div style="position: relative; height: 280px;">
                             <canvas id="avgScoresChart"></canvas>
                         </div>
                     </div>
@@ -376,7 +376,7 @@
         });
 
         function renderCharts(data) {
-            const primaryColors = ['#5624d0', '#059669', '#4f46e5', '#ea580c', '#e11d48', '#0891b2'];
+            const primaryColors = ['#A78BFA', '#8B5CF6', '#2E1065', '#C4B5FD', '#F472B6', '#EDE9FE'];
             
             // 1. Course Popularity (Pie)
             new Chart(document.getElementById('coursePopularityChart'), {
@@ -399,7 +399,7 @@
                     labels: Object.keys(data.examPerformance),
                     datasets: [{
                         data: Object.values(data.examPerformance),
-                        backgroundColor: ['#059669', '#e11d48'],
+                        backgroundColor: ['#8B5CF6', '#A78BFA'],
                         borderWidth: 0,
                         cutout: '70%'
                     }]
@@ -415,8 +415,8 @@
                     datasets: [{
                         label: 'Enrollments',
                         data: Object.values(data.enrollmentTimeline),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(167, 139, 250, 0.1)',
                         fill: true,
                         tension: 0.4,
                         pointRadius: 4
@@ -438,7 +438,7 @@
                     datasets: [{
                         label: 'Average Score',
                         data: Object.values(data.avgScores),
-                        backgroundColor: '#ea580c',
+                        backgroundColor: '#F472B6',
                         borderRadius: 8
                     }]
                 },

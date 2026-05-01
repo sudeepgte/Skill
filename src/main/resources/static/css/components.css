@@ -17,34 +17,34 @@
 }
 
 .btn-primary {
-    background-color: var(--color-black);
+    background-color: var(--color-primary);
     color: var(--color-white);
 }
 
 .btn-primary:hover {
-    opacity: 0.9;
+    background-color: var(--color-primary-hover);
     color: var(--color-white);
 }
 
 .btn-outline {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    border-color: var(--color-black);
+    background-color: transparent;
+    color: var(--color-text-main);
+    border-color: var(--color-primary);
 }
 
 .btn-outline:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    color: var(--color-black);
+    background-color: rgba(167, 139, 250, 0.1);
+    color: var(--color-primary);
 }
 
 .btn-ghost {
     background-color: transparent;
-    color: var(--color-black);
+    color: var(--color-text-main);
 }
 
 .btn-ghost:hover {
     color: var(--color-primary);
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(167, 139, 250, 0.1);
 }
 
 .btn-sm {
@@ -82,9 +82,9 @@
 .course-image {
     width: 100%;
     aspect-ratio: 16/9;
-    background-color: var(--color-gray-200);
+    background-color: var(--color-bg-surface);
     margin-bottom: 0.8rem;
-    border: 1px solid #d1d7dc;
+    border: 1px solid var(--color-secondary);
     overflow: hidden;
 }
 
@@ -151,13 +151,13 @@
     flex-grow: 1;
     max-width: 600px;
     position: relative;
-    border: 1px solid var(--color-black);
+    border: 1px solid var(--color-primary);
     border-radius: 9999px;
     /* Pill shape */
     height: 4.8rem;
     display: flex;
     align-items: center;
-    background: #f7f9fa;
+    background: var(--color-bg-surface);
     overflow: hidden;
 }
 
@@ -189,13 +189,14 @@
 .tag-pill {
     padding: 1rem 1.6rem;
     border-radius: 9999px;
-    border: 1px solid var(--color-black);
-    color: var(--color-black);
+    border: 1px solid var(--color-primary);
+    color: var(--color-text-main);
     font-weight: 700;
     font-size: 1.4rem;
+    background: var(--color-bg-surface);
 }
 
 .tag-pill.active {
-    background-color: var(--color-black);
-    color: var(--color-white);
+    background-color: var(--color-primary);
+    color: var(--color-bg-main);
 }

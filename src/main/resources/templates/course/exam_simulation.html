@@ -8,7 +8,7 @@
     <style>
         body {
             background: #f7f9fa;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
         }
 
         .exam-header {
@@ -142,7 +142,7 @@
             timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
             if (timeLeft <= 0) {
-                clearInterval(countdown);
+                clearDM Sansval(countdown);
                 alert("Time is up! Submitting your exam.");
                 document.getElementById('examForm').submit();
             } else if (timeLeft === 300) { // 5 minutes warning
@@ -151,7 +151,7 @@
             timeLeft--;
         }
 
-        const countdown = setInterval(updateTimer, 1000);
+        const countdown = setDM Sansval(updateTimer, 1000);
         updateTimer(); // Initial call
 
         // Prevent accidental tab close
