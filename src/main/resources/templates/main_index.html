@@ -53,13 +53,11 @@
   }
 
   .nav-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.7rem; font-weight: 900;
-    color: var(--text);
+    display: flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: -0.5px;
+    gap: 12px;
   }
-  .nav-logo span { color: var(--primary); }
 
   .nav-links {
     display: flex; align-items: center; gap: 2rem;
@@ -662,11 +660,15 @@
   /* ── CTA IMAGE BG ── */
   .cta-img-bg {
     position: relative; overflow: hidden;
+    background: #0f172a !important;
+  }
+  .cta-img-bg::before {
+    display: none !important;
   }
   .cta-img-bg .cta-bg-img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: cover; opacity: 0.4;
+    object-fit: cover; opacity: 0.6;
     pointer-events: none;
     z-index: 0;
   }
@@ -713,7 +715,15 @@
 
 <!-- ── NAVBAR ── -->
 <nav id="navbar">
-  <a th:href="@{/}" class="nav-logo">Skill<span>Hub</span></a>
+  <a th:href="@{/}" class="nav-logo">
+    <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 32px; width: auto; object-fit: contain;">
+    <div style="display: flex; flex-direction: column; line-height: 1.1;">
+      <div style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -1.2px; text-transform: none;">
+        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+      </div>
+      <div style="font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px;">Learn.Grow.Succeed</div>
+    </div>
+  </a>
   <ul class="nav-links">
     <li><a href="#categories">Categories</a></li>
     <li><a href="#courses">Courses</a></li>
@@ -835,8 +845,8 @@
     <p class="section-sub" th:unless="${activeCategory == null}">Discover top-rated courses and masterclasses specifically tailored for your interest in <span th:text="${activeCategory}"></span>.</p>
     <div class="courses-grid">
 
-      <th:block th:each="course : ${courses}">
-          <div class="course-card">
+      <th:block th:each="course, iterStat : ${courses}">
+          <div class="course-card" th:if="${iterStat.index < 3}">
             <img th:src="${course.imageUrl != null ? course.imageUrl : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80'}" class="course-thumb" th:alt="${course.title}">
             <div class="course-body">
               <div class="course-meta">
@@ -856,7 +866,7 @@
 
     </div>
     <div style="text-align:center;margin-top:3rem;">
-      <a th:href="@{/}" class="btn-ghost btn-large">View All Courses →</a>
+      <a th:href="${activeCategory != null} ? @{/courses/{cat}(cat=${activeCategory})} : @{/courses}" class="btn-ghost btn-large">View All Courses →</a>
     </div>
   </div>
 </section>
@@ -869,36 +879,21 @@
     <p class="section-sub">Our instructors are real-world practitioners with years of professional experience — not just teachers.</p>
     <div class="instructors-grid">
 
-      <div class="instructor-card">
-        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" class="instructor-photo" alt="Rajesh Mehta">
-        <div class="instructor-body">
-          <div class="instructor-name">Rajesh Mehta</div>
-          <div class="instructor-spec">Full-Stack Development</div>
-          <div class="instructor-meta">12 yrs · 18K students</div>
-          <div class="instructor-rating">★★★★★ 4.9</div>
-        </div>
-      </div>
+      <th:block th:each="inst, iterStat : ${instructors}">
+        <a th:href="@{/instructor/{id}(id=${inst.id})}" class="instructor-card" th:if="${iterStat.index < 3}" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+          <img th:src="${inst.profileImageUrl != null && !inst.profileImageUrl.isEmpty()} ? ${inst.profileImageUrl} : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80'" class="instructor-photo" th:alt="${inst.name}">
+          <div class="instructor-body">
+            <div class="instructor-name" th:text="${inst.name}">Instructor Name</div>
+            <div class="instructor-spec" th:text="${inst.headline != null && !inst.headline.isEmpty()} ? ${inst.headline} : 'Expert Instructor'">Specialization</div>
+            <div class="instructor-meta" th:text="${inst.skills != null && !inst.skills.isEmpty()} ? ${inst.skills} : 'Verified Expert'">Experience / Meta</div>
+            <div class="instructor-rating">★★★★★ 4.9</div>
+          </div>
+        </a>
+      </th:block>
 
-      <div class="instructor-card">
-        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" class="instructor-photo" alt="Priya Sharma">
-        <div class="instructor-body">
-          <div class="instructor-name">Priya Sharma</div>
-          <div class="instructor-spec">Yoga & Mindfulness</div>
-          <div class="instructor-meta">8 yrs · 14K students</div>
-          <div class="instructor-rating">★★★★★ 4.8</div>
-        </div>
-      </div>
-
-      <div class="instructor-card">
-        <img src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&q=80" class="instructor-photo" alt="Ananya Bose">
-        <div class="instructor-body">
-          <div class="instructor-name">Ananya Bose</div>
-          <div class="instructor-spec">Watercolor & Fine Art</div>
-          <div class="instructor-meta">15 yrs · 8K students</div>
-          <div class="instructor-rating">★★★★★ 5.0</div>
-        </div>
-      </div>
-
+    </div>
+    <div style="text-align:center;margin-top:3rem;" th:if="${instructors != null && instructors.size() > 3}">
+      <a href="/instructors" class="btn-ghost btn-large">View More Experts →</a>
     </div>
   </div>
 </section>
@@ -1035,19 +1030,24 @@
       <div>
         <div class="contact-form">
           <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--text);margin-bottom:1.5rem;">Send a Message</h3>
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" placeholder="Your Name">
+          <div th:if="${param.success != null and param.success[0] == 'contact'}" style="background:#d4edda;color:#155724;padding:1rem;margin-bottom:1rem;border-radius:4px;font-size:0.9rem;">
+              Your message has been sent successfully!
           </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" placeholder="email@example.com">
-          </div>
-          <div class="form-group">
-            <label>Message</label>
-            <textarea placeholder="Tell us how we can help you..."></textarea>
-          </div>
-          <button class="btn-primary" style="width:100%;padding:0.8rem;font-size:1rem;border-radius:8px;cursor:pointer">Send Message →</button>
+          <form th:action="@{/submit-contact-form}" method="POST">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" name="name" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" name="email" placeholder="email@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea name="message" placeholder="Tell us how we can help you..." required></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;padding:0.8rem;font-size:1rem;border-radius:8px;cursor:pointer">Send Message →</button>
+          </form>
         </div>
       </div>
     </div>

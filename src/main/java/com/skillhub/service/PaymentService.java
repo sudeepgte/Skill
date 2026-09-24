@@ -45,7 +45,11 @@ public class PaymentService {
     public Payment createOrder(User user, Course course) throws RazorpayException {
         JSONObject orderRequest = new JSONObject();
         // Razorpay amount is in paise (1 INR = 100 paise)
-        orderRequest.put("amount", (int) (course.getPrice() * 100));
+        double originalPrice = course.getPrice();
+        double serviceFee = originalPrice * 0.05;
+        double totalAmount = originalPrice + serviceFee;
+
+        orderRequest.put("amount", (int) (totalAmount * 100));
         orderRequest.put("currency", "INR");
         orderRequest.put("receipt", "txn_" + UUID.randomUUID().toString().substring(0, 8));
 
@@ -55,7 +59,7 @@ public class PaymentService {
         // Save a pending payment record
         Payment payment = new Payment();
         payment.setTransactionId("PEND-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        payment.setAmount(course.getPrice());
+        payment.setAmount(totalAmount);
         payment.setPaymentMethod("RAZORPAY");
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaymentDate(LocalDateTime.now());
@@ -104,7 +108,10 @@ public class PaymentService {
         // Create payment record
         Payment payment = new Payment();
         payment.setTransactionId("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        payment.setAmount(course.getPrice());
+        double originalPrice = course.getPrice();
+        double serviceFee = originalPrice * 0.05;
+        double totalAmount = originalPrice + serviceFee;
+        payment.setAmount(totalAmount);
         payment.setPaymentMethod(method);
         payment.setStatus(PaymentStatus.SUCCESS); // Simulating success
         payment.setPaymentDate(LocalDateTime.now());

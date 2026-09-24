@@ -97,10 +97,15 @@
         <main class="admin-main">
 
             <!-- Page Header -->
-            <div class="page-header">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="page-header-left">
                     <h1>Vendors</h1>
                     <p>Manage vendor registrations and approval statuses.</p>
+                </div>
+                <div class="page-header-right">
+                    <button class="btn-primary-admin" onclick="document.getElementById('addVendorModal').style.display='flex'" style="font-size: 1.4rem; padding: 1rem 1.8rem; font-weight: 600;">
+                        <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Add New Vendor
+                    </button>
                 </div>
             </div>
 
@@ -173,6 +178,31 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Add Vendor Modal -->
+            <div id="addVendorModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
+                <div style="background:white; padding:2rem; border-radius:8px; width:400px; max-width:90%;">
+                    <h2 style="margin-top:0;">Add New Vendor</h2>
+                    <form th:action="@{/admin/vendors/add}" method="post">
+                        <div style="margin-bottom:1rem;">
+                            <label style="display:block; margin-bottom:0.5rem;">Name</label>
+                            <input type="text" name="name" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        </div>
+                        <div style="margin-bottom:1rem;">
+                            <label style="display:block; margin-bottom:0.5rem;">Email</label>
+                            <input type="email" name="email" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        </div>
+                        <div style="margin-bottom:1rem;">
+                            <label style="display:block; margin-bottom:0.5rem;">Password</label>
+                            <input type="password" name="password" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+                            <button type="button" onclick="document.getElementById('addVendorModal').style.display='none'" style="padding:0.5rem 1rem; border:none; background:#eee; cursor:pointer; border-radius:4px;">Cancel</button>
+                            <button type="submit" class="btn-primary-admin" style="padding:0.5rem 1rem;">Add Vendor</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

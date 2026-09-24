@@ -462,7 +462,7 @@
         }
 
         // Start polling every 15 seconds
-        setDM Sansval(updateExamStats, 15000);
+        setInterval(updateExamStats, 15000);
         // Initial run
         updateExamStats();
     </script>

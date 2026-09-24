@@ -17,6 +17,13 @@ public class CommonController {
         return "common/category_courses";
     }
 
+    @GetMapping("/courses")
+    public String browseAllCourses(org.springframework.ui.Model model) {
+        model.addAttribute("categoryName", "All");
+        model.addAttribute("courses", courseService.getPublishedCourses());
+        return "common/category_courses";
+    }
+
 
 
     @GetMapping("/pricing")
@@ -49,5 +56,28 @@ public class CommonController {
     @GetMapping("/user/edit-profile")
     public String editProfile() {
         return "student/edit-profile";
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.skillhub.service.UserService userService;
+
+    @GetMapping("/instructors")
+    public String listAllInstructors(org.springframework.ui.Model model) {
+        java.util.List<com.skillhub.model.User> instructors = userService.getAllUsers().stream()
+                .filter(u -> "INSTRUCTOR".equals(u.getRole()) && u.isApproved() && !u.isBlocked())
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("instructors", instructors);
+        return "common/instructors_list";
+    }
+
+    @GetMapping("/instructor/{id}")
+    public String viewInstructorDetails(@org.springframework.web.bind.annotation.PathVariable Long id, org.springframework.ui.Model model) {
+        com.skillhub.model.User instructor = userService.getUserById(id);
+        if (instructor == null || !"INSTRUCTOR".equals(instructor.getRole()) || !instructor.isApproved() || instructor.isBlocked()) {
+            return "redirect:/";
+        }
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("courses", courseService.getCoursesByInstructor(instructor.getEmail()));
+        return "common/instructor_details";
     }
 }

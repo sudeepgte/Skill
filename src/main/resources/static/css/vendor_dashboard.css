@@ -30,7 +30,7 @@ body {
     color: white;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem 0;
+    padding: 1.5rem 0 0 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -46,6 +46,7 @@ body {
     gap: 0.8rem;
     font-size: 1.5rem;
     font-weight: 700;
+    flex-shrink: 0;
 }
 
 .vendor-sidebar-brand i {
@@ -58,6 +59,7 @@ body {
     flex-direction: column;
     gap: 0.5rem;
     padding: 0 0.8rem;
+    flex-shrink: 0;
 }
 
 .vendor-nav-item {
@@ -89,7 +91,8 @@ body {
 
 .vendor-sidebar-footer {
     margin-top: auto;
-    padding: 0 0.8rem;
+    padding: 1rem 0.8rem 1.5rem 0.8rem;
+    flex-shrink: 0;
 }
 
 /* ━━ MAIN CONTENT ━━ */

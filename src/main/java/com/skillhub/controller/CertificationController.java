@@ -28,6 +28,8 @@ public class CertificationController {
     private LectureProgressRepository lectureProgressRepository;
     @Autowired
     private ExamService examService;
+    @Autowired
+    private com.skillhub.repository.ExamAttemptRepository examAttemptRepository;
 
     // ─── CERTIFICATIONS DASHBOARD ───────────────────────────────────────────────
     @GetMapping("/user/certifications")
@@ -73,10 +75,14 @@ public class CertificationController {
                     ? Math.min(100.0, (double) completedLectures / totalLectures * 100.0)
                     : 0.0;
 
+            List<ExamAttempt> attempts = examAttemptRepository.findByUserAndCourse(user, course);
+            boolean hasSubmittedExam = attempts.stream().anyMatch(ExamAttempt::isPassed);
+
             Map<String, Object> info = new HashMap<>();
             info.put("completed", completedLectures);
             info.put("total", totalLectures);
             info.put("percent", percent);
+            info.put("isExamPending", hasSubmittedExam && !enrollment.isExamPassed());
             progressMap.put(course.getId(), info);
         }
 
@@ -134,12 +140,7 @@ public class CertificationController {
         ExamAttempt attempt = examService.gradeExam(user, course, allParams);
 
         if (attempt.isPassed()) {
-            enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(e -> {
-                e.setExamPassed(true);
-                e.setCertificateDate(java.time.LocalDateTime.now());
-                enrollmentRepository.save(e);
-            });
-            return "redirect:/user/course/" + id + "/certificate";
+            return "redirect:/user/certifications?pending=true&score=" + attempt.getScore();
         } else {
             return "redirect:/user/certifications?fail=true&score=" + attempt.getScore();
         }
@@ -156,21 +157,7 @@ public class CertificationController {
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElseThrow(() -> new RuntimeException("Not enrolled"));
 
-        boolean isCompleted = false;
-        long totalLectures = lectureProgressRepository.countTotalLecturesByCourse(course.getId());
-        long completedLectures = 0;
-        if (totalLectures > 0) {
-            completedLectures = lectureProgressRepository.countCompletedLecturesByCourse(user.getId(), course.getId());
-            // Fallback to enrollment stored percentage if DB count is 0
-            if (completedLectures == 0 && enrollment.getProgressPercentage() >= 99.9) {
-                completedLectures = totalLectures;
-            }
-            if (completedLectures >= totalLectures) {
-                isCompleted = true;
-            }
-        }
-
-        if (!enrollment.isExamPassed() && !isCompleted) {
+        if (!enrollment.isExamPassed()) {
             return "redirect:/user/certifications";
         }
 

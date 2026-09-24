@@ -803,12 +803,36 @@
             <!-- Learning Objectives -->
             <div class="learning-objectives" style="background: #fff; border: 1px solid var(--border-color); padding: 32px; border-radius: 8px;">
                 <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; color: var(--text-dark);">What you'll learn in this course</h2>
-                <div class="learning-description" style="font-size: 1.3rem; line-height: 1.8; color: #3c3b37; text-align: justify;">
+                <div class="learning-description" style="font-size: 1.3rem; line-height: 1.8; color: #3c3b37;">
                     <th:block th:if="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
-                        <span th:text="${#strings.replace(course.learningObjectives, '\n', ' ')}"></span>
+                        <ul class="obj-list" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                            <li th:each="point : ${course.learningObjectives.split('\n')}"
+                                th:if="${!#strings.isEmpty(#strings.trim(point))}"
+                                style="font-size: 1.2rem; color: var(--text-dark); display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-check" style="color: var(--primary); font-size: 1rem; margin-top: 5px; flex-shrink: 0;"></i>
+                                <span th:text="${#strings.trim(point)}">Learning Point</span>
+                            </li>
+                        </ul>
                     </th:block>
                     <th:block th:unless="${course.learningObjectives != null and !#strings.isEmpty(course.learningObjectives)}">
-                        Embark on a transformative journey to master the digital landscape. This comprehensive curriculum empowers you to architect sophisticated marketing strategies that drive measurable growth. From the intricate mechanics of SEO to precision-engineered ad campaigns on major platforms, you will gain the tactical expertise needed to dominate today's market. We delve into hands-on mastery of industry-leading tools, ensuring you emerge as a versatile, results-oriented digital strategist.
+                        <ul class="obj-list" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                            <li style="font-size: 1.2rem; color: var(--text-dark); display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-check" style="color: var(--primary); font-size: 1rem; margin-top: 5px; flex-shrink: 0;"></i>
+                                <span>Embark on a transformative journey to master the digital landscape.</span>
+                            </li>
+                            <li style="font-size: 1.2rem; color: var(--text-dark); display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-check" style="color: var(--primary); font-size: 1rem; margin-top: 5px; flex-shrink: 0;"></i>
+                                <span>Architect sophisticated marketing strategies that drive measurable growth.</span>
+                            </li>
+                            <li style="font-size: 1.2rem; color: var(--text-dark); display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-check" style="color: var(--primary); font-size: 1rem; margin-top: 5px; flex-shrink: 0;"></i>
+                                <span>Gain tactical expertise in SEO and precision-engineered ad campaigns.</span>
+                            </li>
+                            <li style="font-size: 1.2rem; color: var(--text-dark); display: flex; align-items: flex-start; gap: 12px;">
+                                <i class="fas fa-check" style="color: var(--primary); font-size: 1rem; margin-top: 5px; flex-shrink: 0;"></i>
+                                <span>Master industry-leading tools to emerge as a versatile digital strategist.</span>
+                            </li>
+                        </ul>
                     </th:block>
                 </div>
             </div>
@@ -896,13 +920,17 @@
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top:30px;">
                     <h2 style="margin: 0;">Student Comments</h2>
-                    <button onclick="toggleReviewForm()" class="btn-buy"
+                    <button th:if="${isLoggedIn}" onclick="toggleReviewForm()" class="btn-buy"
                         style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f;">
                         Write a Comment
                     </button>
+                    <a th:unless="${isLoggedIn}" href="/login" class="btn-buy"
+                        style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f; text-decoration: none; display: inline-block;">
+                        Login to Comment
+                    </a>
                 </div>
 
-                <div id="reviewForm">
+                <div id="reviewForm" th:if="${isLoggedIn}">
                     <form th:action="@{/reviews/add}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <select name="rating">
@@ -951,13 +979,17 @@
             <div class="course-section" id="qa-section" style="margin-top: 50px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0;">Questions & Answers</h2>
-                    <button onclick="toggleQAForm()" class="btn-buy"
+                    <button th:if="${isLoggedIn}" onclick="toggleQAForm()" class="btn-buy"
                         style="width: auto; padding: 10px 20px; margin: 0; background: #5624d0; color: #fff;">
                         Ask a Question
                     </button>
+                    <a th:unless="${isLoggedIn}" href="/login" class="btn-buy"
+                        style="width: auto; padding: 10px 20px; margin: 0; background: #5624d0; color: #fff; text-decoration: none; display: inline-block;">
+                        Login to Ask
+                    </a>
                 </div>
 
-                <div id="qaForm"
+                <div id="qaForm" th:if="${isLoggedIn}"
                     style="display:none; margin-bottom: 20px; padding:20px; background:#f7f9fa; border:1px solid var(--border-color);">
                     <form th:action="@{/course/questions}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">

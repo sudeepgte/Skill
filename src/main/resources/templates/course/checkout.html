@@ -209,13 +209,13 @@
                 <span th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹2000</span>
             </div>
             <div class="price-row">
-                <span>Service Fee</span>
-                <span>₹0</span>
+                <span>Service Fee (5%)</span>
+                <span th:text="'₹' + ${#numbers.formatDecimal(course.price * 0.05, 1, 0)}">₹100</span>
             </div>
 
             <div class="total-row">
                 <span>Total</span>
-                <span th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹2000</span>
+                <span th:text="'₹' + ${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">₹2100</span>
             </div>
 
             <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted);">

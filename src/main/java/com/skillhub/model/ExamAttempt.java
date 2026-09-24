@@ -23,6 +23,10 @@ public class ExamAttempt {
     private boolean isPassed;
     private LocalDateTime attemptDate;
 
+    @Lob
+    @Column(name = "submission_details", columnDefinition = "LONGTEXT")
+    private String submissionDetails;
+
     public ExamAttempt() {
         this.attemptDate = LocalDateTime.now();
     }
@@ -81,5 +85,13 @@ public class ExamAttempt {
 
     public void setAttemptDate(LocalDateTime attemptDate) {
         this.attemptDate = attemptDate;
+    }
+
+    public String getSubmissionDetails() {
+        return submissionDetails;
+    }
+
+    public void setSubmissionDetails(String submissionDetails) {
+        this.submissionDetails = submissionDetails;
     }
 }

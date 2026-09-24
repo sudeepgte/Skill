@@ -9,6 +9,173 @@
     <link rel="stylesheet" th:href="@{/css/vendor_dashboard.css}">
     <!-- Include Chat Styles directly if not in CSS -->
     <style th:replace="~{fragments/chat-widget :: chat-styles}"></style>
+    
+    <style>
+        /* ── Profile management styles ── */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .profile-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .profile-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px dashed var(--vendor-card-border);
+            padding: 2.5rem 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .avatar-preview-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--vendor-sidebar-active);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+            margin-bottom: 1.5rem;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .upload-btn-label {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--vendor-sidebar-active);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s;
+        }
+        .upload-btn-label:hover {
+            background: var(--vendor-sidebar-bg);
+            transform: scale(1.1);
+        }
+        .photo-hint {
+            font-size: 0.8rem;
+            color: var(--vendor-text-muted);
+        }
+        .form-section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(167, 139, 250, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+        .section-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 1.5rem 0;
+            color: var(--vendor-sidebar-bg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid #EDE9FE;
+            padding-bottom: 0.75rem;
+        }
+        .section-card-subtitle {
+            font-size: 0.85rem;
+            color: var(--vendor-text-muted);
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+        .input-group label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--vendor-text-main);
+        }
+        .input-group input, .input-group textarea {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #EDE9FE;
+            background: #F9FAF5;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--vendor-text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: var(--vendor-sidebar-active);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        @media (max-width: 576px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .required-star {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+        .profile-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .btn-save-profile {
+            background-color: var(--vendor-sidebar-active);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+            transition: all 0.2s;
+        }
+        .btn-save-profile:hover {
+            background-color: var(--vendor-sidebar-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(46, 16, 101, 0.35);
+        }
+    </style>
 </head>
 
 <body>
@@ -17,10 +184,15 @@
 
         <!-- ══ SIDEBAR ══ -->
         <aside class="vendor-sidebar">
-            <div class="vendor-sidebar-brand">
-                <i class="fas fa-graduation-cap"></i>
-                <span>SkillHub</span>
-            </div>
+            <a th:href="@{/}" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.5rem 2.5rem 1.5rem;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
+                        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
+                </div>
+            </a>
 
             <nav class="vendor-nav">
                 <a th:href="@{/vendor/dashboard(tab='courses')}" class="vendor-nav-item" th:classappend="${activeTab == 'courses' or activeTab == null} ? 'active'">
@@ -35,8 +207,11 @@
                 <a th:href="@{/vendor/dashboard(tab='analytics')}" class="vendor-nav-item" th:classappend="${activeTab == 'analytics'} ? 'active'">
                     <i class="fas fa-chart-pie"></i> Analytics
                 </a>
-                <a th:href="@{/vendor/dashboard(tab='communications')}" class="vendor-nav-item" th:classappend="${activeTab == 'communications'} ? 'active'">
-                    <i class="fas fa-comment-alt"></i> Communications
+                <a th:href="@{/vendor/dashboard(tab='reviews')}" class="vendor-nav-item" th:classappend="${activeTab == 'reviews'} ? 'active'">
+                    <i class="fas fa-star"></i> Student Reviews
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item" th:classappend="${activeTab == 'questions'} ? 'active'">
+                    <i class="fas fa-question-circle"></i> Student Questions
                 </a>
                 <a th:href="@{/vendor/exams}" class="vendor-nav-item">
                     <i class="fas fa-file-signature"></i> Manage Exams
@@ -70,45 +245,45 @@
             <!-- Stats Grid - Only show on main dashboard tab -->
             <div class="vendor-stats-grid" th:if="${activeTab == 'courses' or activeTab == null}">
                 <!-- Total Enrolled -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=students'">
                     <div class="stat-icon purple"><i class="fas fa-users"></i></div>
                     <div class="stat-label">Total Enrolled</div>
-                    <div class="stat-value" th:text="${totalStudents}">0</div>
+                    <div class="stat-value" id="stat-total-enrolled" th:text="${totalStudents}">0</div>
                 </div>
 
                 <!-- Course Views -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=analytics'">
                     <div class="stat-icon green"><i class="fas fa-eye"></i></div>
                     <div class="stat-label">Course Views</div>
-                    <div class="stat-value" th:text="${totalViews}">0</div>
+                    <div class="stat-value" id="stat-course-views" th:text="${totalViews}">0</div>
                 </div>
 
                 <!-- Avg Rating -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=reviews'">
                     <div class="stat-icon yellow"><i class="fas fa-star"></i></div>
                     <div class="stat-label">Avg. Rating</div>
-                    <div class="stat-value" th:text="${averageRating}">0.0</div>
+                    <div class="stat-value" id="stat-avg-rating" th:text="${averageRating}">0.0</div>
                 </div>
 
                 <!-- Student Questions -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=questions'">
                     <div class="stat-icon gray"><i class="fas fa-question-circle"></i></div>
                     <div class="stat-label">Student Questions</div>
-                    <div class="stat-value" th:text="${totalQuestions}">0</div>
+                    <div class="stat-value" id="stat-student-questions" th:text="${totalQuestions}">0</div>
                 </div>
 
                 <!-- Total Reviews -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=reviews'">
                     <div class="stat-icon red"><i class="fas fa-star"></i></div>
                     <div class="stat-label">Total Reviews</div>
-                    <div class="stat-value" th:text="${totalReviews}">0</div>
+                    <div class="stat-value" id="stat-total-reviews" th:text="${totalReviews}">0</div>
                 </div>
 
                 <!-- Exams Passed -->
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer;" onclick="window.location.href='/vendor/dashboard?tab=students'">
                     <div class="stat-icon" style="background: rgba(167, 139, 250, 0.1); color: #8B5CF6;"><i class="fas fa-check-double"></i></div>
                     <div class="stat-label">Exams Passed</div>
-                    <div class="stat-value" th:text="${totalExamsPassed}">0</div>
+                    <div class="stat-value" id="stat-exams-passed" th:text="${totalExamsPassed}">0</div>
                 </div>
             </div>
 
@@ -118,9 +293,6 @@
                     <h2>Manage Your Courses</h2>
                     <div class="panel-controls">
                         <!-- Filter removed as all courses are now published -->
-                        <a th:href="@{/vendor/courses/create}" class="btn-new-course" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
-                            <i class="fas fa-plus"></i> New Course
-                        </a>
                     </div>
                 </div>
 
@@ -225,11 +397,6 @@
                                 </td>
                                 <td>
                                     <div class="action-btns">
-                                        <form th:if="${enrollment.progressPercentage == 100 and !enrollment.isExamPassed()}" th:action="@{/vendor/enrollments/{id}/certificate(id=${enrollment.id})}" method="post" style="display: inline;">
-                                            <button type="submit" class="btn-icon" title="Pass Exam & Generate Certificate" style="color: #059669; background: none; border: none; cursor: pointer;">
-                                                <i class="fas fa-certificate"></i>
-                                            </button>
-                                        </form>
                                         <button class="btn-icon" title="Message Student" 
                                                 th:onclick="window.openDirectChat([[${enrollment.student.email}]], [[${enrollment.student.name}]], 'STUDENT')"
                                                 style="background:none; border:none; cursor:pointer; color: #8B5CF6;">
@@ -242,6 +409,83 @@
                                 <td colspan="5" style="text-align: center; padding: 4rem; color: #6a6f73;">
                                     <i class="fas fa-user-slash" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
                                     No students enrolled in your courses yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ══ EXAM SUBMISSIONS SECTION ══ -->
+                <div class="panel-header" style="margin-top: 4.5rem; margin-bottom: 2rem; border-top: 1px solid rgba(167, 139, 250, 0.2); padding-top: 3.5rem;">
+                    <h2>Exam Submissions & Certificate Issuance</h2>
+                    <div class="panel-controls">
+                        <span class="status-badge published" th:text="${#lists.size(examSubmissions) + ' Submissions'}">0 Submissions</span>
+                    </div>
+                </div>
+
+                <div class="vendor-table-wrap">
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Score</th>
+                                <th>Submitted Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sub : ${examSubmissions}">
+                                <td>
+                                    <div class="course-info">
+                                        <div class="stat-icon purple" style="width: 32px; height: 32px; font-size: 0.9rem; min-width: 32px;"><i class="fas fa-user-graduate"></i></div>
+                                        <div class="course-title-wrap">
+                                            <span class="course-name" th:text="${sub.attempt.user.name}">Student Name</span>
+                                            <span class="course-meta" th:text="${sub.attempt.user.email}">student@email.com</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:text="${sub.attempt.course.title}">Course Title</span>
+                                </td>
+                                <td>
+                                    <span th:text="${sub.attempt.score + '/100'}" style="font-weight: 700; font-size: 1.5rem;"
+                                          th:style="${sub.attempt.isPassed ? 'color:#10b981;' : 'color:#ef4444;'}">85/100</span>
+                                </td>
+                                <td>
+                                    <span th:text="${#temporals.format(sub.attempt.attemptDate, 'yyyy-MM-dd HH:mm')}">Date</span>
+                                </td>
+                                <td>
+                                    <span class="status-badge published" th:if="${sub.enrollment != null and sub.enrollment.isExamPassed()}">CERTIFIED</span>
+                                    <span class="status-badge" style="background:#fee2e2; color:#991b1b;" th:if="${sub.enrollment != null and !sub.enrollment.isExamPassed() and !sub.attempt.isPassed}">FAILED</span>
+                                    <span class="status-badge" style="background:#fef3c7; color:#92400e;" th:if="${sub.enrollment != null and !sub.enrollment.isExamPassed() and sub.attempt.isPassed}">PENDING REVIEW</span>
+                                </td>
+                                <td>
+                                    <div class="action-btns" style="display: flex; gap: 0.8rem; align-items: center;">
+                                        <!-- View Answers Button -->
+                                        <button class="btn-new-course" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: #8B5CF6; border: none; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 0.5rem;"
+                                                th:attr="data-submission=${sub.attempt.submissionDetails}"
+                                                th:onclick="showExamDetails([[${sub.attempt.user.name}]], [[${sub.attempt.course.title}]], [[${sub.attempt.score}]], [[${sub.attempt.isPassed}]], this.getAttribute('data-submission'))">
+                                            <i class="fas fa-eye"></i> View Answers
+                                        </button>
+                                        
+                                        <!-- Issue Certificate Form (only if student passed and has not yet been issued a certificate) -->
+                                        <form th:if="${sub.attempt.isPassed and sub.enrollment != null and !sub.enrollment.isExamPassed()}"
+                                              th:action="@{/vendor/enrollments/{id}/certificate(id=${sub.enrollment.id})}" method="post" style="display: inline;">
+                                            <!-- CRITICAL: CSRF Token -->
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn-new-course" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: #10b981; border: none; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 0.5rem;" title="Issue Certificate">
+                                                <i class="fas fa-certificate"></i> Issue Certificate
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(examSubmissions)}">
+                                <td colspan="6" style="text-align: center; padding: 4rem; color: #6a6f73;">
+                                    <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                                    No exam attempts submitted yet.
                                 </td>
                             </tr>
                         </tbody>
@@ -340,12 +584,232 @@
             </div>
 
             <!-- Profile Tab (if selected) -->
-            <div class="vendor-panel" th:if="${activeTab == 'profile'}">
-                 <div class="panel-header">
-                    <h2>Profile Management</h2>
+            <div class="vendor-panel" th:if="${activeTab == 'reviews'}">
+                <div class="panel-header">
+                    <h2>Student Reviews</h2>
                 </div>
-                <!-- Profile content... -->
-                <p style="padding: 2rem; color: #6a6f73;">Admin details and preferences are managed here.</p>
+                <div class="vendor-table-wrap">
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Reply</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="review : ${reviews}">
+                                <td>
+                                    <div class="course-info">
+                                        <div class="course-title-wrap">
+                                            <span class="course-name" th:text="${review.user.name}">Student</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span th:text="${review.course.title}">Course</span></td>
+                                <td>
+                                    <div class="rating-stars">
+                                        <i class="fas fa-star stars-icon" style="color:#f59e0b;"></i>
+                                        <span class="stars-val" th:text="${review.rating}">0.0</span>
+                                    </div>
+                                </td>
+                                <td><p th:text="${review.comment}" style="max-width: 300px; white-space: normal;"></p></td>
+                                <td>
+                                    <form th:action="@{/vendor/reviews/{id}/reply(id=${review.id})}" method="post" style="display:flex; gap:10px;">
+                                        <input type="text" name="reply" placeholder="Type a reply..." th:value="${review.reply}" style="flex:1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px;" required>
+                                        <button type="submit" class="btn-new-course" style="padding: 5px 10px; font-size: 0.9rem;">Reply</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(reviews)}">
+                                <td colspan="5" style="text-align: center; padding: 4rem; color: #6a6f73;">
+                                    <i class="fas fa-star-half-alt" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                                    No student reviews found yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="vendor-panel" th:if="${activeTab == 'questions'}">
+                <div class="panel-header">
+                    <h2>Student Questions</h2>
+                </div>
+                <div class="vendor-table-wrap">
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Question</th>
+                                <th>Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="question : ${questions}">
+                                <td>
+                                    <div class="course-info">
+                                        <div class="course-title-wrap">
+                                            <span class="course-name" th:text="${question.user.name}">Student</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span th:text="${question.course.title}">Course</span></td>
+                                <td>
+                                    <div style="max-width: 300px; white-space: normal;">
+                                        <strong th:text="${question.title}">Title</strong>
+                                        <p th:text="${question.content}" style="margin-top: 5px; color: #666;"></p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="max-width: 300px; max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
+                                        <div th:each="answer : ${question.answers}" style="background: #f3f4f6; padding: 8px; border-radius: 4px; margin-bottom: 5px;">
+                                            <strong th:text="${answer.user.name}">User</strong>: <span th:text="${answer.content}">Answer</span>
+                                        </div>
+                                    </div>
+                                    <form th:action="@{/vendor/questions/{id}/reply(id=${question.id})}" method="post" style="display:flex; gap:10px;">
+                                        <input type="text" name="content" placeholder="Type an answer..." style="flex:1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px;" required>
+                                        <button type="submit" class="btn-new-course" style="padding: 5px 10px; font-size: 0.9rem;">Answer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(questions)}">
+                                <td colspan="4" style="text-align: center; padding: 4rem; color: #6a6f73;">
+                                    <i class="fas fa-question-circle" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                                    No student questions found yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Profile Tab (if selected) -->
+            <div class="vendor-panel" th:if="${activeTab == 'profile'}">
+                 <div class="panel-header" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; font-weight: 800; color: #2E1065;">Profile Management</h2>
+                </div>
+                
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success" style="background-color: #d1fae5; color: #065f46; padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #10b981; font-weight: 500; display: flex; align-items: center; gap: 0.8rem; font-size: 1.3rem;">
+                    <i class="fas fa-check-circle" style="font-size: 1.6rem; color: #10b981;"></i>
+                    <span th:text="${success}"></span>
+                </div>
+                <div th:if="${error}" class="alert alert-danger" style="background-color: #fee2e2; color: #991b1b; padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #f87171; font-weight: 500; display: flex; align-items: center; gap: 0.8rem; font-size: 1.3rem;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.6rem; color: #f87171;"></i>
+                    <span th:text="${error}"></span>
+                </div>
+                
+                <form th:action="@{/vendor/profile/update}" method="post" enctype="multipart/form-data" class="profile-edit-form">
+                    <!-- CRITICAL: CSRF Token -->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    
+                    <div class="profile-grid">
+                        
+                        <!-- Left Column: Photo & Socials -->
+                        <div class="profile-left-col">
+                            <div class="photo-upload-container">
+                                <div class="avatar-preview-wrapper">
+                                    <img id="avatarPreview" th:src="${instructor.profileImageUrl != null && !instructor.profileImageUrl.isEmpty()} ? ${instructor.profileImageUrl} : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80'" alt="Avatar" class="avatar-img" />
+                                    <label for="profilePicture" class="upload-btn-label" title="Upload Photo">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                    <input type="file" id="profilePicture" name="profilePicture" accept="image/*" style="display: none;" onchange="previewImage(event)" />
+                                </div>
+                                <span class="photo-hint" style="font-size:1.1rem; font-weight:500; color:#5B21B6; margin-bottom: 0.5rem; display:block;">Click camera icon to change photo</span>
+                                <span class="photo-hint">Allowed formats: JPG, PNG, GIF. Max 5MB.</span>
+                            </div>
+
+                            <!-- Social Links -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-share-nodes" style="color: #8B5CF6;"></i> Social Networks</h3>
+                                <div class="input-group">
+                                    <label for="linkedinUrl"><i class="fab fa-linkedin" style="color: #0077b5;"></i> LinkedIn URL</label>
+                                    <input type="url" id="linkedinUrl" name="linkedinUrl" th:value="${instructor.linkedinUrl}" placeholder="https://linkedin.com/in/username" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="youtubeUrl"><i class="fab fa-youtube" style="color: #ff0000;"></i> YouTube URL</label>
+                                    <input type="url" id="youtubeUrl" name="youtubeUrl" th:value="${instructor.youtubeUrl}" placeholder="https://youtube.com/@channel" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="instagramUrl"><i class="fab fa-instagram" style="color: #e1306c;"></i> Instagram URL</label>
+                                    <input type="url" id="instagramUrl" name="instagramUrl" th:value="${instructor.instagramUrl}" placeholder="https://instagram.com/username" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Personal Info & Password Security -->
+                        <div class="profile-right-col">
+                            
+                            <!-- Personal Info -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-user-edit" style="color: #8B5CF6;"></i> Personal Information</h3>
+                                <div class="input-group">
+                                    <label for="name">Full Name <span class="required-star">*</span></label>
+                                    <input type="text" id="name" name="name" th:value="${instructor.name}" required placeholder="Your full name" />
+                                </div>
+                                <div class="input-group">
+                                    <label>Email Address (Read-only)</label>
+                                    <input type="email" th:value="${instructor.email}" disabled style="background-color: rgba(0, 0, 0, 0.05); color: #666; cursor: not-allowed;" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="expertise">Specialization / Headline</label>
+                                    <input type="text" id="expertise" name="expertise" th:value="${instructor.expertise}" placeholder="e.g. Lead Software Architect | Cloud Expert" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="skills">Skills (Comma-separated)</label>
+                                    <input type="text" id="skills" name="skills" th:value="${instructor.skills}" placeholder="e.g. Java, Spring Boot, AWS, Docker" />
+                                </div>
+                                <div class="input-group">
+                                    <label for="bio">Biography / Professional Summary</label>
+                                    <textarea id="bio" name="bio" rows="6" th:text="${instructor.bio}" placeholder="Write a short bio detailing your professional achievements and teaching passion..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Security / Change Password -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-key" style="color: #8B5CF6;"></i> Security & Password</h3>
+                                <p class="section-card-subtitle" style="font-size: 1.1rem; margin-top: -0.5rem; margin-bottom: 1.5rem;">Leave these password fields blank if you do not wish to update your login password.</p>
+                                <div class="input-group">
+                                    <label for="currentPassword">Current Password</label>
+                                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password to verify" autocomplete="current-password" />
+                                </div>
+                                <div class="input-grid">
+                                    <div class="input-group">
+                                        <label for="newPassword">New Password</label>
+                                        <input type="password" id="newPassword" name="newPassword" placeholder="Minimum 6 characters" autocomplete="new-password" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="confirmPassword">Confirm New Password</label>
+                                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-type new password" autocomplete="new-password" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action button -->
+                            <div class="profile-action-bar">
+                                <button type="submit" class="btn-save-profile">
+                                    <i class="fas fa-save"></i> Save Profile Changes
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                
+                <script>
+                    function previewImage(event) {
+                        const reader = new FileReader();
+                        reader.onload = function(){
+                            const output = document.getElementById('avatarPreview');
+                            output.src = reader.result;
+                        };
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
+                </script>
             </div>
 
         </main>
@@ -358,6 +822,31 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', async () => {
+            // Function to refresh dashboard stats dynamically
+            async function refreshDashboardStats() {
+                try {
+                    const res = await fetch('/vendor/api/dashboard-overview');
+                    if (res.ok) {
+                        const stats = await res.json();
+                        const elEnrolled = document.getElementById('stat-total-enrolled');
+                        const elViews = document.getElementById('stat-course-views');
+                        const elRating = document.getElementById('stat-avg-rating');
+                        const elQuestions = document.getElementById('stat-student-questions');
+                        const elReviews = document.getElementById('stat-total-reviews');
+                        const elExams = document.getElementById('stat-exams-passed');
+
+                        if (elEnrolled) elEnrolled.innerText = stats.totalEnrolled;
+                        if (elViews) elViews.innerText = stats.totalViews;
+                        if (elRating) elRating.innerText = stats.averageRating;
+                        if (elQuestions) elQuestions.innerText = stats.totalQuestions;
+                        if (elReviews) elReviews.innerText = stats.totalReviews;
+                        if (elExams) elExams.innerText = stats.totalExamsPassed;
+                    }
+                } catch (err) {
+                    console.error("Failed to refresh real-time dashboard stats", err);
+                }
+            }
+
             const tab = new URLSearchParams(window.location.search).get('tab');
             if (tab === 'analytics') {
                 try {
@@ -372,6 +861,10 @@
                 if (typeof window.openDirectChat === 'function') {
                     document.getElementById('chatFab').click();
                 }
+            } else if (!tab || tab === 'courses') {
+                // Poll every 3 seconds for real-time updates when on the courses/dashboard tab
+                refreshDashboardStats();
+                setInterval(refreshDashboardStats, 3000);
             }
         });
 
@@ -465,6 +958,133 @@
                     row.style.display = 'none';
                 }
             });
+        }
+    </script>
+
+    <!-- Exam Submission Details Modal -->
+    <div id="examDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: #fff; padding: 2.5rem; border-radius: 12px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.15); position: relative;">
+            <button onclick="closeExamDetailsModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #6a6f73;"><i class="fas fa-times"></i></button>
+            <h3 style="font-size: 2rem; font-weight: 800; color: #2E1065; margin-bottom: 0.5rem; text-align: left;" id="modalStudentName">Student Name</h3>
+            <p style="font-size: 1.4rem; color: #6a6f73; margin-bottom: 2rem; text-align: left;" id="modalCourseTitle">Course: Course Title</p>
+            
+            <div style="display: flex; gap: 2rem; margin-bottom: 2.5rem; background: #F5F3FF; padding: 1.5rem; border-radius: 8px; text-align: left;">
+                <div>
+                    <span style="font-size: 1.2rem; color: #6a6f73; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Score Achieved</span>
+                    <span style="font-size: 2.4rem; font-weight: 800; color: #8B5CF6;" id="modalScore">85/100</span>
+                </div>
+                <div style="border-left: 1px solid #ddd; padding-left: 2rem;">
+                    <span style="font-size: 1.2rem; color: #6a6f73; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Status</span>
+                    <span id="modalStatusBadge" class="status-badge published">PASSED</span>
+                </div>
+            </div>
+
+            <div id="modalQuestionsContainer" style="display: flex; flex-direction: column; gap: 2rem; text-align: left;">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Details Modal Script -->
+    <script>
+        function showExamDetails(studentName, courseTitle, score, isPassed, submissionDetailsJson) {
+            document.getElementById('modalStudentName').innerText = studentName;
+            document.getElementById('modalCourseTitle').innerText = "Course: " + courseTitle;
+            document.getElementById('modalScore').innerText = score + "/100";
+            
+            const badge = document.getElementById('modalStatusBadge');
+            if (isPassed) {
+                badge.innerText = "PASSED";
+                badge.style.background = "#d1fae5";
+                badge.style.color = "#065f46";
+            } else {
+                badge.innerText = "FAILED";
+                badge.style.background = "#fee2e2";
+                badge.style.color = "#991b1b";
+            }
+
+            const container = document.getElementById('modalQuestionsContainer');
+            container.innerHTML = '';
+
+            try {
+                const questions = JSON.parse(submissionDetailsJson || '[]');
+                if (questions.length === 0) {
+                    container.innerHTML = '<p style="color:#6a6f73; font-style:italic; font-size: 1.4rem;">No question details available for this attempt.</p>';
+                } else {
+                    questions.forEach((q, idx) => {
+                        const card = document.createElement('div');
+                        card.style.border = '1px solid #e5e7eb';
+                        card.style.borderRadius = '8px';
+                        card.style.padding = '1.5rem';
+                        card.style.background = '#f9fafb';
+                        card.style.display = 'flex';
+                        card.style.flexDirection = 'column';
+                        card.style.gap = '1rem';
+
+                        const title = document.createElement('h4');
+                        title.style.fontSize = '1.4rem';
+                        title.style.fontWeight = '700';
+                        title.style.margin = '0';
+                        title.style.color = '#111827';
+                        title.style.lineHeight = '1.4';
+                        title.innerText = (idx + 1) + ". " + q.question;
+                        card.appendChild(title);
+
+                        const optsDiv = document.createElement('div');
+                        optsDiv.style.display = 'flex';
+                        optsDiv.style.flexDirection = 'column';
+                        optsDiv.style.gap = '0.6rem';
+
+                        const optionKeys = ['a', 'b', 'c', 'd'];
+                        optionKeys.forEach(optKey => {
+                            const optVal = q.options[optKey];
+                            if (!optVal) return;
+
+                            const optLabel = document.createElement('div');
+                            optLabel.style.padding = '0.8rem 1.2rem';
+                            optLabel.style.borderRadius = '6px';
+                            optLabel.style.fontSize = '1.3rem';
+                            optLabel.style.display = 'flex';
+                            optLabel.style.alignItems = 'center';
+                            optLabel.style.gap = '0.8rem';
+                            optLabel.style.lineHeight = '1.3';
+                            
+                            const isSelected = q.selectedAnswer === optKey;
+                            const isCorrect = q.correctAnswer === optKey;
+
+                            optLabel.innerText = optKey.toUpperCase() + ": " + optVal;
+
+                            if (isCorrect) {
+                                optLabel.style.background = '#d1fae5';
+                                optLabel.style.color = '#065f46';
+                                optLabel.style.fontWeight = '600';
+                                optLabel.innerHTML += ' <i class="fas fa-check-circle" style="margin-left:auto; color:#10b981; font-size:1.4rem;"></i>';
+                            } else if (isSelected) {
+                                optLabel.style.background = '#fee2e2';
+                                optLabel.style.color = '#991b1b';
+                                optLabel.innerHTML += ' <i class="fas fa-times-circle" style="margin-left:auto; color:#ef4444; font-size:1.4rem;"></i>';
+                            } else {
+                                optLabel.style.background = '#fff';
+                                optLabel.style.border = '1px solid #e5e7eb';
+                                optLabel.style.color = '#374151';
+                            }
+                            optsDiv.appendChild(optLabel);
+                        });
+
+                        card.appendChild(optsDiv);
+                        container.appendChild(card);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:#dc2626; font-size:1.4rem;">Error parsing question details.</p>';
+            }
+
+            document.getElementById('examDetailsModal').style.display = 'flex';
+        }
+
+        function closeExamDetailsModal() {
+            document.getElementById('examDetailsModal').style.display = 'none';
         }
     </script>
 

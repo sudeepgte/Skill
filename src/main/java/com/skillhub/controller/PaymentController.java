@@ -62,7 +62,7 @@ public class PaymentController {
             
             response.put("status", "success");
             response.put("orderId", payment.getRazorpayOrderId());
-            response.put("amount", (int)(course.getPrice() * 100)); // paise
+            response.put("amount", (int)(payment.getAmount() * 100)); // paise
             response.put("userName", user.getName());
             response.put("userEmail", user.getEmail());
             response.put("userPhone", user.getPhone());

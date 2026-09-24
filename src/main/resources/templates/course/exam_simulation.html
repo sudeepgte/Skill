@@ -142,7 +142,7 @@
             timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
             if (timeLeft <= 0) {
-                clearDM Sansval(countdown);
+                clearInterval(countdown);
                 alert("Time is up! Submitting your exam.");
                 document.getElementById('examForm').submit();
             } else if (timeLeft === 300) { // 5 minutes warning
@@ -151,7 +151,7 @@
             timeLeft--;
         }
 
-        const countdown = setDM Sansval(updateTimer, 1000);
+        const countdown = setInterval(updateTimer, 1000);
         updateTimer(); // Initial call
 
         // Prevent accidental tab close

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class ExamService {
 
@@ -21,9 +23,11 @@ public class ExamService {
     @Autowired
     private GeminiService geminiService;
 
-    // In-memory cache to store correct answers per user and course (for grading
-    // dynamic AI exams)
+    // In-memory cache to store correct answers per user and course
     private Map<String, Map<String, String>> activeExams = new HashMap<>();
+    
+    // In-memory cache to store the full generated questions list for submission logging
+    private Map<String, List<Map<String, Object>>> activeExamsList = new HashMap<>();
 
     public List<Map<String, Object>> generateQuestions(Course course, User user) {
         List<Map<String, Object>> finalQuestions = new ArrayList<>();
@@ -132,6 +136,7 @@ public class ExamService {
 
         String examKey = user.getId() + "_" + course.getId();
         activeExams.put(examKey, answerKey);
+        activeExamsList.put(examKey, finalQuestions);
 
         return finalQuestions;
     }
@@ -142,6 +147,8 @@ public class ExamService {
 
         String examKey = user.getId() + "_" + course.getId();
         Map<String, String> answerKey = activeExams.get(examKey);
+        List<Map<String, Object>> cachedQuestions = activeExamsList.get(examKey);
+        List<Map<String, Object>> submissionList = new ArrayList<>();
 
         if (answerKey != null) {
             for (Map.Entry<String, String> entry : submittedAnswers.entrySet()) {
@@ -152,6 +159,23 @@ public class ExamService {
                     }
                 }
             }
+
+            // Build submission details
+            if (cachedQuestions != null) {
+                for (Map<String, Object> q : cachedQuestions) {
+                    Map<String, Object> submissionItem = new HashMap<>();
+                    submissionItem.put("id", q.get("id"));
+                    submissionItem.put("question", q.get("question"));
+                    submissionItem.put("options", q.get("options"));
+                    submissionItem.put("correctAnswer", q.get("correctAnswer"));
+
+                    String selected = submittedAnswers.get("q_" + q.get("id"));
+                    submissionItem.put("selectedAnswer", selected != null ? selected : "none");
+                    submissionList.add(submissionItem);
+                }
+                activeExamsList.remove(examKey);
+            }
+
             // Cleanup cache after grade
             activeExams.remove(examKey);
         } else {
@@ -167,6 +191,19 @@ public class ExamService {
         boolean isPassed = score >= 70;
 
         ExamAttempt attempt = new ExamAttempt(course, user, score, isPassed);
+
+        // Serialize submission details to JSON
+        String submissionDetailsJson = "[]";
+        if (!submissionList.isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                submissionDetailsJson = mapper.writeValueAsString(submissionList);
+            } catch (Exception e) {
+                System.err.println("Error serializing exam submission details to JSON: " + e.getMessage());
+            }
+        }
+        attempt.setSubmissionDetails(submissionDetailsJson);
+
         return examAttemptRepository.save(attempt);
     }
 }

@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 "/course/**", "/error", "/uploads/**",
                                 "/about", "/contact", "/submit-contact-form",
                                 "/business", "/teaching", "/app", "/help", "/blog", "/faq", 
+                                "/instructors", "/instructor/**",
                                 "/terms", "/privacy", "/cookies", "/accessibility",
                                 "/sw.js", "/manifest.json", "/ws/**")
                         .permitAll()

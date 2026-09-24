@@ -334,6 +334,10 @@
             <i class="fa-solid fa-circle-exclamation" style="margin-right: 0.5rem;"></i> You must complete 100% of the
             course videos before taking the exam.
         </div>
+        <div th:if="${param.pending}"
+            style="padding: 1rem; background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; border-radius: 4px; margin-bottom: 2rem; font-weight: 600;">
+            <i class="fa-solid fa-circle-check" style="margin-right: 0.5rem;"></i> Exam submitted successfully! Your score was <span th:text="${param.score}"></span>%. It is currently pending review by your instructor.
+        </div>
         <div th:if="${param.fail}"
             style="padding: 1rem; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; border-radius: 4px; margin-bottom: 2rem; font-weight: 600;">
             <i class="fa-solid fa-face-frown" style="margin-right: 0.5rem;"></i> You didn't pass the exam. Your score
@@ -376,26 +380,39 @@
                                 <i class="fa-solid fa-certificate"></i> Certified!
                             </div>
                         </div>
+                        <div th:if="${!enrollment.isExamPassed and info['isExamPending']}">
+                            <div class="badge" style="background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
+                                <i class="fa-solid fa-clock"></i> Pending Approval
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="cert-actions"
                     th:attr="data-course-id=${enrollment.course.id}, data-pct=${progressMap[enrollment.course.id]['percent']}">
-                    <!-- If Exam Passed OR Video Completion is 100% -->
-                    <a th:if="${enrollment.isExamPassed or progressMap[enrollment.course.id]['percent'] >= 99.9}"
+                    
+                    <!-- 1. Download Certificate if passed -->
+                    <a th:if="${enrollment.isExamPassed}"
                         th:href="@{/user/course/{id}/certificate(id=${enrollment.course.id})}" class="btn-cert">
                         <i class="fa-solid fa-download"></i> Download Certificate
                     </a>
 
-                    <!-- If Exam Not Passed, but 100% video completed -->
-                    <a th:if="${!enrollment.isExamPassed and progressMap[enrollment.course.id]['percent'] >= 99.9}"
+                    <!-- 2. Show Pending Status if exam submitted but not approved -->
+                    <div th:if="${!enrollment.isExamPassed and progressMap[enrollment.course.id]['isExamPending']}"
+                        style="width: 100%; text-align: center; padding: 1.2rem; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; border-radius: 4px; font-weight: 700;">
+                        <i class="fa-solid fa-clock"></i> Pending Instructor Review
+                    </div>
+
+                    <!-- 3. If Exam Not Passed and NOT pending, allow taking/retaking -->
+                    <!-- Case A: 100% video completed -->
+                    <a th:if="${!enrollment.isExamPassed and !progressMap[enrollment.course.id]['isExamPending'] and progressMap[enrollment.course.id]['percent'] >= 99.9}"
                         th:href="@{/user/course/{id}/exam-start(id=${enrollment.course.id})}" class="btn-exam">
                         Take Exam →
                     </a>
 
-                    <!-- Not 100% video completed -->
-                    <div th:if="${!enrollment.isExamPassed and progressMap[enrollment.course.id]['percent'] < 99.9}"
+                    <!-- Case B: Under 100% video completed -->
+                    <div th:if="${!enrollment.isExamPassed and !progressMap[enrollment.course.id]['isExamPending'] and progressMap[enrollment.course.id]['percent'] < 99.9}"
                         style="display:flex; width:100%; gap:10px;">
                         <a th:href="@{/course/{id}(id=${enrollment.course.id})}" class="btn-continue"
                             style="flex: 1; padding: 1.2rem 1rem; font-size: 1.2rem;">

@@ -54,6 +54,12 @@ public class InstructorController {
     @Autowired
     private com.skillhub.repository.CourseAnswerRepository courseAnswerRepository;
 
+    @Autowired
+    private com.skillhub.repository.ExamAttemptRepository examAttemptRepository;
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
             Model model, Principal principal) {
@@ -113,6 +119,10 @@ public class InstructorController {
         if ("communications".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
             model.addAttribute("questions", questionsList);
+        } else if ("reviews".equals(tab)) {
+            model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
+        } else if ("questions".equals(tab)) {
+            model.addAttribute("questions", questionsList);
         } else if ("students".equals(tab)) {
             List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
             for (com.skillhub.model.Enrollment enrollment : enrollments) {
@@ -128,6 +138,19 @@ public class InstructorController {
                 enrollment.setProgressPercentage(Math.max(lectureBasedPct, storedPct));
             }
             model.addAttribute("enrollments", enrollments);
+            
+            List<com.skillhub.model.ExamAttempt> examAttempts = examAttemptRepository.findByInstructorEmail(email);
+            examAttempts.sort((a, b) -> b.getAttemptDate().compareTo(a.getAttemptDate()));
+            
+            List<Map<String, Object>> examSubmissions = new java.util.ArrayList<>();
+            for (com.skillhub.model.ExamAttempt attempt : examAttempts) {
+                Map<String, Object> submission = new java.util.HashMap<>();
+                submission.put("attempt", attempt);
+                com.skillhub.model.Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(attempt.getUser(), attempt.getCourse()).orElse(null);
+                submission.put("enrollment", enrollment);
+                examSubmissions.add(submission);
+            }
+            model.addAttribute("examSubmissions", examSubmissions);
         } else if ("analytics".equals(tab)) {
             List<com.skillhub.model.Enrollment> allEnrollments = enrollmentRepository.findByInstructorEmail(email);
             List<com.skillhub.model.Enrollment> passedExams = new java.util.ArrayList<>();
@@ -168,7 +191,6 @@ public class InstructorController {
         return ResponseEntity.ok(result);
     }
 
-    /** REST endpoint – returns overall stats (JSON) */
     @GetMapping("/api/dashboard-overview")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDashboardOverview(Principal principal) {
@@ -181,6 +203,7 @@ public class InstructorController {
         long totalViews = 0;
         double totalRating = 0.0;
         int totalReviews = 0;
+        int totalExamsPassed = 0;
 
         for (com.skillhub.model.Course course : courses) {
             totalEnrolled += (course.getEnrollments() != null ? course.getEnrollments().size() : 0);
@@ -189,6 +212,14 @@ public class InstructorController {
             Integer count = reviewRepository.countByCourseId(course.getId());
             totalRating += avg * count;
             totalReviews += count;
+
+            if (course.getEnrollments() != null) {
+                for (com.skillhub.model.Enrollment e : course.getEnrollments()) {
+                    if (e.isExamPassed()) {
+                        totalExamsPassed++;
+                    }
+                }
+            }
         }
 
         int totalQuestions = courseQuestionRepository.findByInstructorEmail(email).size();
@@ -200,6 +231,7 @@ public class InstructorController {
         stats.put("averageRating", String.format("%.1f", avgRating));
         stats.put("totalReviews", totalReviews);
         stats.put("totalQuestions", totalQuestions);
+        stats.put("totalExamsPassed", totalExamsPassed);
 
         return ResponseEntity.ok(stats);
     }
@@ -372,16 +404,56 @@ public class InstructorController {
     }
 
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute User userUpdate, Principal principal,
+    public String updateProfile(
+            @RequestParam("name") String name,
+            @RequestParam(value = "bio", required = false) String bio,
+            @RequestParam(value = "skills", required = false) String skills,
+            @RequestParam(value = "expertise", required = false) String expertise,
+            @RequestParam(value = "instagramUrl", required = false) String instagramUrl,
+            @RequestParam(value = "linkedinUrl", required = false) String linkedinUrl,
+            @RequestParam(value = "youtubeUrl", required = false) String youtubeUrl,
+            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture,
+            @RequestParam(value = "currentPassword", required = false) String currentPassword,
+            @RequestParam(value = "newPassword", required = false) String newPassword,
+            @RequestParam(value = "confirmPassword", required = false) String confirmPassword,
+            Principal principal,
             RedirectAttributes redirectAttributes) {
         User user = userService.findByEmail(principal.getName());
-        user.setName(userUpdate.getName());
-        user.setBio(userUpdate.getBio());
-        user.setSkills(userUpdate.getSkills());
-        user.setExpertise(userUpdate.getExpertise());
-        user.setInstagramUrl(userUpdate.getInstagramUrl());
-        user.setLinkedinUrl(userUpdate.getLinkedinUrl());
-        user.setYoutubeUrl(userUpdate.getYoutubeUrl());
+        user.setName(name);
+        user.setBio(bio);
+        user.setSkills(skills);
+        user.setExpertise(expertise);
+        user.setInstagramUrl(instagramUrl);
+        user.setLinkedinUrl(linkedinUrl);
+        user.setYoutubeUrl(youtubeUrl);
+
+        // Process Profile Photo
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            try {
+                String imagePath = fileStorageService.store(profilePicture);
+                user.setProfileImageUrl(imagePath);
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload image: " + e.getMessage());
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+        }
+
+        // Process Password Change
+        if (newPassword != null && !newPassword.isEmpty()) {
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Current password is required to set a new password.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                redirectAttributes.addFlashAttribute("error", "Incorrect current password.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("error", "New passwords do not match.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
 
         userService.saveUser(user);
         redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");

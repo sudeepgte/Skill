@@ -1,314 +1,92 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<script>
+    function toggleVendorSection(show) {
+        const section = document.getElementById('vendorSection');
+        section.style.display = show ? 'block' : 'none';
+    }
 
-<head>
-    <title>Sign Up | SkillHub</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair Display:wght@400;600;700;800&family=DM Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    function checkOther(val) {
+        document.getElementById('otherInput').style.display =
+            (val === 'Other' ? 'block' : 'none');
+    }
 
-    <style>
-        :root {
-            --brand-purple: #A78BFA;
-            --brand-pink: #8B5CF6;
-            --brand-primary: linear-gradient(135deg, #A78BFA, #8B5CF6);
-            --form-bg: #f8faff;
-            --text-dark: #1c1d1f;
-            --text-muted: #6a6f73;
+    // FORM VALIDATION
+    document.getElementById("registrationForm").addEventListener("submit", function (e) {
+
+        // NAME VALIDATION
+        const name = document.querySelector("input[name='name']").value.trim();
+        const namePattern = /^[A-Za-z\s]{3,50}$/;
+
+        if (!namePattern.test(name)) {
+            alert("Name should contain only alphabets and spaces (minimum 3 characters)");
+            e.preventDefault();
+            return;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        // EMAIL VALIDATION
+        const email = document.querySelector("input[name='email']").value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address");
+            e.preventDefault();
+            return;
         }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: url('/images/auth-page-bg.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+        // PASSWORD VALIDATION
+        const password = document.querySelector("input[name='password']").value;
+
+        // Minimum 8 chars, 1 uppercase, 1 lowercase, 1 number
+        const passwordPattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+        if (!passwordPattern.test(password)) {
+            alert("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number");
+            e.preventDefault();
+            return;
         }
 
-        .auth-card {
-            background: #fff;
-            width: 100%;
-            max-width: 1100px;
-            min-height: 700px;
-            display: flex;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            position: relative;
+        // ROLE VALIDATION
+        const instructorSelected =
+            document.getElementById("roleVendor").checked;
+
+        if (instructorSelected) {
+
+            // CATEGORY VALIDATION
+            const category =
+                document.getElementById("categorySelect").value;
+
+            if (!category) {
+                alert("Please select your expertise");
+                e.preventDefault();
+                return;
+            }
+
+            // OTHER CATEGORY VALIDATION
+            if (category === "Other") {
+
+                const otherCategory =
+                    document.querySelector("input[name='newCategoryName']")
+                        .value.trim();
+
+                if (otherCategory.length < 3) {
+                    alert("Please specify your specialty");
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            // HEADLINE VALIDATION
+            const headline =
+                document.querySelector("input[name='headline']")
+                    .value.trim();
+
+            if (headline.length < 5) {
+                alert("Please enter a professional headline");
+                e.preventDefault();
+                return;
+            }
         }
 
-        .auth-brand-side {
-            flex: 1.1;
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/signup-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            color: #fff;
-            overflow: hidden;
-        }
-
-        .ornament {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .o-1 { width: 400px; height: 400px; top: -150px; left: -150px; }
-        .o-2 { width: 300px; height: 300px; bottom: -80px; right: -80px; opacity: 0.5; }
-
-        .auth-brand-side h1 {
-            font-family: 'Playfair Display', sans-serif;
-            font-size: 4.8rem;
-            font-weight: 800;
-            margin-bottom: 2rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .auth-brand-side p {
-            font-size: 1.8rem;
-            line-height: 1.6;
-            opacity: 0.9;
-            max-width: 450px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .auth-form-side {
-            flex: 1.2;
-            padding: 50px;
-            background: #fff;
-            overflow-y: auto;
-            max-height: 90vh;
-        }
-
-        .form-header h2 {
-            font-family: 'Playfair Display', sans-serif;
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #4a4a4a;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 20px;
-            top: 28px;
-            transform: translateY(-50%);
-            color: var(--brand-purple);
-            font-size: 1.6rem;
-            z-index: 5;
-        }
-
-        .form-control {
-            width: 100%;
-            height: 56px;
-            padding: 0 20px 0 55px;
-            background: #f0f3ff;
-            border: 2px solid transparent;
-            border-radius: 16px;
-            font-size: 1.5rem;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            background: #fff;
-            border-color: #d1d9ff;
-            outline: none;
-            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.1);
-        }
-
-        .role-selector {
-            display: flex;
-            gap: 15px;
-            margin: 2rem 0;
-        }
-
-        .role-option {
-            flex: 1;
-            position: relative;
-        }
-
-        .role-option input {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .role-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            background: #f0f3ff;
-            border-radius: 16px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .role-label i { font-size: 2rem; margin-bottom: 5px; color: var(--text-muted); }
-        .role-label span { font-weight: 700; font-size: 1.3rem; color: var(--text-dark); }
-
-        .role-option input:checked + .role-label {
-            background: #fff;
-            border-color: var(--brand-purple);
-            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.15);
-        }
-        .role-option input:checked + .role-label i { color: var(--brand-purple); }
-
-        .vendor-box {
-            background: #f8faff;
-            border: 1px dashed #d1d9ff;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 1.5rem;
-            display: none;
-        }
-
-        .btn-submit {
-            width: 100%;
-            height: 56px;
-            background: linear-gradient(135deg, #cc66ff, #A78BFA);
-            color: #fff;
-            border: none;
-            border-radius: 28px;
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.3);
-            transition: transform 0.2s;
-            margin-top: 1rem;
-        }
-
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(108, 92, 231, 0.4); }
-
-        .auth-footer { margin-top: 2rem; text-align: center; color: var(--text-muted); font-size: 1.4rem; }
-        .auth-footer a { color: var(--brand-purple); font-weight: 700; text-decoration: none; }
-
-        @media (max-width: 950px) {
-            .auth-brand-side { display: none; }
-            .auth-card { max-width: 500px; }
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="auth-card">
-        <div class="ornament o-1"></div>
-
-        <div class="auth-brand-side" style="text-align: center; align-items: center;">
-            <div class="ornament o-2"></div>
-            <h1 style="margin-bottom: 0;">Welcome to SkillHub</h1>
-        </div>
-
-        <div class="auth-form-side">
-            <div class="form-header">
-                <h2 th:text="${isAdmin} ? 'Admin Registration' : 'Create Account'">USER SIGNUP</h2>
-            </div>
-
-            <form th:action="@{/saveUser}" th:object="${user}" method="post" id="registrationForm">
-                <div class="input-group">
-                    <i class="far fa-id-badge"></i>
-                    <input type="text" th:field="*{name}" class="form-control" placeholder="Full Name" 
-                           required pattern="[a-zA-Z\s]+" title="Please enter only alphabets and spaces"
-                           oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
-                </div>
-
-                <div class="input-group">
-                    <i class="far fa-envelope"></i>
-                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email Address" required>
-                </div>
-
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" th:field="*{password}" class="form-control" placeholder="Create Password" required>
-                </div>
-
-                <div th:if="${isAdmin}">
-                    <input type="hidden" name="role" value="ADMIN">
-                </div>
-
-                <th:block th:unless="${isAdmin}">
-                    <p style="font-size:1.4rem; font-weight:700; color:var(--text-dark); margin-top:20px;">Join as:</p>
-                    <div class="role-selector">
-                        <div class="role-option">
-                            <input type="radio" name="role" id="roleUser" value="STUDENT" checked onclick="toggleVendorSection(false)">
-                            <label for="roleUser" class="role-label">
-                                <i class="fas fa-user-graduate"></i>
-                                <span>Student</span>
-                            </label>
-                        </div>
-                        <div class="role-option">
-                            <input type="radio" name="role" id="roleVendor" value="INSTRUCTOR" onclick="toggleVendorSection(true)">
-                            <label for="roleVendor" class="role-label">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <span>Instructor</span>
-                            </label>
-                        </div>
-                    </div>
-                </th:block>
-
-                <div id="vendorSection" class="vendor-box">
-                    <div class="input-group">
-                        <select id="categorySelect" name="categoryName" class="form-control" style="padding-left:20px;" onchange="checkOther(this.value)">
-                            <option value="" disabled selected>Select Expertise</option>
-                            <option th:each="cat : ${categories}" th:if="${cat.name != 'Other'}" th:value="${cat.name}" th:text="${cat.name}"></option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div id="otherInput" class="input-group" style="display: none;">
-                        <input type="text" name="newCategoryName" class="form-control" placeholder="Specify Specialty" style="padding-left:20px;">
-                    </div>
-                    <div class="input-group">
-                        <input type="text" th:field="*{headline}" class="form-control" placeholder="Professional Headline (e.g. Senior Java Dev)" style="padding-left:20px;">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit">Sign Up</button>
-
-                <div class="auth-footer">
-                    Already have an account? <a href="/login">Login here</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function toggleVendorSection(show) {
-            const section = document.getElementById('vendorSection');
-            section.style.display = show ? 'block' : 'none';
-        }
-
-        function checkOther(val) {
-            document.getElementById('otherInput').style.display = (val === 'Other' ? 'block' : 'none');
-        }
-    </script>
-</body>
-
-</html>
+        alert("Registration Successful 🎉");
+    });
+</script>

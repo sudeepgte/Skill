@@ -110,6 +110,29 @@ public class AdminController {
         return "admin/vendors";
     }
 
+    @PostMapping("/vendors/add")
+    public String addVendor(@RequestParam("name") String name,
+                            @RequestParam("email") String email,
+                            @RequestParam("password") String password,
+                            RedirectAttributes redirectAttributes) {
+        
+        if (userService.findByEmail(email) != null) {
+            redirectAttributes.addFlashAttribute("error", "User with this email already exists.");
+            return "redirect:/admin/vendors";
+        }
+        
+        User vendor = new User();
+        vendor.setName(name);
+        vendor.setEmail(email);
+        vendor.setPassword(passwordEncoder.encode(password));
+        vendor.setRole("INSTRUCTOR");
+        vendor.setApproved(true);
+        userService.saveUser(vendor);
+        
+        redirectAttributes.addFlashAttribute("success", "Vendor added successfully.");
+        return "redirect:/admin/vendors";
+    }
+
     @PostMapping("/users/block")
     public String blockUser(@RequestParam("id") Long id, HttpServletRequest request) {
         userService.blockUser(id);

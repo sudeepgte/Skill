@@ -189,7 +189,9 @@
 <body>
 
     <header>
-        <a th:href="@{/}" class="logo">SkillHub</a>
+        <a th:href="@{/}" class="logo" style="background: none; -webkit-text-fill-color: initial; font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: -0.5px; font-size: 22px;">
+            <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+        </a>
         <div class="user-nav">
              <a th:href="@{/user/certifications}" class="btn btn-outline" style="border:none">Dashboard</a>
              <span>Welcome, <b th:text="${user.name}">User</b></span>

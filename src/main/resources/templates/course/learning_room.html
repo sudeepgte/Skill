@@ -268,6 +268,15 @@
             background: var(--success);
         }
 
+        .btn-complete:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: var(--border);
+            color: var(--text-muted);
+            background: transparent !important;
+            pointer-events: none;
+        }
+
         /* ─── SIDEBAR (Slide-out Overlay) ─── */
         .sidebar {
             width: var(--sidebar-width);
@@ -665,6 +674,25 @@
         .save-indicator.show {
             display: flex;
         }
+
+        .sidebar-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #1c1d1f;
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .sidebar-close-btn:hover {
+            color: var(--accent);
+            background: #f3f4f6;
+        }
     </style>
 </head>
 
@@ -752,6 +780,7 @@
                         Section · 5 min</p>
                 </div>
                 <button class="btn-complete" id="markCompleteBtn" th:attr="data-lecture-id=${currentLesson.id}"
+                    th:disabled="${currentLesson.videoUrl != null && !completedLectureIds.contains(currentLesson.id)}"
                     onclick="toggleComplete(this)">
                     <i class="fas fa-check"></i>
                     <span>Mark Complete</span>
@@ -781,7 +810,12 @@
     <div class="sidebar" id="learningSidebar">
         <div class="sidebar-header">
             <span style="color: black;">Course Content</span>
-            <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
+                <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Close Sidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
         <div class="sidebar-body">
             <!-- Empty State for Curriculum -->
@@ -847,8 +881,13 @@
     <div class="sidebar" id="notesSidebar">
         <div class="sidebar-header">
             <span style="color: black;">My Lesson Notes</span>
-            <div class="save-indicator" id="saveIndicator">
-                <i class="fas fa-check-circle"></i> Saved
+            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <div class="save-indicator" id="saveIndicator">
+                    <i class="fas fa-check-circle"></i> Saved
+                </div>
+                <button class="sidebar-close-btn" onclick="toggleNotes()" title="Close Notes">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
         <div class="sidebar-body" style="padding: 1.5rem;">
@@ -970,10 +1009,14 @@
             if (isCompleted(lectureId)) return;
             setCompleted(lectureId, true);
             setRadioState(lectureId, lectureId == CURRENT_LECTURE_ID ? 'playing' : 'watched');
-            // If it's the current one, hide the Mark Complete button
+            // If it's the current one, update button state to Completed
             if (lectureId == CURRENT_LECTURE_ID) {
                 const btn = document.getElementById('markCompleteBtn');
-                if (btn) { btn.style.display = 'none'; }
+                if (btn) {
+                    btn.classList.add('done');
+                    const span = btn.querySelector('span');
+                    if (span) span.textContent = 'Completed';
+                }
             }
             updateProgressBar();
             showToast('Lecture marked as complete!');
@@ -1051,14 +1094,22 @@
             if (text) text.textContent = finalPct + '% complete';
             document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
 
-            // Hide Mark Complete button when 100% is reached
+            // Sync Mark Complete button's state to current completion status
             const markBtn = document.getElementById('markCompleteBtn');
-            if (markBtn && finalPct >= 100) {
-                markBtn.style.display = 'none';
+            if (markBtn && CURRENT_LECTURE_ID) {
+                if (isCompleted(CURRENT_LECTURE_ID)) {
+                    markBtn.classList.add('done');
+                    const span = markBtn.querySelector('span');
+                    if (span) span.textContent = 'Completed';
+                } else {
+                    markBtn.classList.remove('done');
+                    const span = markBtn.querySelector('span');
+                    if (span) span.textContent = 'Mark Complete';
+                }
             }
 
             // Auto-sync with backend if exactly 100%
-            if (pct >= 100 && total > 0) {
+            if (finalPct >= 100 && total > 0) {
                 const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
                 const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
                 if (csrfHeaderEl && csrfTokenEl) {
@@ -1094,6 +1145,13 @@
                         
                         // Recalculate course-wide progress instead of overwriting with video-local pct
                         updateProgressBar();
+                        
+                        // Enable button if progress is >= 95%
+                        if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
+                            const btn = document.getElementById('markCompleteBtn');
+                            if (btn) btn.disabled = false;
+                        }
+
                         // Sync pct to server every 10 seconds
                         const now = Date.now();
                         if (now - lastSyncTime > 10000) {
@@ -1105,15 +1163,33 @@
                         }
                     }
                 }
-                // Auto-mark complete when 90% watched
-                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration > 0.90)) {
+                // Auto-mark complete when 95% watched
+                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration >= 0.95)) {
                     markLectureComplete(CURRENT_LECTURE_ID);
+                }
+            });
+
+            // Check if saved progress is already >= 95% once metadata is loaded
+            video.addEventListener('loadedmetadata', () => {
+                if (video.duration) {
+                    const pct = (video.currentTime / video.duration) * 100;
+                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
+                        const btn = document.getElementById('markCompleteBtn');
+                        if (btn) btn.disabled = false;
+                    }
                 }
             });
 
             // Handle when a user skips near the end
             video.addEventListener('seeked', () => {
-                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration > 0.90)) {
+                if (video.duration) {
+                    const pct = (video.currentTime / video.duration) * 100;
+                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
+                        const btn = document.getElementById('markCompleteBtn');
+                        if (btn) btn.disabled = false;
+                    }
+                }
+                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration >= 0.95)) {
                     markLectureComplete(CURRENT_LECTURE_ID);
                 }
             });
@@ -1164,20 +1240,30 @@
             });
         }
 
-        let ytProgressDM Sansval;
+        let ytProgressInterval;
 
         function onPlayerReady(event) {
             const saved = getProgress(CURRENT_LECTURE_ID);
             if (saved > 5) {
                 showToast(`Resuming from ${Math.floor(saved / 60)}:${String(Math.floor(saved % 60)).padStart(2, '0')}`, false);
             }
+            if (ytPlayer && ytPlayer.getDuration) {
+                const duration = ytPlayer.getDuration();
+                if (duration) {
+                    const pct = (saved / duration) * 100;
+                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
+                        const btn = document.getElementById('markCompleteBtn');
+                        if (btn) btn.disabled = false;
+                    }
+                }
+            }
         }
 
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.PLAYING) {
                 updateControlBtnUI(false);
-                if (!ytProgressDM Sansval) {
-                    ytProgressDM Sansval = setDM Sansval(() => {
+                if (!ytProgressInterval) {
+                    ytProgressInterval = setInterval(() => {
                         if (ytPlayer && ytPlayer.getCurrentTime) {
                             const time = ytPlayer.getCurrentTime();
                             if (time > 3) setProgress(CURRENT_LECTURE_ID, time);
@@ -1190,12 +1276,17 @@
                                     document.getElementById('progressFill').style.width = pct + '%';
                                     document.getElementById('progressText').textContent = pct + '% complete';
                                 }
+                                // Enable button if progress is >= 95%
+                                if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
+                                    const btn = document.getElementById('markCompleteBtn');
+                                    if (btn) btn.disabled = false;
+                                }
                                 // Sync pct to server
                                 fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${pct}`, {
                                     method: 'POST',
                                     headers: { [csrfHeader]: csrfToken }
                                 }).catch(() => {});
-                                if (!isCompleted(CURRENT_LECTURE_ID) && (time / duration > 0.90)) {
+                                if (!isCompleted(CURRENT_LECTURE_ID) && (time / duration >= 0.95)) {
                                     markLectureComplete(CURRENT_LECTURE_ID);
                                 }
                             }
@@ -1215,9 +1306,9 @@
                         }
                     }
                 }
-                if (ytProgressDM Sansval && event.data !== YT.PlayerState.BUFFERING) {
-                    clearDM Sansval(ytProgressDM Sansval);
-                    ytProgressDM Sansval = null;
+                if (ytProgressInterval && event.data !== YT.PlayerState.BUFFERING) {
+                    clearInterval(ytProgressInterval);
+                    ytProgressInterval = null;
                 }
             }
         }
@@ -1348,17 +1439,36 @@
                 }
             });
 
-            // Mark complete button state — hide if lecture already completed
-            if (CURRENT_LECTURE_ID && isCompleted(CURRENT_LECTURE_ID)) {
+            // Initialize Mark Complete button state
+            if (CURRENT_LECTURE_ID) {
                 const btn = document.getElementById('markCompleteBtn');
-                if (btn) { btn.style.display = 'none'; }
-            }
-
-            // Also hide if localStorage video pct is already 99%+
-            const savedPct = parseInt(localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID) || '0');
-            if (savedPct >= 99) {
-                const btn = document.getElementById('markCompleteBtn');
-                if (btn) { btn.style.display = 'none'; }
+                if (btn) {
+                    if (isCompleted(CURRENT_LECTURE_ID)) {
+                        btn.classList.add('done');
+                        const span = btn.querySelector('span');
+                        if (span) span.textContent = 'Completed';
+                        btn.disabled = false;
+                    } else {
+                        btn.classList.remove('done');
+                        const span = btn.querySelector('span');
+                        if (span) span.textContent = 'Mark Complete';
+                        
+                        // Disable if video exists and we haven't reached 95%
+                        const hasVideo = document.getElementById('mainVideo') || (typeof YT_EMBED_URL !== 'undefined' && YT_EMBED_URL);
+                        if (hasVideo) {
+                            btn.disabled = true;
+                            // Check if already has saved progress >= 95%
+                            const saved = getProgress(CURRENT_LECTURE_ID);
+                            const video = document.getElementById('mainVideo');
+                            if (video && video.duration) {
+                                const pct = (saved / video.duration) * 100;
+                                if (pct >= 95) btn.disabled = false;
+                            }
+                        } else {
+                            btn.disabled = false;
+                        }
+                    }
+                }
             }
 
             updateProgressBar();

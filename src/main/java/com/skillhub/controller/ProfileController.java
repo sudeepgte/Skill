@@ -48,6 +48,9 @@ public class ProfileController {
     @Autowired
     private com.skillhub.repository.NoteRepository noteRepository;
 
+    @Autowired
+    private com.skillhub.repository.PaymentRepository paymentRepository;
+
     @GetMapping("/profile")
     public String showProfile(@RequestParam(value = "tab", required = false, defaultValue = "documents") String tab,
             Model model, Principal principal) {
@@ -105,6 +108,10 @@ public class ProfileController {
         // Fetch Notes
         List<com.skillhub.model.Note> notes = noteRepository.findByUserOrderByUpdatedAtDesc(user);
         model.addAttribute("notes", notes);
+
+        // Fetch successful payments (receipts)
+        List<com.skillhub.model.Payment> payments = paymentRepository.findByUserAndStatusOrderByPaymentDateDesc(user, com.skillhub.model.PaymentStatus.SUCCESS);
+        model.addAttribute("payments", payments);
 
         model.addAttribute("activeTab", tab);
 

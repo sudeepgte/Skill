@@ -24,7 +24,7 @@
 }
 
 .logo-icon {
-    height: 4.2rem;
+    height: 3.2rem;
     width: auto;
     object-fit: contain;
 }
@@ -37,25 +37,25 @@
 
 .logo-main {
     font-family: 'Inter', sans-serif;
-    font-size: 2.8rem;
+    font-size: 2.2rem;
     font-weight: 900;
     letter-spacing: -1.2px;
     color: #2E1065;
 }
 
 .skill-text {
-    color: #A78BFA !important; 
+    color: #0A54B3 !important; 
 }
 
 .hub-text {
-    color: #C4B5FD !important;
+    color: #00BFA5 !important;
 }
 
 .logo-tagline {
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    color: #C4B5FD;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-top: 0.2rem;

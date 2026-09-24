@@ -305,6 +305,13 @@
         <div th:if="${questions.empty}" style="text-align: center; padding: 4rem; background: #EDE9FE; border: 1px dashed var(--border); border-radius: 20px;">
             <p style="color: var(--text-muted); font-weight: 500;">No manual questions yet. Our AI will automatically generate questions during the exam if none are provided.</p>
         </div>
+
+        <!-- Submit / Finish Action Button -->
+        <div style="margin-top: 3rem; display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border); padding-top: 2rem;">
+            <a th:href="@{/vendor/exams}" class="btn btn-primary" style="padding: 1rem 2.5rem; border-radius: 12px; font-size: 1rem; box-shadow: 0 10px 15px -3px rgba(167, 139, 250, 0.4); text-decoration: none;">
+                <i class="fas fa-check-circle"></i> Save 
+            </a>
+        </div>
     </div>
 </body>
 

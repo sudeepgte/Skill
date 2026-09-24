@@ -25,49 +25,84 @@ public class DataInitializer {
             ReviewRepository reviewRepository,
             com.skillhub.repository.EnrollmentRepository enrollmentRepository,
             com.skillhub.repository.NotificationRepository notificationRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         return args -> {
 
-            // 1. Create or Update Users
-            // Force vyshu@gmail.com to be an INSTRUCTOR for testing
-            User vendor = userRepository.findByEmail("vyshu@gmail.com");
-            if (vendor == null) {
-                vendor = newUser("Vyshu Vendor", "vyshu@gmail.com", "vyshu123", "INSTRUCTOR", passwordEncoder);
-                userRepository.save(vendor);
-            } else {
-                vendor.setRole("INSTRUCTOR"); // Force update for existing user
-                userRepository.save(vendor);
+            // Remove mock vendors/instructors and their references from database completely
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+            
+            String[] emails = {"vyshu@gmail.com", "nchakore467@gmail.com", "ikram@gmail.com"};
+            for (String email : emails) {
+                jdbcTemplate.update("DELETE FROM chat_messages WHERE sender_id IN (SELECT id FROM users WHERE email = ?) OR recipient_id IN (SELECT id FROM users WHERE email = ?)", email, email);
+                jdbcTemplate.update("DELETE FROM enrollments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM reviews WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM course_answers WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR question_id IN (SELECT id FROM course_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)))", email, email);
+                jdbcTemplate.update("DELETE FROM course_questions WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM exam_attempts WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM exam_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                jdbcTemplate.update("DELETE FROM lecture_progress WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR lecture_id IN (SELECT l.id FROM lectures l JOIN course_sections s ON l.section_id = s.id JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM lectures WHERE section_id IN (SELECT s.id FROM course_sections s JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                jdbcTemplate.update("DELETE FROM course_sections WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                jdbcTemplate.update("DELETE FROM lesson_notes WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM password_reset_token WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM payments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM reports WHERE reporter_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM user_resumes WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM wishlist WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                jdbcTemplate.update("DELETE FROM creations WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)", email);
+                jdbcTemplate.update("DELETE FROM users WHERE email = ?", email);
             }
-
-            // Ensure nchakore467@gmail.com exists and is approved
-            User specificUser = userRepository.findByEmail("nchakore467@gmail.com");
-            if (specificUser == null) {
-                specificUser = newUser("N Chakore", "nchakore467@gmail.com", "vyshu123", "INSTRUCTOR", passwordEncoder);
-                specificUser.setApproved(true);
-                userRepository.save(specificUser);
-            } else {
-                specificUser.setApproved(true);
-                userRepository.save(specificUser);
-            }
-
-            // Ensure ikram@gmail.com exists as an INSTRUCTOR
-            User ikram = userRepository.findByEmail("ikram@gmail.com");
-            if (ikram == null) {
-                ikram = newUser("Ikram", "ikram@gmail.com", "123", "INSTRUCTOR", passwordEncoder);
-                ikram.setApproved(true);
-                userRepository.save(ikram);
-            } else {
-                ikram.setPassword(passwordEncoder.encode("123"));
-                ikram.setRole("INSTRUCTOR");
-                ikram.setApproved(true);
-                userRepository.save(ikram);
-            }
+            
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
 
             // Admin
             User admin = userRepository.findByEmail("admin@skillhub.com");
             if (admin == null) {
                 admin = newUser("Admin User", "admin@skillhub.com", "admin123", "ADMIN", passwordEncoder);
                 userRepository.save(admin);
+            }
+
+            // Verify and reset yogu@123 password
+            User yogu = userRepository.findByEmail("yogu@123");
+            if (yogu != null) {
+                boolean match = passwordEncoder.matches("yogu@123", yogu.getPassword());
+                System.out.println("DEBUG: yogu@123 password match = " + match);
+                if (!match) {
+                    System.out.println("DEBUG: Resetting yogu@123 password to yogu@123");
+                    yogu.setPassword(passwordEncoder.encode("yogu@123"));
+                    userRepository.save(yogu);
+                }
+                yogu.setApproved(true);
+                yogu.setBlocked(false);
+                userRepository.save(yogu);
+            } else {
+                System.out.println("DEBUG: yogu@123 not found in DB! Seeding...");
+                yogu = newUser("Yogita", "yogu@123", "yogu@123", "INSTRUCTOR", passwordEncoder);
+                yogu.setApproved(true);
+                userRepository.save(yogu);
+            }
+
+            // Verify and reset neha@123 password
+            User neha = userRepository.findByEmail("neha@123");
+            if (neha != null) {
+                boolean match = passwordEncoder.matches("neha@123", neha.getPassword());
+                System.out.println("DEBUG: neha@123 password match = " + match);
+                if (!match) {
+                    System.out.println("DEBUG: Resetting neha@123 password to neha@123");
+                    neha.setPassword(passwordEncoder.encode("neha@123"));
+                    userRepository.save(neha);
+                }
+                neha.setApproved(true);
+                neha.setBlocked(false);
+                userRepository.save(neha);
+            } else {
+                System.out.println("DEBUG: neha@123 not found in DB! Seeding...");
+                neha = newUser("Neha", "neha@123", "neha@123", "STUDENT", passwordEncoder);
+                neha.setApproved(true);
+                userRepository.save(neha);
             }
 
             // 2. Create Categories
@@ -84,32 +119,6 @@ public class DataInitializer {
                         new Category("Photography", "fas fa-camera"),
                         new Category("Other", "fas fa-ellipsis-h"));
                 categoryRepository.saveAll(java.util.Objects.requireNonNull(categories));
-            }
-            // 3. Mock Data for "Students" Tab (Enrollments)
-            if (enrollmentRepository.count() == 0) {
-                // Find vendor and a course
-                User vendorInstructor = userRepository.findByEmail("vyshu@gmail.com");
-                if (vendorInstructor != null) {
-                    List<com.skillhub.model.Course> courses = courseRepository.findByInstructorEmail(vendorInstructor.getEmail());
-                    if (courses != null && !courses.isEmpty()) {
-                        com.skillhub.model.Course sampleCourse = courses.get(0);
-                        
-                        // Create a mock student
-                        User mockStudent = userRepository.findByEmail("student@skillhub.com");
-                        if (mockStudent == null) {
-                            mockStudent = newUser("Mock Student", "student@skillhub.com", "student123", "STUDENT", passwordEncoder);
-                            userRepository.save(mockStudent);
-                        }
-                        
-                        // Create enrollment
-                        com.skillhub.model.Enrollment enrollment = new com.skillhub.model.Enrollment(mockStudent, sampleCourse);
-                        enrollment.setProgressPercentage(45.0); // Pre-fill some progress
-                        
-                        // Update course stat
-                        sampleCourse.getEnrollments().add(enrollment);
-                        enrollmentRepository.save(enrollment);
-                    }
-                }
             }
 
             // 4. Polish Course ID 2 (Digital Marketing Mastery) Content

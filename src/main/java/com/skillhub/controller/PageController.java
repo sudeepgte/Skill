@@ -95,6 +95,12 @@ public class PageController {
         }
         model.addAttribute("categories", categoryService.getAllCategories());
 
+        // Load approved and unblocked instructors
+        List<User> instructors = userService.getAllUsers().stream()
+                .filter(u -> "INSTRUCTOR".equals(u.getRole()) && u.isApproved() && !u.isBlocked())
+                .collect(Collectors.toList());
+        model.addAttribute("instructors", instructors);
+
         // Add videos to the model for the home page
         model.addAttribute("videos", videoResourceRepository.findByOrderByUploadDateDesc());
 

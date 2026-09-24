@@ -26,7 +26,7 @@
                 <!-- Check if categories list null -->
                 <th:block th:if="${categories != null}">
                     <a th:each="cat : ${categories}"
-                        th:href="@{/(categoryId=${cat.id})}"
+                        th:href="@{/courses/{name}(name=${cat.name})}"
                         class="nav-dropdown-item">
                         <span th:text="${cat.name}">Category</span>
                         <i class="fas fa-chevron-right" style="font-size:1rem;opacity:0.45;"></i>
