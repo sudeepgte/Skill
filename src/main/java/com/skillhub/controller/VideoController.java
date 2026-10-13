@@ -21,7 +21,10 @@ public class VideoController {
                 directory.mkdirs();
             }
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            String rawOriginal = file.getOriginalFilename() != null ? file.getOriginalFilename() : "video";
+            String cleanName = org.springframework.util.StringUtils.cleanPath(rawOriginal);
+            String sanitized = cleanName.replaceAll("[^a-zA-Z0-9._-]", "_");
+            String fileName = System.currentTimeMillis() + "_" + sanitized;
             file.transferTo(new File(directory.getAbsolutePath() + File.separator + fileName));
 
             return ResponseEntity.ok(Map.of("success", true, "fileName", fileName));

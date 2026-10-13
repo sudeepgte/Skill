@@ -1,6 +1,11 @@
 package com.skillhub.dto;
 
+import com.skillhub.model.CourseStatus;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CourseDTO {
     private Long id;
@@ -8,12 +13,19 @@ public class CourseDTO {
     private String subtitle;
     private String description;
     private String categoryName;
+    private Long categoryId;
+    private String subCategory;
     private UserDTO instructor;
     private Double price;
+    private Double salePrice;
     private String imageUrl;
     private String language;
     private String level;
     private boolean isPublished;
+    private CourseStatus status;
+    private String rejectionReason;
+    private LocalDateTime submittedAt;
+    private LocalDateTime reviewedAt;
     private String lastUpdated;
     private String learningObjectives;
     private String requirements;
@@ -23,7 +35,27 @@ public class CourseDTO {
     private Integer reviewCount;
     private Long enrolledStudentCount;
     private String videoUrl;
-    private List<SectionDTO> sections;
+    private List<SectionDTO> sections = new ArrayList<>();
+
+    // Course format & teaching method
+    private String format;
+    private String teachingMethod;
+    private String tags;
+
+    // Intended learners
+    private String targetAudience;
+    private String requiredExperience;
+    private String expectedSkills;
+    private String ageRange;
+    private String accessibilityRequirements;
+    private String accessDuration;
+
+    // Category specific dynamic data
+    private String categorySpecificData;
+    private Map<String, String> categoryDataMap = new HashMap<>();
+
+    // Downloadable learning resources
+    private List<CourseResourceDTO> resources = new ArrayList<>();
 
     public CourseDTO() {
     }
@@ -69,6 +101,22 @@ public class CourseDTO {
         this.categoryName = categoryName;
     }
 
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getSubCategory() {
+        return subCategory;
+    }
+
+    public void setSubCategory(String subCategory) {
+        this.subCategory = subCategory;
+    }
+
     public UserDTO getInstructor() {
         return instructor;
     }
@@ -83,6 +131,14 @@ public class CourseDTO {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getSalePrice() {
+        return salePrice;
+    }
+
+    public void setSalePrice(Double salePrice) {
+        this.salePrice = salePrice;
     }
 
     public String getImageUrl() {
@@ -115,6 +171,38 @@ public class CourseDTO {
 
     public void setPublished(boolean published) {
         isPublished = published;
+    }
+
+    public CourseStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CourseStatus status) {
+        this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
     }
 
     public String getLastUpdated() {
@@ -173,12 +261,12 @@ public class CourseDTO {
         this.reviewCount = reviewCount;
     }
 
-    public List<SectionDTO> getSections() {
-        return sections;
+    public Long getEnrolledStudentCount() {
+        return enrolledStudentCount;
     }
 
-    public void setSections(List<SectionDTO> sections) {
-        this.sections = sections;
+    public void setEnrolledStudentCount(Long enrolledStudentCount) {
+        this.enrolledStudentCount = enrolledStudentCount;
     }
 
     public String getVideoUrl() {
@@ -189,12 +277,107 @@ public class CourseDTO {
         this.videoUrl = videoUrl;
     }
 
-
-    public Long getEnrolledStudentCount() {
-        return enrolledStudentCount;
+    public List<SectionDTO> getSections() {
+        return sections;
     }
 
-    public void setEnrolledStudentCount(Long enrolledStudentCount) {
-        this.enrolledStudentCount = enrolledStudentCount;
+    public void setSections(List<SectionDTO> sections) {
+        this.sections = sections;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getTeachingMethod() {
+        return teachingMethod;
+    }
+
+    public void setTeachingMethod(String teachingMethod) {
+        this.teachingMethod = teachingMethod;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getTargetAudience() {
+        return targetAudience;
+    }
+
+    public void setTargetAudience(String targetAudience) {
+        this.targetAudience = targetAudience;
+    }
+
+    public String getRequiredExperience() {
+        return requiredExperience;
+    }
+
+    public void setRequiredExperience(String requiredExperience) {
+        this.requiredExperience = requiredExperience;
+    }
+
+    public String getExpectedSkills() {
+        return expectedSkills;
+    }
+
+    public void setExpectedSkills(String expectedSkills) {
+        this.expectedSkills = expectedSkills;
+    }
+
+    public String getAgeRange() {
+        return ageRange;
+    }
+
+    public void setAgeRange(String ageRange) {
+        this.ageRange = ageRange;
+    }
+
+    public String getAccessibilityRequirements() {
+        return accessibilityRequirements;
+    }
+
+    public void setAccessibilityRequirements(String accessibilityRequirements) {
+        this.accessibilityRequirements = accessibilityRequirements;
+    }
+
+    public String getAccessDuration() {
+        return accessDuration;
+    }
+
+    public void setAccessDuration(String accessDuration) {
+        this.accessDuration = accessDuration;
+    }
+
+    public String getCategorySpecificData() {
+        return categorySpecificData;
+    }
+
+    public void setCategorySpecificData(String categorySpecificData) {
+        this.categorySpecificData = categorySpecificData;
+    }
+
+    public Map<String, String> getCategoryDataMap() {
+        return categoryDataMap;
+    }
+
+    public void setCategoryDataMap(Map<String, String> categoryDataMap) {
+        this.categoryDataMap = categoryDataMap;
+    }
+
+    public List<CourseResourceDTO> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<CourseResourceDTO> resources) {
+        this.resources = resources;
     }
 }

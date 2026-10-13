@@ -36,15 +36,22 @@ public class FileStorageService {
             if (file.isEmpty()) {
                 throw new RuntimeException("Failed to store empty file.");
             }
-            System.out.println("STORING FILE: " + file.getOriginalFilename() + " (" + file.getSize() + " bytes)");
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String rawOriginal = file.getOriginalFilename() != null ? file.getOriginalFilename() : "file";
+            String cleanName = org.springframework.util.StringUtils.cleanPath(rawOriginal);
+            String sanitized = cleanName.replaceAll("[^a-zA-Z0-9._-]", "_");
+            if (sanitized.isEmpty() || sanitized.startsWith(".")) {
+                sanitized = "file" + sanitized;
+            }
+
+            System.out.println("STORING FILE: " + sanitized + " (" + file.getSize() + " bytes)");
+            String filename = UUID.randomUUID().toString() + "_" + sanitized;
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
             String savedPath = "/uploads/" + filename;
             System.out.println("FILE SAVED AT: " + savedPath);
             return savedPath;
         } catch (IOException e) {
             System.err.println("STORAGE ERROR: " + e.getMessage());
-            throw new RuntimeException("Failed to store file " + file.getOriginalFilename(), e);
+            throw new RuntimeException("Failed to store file", e);
         }
     }
 

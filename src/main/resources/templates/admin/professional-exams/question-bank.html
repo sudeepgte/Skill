@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1>Question Bank</h1>
+    <table>
+        <tr th:each="q : ${questions}">
+            <td th:text="${q.questionText}"></td>
+            <td th:text="${q.questionType}"></td>
+        </tr>
+    </table>
+</body>
+</html>

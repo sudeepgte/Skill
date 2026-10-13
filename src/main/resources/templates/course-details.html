@@ -660,6 +660,9 @@
                             th:text="${course.lastUpdated != null ? course.lastUpdated : 'Recently'}"></span></span>
                     <span><i class="fas fa-globe lang-icon"></i> <span
                             th:text="${course.language != null ? course.language : 'English'}">English</span></span>
+                    <span th:if="${course.level != null}" style="background: #EDE9FE; color: var(--text-dark); padding: 2px 8px; border-radius: 4px; font-size: 0.95rem; font-weight: 600;" th:text="${course.level}">Beginner</span>
+                    <span th:if="${course.format != null}" style="background: #F3E8FF; color: var(--primary-hover); padding: 2px 8px; border-radius: 4px; font-size: 0.95rem; font-weight: 600;" th:text="${course.format}">Video Course</span>
+                    <span th:if="${course.teachingMethod != null}" style="background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 4px; font-size: 0.95rem; font-weight: 600;" th:text="${course.teachingMethod}">Self-paced</span>
                 </div>
 
                 <!-- Mobile Thumbnail Preview -->
@@ -912,6 +915,71 @@
                 <div class="description-content"
                     th:utext="${course.longDescription != null ? course.longDescription : course.description}">
                     Description goes here.
+                </div>
+            </div>
+
+            <!-- Category-Specific Information & Discipline Specs -->
+            <div class="course-section" th:if="${categoryDataMap != null and !categoryDataMap.isEmpty()}">
+                <h2 th:text="'Specialized ' + (${course.categoryName != null ? course.categoryName : 'Discipline'}) + ' Details'">Discipline Details</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; background: #FAF5FF; padding: 24px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div th:each="entry : ${categoryDataMap}" th:if="${entry.value != null and !#strings.isEmpty(entry.value)}" style="background: white; padding: 14px 18px; border-radius: 6px; border: 1px solid var(--border-color);">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-hover); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;"
+                             th:text="${#strings.replace(entry.key, '_', ' ')}">Field Name</div>
+                        <div style="font-size: 1.15rem; color: var(--text-dark); font-weight: 500; line-height: 1.4;"
+                             th:text="${entry.value}">Value</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intended Audience & Competencies -->
+            <div class="course-section" th:if="${(course.targetAudience != null and !#strings.isEmpty(course.targetAudience)) or (course.expectedSkills != null and !#strings.isEmpty(course.expectedSkills))}">
+                <h2>Who this course is for</h2>
+                <div style="padding: 20px; background: #F8FAFC; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 14px;">
+                    <div th:if="${course.targetAudience != null and !#strings.isEmpty(course.targetAudience)}">
+                        <strong style="color: var(--text-dark); font-size: 1.1rem; display: block; margin-bottom: 4px;">Target Audience:</strong>
+                        <p style="margin: 0; font-size: 1.15rem; color: #475569;" th:text="${course.targetAudience}"></p>
+                    </div>
+                    <div th:if="${course.expectedSkills != null and !#strings.isEmpty(course.expectedSkills)}">
+                        <strong style="color: var(--text-dark); font-size: 1.1rem; display: block; margin-bottom: 4px;">Skills You'll Acquire:</strong>
+                        <p style="margin: 0; font-size: 1.15rem; color: #475569;" th:text="${course.expectedSkills}"></p>
+                    </div>
+                    <div th:if="${course.ageRange != null and !#strings.isEmpty(course.ageRange) and course.ageRange != 'All Ages'}">
+                        <strong style="color: var(--text-dark); font-size: 1.1rem; display: block; margin-bottom: 4px;">Recommended Age:</strong>
+                        <span style="display: inline-block; background: #EDE9FE; color: var(--text-dark); padding: 4px 10px; border-radius: 4px; font-size: 1rem; font-weight: 600;" th:text="${course.ageRange}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Downloadable Course Resources -->
+            <div class="course-section" th:if="${resources != null and !resources.isEmpty()}">
+                <h2>Downloadable Course Resources</h2>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div th:each="res : ${resources}" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 42px; height: 42px; border-radius: 8px; background: #EDE9FE; color: var(--primary-hover); display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                                <i class="fas fa-file-download"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 4px 0; font-size: 1.15rem; color: var(--text-dark);" th:text="${res.title}">Resource Title</h4>
+                                <div style="display: flex; gap: 8px; align-items: center; font-size: 0.9rem; color: #64748B;">
+                                    <span style="background: #E2E8F0; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase;" th:text="${res.fileType}">PDF</span>
+                                    <span th:if="${res.description != null and !#strings.isEmpty(res.description)}" th:text="${res.description}">Resource Description</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <th:block th:if="${isEnrolled}">
+                                <a th:href="@{${res.fileUrl}}" target="_blank" download class="btn-buy" style="margin: 0; padding: 8px 16px; font-size: 0.95rem; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            </th:block>
+                            <th:block th:unless="${isEnrolled}">
+                                <span style="font-size: 0.9rem; color: #94A3B8; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-lock"></i> Enrolled Only
+                                </span>
+                            </th:block>
+                        </div>
+                    </div>
                 </div>
             </div>
 

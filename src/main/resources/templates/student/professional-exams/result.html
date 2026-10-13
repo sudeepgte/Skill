@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1>Exam Result</h1>
+    <p th:text="'Status: ' + ${attempt.result?.status}"></p>
+    <p th:text="'Percentage: ' + ${attempt.result?.percentage} + '%'"></p>
+</body>
+</html>

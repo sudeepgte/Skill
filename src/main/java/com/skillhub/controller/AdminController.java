@@ -1,10 +1,12 @@
 package com.skillhub.controller;
 
 import com.skillhub.model.*;
+import com.skillhub.model.enums.CourseQuestionType;
 import com.skillhub.repository.*;
 import com.skillhub.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -162,9 +167,69 @@ public class AdminController {
     }
 
     @GetMapping("/courses")
-    public String listCourses(Model model) {
-        model.addAttribute("courses", courseService.getAllCourses());
+    public String listCourses(@RequestParam(value = "status", required = false) String statusFilter, Model model) {
+        List<Course> allCourses = courseService.getAllCourses();
+        List<Course> displayedCourses = allCourses;
+
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusFilter)) {
+            try {
+                CourseStatus cs = CourseStatus.valueOf(statusFilter.toUpperCase());
+                displayedCourses = allCourses.stream()
+                        .filter(c -> c.getStatus() == cs)
+                        .collect(Collectors.toList());
+            } catch (Exception ignored) {
+            }
+        }
+
+        long pendingCount = courseService.countPendingCourses();
+        model.addAttribute("courses", displayedCourses);
+        model.addAttribute("allCourses", allCourses);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("statusFilter", statusFilter != null ? statusFilter : "ALL");
         return "admin/courses";
+    }
+
+    @GetMapping("/courses/{id}/review")
+    public String reviewCourse(@PathVariable("id") Long id, Model model) {
+        Course course = courseService.getCourseById(id);
+        if (course == null) {
+            return "redirect:/admin/courses?error=CourseNotFound";
+        }
+        model.addAttribute("course", course);
+        model.addAttribute("categoryDataMap", course.getCategoryDataMap());
+        return "admin/course_review";
+    }
+
+    @PostMapping("/courses/{id}/approve")
+    public String approveCourse(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        Course course = courseService.getCourseById(id);
+        if (course != null) {
+            courseService.approveCourse(id);
+            if (course.getInstructor() != null) {
+                notificationService.createAndSend(course.getInstructor(),
+                        "Course Approved & Published!",
+                        "Congratulations! Your course '" + course.getTitle() + "' has been approved by admin and is now live on SkillHub.",
+                        "SUCCESS");
+            }
+            redirectAttributes.addFlashAttribute("success", "Course '" + course.getTitle() + "' approved and published successfully!");
+        }
+        return "redirect:/admin/courses";
+    }
+
+    @PostMapping("/courses/{id}/reject")
+    public String rejectCourse(@PathVariable("id") Long id, @RequestParam("reason") String reason, RedirectAttributes redirectAttributes) {
+        Course course = courseService.getCourseById(id);
+        if (course != null) {
+            courseService.rejectCourse(id, reason);
+            if (course.getInstructor() != null) {
+                notificationService.createAndSend(course.getInstructor(),
+                        "Changes Requested: " + course.getTitle(),
+                        "Admin requested changes on your course: " + reason,
+                        "WARNING");
+            }
+            redirectAttributes.addFlashAttribute("warning", "Course rejected. Changes have been requested from the instructor.");
+        }
+        return "redirect:/admin/courses";
     }
 
     @PostMapping("/courses/delete")
@@ -432,41 +497,193 @@ public class AdminController {
     }
 
     @GetMapping("/courses/{id}/questions")
-    public String manageExamQuestions(@PathVariable("id") Long id, Model model, Principal principal) {
+    public String manageExamQuestions(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "typeFilter", required = false) String typeFilter,
+            @RequestParam(value = "search", required = false) String search,
+            Model model, Principal principal) {
         Course course = courseService.getCourseById(id);
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
         model.addAttribute("course", course);
-        model.addAttribute("questions", course.getExamQuestions());
+
+        List<ExamQuestion> questions = course != null && course.getExamQuestions() != null
+                ? new ArrayList<>(course.getExamQuestions())
+                : new ArrayList<>();
+
+        if (typeFilter != null && !typeFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(typeFilter)) {
+            questions = questions.stream()
+                    .filter(q -> q.getQuestionType() != null && q.getQuestionType().name().equalsIgnoreCase(typeFilter.trim()))
+                    .collect(Collectors.toList());
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            String lower = search.trim().toLowerCase();
+            questions = questions.stream()
+                    .filter(q -> q.getQuestionText() != null && q.getQuestionText().toLowerCase().contains(lower))
+                    .collect(Collectors.toList());
+        }
+
+        model.addAttribute("questions", questions);
+        model.addAttribute("totalQuestionsCount", course != null && course.getExamQuestions() != null ? course.getExamQuestions().size() : 0);
+        model.addAttribute("questionTypes", CourseQuestionType.values());
+        model.addAttribute("selectedTypeFilter", typeFilter != null ? typeFilter : "ALL");
+        model.addAttribute("searchQuery", search != null ? search : "");
         return "admin/manage_questions";
     }
 
     @PostMapping("/courses/{id}/questions/add")
     public String addExamQuestion(@PathVariable("id") Long id,
+            @RequestParam(value = "questionType", defaultValue = "MULTIPLE_CHOICE") String questionType,
             @RequestParam("questionText") String questionText,
-            @RequestParam("optionA") String optionA,
-            @RequestParam("optionB") String optionB,
-            @RequestParam("optionC") String optionC,
-            @RequestParam("optionD") String optionD,
-            @RequestParam("correctOption") String correctOption) {
+            @RequestParam(value = "marks", defaultValue = "1") Integer marks,
+            @RequestParam(value = "explanation", required = false) String explanation,
+            @RequestParam(value = "typeData", required = false) String typeData,
+            @RequestParam(value = "correctAnswer", required = false) String correctAnswer,
+            @RequestParam(value = "manualGrading", defaultValue = "false") Boolean manualGrading,
+            @RequestParam(value = "caseSensitive", defaultValue = "false") Boolean caseSensitive,
+            @RequestParam(value = "tolerance", required = false) Double tolerance,
+            @RequestParam(value = "codeLanguage", required = false) String codeLanguage,
+            // Legacy params for backward compatibility
+            @RequestParam(value = "optionA", required = false) String optionA,
+            @RequestParam(value = "optionB", required = false) String optionB,
+            @RequestParam(value = "optionC", required = false) String optionC,
+            @RequestParam(value = "optionD", required = false) String optionD,
+            @RequestParam(value = "correctOption", required = false) String correctOption,
+            RedirectAttributes redirectAttributes) {
+
         Course course = courseService.getCourseById(id);
         if (course != null) {
-            ExamQuestion q = new ExamQuestion(course, questionText, optionA,
-                    optionB, optionC, optionD, correctOption);
+            CourseQuestionType type = CourseQuestionType.fromString(questionType);
+            ExamQuestion q = new ExamQuestion();
+            q.setCourse(course);
+            q.setQuestionType(type);
+            q.setQuestionText(questionText != null ? questionText.trim() : "");
+            q.setMarks(marks != null && marks > 0 ? marks : 1);
+            q.setExplanation(explanation);
+            q.setTypeData(typeData != null ? typeData.trim() : "{}");
+            q.setManualGrading(manualGrading);
+            q.setCaseSensitive(caseSensitive);
+            q.setTolerance(tolerance);
+            q.setCodeLanguage(codeLanguage);
+
+            // Backward compatibility for MULTIPLE_CHOICE
+            q.setOptionA(optionA != null ? optionA : "");
+            q.setOptionB(optionB != null ? optionB : "");
+            q.setOptionC(optionC != null ? optionC : "");
+            q.setOptionD(optionD != null ? optionD : "");
+            q.setCorrectOption(correctOption != null ? correctOption : "");
+
+            // Canonical correct answer
+            if (correctAnswer != null && !correctAnswer.trim().isEmpty()) {
+                q.setCorrectAnswer(correctAnswer.trim());
+            } else if (correctOption != null && !correctOption.trim().isEmpty()) {
+                q.setCorrectAnswer(correctOption.trim());
+            }
+
             course.getExamQuestions().add(q);
             courseService.saveCourse(course);
+            redirectAttributes.addFlashAttribute("successMessage", "Question added successfully!");
         }
         return "redirect:/admin/courses/" + id + "/questions";
     }
 
+    @PostMapping("/courses/{id}/questions/update/{qid}")
+    public String updateExamQuestion(@PathVariable("id") Long id,
+            @PathVariable("qid") Long qid,
+            @RequestParam(value = "questionType", defaultValue = "MULTIPLE_CHOICE") String questionType,
+            @RequestParam("questionText") String questionText,
+            @RequestParam(value = "marks", defaultValue = "1") Integer marks,
+            @RequestParam(value = "explanation", required = false) String explanation,
+            @RequestParam(value = "typeData", required = false) String typeData,
+            @RequestParam(value = "correctAnswer", required = false) String correctAnswer,
+            @RequestParam(value = "manualGrading", defaultValue = "false") Boolean manualGrading,
+            @RequestParam(value = "caseSensitive", defaultValue = "false") Boolean caseSensitive,
+            @RequestParam(value = "tolerance", required = false) Double tolerance,
+            @RequestParam(value = "codeLanguage", required = false) String codeLanguage,
+            @RequestParam(value = "optionA", required = false) String optionA,
+            @RequestParam(value = "optionB", required = false) String optionB,
+            @RequestParam(value = "optionC", required = false) String optionC,
+            @RequestParam(value = "optionD", required = false) String optionD,
+            @RequestParam(value = "correctOption", required = false) String correctOption,
+            RedirectAttributes redirectAttributes) {
+
+        Course course = courseService.getCourseById(id);
+        if (course != null && course.getExamQuestions() != null) {
+            for (ExamQuestion q : course.getExamQuestions()) {
+                if (q.getId() != null && q.getId().equals(qid)) {
+                    CourseQuestionType type = CourseQuestionType.fromString(questionType);
+                    q.setQuestionType(type);
+                    q.setQuestionText(questionText != null ? questionText.trim() : "");
+                    q.setMarks(marks != null && marks > 0 ? marks : 1);
+                    q.setExplanation(explanation);
+                    q.setTypeData(typeData != null ? typeData.trim() : "{}");
+                    q.setManualGrading(manualGrading);
+                    q.setCaseSensitive(caseSensitive);
+                    q.setTolerance(tolerance);
+                    q.setCodeLanguage(codeLanguage);
+
+                    q.setOptionA(optionA != null ? optionA : "");
+                    q.setOptionB(optionB != null ? optionB : "");
+                    q.setOptionC(optionC != null ? optionC : "");
+                    q.setOptionD(optionD != null ? optionD : "");
+                    q.setCorrectOption(correctOption != null ? correctOption : "");
+
+                    if (correctAnswer != null && !correctAnswer.trim().isEmpty()) {
+                        q.setCorrectAnswer(correctAnswer.trim());
+                    } else if (correctOption != null && !correctOption.trim().isEmpty()) {
+                        q.setCorrectAnswer(correctOption.trim());
+                    }
+                    break;
+                }
+            }
+            courseService.saveCourse(course);
+            redirectAttributes.addFlashAttribute("successMessage", "Question updated successfully!");
+        }
+        return "redirect:/admin/courses/" + id + "/questions";
+    }
+
+    @GetMapping("/courses/{id}/questions/{qid}/json")
+    @ResponseBody
+    public ResponseEntity<?> getExamQuestionJson(@PathVariable("id") Long id, @PathVariable("qid") Long qid) {
+        Course course = courseService.getCourseById(id);
+        if (course != null && course.getExamQuestions() != null) {
+            for (ExamQuestion q : course.getExamQuestions()) {
+                if (q.getId() != null && q.getId().equals(qid)) {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("id", q.getId());
+                    data.put("questionType", q.getQuestionType().name());
+                    data.put("questionText", q.getQuestionText());
+                    data.put("marks", q.getMarks());
+                    data.put("explanation", q.getExplanation());
+                    data.put("typeData", q.getTypeData());
+                    data.put("correctAnswer", q.getCorrectAnswer());
+                    data.put("manualGrading", q.getManualGrading());
+                    data.put("caseSensitive", q.getCaseSensitive());
+                    data.put("tolerance", q.getTolerance());
+                    data.put("codeLanguage", q.getCodeLanguage());
+                    data.put("optionA", q.getOptionA());
+                    data.put("optionB", q.getOptionB());
+                    data.put("optionC", q.getOptionC());
+                    data.put("optionD", q.getOptionD());
+                    data.put("correctOption", q.getCorrectOption());
+                    return ResponseEntity.ok(data);
+                }
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping("/courses/{id}/questions/delete/{qid}")
     public String deleteExamQuestion(@PathVariable("id") Long id,
-            @PathVariable("qid") Long qid) {
+            @PathVariable("qid") Long qid,
+            RedirectAttributes redirectAttributes) {
         Course course = courseService.getCourseById(id);
         if (course != null) {
             course.getExamQuestions().removeIf(q -> q.getId().equals(qid));
             courseService.saveCourse(course);
+            redirectAttributes.addFlashAttribute("successMessage", "Question deleted successfully!");
         }
         return "redirect:/admin/courses/" + id + "/questions";
     }

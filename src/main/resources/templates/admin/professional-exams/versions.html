@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1 th:text="${exam.title} + ' - Versions'"></h1>
+    <ul>
+        <li th:each="v : ${versions}" th:text="${v.versionName} + ' - ' + (${v.published} ? 'Published' : 'Draft')"></li>
+    </ul>
+</body>
+</html>

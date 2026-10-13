@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1>Available Certifications</h1>
+    <div th:each="exam : ${exams}">
+        <h2 th:text="${exam.title}"></h2>
+        <a th:href="@{/student/professional-exams/{id}(id=${exam.id})}">View Details</a>
+    </div>
+</body>
+</html>

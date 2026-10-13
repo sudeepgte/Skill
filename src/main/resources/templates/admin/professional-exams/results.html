@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1>Exam Results</h1>
+    <table>
+        <tr th:each="r : ${results}">
+            <td th:text="${r.percentage + '%'}"></td>
+            <td th:text="${r.grade}"></td>
+        </tr>
+    </table>
+</body>
+</html>

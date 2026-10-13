@@ -35,6 +35,9 @@ public class ForgotPasswordController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.skillhub.service.RateLimitingService rateLimitingService;
+
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm() {
         return "forgot_password";
@@ -43,6 +46,18 @@ public class ForgotPasswordController {
     @PostMapping("/forgot-password")
     public String processForgotPassword(HttpServletRequest request, @RequestParam("email") String userEmail,
             Model model) {
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty()) {
+            clientIp = request.getRemoteAddr() != null ? request.getRemoteAddr() : "127.0.0.1";
+        } else {
+            clientIp = clientIp.split(",")[0].trim();
+        }
+
+        if (!rateLimitingService.allowRequest("forgot-pw:" + clientIp, 5, 300)) {
+            model.addAttribute("error", "Too many password reset requests from this IP. Please try again after 5 minutes.");
+            return "forgot_password";
+        }
+
         User user = userRepository.findByEmail(userEmail);
 
         if (user == null) {

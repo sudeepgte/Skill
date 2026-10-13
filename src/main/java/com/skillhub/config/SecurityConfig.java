@@ -48,7 +48,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder)
             throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**"))
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**", "/ws/**"))
                 .exceptionHandling(exception -> exception
                         .defaultAuthenticationEntryPointFor(
                                 unauthorizedHandler,
@@ -64,12 +64,19 @@ public class SecurityConfig {
                                 "/business", "/teaching", "/app", "/help", "/blog", "/faq", 
                                 "/instructors", "/instructor/**",
                                 "/terms", "/privacy", "/cookies", "/accessibility",
-                                "/sw.js", "/manifest.json", "/ws/**")
+                                "/sw.js", "/manifest.json", "/favicon.ico", "/.well-known/**", "/ws/**",
+                                "/certifications/verify/**",
+                                "/api/health")
                         .permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
+                .headers(headers -> headers
+                        .contentTypeOptions(contentType -> {})
+                        .frameOptions(frame -> frame.sameOrigin())
+                        .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss:; frame-ancestors 'self';")))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
