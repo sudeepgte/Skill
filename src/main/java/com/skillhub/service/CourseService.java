@@ -19,6 +19,9 @@ public class CourseService {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private jakarta.persistence.EntityManager entityManager;
+
     public List<Course> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
         courses.forEach(this::populateCourseRatings);
@@ -34,6 +37,8 @@ public class CourseService {
     public long countCourses() {
         return courseRepository.count();
     }
+
+    public Long sumViewsByInstructorEmail(String email) { return courseRepository.sumViewsByInstructorEmail(email); }
 
     public List<Course> getCoursesByInstructor(String email) {
         List<Course> courses = courseRepository.findByInstructorEmail(email);
@@ -86,7 +91,23 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            entityManager.createQuery("DELETE FROM Review e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM Enrollment e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM ExamAttempt e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM ExamQuestion e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM CourseQuestion e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM Note e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM Payment e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM Report e WHERE e.reportedCourse.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM Wishlist e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            courseRepository.deleteById(id);
+            return;
+        }
+        // Fallback for empty block
         courseRepository.deleteById(id);
     }
 
@@ -177,8 +198,8 @@ public class CourseService {
             }
             timeString += minutes + "m";
 
-            // Format: "X lectures • Yh Zm"
-            String finalContentLength = totalLectures + " lectures • " + timeString.trim();
+            // Format: "X lectures Ã¢â‚¬Â¢ Yh Zm"
+            String finalContentLength = totalLectures + " lectures Ã¢â‚¬Â¢ " + timeString.trim();
 
             course.setContentLength(finalContentLength);
 

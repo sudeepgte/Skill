@@ -14,6 +14,12 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     long countByCourse(com.skillhub.model.Course course);
 
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.instructor.email = :email")
+    long countByInstructorEmail(@org.springframework.data.repository.query.Param("email") String email);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.instructor.email = :email AND e.isExamPassed = true")
+    long countExamsPassedByInstructorEmail(@org.springframework.data.repository.query.Param("email") String email);
+
     long countByEnrolledAtAfter(java.time.LocalDateTime date);
 
     @org.springframework.data.jpa.repository.Query("SELECT e FROM Enrollment e WHERE e.course.instructor.email = :email ORDER BY e.enrolledAt DESC")

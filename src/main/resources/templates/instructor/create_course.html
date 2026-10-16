@@ -306,7 +306,13 @@
 
                     <div class="form-group">
                         <label for="description">Course Description</label>
-                        <textarea id="description" th:field="*{description}" rows="8" placeholder="Insert your course description." required oninput="validateAlphaStart(this)"></textarea>
+                        <textarea id="description" th:field="*{description}" rows="3" placeholder="Insert your course short description." required oninput="validateAlphaStart(this)"></textarea>
+                        <p class="helper-text">Short description shown on course cards.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="longDescription">Detailed Description</label>
+                        <textarea id="longDescription" th:field="*{longDescription}" rows="8" placeholder="Insert your detailed course description." oninput="validateAlphaStart(this)"></textarea>
                         <p class="helper-text">Description should be at least 200 words. It's where you sell your course!</p>
                     </div>
 
@@ -317,6 +323,10 @@
                                 <option value="" disabled selected>-- Select Category --</option>
                                 <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="subCategory">Sub-Category</label>
+                            <input type="text" id="subCategory" th:field="*{subCategory}" placeholder="e.g. Web Development">
                         </div>
                         <div class="form-group">
                             <label for="level">Level</label>
@@ -548,6 +558,7 @@
                     <label style="margin:0;">Section ${sectionCount + 1}</label>
                     <button type="button" class="btn-outline" onclick="removeSection(${sectionCount})" style="padding: 5px 10px; color: red; border-color: red; font-size: 0.8rem;">Remove</button>
                 </div>
+                <input type="hidden" name="sections[${sectionCount}].position" value="${sectionCount}">
                 <input type="text" name="sections[${sectionCount}].title" placeholder="e.g. Introduction to React" required style="margin-bottom: 1.5rem;" oninput="validateAlphaStart(this)">
                 <div id="lectures-${sectionCount}" style="padding-left: 2rem;">
                     <!-- Lectures go here -->
@@ -579,6 +590,7 @@
                     <h5 style="margin:0;">Lecture ${lecId + 1}</h5>
                     <button type="button" onclick="removeLecture(${secId}, ${lecId})" style="color: red; background: none; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button>
                 </div>
+                <input type="hidden" name="sections[${secId}].lectures[${lecId}].position" value="${lecId}">
                 <div class="form-group">
                     <label style="font-size: 0.85rem;">Title</label>
                     <input type="text" name="sections[${secId}].lectures[${lecId}].title" placeholder="e.g. Setting up environment" required oninput="validateAlphaStart(this)">

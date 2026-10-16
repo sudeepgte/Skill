@@ -37,6 +37,7 @@ public class Course {
     private String level; // Beginner, Intermediate, Expert
 
     private boolean isPublished = false;
+    private String status = "DRAFT";
     private String lastUpdated;
 
     @Column(length = 1000)
@@ -180,6 +181,9 @@ public class Course {
     public void setLevel(String level) {
         this.level = level;
     }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public boolean isPublished() {
         return isPublished;

@@ -302,6 +302,7 @@
                             <tr>
                                 <th>Course</th>
                                 <th>Category</th>
+                                <th>Status</th>
                                 <th>Enrollments</th>
                                 <th>Rating</th>
                                 <th>Actions</th>
@@ -321,6 +322,12 @@
                                 <td>
                                     <span th:text="${course.category.name}">Category</span>
                                 </td>
+                                <td>
+                                    <span class="status-badge" th:text="${course.status != null ? course.status : 'PUBLISHED'}" 
+                                          th:style="${course.status == 'DRAFT'} ? 'background-color:#fef3c7; color:#92400e;' : 
+                                                    (${course.status == 'PENDING_REVIEW'} ? 'background-color:#e0e7ff; color:#3730a3;' : 
+                                                    'background-color:#d1fae5; color:#065f46;')">PUBLISHED</span>
+                                </td>
                                 <td th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</td>
                                 <td>
                                     <div class="rating-stars">
@@ -329,7 +336,12 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="action-btns">
+                                    <div class="action-btns" style="display:flex; gap:10px; align-items:center;">
+                                        <form th:if="${course.status == 'DRAFT'}" th:action="@{/vendor/courses/{id}/submit(id=${course.id})}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn-outline" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--primary); color: var(--primary); border-radius: 4px;" title="Submit for Review">
+                                                Submit
+                                            </button>
+                                        </form>
                                         <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn-icon" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>

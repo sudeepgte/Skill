@@ -67,38 +67,23 @@ public class InstructorController {
         User instructor = userService.findByEmail(email);
         List<Course> courses = courseService.getCoursesByInstructor(email);
 
-        int totalStudents = 0;
+        long totalStudents = enrollmentRepository.countByInstructorEmail(email);
+        Long viewsObj = courseService.sumViewsByInstructorEmail(email);
+        long totalViews = viewsObj != null ? viewsObj : 0L;
+        long totalExamsPassed = enrollmentRepository.countExamsPassedByInstructorEmail(email);
+
         double totalRating = 0.0;
         int totalReviews = 0;
-        long totalViews = 0;
-        int totalExamsPassed = 0;
 
         for (Course course : courses) {
-            if (course.getEnrollments() != null) {
-                totalStudents += course.getEnrollments().size();
-            }
-            if (course.getViewCount() != null) {
-                totalViews += course.getViewCount();
-            }
-            // Populate ratings
             Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
             Integer count = reviewRepository.countByCourseId(course.getId());
             
-            // Set transient fields for individual course display
             course.setAverageRating(Math.round(avg * 10.0) / 10.0);
             course.setReviewCount(count);
             
             totalRating += avg * count;
             totalReviews += count;
-            
-            // Count total exams passed across all courses
-            if (course.getEnrollments() != null) {
-                for (com.skillhub.model.Enrollment e : course.getEnrollments()) {
-                    if (e.isExamPassed()) {
-                        totalExamsPassed++;
-                    }
-                }
-            }
         }
 
         double averageRating = (totalReviews > 0) ? totalRating / totalReviews : 0.0;
@@ -165,7 +150,7 @@ public class InstructorController {
         return "instructor/dashboard";
     }
 
-    /** REST endpoint – returns live progress for all enrolled students (JSON) */
+    /** REST endpoint â€“ returns live progress for all enrolled students (JSON) */
     @GetMapping("/api/students-progress")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getStudentsProgress(Principal principal) {
@@ -199,27 +184,19 @@ public class InstructorController {
         String email = principal.getName();
         List<com.skillhub.model.Course> courses = courseService.getCoursesByInstructor(email);
 
-        int totalEnrolled = 0;
-        long totalViews = 0;
+        long totalEnrolled = enrollmentRepository.countByInstructorEmail(email);
+        Long viewsObj = courseService.sumViewsByInstructorEmail(email);
+        long totalViews = viewsObj != null ? viewsObj : 0L;
+        long totalExamsPassed = enrollmentRepository.countExamsPassedByInstructorEmail(email);
+
         double totalRating = 0.0;
         int totalReviews = 0;
-        int totalExamsPassed = 0;
 
         for (com.skillhub.model.Course course : courses) {
-            totalEnrolled += (course.getEnrollments() != null ? course.getEnrollments().size() : 0);
-            totalViews += (course.getViewCount() != null ? course.getViewCount() : 0);
             Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
             Integer count = reviewRepository.countByCourseId(course.getId());
             totalRating += avg * count;
             totalReviews += count;
-
-            if (course.getEnrollments() != null) {
-                for (com.skillhub.model.Enrollment e : course.getEnrollments()) {
-                    if (e.isExamPassed()) {
-                        totalExamsPassed++;
-                    }
-                }
-            }
         }
 
         int totalQuestions = courseQuestionRepository.findByInstructorEmail(email).size();
@@ -256,15 +233,21 @@ public class InstructorController {
 
         course.setInstructor(instructor);
 
+        if (course.getPrice() != null && course.getPrice() < 0) {
+            redirectAttributes.addFlashAttribute("error", "Course price cannot be negative.");
+            return "redirect:/vendor/courses/create";
+        }
+
         if (thumbnail != null && !thumbnail.isEmpty()) {
+            String mimeType = thumbnail.getContentType();
+            if (mimeType == null || !mimeType.startsWith("image/")) {
+                redirectAttributes.addFlashAttribute("error", "Thumbnail must be an image file.");
+                return "redirect:/vendor/courses/create";
+            }
             course.setImageUrl(fileStorageService.store(thumbnail));
         } else if (course.getId() == null) {
             course.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg"); // Default for new
         } else {
-            // For edits, if no new thumbnail is uploaded, we should keep the existing
-            // imageUrl
-            // Fetch the current course from DB to get the existing image URL if it was not
-            // in the form
             Course existingCourse = courseService.getCourseById(course.getId());
             if (course.getImageUrl() == null || course.getImageUrl().isEmpty()) {
                 course.setImageUrl(existingCourse.getImageUrl());
@@ -273,11 +256,17 @@ public class InstructorController {
         
         // Process Promotional Video
         if (promoVideo != null && !promoVideo.isEmpty()) {
+            String mimeType = promoVideo.getContentType();
+            if (mimeType == null || !mimeType.startsWith("video/")) {
+                redirectAttributes.addFlashAttribute("error", "Promotional video must be a valid video file.");
+                return "redirect:/vendor/courses/create";
+            }
             course.setVideoUrl(fileStorageService.store(promoVideo));
         }
 
         if (course.getId() == null) {
-            course.setPublished(true);
+            course.setPublished(false);
+            course.setStatus("DRAFT");
         }
 
         course.setLastUpdated(java.time.LocalDate.now().toString());
@@ -317,6 +306,16 @@ public class InstructorController {
                             redirectAttributes.addFlashAttribute("error", "Lecture titles must start with a letter.");
                             return "redirect:/vendor/courses/create";
                         }
+                        if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
+                            String lecMimeType = lecture.getVideoFile().getContentType();
+                            if (lecMimeType == null || !lecMimeType.startsWith("video/")) {
+                                redirectAttributes.addFlashAttribute("error", "Lecture video must be a valid video file.");
+                                return "redirect:/vendor/courses/create";
+                            }
+                            lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
+                        } else if (course.getId() != null && lecture.getId() != null) {
+                            // Fetch existing videoUrl if possible (will handle in service if needed)
+                        }
                         lecture.setSection(section);
                         // If file uploaded, store it
                         if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
@@ -354,6 +353,20 @@ public class InstructorController {
         } catch (Exception e) {
             return org.springframework.http.ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/courses/{id}/submit")
+    public String submitCourse(@PathVariable("id") Long id, Principal principal, RedirectAttributes redirectAttributes) {
+        String email = principal.getName();
+        Course course = courseService.getCourseById(id);
+        if (course != null && course.getInstructor().getEmail().equals(email)) {
+            course.setStatus("PENDING_REVIEW");
+            courseService.saveCourse(course);
+            redirectAttributes.addFlashAttribute("success", "Course submitted for review successfully!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Unable to submit course.");
+        }
+        return "redirect:/vendor/dashboard?tab=courses";
     }
 
     @PostMapping("/courses/{id}/delete")
@@ -513,7 +526,7 @@ public class InstructorController {
         return "instructor/exams";
     }
 
-    /** REST endpoint – returns question counts for each course (JSON) */
+    /** REST endpoint â€“ returns question counts for each course (JSON) */
     @GetMapping("/api/exams-stats")
     @ResponseBody
     public ResponseEntity<Map<Long, Integer>> getExamsStats(Principal principal) {
