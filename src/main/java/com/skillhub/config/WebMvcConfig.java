@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,24 +18,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        try {
+            Files.createDirectories(uploadPath);
+        } catch (IOException ignored) {}
 
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
-        String uploadAbsolutePath = uploadPath.toFile().toURI().toString();
+        String uploadUri = uploadPath.toUri().toString();
+        if (!uploadUri.endsWith("/")) {
+            uploadUri += "/";
+        }
 
-        System.out.println("Mapping /uploads/** to " + uploadAbsolutePath);
+        System.out.println("Mapping /uploads/** to " + uploadUri);
 
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadAbsolutePath);
-
-
-                
-        // Fallback for classpath images if any
-
-     
-        
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadPath + "/");
-
+                .addResourceLocations(uploadUri);
 
         // Static resources
         registry.addResourceHandler("/css/**")

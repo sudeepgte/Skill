@@ -342,30 +342,20 @@ public class InstructorController {
             return "redirect:/vendor/courses/create";
         }
 
+        // Validate file types before processing
         if (thumbnail != null && !thumbnail.isEmpty()) {
             String mimeType = thumbnail.getContentType();
             if (mimeType == null || !mimeType.startsWith("image/")) {
                 redirectAttributes.addFlashAttribute("error", "Thumbnail must be an image file.");
                 return "redirect:/vendor/courses/create";
             }
-            course.setImageUrl(fileStorageService.store(thumbnail));
-        } else if (course.getId() == null) {
-            course.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg"); // Default for new
-        } else {
-            Course existingCourse = courseService.getCourseById(course.getId());
-            if (course.getImageUrl() == null || course.getImageUrl().isEmpty()) {
-                course.setImageUrl(existingCourse.getImageUrl());
-            }
         }
-        
-        // Process Promotional Video
         if (promoVideo != null && !promoVideo.isEmpty()) {
             String mimeType = promoVideo.getContentType();
             if (mimeType == null || !mimeType.startsWith("video/")) {
                 redirectAttributes.addFlashAttribute("error", "Promotional video must be a valid video file.");
                 return "redirect:/vendor/courses/create";
             }
-            course.setVideoUrl(fileStorageService.store(promoVideo));
         }
 
         if (course.getId() == null) {
@@ -403,14 +393,14 @@ public class InstructorController {
             targetCourse.setAccessDuration(course.getAccessDuration());
         }
 
-        // Process thumbnail
+        // Process thumbnail (only once on targetCourse)
         if (thumbnail != null && !thumbnail.isEmpty()) {
             targetCourse.setImageUrl(fileStorageService.store(thumbnail));
-        } else if (targetCourse.getImageUrl() == null || targetCourse.getImageUrl().trim().isEmpty()) {
-            targetCourse.setImageUrl("https://img-c.udemycdn.com/course/480x270/placeholder.jpg");
+        } else if (isNew || targetCourse.getImageUrl() == null || targetCourse.getImageUrl().trim().isEmpty() || targetCourse.getImageUrl().contains("udemycdn.com")) {
+            targetCourse.setImageUrl("/images/course-placeholder.jpg");
         }
 
-        // Process promotional video
+        // Process promotional video (only once on targetCourse)
         if (promoVideo != null && !promoVideo.isEmpty()) {
             targetCourse.setVideoUrl(fileStorageService.store(promoVideo));
         }

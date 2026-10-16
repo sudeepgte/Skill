@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -249,7 +249,7 @@
                     <div class="form-group">
                         <label>Course Thumbnail</label>
                         <div style="display: flex; gap: 1.5rem; align-items: start; background: #EDE9FE; padding: 1rem; border: 1px solid var(--border);">
-                            <img id="editImagePreview" th:src="${course.imageUrl}" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                            <img id="editImagePreview" th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" alt="Current Thumbnail" style="width: 240px; height: 135px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
                             <div style="flex: 1;">
                                 <label style="font-size: 0.9rem; margin-bottom: 0.5rem;">Upload New Thumbnail</label>
                                 <input type="file" name="thumbnail" accept="image/*" style="border: none; padding: 0;" onchange="previewEditImage(event)">

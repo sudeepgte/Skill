@@ -27,7 +27,11 @@ public class CommonController {
 
 
     @GetMapping("/pricing")
-    public String pricing() {
+    public String pricing(org.springframework.ui.Model model, java.security.Principal principal) {
+        if (principal != null && !principal.getName().equals("anonymousUser")) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "common/pricing";
     }
 
@@ -55,7 +59,7 @@ public class CommonController {
 
     @GetMapping("/user/edit-profile")
     public String editProfile() {
-        return "student/edit-profile";
+        return "redirect:/profile?tab=profile";
     }
 
     @org.springframework.beans.factory.annotation.Autowired

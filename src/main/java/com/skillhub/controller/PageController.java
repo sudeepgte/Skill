@@ -311,4 +311,29 @@ public class PageController {
         model.addAttribute("categories", categoryService.getAllCategories());
         return "app";
     }
+
+    @org.springframework.web.bind.annotation.PostMapping(value = {"/api/newsletter/subscribe", "/newsletter/subscribe"})
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<?> subscribeNewsletter(
+            @org.springframework.web.bind.annotation.RequestBody(required = false) Map<String, String> body,
+            @RequestParam(name = "email", required = false) String emailParam) {
+        String email = null;
+        if (body != null && body.containsKey("email")) {
+            email = body.get("email");
+        } else if (emailParam != null) {
+            email = emailParam;
+        }
+
+        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
+            return org.springframework.http.ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Please provide a valid email address."
+            ));
+        }
+
+        return org.springframework.http.ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Thank you for subscribing to the SkillHub newsletter!"
+        ));
+    }
 }

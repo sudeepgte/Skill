@@ -1,0 +1,30 @@
+/* Local FontAwesome Fallback Stylesheet */
+.fa, .fas, .far, .fab, .fal, .fad {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    font-family: "Font Awesome 6 Free", "FontAwesome", system-ui, -apple-system, sans-serif;
+}
+
+/* Common icon fallbacks when webfont CDN is unavailable */
+.fa-search::before { content: "\1F50D"; }
+.fa-globe::before { content: "\1F310"; }
+.fa-lock::before { content: "\1F512"; }
+.fa-envelope::before { content: "\2709"; }
+.fa-check::before { content: "\2713"; }
+.fa-check-circle::before { content: "\2705"; }
+.fa-times::before, .fa-times-circle::before { content: "\2715"; }
+.fa-trash::before, .fa-trash-alt::before, .fa-trash-can::before { content: "\1F5D1"; }
+.fa-heart::before { content: "\2764"; }
+.fa-star::before { content: "\2605"; }
+.fa-play::before, .fa-circle-play::before { content: "\25B6"; }
+.fa-camera::before { content: "\1F4F7"; }
+.fa-user::before, .fa-user-circle::before, .fa-user-graduate::before { content: "\1F464"; }
+.fa-arrow-right::before { content: "\2192"; }
+.fa-arrow-left::before { content: "\2190"; }
+.fa-clock::before { content: "\23F0"; }
+.fa-certificate::before, .fa-award::before, .fa-trophy::before { content: "\1F3C6"; }

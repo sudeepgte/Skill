@@ -11,6 +11,19 @@
     <style th:replace="~{fragments/chat-widget :: chat-styles}"></style>
     
     <style>
+        /* ── Responsive stats grid ── */
+        @media (max-width: 768px) {
+            .vendor-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.8rem !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .vendor-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         /* ── Profile management styles ── */
         .profile-grid {
             display: grid;
@@ -339,7 +352,7 @@
                             <tr th:each="course : ${courses}" class="course-row">
                                 <td>
                                     <div class="course-info">
-                                        <img th:src="${course.imageUrl}" class="course-thumb" alt="Thumbnail">
+                                        <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" class="course-thumb" alt="Thumbnail">
                                         <div class="course-title-wrap">
                                             <span class="course-name" th:text="${course.title}">Course Title</span>
                                             <span class="course-meta" th:text="'Updated ' + ${course.lastUpdated}">Updated 2024-01-01</span>

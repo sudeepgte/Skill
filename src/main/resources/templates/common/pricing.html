@@ -2,15 +2,514 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Pricing | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans & Subscriptions | SkillHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style th:replace="~{fragments/chat-widget :: chat-styles}"></style>
+
+    <style>
+        :root {
+            --primary: #5624d0;
+            --primary-dark: #3b198f;
+            --secondary: #00bfa5;
+            --accent: #f59e0b;
+            --dark: #1e1b4b;
+            --light-bg: #f8fafc;
+            --card-border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #faf5ff;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .pricing-hero {
+            text-align: center;
+            padding: 4.5rem 1.5rem 2.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(86, 36, 208, 0.1);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.2rem;
+        }
+
+        .pricing-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .pricing-hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Billing Switch */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3.5rem;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .save-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Pricing Grid */
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto 5rem;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            align-items: stretch;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px rgba(86, 36, 208, 0.1);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--primary);
+            box-shadow: 0 15px 35px rgba(86, 36, 208, 0.15);
+            background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+        }
+
+        .featured-ribbon {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 10px rgba(86, 36, 208, 0.3);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin: 0 0 0.5rem;
+        }
+
+        .card-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0;
+            min-height: 45px;
+        }
+
+        .price-box {
+            margin: 1.5rem 0 2rem;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .price-currency {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .price-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1;
+        }
+
+        .price-period {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2.5rem;
+            flex-grow: 1;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: #334155;
+        }
+
+        .feature-list li i {
+            color: var(--secondary);
+            font-size: 1.05rem;
+            margin-top: 3px;
+        }
+
+        .feature-list li.disabled {
+            color: #94a3b8;
+        }
+
+        .feature-list li.disabled i {
+            color: #cbd5e1;
+        }
+
+        .btn-pricing {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            border: 2px solid transparent;
+        }
+
+        .btn-free {
+            background: #f1f5f9;
+            color: var(--dark);
+        }
+
+        .btn-free:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-featured {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(86, 36, 208, 0.3);
+        }
+
+        .btn-featured:hover {
+            background: var(--primary-dark);
+            transform: scale(1.02);
+        }
+
+        .btn-enterprise {
+            background: #0f172a;
+            color: white;
+        }
+
+        .btn-enterprise:hover {
+            background: #1e293b;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto 6rem;
+            padding: 0 1.5rem;
+        }
+
+        .faq-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 2.5rem;
+        }
+
+        .faq-item {
+            background: white;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .faq-item h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0 0 0.5rem;
+        }
+
+        .faq-item p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 992px) {
+            .pricing-container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .pricing-card.featured {
+                order: -1;
+            }
+
+            .pricing-hero h1 {
+                font-size: 2.4rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div style="padding: 50px; text-align: center;">
-        <h1>Choose a plan</h1>
-        <p>Start learning today.</p>
-    </div>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Header -->
+    <section class="pricing-hero">
+        <span class="badge-pill"><i class="fas fa-sparkles"></i> Flexible Learning Plans</span>
+        <h1>Invest in Your Growth & Career</h1>
+        <p>Choose the right plan to master industry-leading skills, pass elite exams, and earn recognized certificates.</p>
+
+        <!-- Billing Toggle -->
+        <div class="billing-toggle">
+            <span>Monthly Billing</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="billingSwitch" onchange="toggleBilling(this.checked)">
+                <span class="slider"></span>
+            </label>
+            <span>Annual Billing <span class="save-badge">Save 20%</span></span>
+        </div>
+    </section>
+
+    <!-- Pricing Grid -->
+    <section class="pricing-container">
+
+        <!-- 1. Free Starter Tier -->
+        <div class="pricing-card">
+            <div>
+                <div class="card-header">
+                    <h3>Free Starter</h3>
+                    <p>Ideal for exploring basics and introductory concepts at your own pace.</p>
+                </div>
+                <div class="price-box">
+                    <span class="price-currency">$</span>
+                    <span class="price-value">0</span>
+                    <span class="price-period">/ month</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Access to 50+ free introductory courses</li>
+                    <li><i class="fas fa-check-circle"></i> Video player & lecture note taking</li>
+                    <li><i class="fas fa-check-circle"></i> SkillHub community Q&A forums</li>
+                    <li><i class="fas fa-check-circle"></i> Standard video quality (720p)</li>
+                    <li class="disabled"><i class="fas fa-times-circle"></i> Verified Course Completion Certificates</li>
+                    <li class="disabled"><i class="fas fa-times-circle"></i> Elite Certification Challenge Exams</li>
+                    <li class="disabled"><i class="fas fa-times-circle"></i> Direct 1-on-1 Instructor Mentorship</li>
+                </ul>
+            </div>
+            <a th:href="${user != null ? '/user/home' : '/register'}" class="btn-pricing btn-free">Get Started Free</a>
+        </div>
+
+        <!-- 2. Pro Tier (Featured) -->
+        <div class="pricing-card featured">
+            <span class="featured-ribbon">Most Popular</span>
+            <div>
+                <div class="card-header">
+                    <h3>SkillHub Pro</h3>
+                    <p>For dedicated learners seeking subject mastery, career advancement, and credentials.</p>
+                </div>
+                <div class="price-box">
+                    <span class="price-currency">$</span>
+                    <span class="price-value" id="proPrice">19</span>
+                    <span class="price-period" id="proPeriod">/ month</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> <strong>Unlimited access</strong> to all 1,000+ courses</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Verified Certificates</strong> of Completion</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Elite Challenge Exams</strong> & subject badges</li>
+                    <li><i class="fas fa-check-circle"></i> Full HD streaming & downloadable resources</li>
+                    <li><i class="fas fa-check-circle"></i> Placement Aptitude Tests & Resume Builder</li>
+                    <li><i class="fas fa-check-circle"></i> Direct Instructor Chat & real-time messaging</li>
+                </ul>
+            </div>
+            <a th:href="${user != null ? '/course/catalog' : '/login'}" class="btn-pricing btn-featured">Upgrade to Pro</a>
+        </div>
+
+        <!-- 3. Enterprise / Team Tier -->
+        <div class="pricing-card">
+            <div>
+                <div class="card-header">
+                    <h3>Enterprise Team</h3>
+                    <p>Designed for businesses, universities, and teams looking to upskill groups.</p>
+                </div>
+                <div class="price-box">
+                    <span class="price-currency">$</span>
+                    <span class="price-value" id="entPrice">49</span>
+                    <span class="price-period" id="entPeriod">/ seat / mo</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i> Everything included in SkillHub Pro</li>
+                    <li><i class="fas fa-check-circle"></i> Team analytics & progress dashboards</li>
+                    <li><i class="fas fa-check-circle"></i> Custom enterprise learning paths & LMS sync</li>
+                    <li><i class="fas fa-check-circle"></i> Single Sign-On (SSO) & bulk user licensing</li>
+                    <li><i class="fas fa-check-circle"></i> Dedicated customer success manager & 24/7 SLA</li>
+                </ul>
+            </div>
+            <a th:href="@{/contact}" class="btn-pricing btn-enterprise">Contact Enterprise Sales</a>
+        </div>
+
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h4>Can I cancel or switch my plan at any time?</h4>
+            <p>Yes, absolutely. You can cancel your subscription at any point from your profile settings without penalty. Your Pro benefits remain active until the end of your billing cycle.</p>
+        </div>
+        <div class="faq-item">
+            <h4>Are SkillHub certificates officially verifiable?</h4>
+            <p>Every certificate issued by SkillHub contains a unique certificate ID and registration number that employers can verify online at any time via our public verification portal.</p>
+        </div>
+        <div class="faq-item">
+            <h4>Do you offer refunds?</h4>
+            <p>We offer a 30-day money-back guarantee on all annual and monthly subscriptions if you are not fully satisfied with your learning experience.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Chat Widget -->
+    <div th:replace="~{fragments/chat-widget :: chat-widget}"></div>
+
+    <script>
+        function toggleBilling(isAnnual) {
+            const proEl = document.getElementById('proPrice');
+            const proPeriod = document.getElementById('proPeriod');
+            const entEl = document.getElementById('entPrice');
+            const entPeriod = document.getElementById('entPeriod');
+
+            if (isAnnual) {
+                proEl.innerText = '15';
+                proPeriod.innerText = '/ month (billed annually)';
+                entEl.innerText = '39';
+                entPeriod.innerText = '/ seat / mo (billed annually)';
+            } else {
+                proEl.innerText = '19';
+                proPeriod.innerText = '/ month';
+                entEl.innerText = '49';
+                entPeriod.innerText = '/ seat / mo';
+            }
+        }
+    </script>
+
 </body>
 
 </html>

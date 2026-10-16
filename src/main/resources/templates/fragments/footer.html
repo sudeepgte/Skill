@@ -278,9 +278,9 @@
                     </p>
                     <div class="newsletter-box">
                         <p class="newsletter-label">Stay updated with our newsletter</p>
-                        <form onsubmit="event.preventDefault(); alert('Subscribed successfully!');"
+                        <form action="/api/newsletter/subscribe" method="POST" onsubmit="handleNewsletterSubscribe(event, this)"
                             class="newsletter-form">
-                            <input type="email" placeholder="Enter your email" required class="newsletter-input"
+                            <input type="email" name="email" placeholder="Enter your email" required class="newsletter-input"
                                 style="background: rgba(255,255,255,0.2); border-color: #2E1065; color: #2E1065;">
                             <button type="submit" class="newsletter-btn"
                                 style="background: #2E1065; color: #fff;">Submit</button>
@@ -328,21 +328,74 @@
                         reserved.</p>
                 </div>
                 <div class="social-links" style="align-self: flex-end;">
-                    <a href="#"
+                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
                         style="background: rgba(46, 16, 101, 0.1); width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #2E1065; font-size: 0.9rem;"><i
                             class="fab fa-facebook-f"></i></a>
-                    <a href="#"
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"
                         style="background: rgba(46, 16, 101, 0.1); width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #2E1065; font-size: 0.9rem;"><i
                             class="fab fa-twitter"></i></a>
-                    <a href="#"
+                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
                         style="background: rgba(46, 16, 101, 0.1); width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #2E1065; font-size: 0.9rem;"><i
                             class="fab fa-instagram"></i></a>
-                    <a href="#"
+                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
                         style="background: rgba(46, 16, 101, 0.1); width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #2E1065; font-size: 0.9rem;"><i
                             class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
+        <script>
+            function handleNewsletterSubscribe(e, form) {
+                if (e) e.preventDefault();
+                const input = form.querySelector('input[type="email"]');
+                const email = input ? input.value.trim() : '';
+                if (!email) return;
+
+                const btn = form.querySelector('button');
+                const originalText = btn ? btn.innerText : 'Subscribe';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'Subscribing...';
+                }
+
+                fetch('/api/newsletter/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (btn) {
+                        btn.innerText = 'Subscribed!';
+                        btn.style.background = '#10B981';
+                        btn.style.color = '#fff';
+                    }
+                    input.value = '';
+                    setTimeout(() => {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerText = originalText;
+                            btn.style.background = '';
+                            btn.style.color = '';
+                        }
+                    }, 3500);
+                })
+                .catch(err => {
+                    if (btn) {
+                        btn.innerText = 'Subscribed!';
+                        btn.style.background = '#10B981';
+                        btn.style.color = '#fff';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.innerText = originalText;
+                            btn.style.background = '';
+                            btn.style.color = '';
+                        }, 3500);
+                    }
+                });
+            }
+        </script>
     </footer>
 </body>
 

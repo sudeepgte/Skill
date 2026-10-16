@@ -422,18 +422,29 @@
                     openChat(contact);
                 };
 
+                function isValidAttachmentUrl(url) {
+                    if (!url || typeof url !== 'string') return false;
+                    const u = url.trim();
+                    if (u === '' || u.startsWith('${') || u.includes('${msg.') || u === 'null' || u === 'undefined') return false;
+                    return u.startsWith('/') || u.startsWith('http://') || u.startsWith('https://') || u.startsWith('data:image/');
+                }
+
                 function appendMessage(msg) {
                     const el = document.createElement('div');
                     const isSent = msg.senderEmail === currentUserEmail;
                     el.className = `message-bubble ${isSent ? 'message-sent' : 'message-received'}`;
                     
-                    let contentHtml = '';
-                    
-                    // Handle File Content
-                    if (msg.fileUrl) {
+                    // Handle File Content only if valid URL
+                    if (isValidAttachmentUrl(msg.fileUrl)) {
+                        const fileUrl = msg.fileUrl.trim();
                         const isImage = msg.fileType && msg.fileType.startsWith('image/');
                         if (isImage) {
-                            contentHtml = `<img src="${msg.fileUrl}" class="chat-attachment-preview" onclick="window.open('${msg.fileUrl}', '_blank')">`;
+                            const img = document.createElement('img');
+                            img.className = 'chat-attachment-preview';
+                            img.src = fileUrl;
+                            img.alt = msg.fileName || 'Attachment';
+                            img.onclick = function() { window.open(fileUrl, '_blank'); };
+                            el.appendChild(img);
                         } else {
                             const iconMap = {
                                 'application/pdf': 'fa-file-pdf',
@@ -442,26 +453,31 @@
                                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fa-file-word'
                             };
                             const icon = iconMap[msg.fileType] || 'fa-file-alt';
-                            contentHtml = `
-                                <a href="${msg.fileUrl}" target="_blank" class="file-bubble">
-                                    <i class="fas ${icon}" style="font-size: 1.2rem;"></i>
-                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">
-                                        <div style="font-weight:600; font-size:12px;">${msg.fileName || 'Attachment'}</div>
-                                        <div style="font-size:10px; opacity:0.8;">Click to download</div>
-                                    </div>
-                                </a>
+                            const link = document.createElement('a');
+                            link.href = fileUrl;
+                            link.target = '_blank';
+                            link.className = 'file-bubble';
+                            link.innerHTML = `
+                                <i class="fas ${icon}" style="font-size: 1.2rem;"></i>
+                                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">
+                                    <div style="font-weight:600; font-size:12px;">${msg.fileName || 'Attachment'}</div>
+                                    <div style="font-size:10px; opacity:0.8;">Click to download</div>
+                                </div>
                             `;
+                            el.appendChild(link);
                         }
                     }
 
                     if (msg.content) {
-                        contentHtml += `<div>${msg.content}</div>`;
+                        const contentDiv = document.createElement('div');
+                        contentDiv.textContent = msg.content;
+                        el.appendChild(contentDiv);
                     }
                     
-                    el.innerHTML = `
-                        ${contentHtml}
-                        <span class="message-time">${msg.timestamp || ''}</span>
-                    `;
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'message-time';
+                    timeSpan.textContent = msg.timestamp || '';
+                    el.appendChild(timeSpan);
                     
                     messageList.appendChild(el);
                     messageList.scrollTop = messageList.scrollHeight;

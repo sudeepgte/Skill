@@ -691,7 +691,8 @@
                             <h3 class="review-card-title"><i class="fas fa-image"></i> Thumbnail Artwork</h3>
                         </div>
                         <div style="text-align: center;">
-                            <img th:src="${course.imageUrl != null ? course.imageUrl : 'https://img-c.udemycdn.com/course/480x270/placeholder.jpg'}"
+                            <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/course-placeholder.jpg'}"
+                                 onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
                                  alt="Thumbnail" style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); max-height: 200px; object-fit: cover;">
                         </div>
                     </div>

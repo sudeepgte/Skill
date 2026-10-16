@@ -233,7 +233,7 @@
 
     <div class="courses-grid" th:unless="${#lists.isEmpty(courses)}">
       <div th:each="course : ${courses}" class="course-card">
-        <img th:src="${course.imageUrl != null ? course.imageUrl : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80'}" class="course-thumb">
+        <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" class="course-thumb" alt="Course Thumbnail">
         <div class="course-body">
           <div class="course-title" th:text="${course.title}">Course Title</div>
           <div class="course-instructor" th:text="'by ' + ${course.instructor != null ? course.instructor.name : 'Expert'}">Instructor</div>

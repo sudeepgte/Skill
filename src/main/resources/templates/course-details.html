@@ -9,10 +9,12 @@
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <!-- Modern Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" onerror="this.onerror=null; this.href='/css/font-awesome-fallback.css';">
     <!-- Footer Styles -->
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
@@ -671,7 +673,8 @@
                              onmouseenter=${course.videoUrl != null ? 'startPromoVideo(false, true)' : ''},
                              onmouseleave='stopPromoVideo(true)'">
                     
-                    <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
+                    <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}"
+                         onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
                          alt="Course Preview" class="preview-image-bg" id="mobilePreviewImage">
 
                     <div th:if="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)}" class="preview-overlay" id="mobilePreviewOverlay">
@@ -697,7 +700,8 @@
                              onmouseleave='stopPromoVideo()'">
                     
                     <!-- Static Image -->
-                    <img th:src="${course.imageUrl != null ? course.imageUrl : '/images/banner1.webp'}"
+                    <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}"
+                         onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
                          alt="Course Preview" class="preview-image-bg" id="previewImage">
 
                     <!-- Play Overlay (Only if video exists) -->
@@ -988,17 +992,31 @@
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top:30px;">
                     <h2 style="margin: 0;">Student Comments</h2>
-                    <button th:if="${isLoggedIn}" onclick="toggleReviewForm()" class="btn-buy"
-                        style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f;">
+                    <!-- Show Write button only if logged in AND enrolled -->
+                    <button th:if="${isLoggedIn and isEnrolled}" onclick="toggleReviewForm()" class="btn-buy"
+                        style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f; cursor: pointer;">
                         Write a Comment
                     </button>
+                    <!-- Show notice if logged in but not enrolled -->
+                    <span th:if="${isLoggedIn and !isEnrolled}" style="font-size: 0.9rem; color: #6a6f73; background: #f7f9fa; padding: 8px 16px; border: 1px dashed #d1d7dc; border-radius: 4px;">
+                        <i class="fas fa-lock"></i> Only enrolled students can review
+                    </span>
+                    <!-- Show Login if not logged in -->
                     <a th:unless="${isLoggedIn}" href="/login" class="btn-buy"
                         style="width: auto; padding: 10px 20px; margin: 0; background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f; text-decoration: none; display: inline-block;">
                         Login to Comment
                     </a>
                 </div>
 
-                <div id="reviewForm" th:if="${isLoggedIn}">
+                <!-- Flash error/success alerts -->
+                <div th:if="${error}" style="background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 500;">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                </div>
+                <div th:if="${success}" style="background: #dcfce7; color: #166534; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 500;">
+                    <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                </div>
+
+                <div id="reviewForm" th:if="${isLoggedIn and isEnrolled}">
                     <form th:action="@{/reviews/add}" method="post">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <select name="rating">

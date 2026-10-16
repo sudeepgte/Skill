@@ -294,11 +294,26 @@ public class Course {
     }
 
     public String getImageUrl() {
-        return imageUrl;
+        if (imageUrl == null || imageUrl.trim().isEmpty() || imageUrl.contains("udemycdn.com")) {
+            return "/images/course-placeholder.jpg";
+        }
+        String cleanUrl = imageUrl.trim().replace('\\', '/');
+        if (cleanUrl.startsWith("uploads/")) {
+            cleanUrl = "/" + cleanUrl;
+        }
+        return cleanUrl;
     }
 
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        if (imageUrl == null || imageUrl.trim().isEmpty() || imageUrl.contains("udemycdn.com")) {
+            this.imageUrl = "/images/course-placeholder.jpg";
+        } else {
+            String cleanUrl = imageUrl.trim().replace('\\', '/');
+            if (cleanUrl.startsWith("uploads/")) {
+                cleanUrl = "/" + cleanUrl;
+            }
+            this.imageUrl = cleanUrl;
+        }
     }
 
     public String getLanguage() {

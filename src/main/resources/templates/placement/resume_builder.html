@@ -2,9 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Builder | SkillHub</title>
     <!-- Google Fonts: DM Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=DM Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -54,6 +55,8 @@
             display: flex;
             justify-content: center;
             overflow-y: auto;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .resume-paper {
@@ -64,6 +67,42 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             transform: scale(0.65); /* Scale down preview for visibility */
             transform-origin: top center;
+        }
+
+        @media (max-width: 1024px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .preview-panel {
+                padding: 1.5rem 1rem;
+            }
+
+            .resume-paper {
+                transform: scale(min(0.85, calc((100vw - 4rem) / 794)));
+                transform-origin: top center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.75rem;
+            }
+
+            .form-panel, .preview-panel {
+                padding: 1.5rem 1rem;
+                border-radius: 12px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .resume-paper {
+                transform: scale(calc((100vw - 2.5rem) / 794));
+                transform-origin: top center;
+            }
         }
 
         h2 {

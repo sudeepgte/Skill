@@ -2,24 +2,57 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Certificate: ' + ${course.title}">Certificate</title>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Alex+Brush&family=DM Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Alex+Brush&family=DM+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px 10px;
             background: #2d2d2d;
             font-family: 'DM Sans', sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: auto;
+        }
+
+        .conquered-banner {
+            width: 100%;
+            max-width: 1123px;
+            margin: 0 auto 16px;
+            background: #0f172a;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 8px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            gap: 12px;
+        }
+
+        .certificate-wrapper {
+            width: 100%;
+            max-width: 1123px;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .certificate-container {
             width: 1123px;
-            height: 794px;
+            max-width: 100%;
+            min-height: 794px;
+            height: auto;
             background: #fafafa;
             position: relative;
             padding: 0;
@@ -217,18 +250,138 @@
             border: 1px solid #003366;
         }
 
-        @media print {
-            body {
-                background: none;
+        @media (max-width: 1150px) {
+            .conquered-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+                padding: 10px 16px;
             }
 
             .certificate-container {
-                box-shadow: none;
-                border: none;
+                width: 100%;
+                min-height: auto;
+                aspect-ratio: 1123 / 794;
+                padding: 15px 0;
             }
 
-            .actions {
-                display: none;
+            .main-title {
+                font-size: clamp(2rem, 6.5vw, 5.5rem);
+            }
+
+            .title-sub {
+                font-size: clamp(0.75rem, 2vw, 1.4rem);
+                margin: 5px 0 20px;
+                gap: 8px;
+            }
+
+            .title-sub::before, .title-sub::after {
+                width: clamp(20px, 5vw, 80px);
+            }
+
+            .presented-text {
+                font-size: clamp(0.85rem, 1.8vw, 1.3rem);
+                margin-bottom: 5px;
+            }
+
+            .recipient-name {
+                font-size: clamp(1.8rem, 5.5vw, 4.5rem);
+                min-width: auto;
+                padding: 0 20px;
+            }
+
+            .reg-no {
+                font-size: clamp(0.75rem, 1.4vw, 1.05rem);
+                margin: 8px 0 4px;
+            }
+
+            .completion-text {
+                font-size: clamp(0.8rem, 1.6vw, 1.25rem);
+                margin-bottom: 3px;
+            }
+
+            .course-title {
+                font-size: clamp(1.1rem, 2.8vw, 2.2rem);
+                margin: 0 0 15px;
+            }
+
+            .instructor-text {
+                font-size: clamp(0.75rem, 1.6vw, 1.2rem);
+            }
+
+            .cert-info {
+                top: 20px;
+                right: 20px;
+                font-size: clamp(0.75rem, 1.5vw, 1.1rem);
+            }
+
+            .logo-top-left {
+                top: 20px;
+                left: 20px;
+                gap: 6px;
+            }
+
+            .logo-top-left svg {
+                width: 35px;
+                height: 35px;
+            }
+
+            .logo-top-left .logo-text {
+                font-size: 1.2rem;
+            }
+
+            .logo-top-left .logo-subtext {
+                font-size: 0.5rem;
+            }
+
+            .logo-box svg {
+                width: 50px;
+                height: 50px;
+            }
+
+            .logo-box .logo-text {
+                font-size: 1.6rem;
+            }
+
+            .logo-box .logo-subtext {
+                font-size: 0.65rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                display: block;
+            }
+
+            .conquered-banner, .actions {
+                display: none !important;
+            }
+
+            .certificate-wrapper {
+                overflow: visible !important;
+            }
+
+            .certificate-container {
+                width: 1123px !important;
+                height: 794px !important;
+                min-height: 794px !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .main-title {
+                font-size: 5.5rem !important;
+            }
+
+            .recipient-name {
+                font-size: 4.5rem !important;
+            }
+
+            .course-title {
+                font-size: 2.2rem !important;
             }
 
             @page {
@@ -241,7 +394,7 @@
 
 <body>
 
-    <div style="width: 1123px; margin: 20px auto 12px; background: #0f172a; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); box-sizing: border-box;">
+    <div class="conquered-banner">
         <div style="display: flex; align-items: center; gap: 12px;">
             <i class="fas fa-trophy" style="color: #fbbf24; font-size: 1.6rem;"></i>
             <div>
@@ -254,7 +407,8 @@
         </span>
     </div>
 
-    <div class="certificate-container">
+    <div class="certificate-wrapper">
+        <div class="certificate-container">
         <!-- Top Left Logo as requested -->
         <div class="logo-top-left">
             <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -330,6 +484,7 @@
 
             <p class="instructor-text" th:text="${'in associated with instructor ' + (course.instructor != null ? course.instructor.name : 'Ikram')}">in associated with instructor Ikram</p>
         </div>
+    </div>
     </div>
 
     <div class="actions">

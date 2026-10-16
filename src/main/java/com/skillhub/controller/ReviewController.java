@@ -29,6 +29,9 @@ public class ReviewController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.skillhub.service.EnrollmentService enrollmentService;
+
     @PostMapping("/add")
     public String addReview(@RequestParam("courseId") Long courseId,
             @RequestParam("rating") int rating,
@@ -41,19 +44,37 @@ public class ReviewController {
         }
 
         User user = userService.findByEmail(principal.getName());
-        Course course = courseService.getCourseById(courseId);
-
-        if (course != null) {
-            Review review = new Review();
-            review.setCourse(course);
-            review.setUser(user);
-            review.setRating(rating);
-            review.setComment(comment);
-            review.setCreatedAt(LocalDateTime.now());
-
-            reviewRepository.save(review);
-            redirectAttributes.addFlashAttribute("success", "Review submitted successfully!");
+        if (user == null) {
+            return "redirect:/login";
         }
+
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            redirectAttributes.addFlashAttribute("error", "Course not found.");
+            return "redirect:/home";
+        }
+
+        // Business Logic Validation: Only enrolled students can review a course
+        if (!enrollmentService.isEnrolled(user, course)) {
+            redirectAttributes.addFlashAttribute("error", "Only students who have enrolled in this course are permitted to rate and review it.");
+            return "redirect:/course/" + courseId;
+        }
+
+        // Rating validation
+        if (rating < 1 || rating > 5) {
+            redirectAttributes.addFlashAttribute("error", "Rating must be between 1 and 5 stars.");
+            return "redirect:/course/" + courseId;
+        }
+
+        Review review = new Review();
+        review.setCourse(course);
+        review.setUser(user);
+        review.setRating(rating);
+        review.setComment(comment != null ? comment.trim() : "");
+        review.setCreatedAt(LocalDateTime.now());
+
+        reviewRepository.save(review);
+        redirectAttributes.addFlashAttribute("success", "Review submitted successfully!");
 
         return "redirect:/course/" + courseId;
     }

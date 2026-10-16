@@ -262,7 +262,7 @@
         <!-- Course Listing Grid -->
         <div class="courses-grid" th:if="${courses != null && !courses.empty}">
             <a th:href="@{/course/{id}(id=${course.id})}" class="course-card" th:each="course : ${courses}">
-                <img th:src="${course.imageUrl != null && !course.imageUrl.isEmpty()} ? ${course.imageUrl} : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80'" class="course-thumb" th:alt="${course.title}">
+                <img th:src="${course.imageUrl != null && !course.imageUrl.isEmpty()} ? ${course.imageUrl} : '/images/course-placeholder.jpg'" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" class="course-thumb" th:alt="${course.title}">
                 <div class="course-body">
                     <div class="course-meta">
                         <span class="course-cat-tag" th:text="${course.category != null ? course.category.name : 'General'}">Category</span>

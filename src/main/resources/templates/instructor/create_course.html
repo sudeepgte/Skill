@@ -1247,58 +1247,9 @@
                     <div class="stepper-title">
                         <span>Course Authoring Steps</span>
                         <span class="progress-pct-badge" id="stepperPct">20% Done</span>
-                    </div>
+                    
 
-                    <div class="form-group">
-                        <label for="subtitle">Course Subtitle</label>
-                        <input type="text" id="subtitle" th:field="*{subtitle}" placeholder="Insert your course subtitle." oninput="validateAlphaStart(this)">
-                        <p class="helper-text">Use 1 or 2 sentences to hook students and summarize what they'll learn.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description">Course Description</label>
-                        <textarea id="description" th:field="*{description}" rows="3" placeholder="Insert your course short description." required oninput="validateAlphaStart(this)"></textarea>
-                        <p class="helper-text">Short description shown on course cards.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="longDescription">Detailed Description</label>
-                        <textarea id="longDescription" th:field="*{longDescription}" rows="8" placeholder="Insert your detailed course description." oninput="validateAlphaStart(this)"></textarea>
-                        <p class="helper-text">Description should be at least 200 words. It's where you sell your course!</p>
-                    </div>
-
-                    <div class="input-grid">
-                        <div class="form-group">
-                            <label for="category">Category</label>
-                            <select id="category" th:field="*{category.id}" required>
-                                <option value="" disabled selected>-- Select Category --</option>
-                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="subCategory">Sub-Category</label>
-                            <input type="text" id="subCategory" th:field="*{subCategory}" placeholder="e.g. Web Development">
-                        </div>
-                        <div class="form-group">
-                            <label for="level">Level</label>
-                            <select id="level" th:field="*{level}">
-                                <option value="Beginner">Beginner Level</option>
-                                <option value="DM Sansmediate">DM Sansmediate Level</option>
-                                <option value="Advanced">Advanced Level</option>
-                                <option value="All Levels">All Levels</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="language">Language</label>
-                        <select id="language" th:field="*{language}">
-                            <option value="English">English</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="Hindi">Hindi</option>
-                            <option value="French">French</option>
-                        </select>
-                    <div class="progress-bar-track">
+                    
                         <div class="progress-bar-fill" id="stepperProgressBar"></div>
                     </div>
                 </div>
@@ -2025,7 +1976,7 @@
                     <!-- Right Sticky Mock Card -->
                     <div>
                         <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); position: sticky; top: 1rem;">
-                            <img id="previewThumbnailImg" src="https://img-c.udemycdn.com/course/480x270/placeholder.jpg" alt="Preview"
+                            <img id="previewThumbnailImg" src="/images/course-placeholder.jpg" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" alt="Preview"
                                  style="width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 1rem;">
                             
                             <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 1rem;">
@@ -2649,7 +2600,7 @@
             if (localImg && localImg.src && localImg.src.length > 5 && !localImg.src.endsWith('/')) {
                 thumbImg.src = localImg.src;
             } else {
-                thumbImg.src = 'https://img-c.udemycdn.com/course/480x270/placeholder.jpg';
+                thumbImg.src = '/images/course-placeholder.jpg';
             }
 
             // Price text

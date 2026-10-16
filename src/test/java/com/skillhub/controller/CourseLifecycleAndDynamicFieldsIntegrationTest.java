@@ -49,6 +49,7 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
     @Autowired private LectureRepository lectureRepository;
     @Autowired private CourseResourceRepository resourceRepository;
     @Autowired private EnrollmentRepository enrollmentRepository;
+    @Autowired private com.skillhub.repository.ReviewRepository reviewRepository;
     @Autowired private CategoryService categoryService;
     @Autowired private CourseService courseService;
     @Autowired private UserService userService;
@@ -556,5 +557,51 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
                 assertEquals("Specialty Coffee Science", data.get("customDomain"));
             }
         }
+    }
+
+    @Test
+    @DisplayName("Stage 14: Course Review Submission Requires Prior Enrollment (BUG-035)")
+    void testCourseReview_RequiresEnrollment() throws Exception {
+        Course course = new Course();
+        course.setTitle("Docker & Kubernetes for Cloud Engineers");
+        course.setDescription("Master containers and orchestration.");
+        course.setCategory(devCategory);
+        course.setInstructor(vendor1);
+        course.setStatus(CourseStatus.PUBLISHED);
+        course = courseRepository.save(course);
+
+        // 1. Non-enrolled student attempts to post review -> rejected with error
+        mockMvc.perform(post("/reviews/add")
+                .with(csrf())
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("student@skillhub.com").roles("STUDENT"))
+                .param("courseId", course.getId().toString())
+                .param("rating", "5")
+                .param("comment", "Great!"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/course/" + course.getId()))
+                .andExpect(flash().attribute("error", "Only students who have enrolled in this course are permitted to rate and review it."));
+
+        assertEquals(0, reviewRepository.findByCourseIdOrderByCreatedAtDesc(course.getId()).size(),
+                "Non-enrolled user should not be able to save review");
+
+        // 2. Student enrolls in the course
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudent(studentUser);
+        enrollment.setCourse(course);
+        enrollmentRepository.save(enrollment);
+
+        // 3. Enrolled student posts review -> accepted with success
+        mockMvc.perform(post("/reviews/add")
+                .with(csrf())
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("student@skillhub.com").roles("STUDENT"))
+                .param("courseId", course.getId().toString())
+                .param("rating", "5")
+                .param("comment", "Great!"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/course/" + course.getId()))
+                .andExpect(flash().attribute("success", "Review submitted successfully!"));
+
+        assertEquals(1, reviewRepository.findByCourseIdOrderByCreatedAtDesc(course.getId()).size(),
+                "Enrolled user review should be saved successfully");
     }
 }

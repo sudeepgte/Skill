@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillHub – Learn Without Limits</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="this.onerror=null; this.href='/css/font-awesome-fallback.css';">
   <style th:replace="~{fragments/footer :: footer-styles}"></style>
   <style>
     *,
@@ -1398,10 +1398,10 @@
   <!-- ── NEWSLETTER BAR ── -->
   <div class="newsletter-bar">
     <p>🎉 New courses added weekly — Stay ahead of the curve!</p>
-    <div class="newsletter-form">
-      <input type="email" placeholder="Your email address">
-      <button>Subscribe</button>
-    </div>
+    <form class="newsletter-form" id="newsletterBarForm" action="/api/newsletter/subscribe" method="POST" onsubmit="handleNewsletterSubscribe(event, this)">
+      <input type="email" name="email" id="newsletterEmail" placeholder="Your email address" required>
+      <button type="submit" id="newsletterSubscribeBtn">Subscribe</button>
+    </form>
   </div>
 
   <!-- ── HERO ── -->
@@ -1516,7 +1516,8 @@
         <th:block th:each="course, iterStat : ${courses}">
           <div class="course-card" th:if="${iterStat.index < 3}">
             <img
-              th:src="${course.imageUrl != null ? course.imageUrl : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&q=80'}"
+              th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}"
+              onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
               class="course-thumb" th:alt="${course.title}">
             <div class="course-body">
               <div class="course-meta">
