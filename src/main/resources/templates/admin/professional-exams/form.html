@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Create Exam</title></head>
+<body>
+    <h1>Create Professional Exam</h1>
+    <form th:action="@{/admin/professional-exams/create}" method="post" th:object="${exam}">
+        <label>Code: <input type="text" th:field="*{examCode}" required /></label><br/>
+        <label>Title: <input type="text" th:field="*{title}" required /></label><br/>
+        <label>Track: 
+            <select th:field="*{track}">
+                <option th:each="t : ${tracks}" th:value="${t}" th:text="${t}"></option>
+            </select>
+        </label><br/>
+        <label>Difficulty: 
+            <select th:field="*{level}">
+                <option th:each="d : ${difficulties}" th:value="${d}" th:text="${d}"></option>
+            </select>
+        </label><br/>
+        <label>Duration (mins): <input type="number" th:field="*{durationMinutes}" /></label><br/>
+        <label>Total Marks: <input type="number" th:field="*{totalMarks}" /></label><br/>
+        <label>Passing Marks: <input type="number" th:field="*{passingMarks}" /></label><br/>
+        <label>Max Attempts: <input type="number" th:field="*{maximumAttempts}" /></label><br/>
+        <button type="submit">Create</button>
+    </form>
+</body>
+</html>

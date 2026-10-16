@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <h1>Apply for <span th:text="${exam.title}"></span></h1>
+    <form th:action="@{/student/professional-exams/{id}/apply(id=${exam.id})}" method="post" th:object="${application}">
+        <input type="text" th:field="*{fullName}" placeholder="Full Name" required />
+        <input type="text" th:field="*{currentRole}" placeholder="Current Role" required />
+        <button type="submit">Submit Application</button>
+    </form>
+</body>
+</html>

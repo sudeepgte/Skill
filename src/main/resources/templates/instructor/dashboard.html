@@ -242,6 +242,14 @@
                 </a>
             </header>
 
+            <!-- Alerts -->
+            <div th:if="${success}" style="background:#d1fae5; border-left:4px solid #10b981; color:#065f46; padding:1.2rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500; font-size:1.1rem;">
+                <i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> <span th:text="${success}">Success message</span>
+            </div>
+            <div th:if="${error}" style="background:#fee2e2; border-left:4px solid #ef4444; color:#991b1b; padding:1.2rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500; font-size:1.1rem;">
+                <i class="fas fa-exclamation-circle" style="color:#ef4444; margin-right:8px;"></i> <span th:text="${error}">Error message</span>
+            </div>
+
             <!-- Stats Grid - Only show on main dashboard tab -->
             <div class="vendor-stats-grid" th:if="${activeTab == 'courses' or activeTab == null}">
                 <!-- Total Enrolled -->
@@ -289,10 +297,29 @@
 
             <!-- Manage Courses Panel -->
             <div class="vendor-panel" th:if="${activeTab == 'courses' or activeTab == null}">
-                <div class="panel-header">
+                <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
                     <h2>Manage Your Courses</h2>
-                    <div class="panel-controls">
-                        <!-- Filter removed as all courses are now published -->
+                    <div class="panel-controls" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a th:href="@{/vendor/dashboard(tab='courses', status='ALL')}" class="status-badge"
+                           th:style="${statusFilter == 'ALL' or statusFilter == null ? 'background:#8B5CF6; color:#fff;' : 'background:#EDE9FE; color:#2E1065;'}">
+                            All
+                        </a>
+                        <a th:href="@{/vendor/dashboard(tab='courses', status='PUBLISHED')}" class="status-badge"
+                           th:style="${statusFilter == 'PUBLISHED' ? 'background:#10b981; color:#fff;' : 'background:#d1fae5; color:#065f46;'}">
+                            Published
+                        </a>
+                        <a th:href="@{/vendor/dashboard(tab='courses', status='PENDING_REVIEW')}" class="status-badge"
+                           th:style="${statusFilter == 'PENDING_REVIEW' ? 'background:#f59e0b; color:#fff;' : 'background:#fef3c7; color:#92400e;'}">
+                            Pending Review
+                        </a>
+                        <a th:href="@{/vendor/dashboard(tab='courses', status='DRAFT')}" class="status-badge"
+                           th:style="${statusFilter == 'DRAFT' ? 'background:#6b7280; color:#fff;' : 'background:#f3f4f6; color:#374151;'}">
+                            Drafts
+                        </a>
+                        <a th:href="@{/vendor/dashboard(tab='courses', status='REJECTED')}" class="status-badge"
+                           th:style="${statusFilter == 'REJECTED' ? 'background:#ef4444; color:#fff;' : 'background:#fee2e2; color:#991b1b;'}">
+                            Changes Requested
+                        </a>
                     </div>
                 </div>
 
@@ -316,11 +343,23 @@
                                         <div class="course-title-wrap">
                                             <span class="course-name" th:text="${course.title}">Course Title</span>
                                             <span class="course-meta" th:text="'Updated ' + ${course.lastUpdated}">Updated 2024-01-01</span>
+                                            <!-- Show Rejection Reason if present -->
+                                            <div th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED and course.rejectionReason != null}"
+                                                 style="margin-top: 4px; padding: 4px 8px; background: #fee2e2; color: #991b1b; border-radius: 4px; font-size: 0.8rem;">
+                                                <i class="fas fa-exclamation-triangle"></i> <span th:text="'Changes requested: ' + ${course.rejectionReason}">Reason</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span th:text="${course.category.name}">Category</span>
+                                    <span th:text="${course.category != null ? course.category.name : 'Uncategorized'}">Category</span>
+                                    <div style="font-size:0.8rem; color:#8B5CF6;" th:if="${course.subCategory != null}" th:text="${course.subCategory}">Subcategory</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge published" th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}">PUBLISHED</span>
+                                    <span class="status-badge" style="background:#fef3c7; color:#92400e;" th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}">PENDING REVIEW</span>
+                                    <span class="status-badge" style="background:#f3f4f6; color:#374151;" th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT}">DRAFT</span>
+                                    <span class="status-badge" style="background:#fee2e2; color:#991b1b;" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}">CHANGES REQ</span>
                                 </td>
                                 <td>
                                     <span class="status-badge" th:text="${course.status != null ? course.status : 'PUBLISHED'}" 
@@ -343,8 +382,26 @@
                                             </button>
                                         </form>
                                         <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn-icon" title="Edit">
+                                    <div class="action-btns" style="display:flex; gap:8px; align-items:center;">
+                                        <!-- Edit action -->
+                                        <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn-icon" title="Edit Course">
                                             <i class="fas fa-edit"></i>
                                         </a>
+
+                                        <!-- Submit for review action if draft or rejected -->
+                                        <form th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT or course.status == T(com.skillhub.model.CourseStatus).REJECTED}"
+                                              th:action="@{/vendor/courses/{id}/submit(id=${course.id})}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn-icon" title="Submit for Admin Verification" style="background:none; border:none; cursor:pointer; color:#10b981; padding:0;">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Preview published course -->
+                                        <a th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}"
+                                           th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn-icon" title="View Course in Catalog">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+
                                         <form th:action="@{/vendor/courses/{id}/delete(id=${course.id})}" method="post" style="display:inline;"
                                               onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
                                             <button type="submit" class="btn-icon delete" title="Delete" style="background:none; border:none; cursor:pointer; color:#A78BFA; padding:0;">
@@ -352,6 +409,12 @@
                                             </button>
                                         </form>
                                     </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(courses)}">
+                                <td colspan="6" style="text-align: center; padding: 3rem; color: #6a6f73;">
+                                    <i class="fas fa-graduation-cap" style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; display:block;"></i>
+                                    No courses found matching this status.
                                 </td>
                             </tr>
                         </tbody>

@@ -64,6 +64,23 @@ public class CourseController {
             return "redirect:/?error=CourseNotFound";
         }
 
+        // Access check for unpublished courses: only instructor or admin can view
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED) {
+            boolean canView = false;
+            if (principal != null) {
+                com.skillhub.model.User currentUser = userService.findByEmail(principal.getName());
+                if (currentUser != null) {
+                    if ("ADMIN".equals(currentUser.getRole()) || 
+                        (course.getInstructor() != null && course.getInstructor().getEmail().equals(currentUser.getEmail()))) {
+                        canView = true;
+                    }
+                }
+            }
+            if (!canView) {
+                return "redirect:/?error=CourseNotPublished";
+            }
+        }
+
         // For Course 1, add a sample promotional video if missing to make it "work in real"
         if (id == 1 && (course.getVideoUrl() == null || course.getVideoUrl().isEmpty())) {
             course.setVideoUrl("https://video.wixstatic.com/video/11062b_77a941a31b99484ba3ee77a28469d4d4/1080p/mp4/file.mp4");
@@ -161,6 +178,8 @@ public class CourseController {
         model.addAttribute("isEnrolled", isEnrolled);
         model.addAttribute("user", user);
         model.addAttribute("isLoggedIn", principal != null);
+        model.addAttribute("categoryDataMap", course.getCategoryDataMap());
+        model.addAttribute("resources", course.getResources());
         return "course-details";
     }
 
@@ -174,13 +193,26 @@ public class CourseController {
         }
 
         com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course == null) {
+            return "redirect:/?error=CourseNotFound";
+        }
+
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        boolean isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
+        boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
+        boolean isAdmin = "ADMIN".equals(user.getRole());
+
+        // Students must be enrolled; instructors/admins can preview
+        if (!isEnrolled && !isOwner && !isAdmin) {
+            return "redirect:/course/" + id + "?error=PleaseEnroll";
+        }
+
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
         // Use provided lectureId or find last played, else first lecture
         Long targetLectureId = lectureId;
         if (targetLectureId == null) {
             // Check enrollment for lastPlayedLectureId
-            com.skillhub.model.User user = userService.findByEmail(principal.getName());
             enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(e -> {
                 if (e.getLastPlayedLectureId() != null) {
                     model.addAttribute("resumedFrom", e.getLastPlayedLectureId());
@@ -227,7 +259,6 @@ public class CourseController {
         model.addAttribute("currentLesson", currentLesson);
 
         // Fetch completed lecture IDs for this user/course
-        com.skillhub.model.User user = userService.findByEmail(principal.getName());
         java.util.List<Long> completedLectureIds = lectureProgressRepository.findByUser(user).stream()
                 .filter(com.skillhub.model.LectureProgress::isCompleted)
                 .map(lp -> lp.getLecture().getId())

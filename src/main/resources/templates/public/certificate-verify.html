@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification | SkillHub Elite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .cert-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; padding: 2.5rem; text-align: center; }
+        .badge-verified { background-color: #10b981; color: #ffffff; padding: 0.5rem 1.2rem; border-radius: 30px; font-weight: 600; font-size: 0.9rem; }
+        .badge-revoked { background-color: #ef4444; color: #ffffff; padding: 0.5rem 1.2rem; border-radius: 30px; font-weight: 600; font-size: 0.9rem; }
+        .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 0.75rem 0; font-size: 0.95rem; }
+        .detail-label { color: #94a3b8; }
+        .detail-val { font-weight: 600; color: #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="cert-card">
+        <div class="mb-3">
+            <h4 class="text-primary fw-bold tracking-wide">SKILLHUB ELITE</h4>
+            <p class="text-muted small">Official Certificate Verification System</p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger my-4" role="alert" th:text="${error}">
+            Invalid or non-existent certificate ID.
+        </div>
+
+        <div th:if="${certificate}">
+            <div class="my-4">
+                <span th:if="${certificate.valid}" class="badge-verified">✓ AUTHENTIC & ACTIVE CERTIFICATE</span>
+                <span th:unless="${certificate.valid}" class="badge-revoked">✗ CERTIFICATE NOT ACTIVE / REVOKED</span>
+            </div>
+
+            <h3 class="fw-bold my-3" th:text="${certificate.certificationName}">Certification Title</h3>
+            <p class="text-secondary mb-4" th:text="'Awarded to ' + ${certificate.candidateName}">Candidate Name</p>
+
+            <div class="text-start">
+                <div class="detail-row">
+                    <span class="detail-label">Certificate ID</span>
+                    <span class="detail-val" th:text="${certificate.certificateId}">ID</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Specialization Track</span>
+                    <span class="detail-val" th:text="${certificate.track}">Track</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Distinction Grade</span>
+                    <span class="detail-val text-info" th:text="${certificate.grade}">Grade</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Issue Date</span>
+                    <span class="detail-val" th:text="${certificate.issueDate}">Date</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Verification Status</span>
+                    <span class="detail-val" th:text="${certificate.status}">Status</span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2">
+                <a href="/" class="btn btn-outline-light btn-sm">Return to SkillHub Platform</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

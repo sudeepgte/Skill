@@ -2,92 +2,847 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="'Exam: ' + ${course.title}">Exam Intro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Elite Exam Challenge: ' + ${course.title} + ' | SkillHub'">ONE OF THE TOUGHEST EXAMS ON SKILLHUB | SkillHub</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        .exam-intro {
-            max-width: 800px;
-            margin: 6rem auto;
-            padding: 4rem;
-            background: #fff;
-            border: 1px solid #d1d7dc;
-            border-radius: 8px;
-            text-align: center;
+        :root {
+            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Cinzel', serif;
+            
+            /* Dark Navy, Violet & Gold Theme */
+            --bg-dark: #070B14;
+            --bg-card: #0F172A;
+            --bg-card-elevated: #1E293B;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(245, 158, 11, 0.35);
+            --border-gold-glow: rgba(245, 158, 11, 0.7);
+
+            --text-pure: #FFFFFF;
+            --text-sub: #94A3B8;
+            --text-gold: #FBBF24;
+            --text-gold-bright: #FDE68A;
+
+            --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #D97706 100%);
+            --gold-glow: 0 0 35px rgba(245, 158, 11, 0.25);
+            --violet-gradient: linear-gradient(135deg, #4338CA 0%, #6366F1 50%, #4F46E5 100%);
+            --hero-bg: radial-gradient(circle at 50% 10%, rgba(99, 102, 241, 0.18) 0%, rgba(15, 23, 42, 0.98) 60%, #070B14 100%);
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+            --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .hero-icon {
-            font-size: 6rem;
-            color: #5624d0;
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-pure);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══ TOPBAR ══ */
+        .exam-navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1.25rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-pure);
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+        }
+
+        .navbar-brand i {
+            color: #F59E0B;
+            font-size: 1.5rem;
+        }
+
+        .nav-pill-badge {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--border-gold);
+            color: var(--text-gold);
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link-subtle {
+            color: var(--text-sub);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .nav-link-subtle:hover {
+            color: var(--text-pure);
+        }
+
+        /* ══ MAIN HERO CHALLENGE BANNER ══ */
+        .hero-section {
+            background: var(--hero-bg);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 4rem 1.5rem 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle Background Ambient Lighting */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.15) 0%, rgba(99, 102, 241, 0.1) 40%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 3.5rem;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Left Hero Content */
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .elite-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid var(--border-gold);
+            color: var(--text-gold);
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.12);
+            margin-bottom: 1.5rem;
+        }
+
+        .elite-badge i {
+            color: #F59E0B;
+        }
+
+        /* 1. Mandatory Main Heading */
+        .mandatory-headline {
+            font-family: var(--font-display);
+            font-size: 2.75rem;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #FDE68A 45%, #F59E0B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 25px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Supporting Headline */
+        .supporting-headline {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #E2E8F0;
+            line-height: 1.4;
+            margin-bottom: 1.25rem;
+            border-left: 3px solid #F59E0B;
+            padding-left: 14px;
+        }
+
+        .course-tag-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 6px 14px;
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            margin-bottom: 1.5rem;
+        }
+
+        .course-tag-row strong {
+            color: var(--text-pure);
+        }
+
+        /* Supporting Description */
+        .supporting-description {
+            font-size: 1.05rem;
+            color: #94A3B8;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            max-width: 620px;
+        }
+
+        /* CTA Actions */
+        .cta-action-group {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-challenge-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--gold-gradient);
+            color: #070B14;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 1.15rem 2.5rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            box-shadow: 0 4px 25px rgba(245, 158, 11, 0.35);
+            transition: var(--transition);
+            border: 1px solid #FDE68A;
+            cursor: pointer;
+        }
+
+        .btn-challenge-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(245, 158, 11, 0.55);
+            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+        }
+
+        .btn-challenge-cta i {
+            font-size: 1.1rem;
+        }
+
+        .challenge-callout-text {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .challenge-callout-text i {
+            color: var(--text-gold);
+        }
+
+        /* ══ RIGHT HERO CERTIFICATE ILLUSTRATION ══ */
+        .hero-certificate-card {
+            background: linear-gradient(145deg, #1E293B 0%, #0F172A 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            box-shadow: var(--gold-glow), 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .hero-certificate-card:hover {
+            border-color: var(--border-gold-glow);
+            transform: scale(1.01);
+        }
+
+        .cert-inner-border {
+            border: 2px dashed rgba(245, 158, 11, 0.35);
+            border-radius: var(--radius-md);
+            padding: 2rem 1.75rem;
+            text-align: center;
+            position: relative;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .cert-gold-crest {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+            margin-bottom: 1.25rem;
+        }
+
+        .cert-gold-crest i {
+            color: #0F172A;
+            font-size: 2.2rem;
+        }
+
+        .cert-preview-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--text-gold);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .cert-preview-sub {
+            font-size: 0.78rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #CBD5E1;
+            margin-bottom: 1.25rem;
+        }
+
+        .cert-preview-course {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+
+        .cert-preview-stamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--border-gold);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            color: var(--text-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ══ CERTIFICATE VALUE SECTION ══ */
+        .value-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 5rem 1.5rem;
+        }
+
+        .section-header-centered {
+            text-align: center;
+            max-width: 760px;
+            margin: 0 auto 3.5rem;
+        }
+
+        /* 3. Section Heading: A Certificate Worth Fighting For */
+        .section-title-large {
+            font-family: var(--font-display);
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: var(--text-pure);
+            margin-bottom: 1rem;
+        }
+
+        .section-desc-lead {
+            font-size: 1.05rem;
+            color: #94A3B8;
+            line-height: 1.7;
+        }
+
+        /* 3 Highlights Grid */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .highlight-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 2.25rem 2rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-card:hover {
+            border-color: var(--border-gold);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .highlight-icon-box {
+            width: 58px;
+            height: 58px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon-gold { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid var(--border-gold); }
+        .icon-violet { background: rgba(99, 102, 241, 0.15); color: #818CF8; border: 1px solid rgba(99, 102, 241, 0.3); }
+        .icon-emerald { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .highlight-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-pure);
+            margin-bottom: 0.75rem;
+        }
+
+        .highlight-desc {
+            font-size: 0.95rem;
+            color: #94A3B8;
+            line-height: 1.6;
+        }
+
+        /* ══ EXAM CRUCIBLE SPECIFICATIONS & RULES ══ */
+        .rules-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .rules-spec-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .rule-spec-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .rule-bullet-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--text-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rule-item-content strong {
+            display: block;
+            font-size: 1rem;
+            color: var(--text-pure);
+            margin-bottom: 2px;
+        }
+
+        .rule-item-content span {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+        }
+
+        /* Bottom Final Callout */
+        .bottom-crucible-callout {
+            text-align: center;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .crucible-mantra {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-gold);
+            letter-spacing: 0.05em;
+        }
+
+        /* ══ CONFIRMATION MODAL ══ */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(7, 11, 20, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            max-width: 540px;
+            width: 100%;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), var(--gold-glow);
+            text-align: center;
+            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--border-gold);
+            color: var(--text-gold);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-pure);
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-desc {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            line-height: 1.6;
             margin-bottom: 2rem;
         }
 
-        .rule-list {
-            text-align: left;
-            max-width: 500px;
-            margin: 2rem auto;
-            font-size: 1.6rem;
-            color: #1c1d1f;
+        .modal-btn-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
         }
 
-        .rule-list li {
-            margin-bottom: 1rem;
+        .btn-modal-cancel {
+            background: transparent;
+            color: var(--text-sub);
+            border: 1px solid var(--border-subtle);
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-modal-cancel:hover {
+            color: var(--text-pure);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .highlights-grid {
+                grid-template-columns: 1fr;
+            }
+            .rules-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .exam-navbar {
+                padding: 1rem 1.25rem;
+            }
+            .hero-section {
+                padding: 3rem 1.25rem 4rem;
+            }
+            .mandatory-headline {
+                font-size: 2.1rem;
+            }
+            .supporting-headline {
+                font-size: 1.15rem;
+            }
+            .btn-challenge-cta {
+                width: 100%;
+                justify-content: center;
+            }
+            .modal-btn-row {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar"
-        style="border-bottom: 1px solid #d1d7dc; display: flex; align-items: center; justify-content: space-between; padding: 0 2.4rem; height: 7.2rem; background: #fff;">
-        <div class="navbar-left" style="display: flex; align-items: center; gap: 2rem;">
-            <a href="/user/home" class="logo"
-                style="text-decoration: none; color: #1c1d1f; font-weight: 700; font-family: 'Playfair Display', serif; font-size: 2.4rem;">
-                <span class="logo-text">SkillHub</span>
+
+    <!-- ══ NAVBAR ══ -->
+    <header class="exam-navbar">
+        <a href="/user/home" class="navbar-brand">
+            <i class="fas fa-graduation-cap"></i> SkillHub
+            <span class="nav-pill-badge">Elite Certification</span>
+        </a>
+
+        <div class="navbar-actions">
+            <a href="/user/certifications" class="nav-link-subtle">
+                <i class="fas fa-award"></i> My Certifications
+            </a>
+            <a th:href="@{/course/{id}(id=${course.id})}" class="nav-link-subtle">
+                <i class="fas fa-book-open"></i> Back to Course
             </a>
         </div>
+    </header>
 
-        <div class="navbar-right" style="display: flex; align-items: center; gap: 2rem;">
-            <a href="/user/certifications" class="categories-link"
-                style="text-decoration: none; color: #1c1d1f; font-size: 1.4rem;">My Certifications</a>
+    <!-- ══ MAIN HERO CHALLENGE BANNER ══ -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <!-- Left Challenge Narrative -->
+            <div class="hero-content">
+                <div class="elite-badge">
+                    <i class="fas fa-shield-halved"></i> ELITE CERTIFICATION CHALLENGE
+                </div>
 
-            <div
-                style="width: 4rem; height: 4rem; background-color: #1c1d1f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                <span>U</span>
+                <!-- 1. Mandatory Main Heading -->
+                <h1 class="mandatory-headline">ONE OF THE TOUGHEST EXAMS ON SKILLHUB</h1>
+
+                <!-- Supporting Headline -->
+                <h2 class="supporting-headline">Only Those Who Truly Master the Subject Can Earn This Certificate.</h2>
+
+                <!-- Target Course Pill -->
+                <div class="course-tag-row">
+                    <i class="fas fa-certificate" style="color: #F59E0B;"></i>
+                    <span>Certification Subject: <strong th:text="${course.title}">Course Title</strong></span>
+                </div>
+
+                <!-- Supporting Description -->
+                <p class="supporting-description">
+                    This is not an ordinary test. It is an elite-level challenge designed to push your knowledge, analytical thinking, and problem-solving skills to the limit. Prepare thoroughly, prove your expertise, and earn a Skill Hub certificate that recognizes your achievement.
+                </p>
+
+                <!-- Call to Action Group -->
+                <div class="cta-action-group">
+                    <button type="button" class="btn-challenge-cta" onclick="openConfirmationModal()">
+                        <i class="fas fa-bolt"></i> CHALLENGE YOURSELF <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <div class="challenge-callout-text">
+                        <i class="fas fa-trophy"></i> Prove Your Expertise
+                    </div>
+                </div>
             </div>
 
-            <form th:action="@{/logout}" method="post" style="display:inline;">
-                <button type="submit" class="btn btn-ghost text-sm"
-                    style="font-weight: 400; text-decoration: underline; background: none; border: none; cursor: pointer; color: #1c1d1f; font-size: 1.4rem;">Logout</button>
-            </form>
+            <!-- Right Certificate Preview Card -->
+            <div class="hero-certificate-card">
+                <div class="cert-inner-border">
+                    <div class="cert-gold-crest">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="cert-preview-title">SkillHub Verified</div>
+                    <div class="cert-preview-sub">Certificate of Mastery</div>
+                    <div class="cert-preview-course" th:text="${course.title}">Course Subject</div>
+                    <div class="cert-preview-stamp">
+                        <i class="fas fa-lock"></i> Unlocked Only on Passing
+                    </div>
+                </div>
+            </div>
         </div>
-    </nav>
+    </section>
 
-    <div class="exam-intro">
-        <i class="fa-solid fa-graduation-cap hero-icon"></i>
-        <h1 style="font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1rem;">Final Certification Exam
-        </h1>
-        <h2 th:text="${course.title}" style="font-size: 1.8rem; color: #6a6f73; font-weight: 400; margin-bottom: 3rem;">
-            Course Title</h2>
-
-        <div style="background: #f7f9fa; padding: 2rem; border-radius: 8px; margin-bottom: 3rem;">
-            <ul class="rule-list">
-                <li><i class="fa-regular fa-clock" style="width:25px"></i> <strong>40 Minutes</strong> time limit</li>
-                <li><i class="fa-solid fa-list-ol" style="width:25px"></i> <strong>20 Questions</strong> (Multiple
-                    Choice)</li>
-                <li><i class="fa-solid fa-award" style="width:25px"></i> <strong>70% Score</strong> required to pass
-                </li>
-            </ul>
+    <!-- ══ HIGHLIGHT THE CERTIFICATE'S VALUE ══ -->
+    <section class="value-section">
+        <div class="section-header-centered">
+            <!-- 3. Section Heading -->
+            <h2 class="section-title-large">A Certificate Worth Fighting For.</h2>
+            <p class="section-desc-lead">
+                Passing this challenging examination is a significant achievement. Earn your Skill Hub certificate by meeting the exam's requirements and demonstrate your commitment to mastering the subject. Celebrate your accomplishment and showcase it in your professional portfolio.
+            </p>
         </div>
 
-        <a th:href="@{/user/course/{id}/exam-simulation(id=${course.id})}" class="hero-cta-primary"
-            style="font-size: 1.8rem; padding: 1.5rem 4rem;">
-            Start Exam Now
-        </a>
-        <div style="margin-top: 2rem;">
-            <a th:href="@{/user/certifications}" style="color:#6a6f73; text-decoration: none;">Cancel</a>
+        <!-- 3 Highlights Grid -->
+        <div class="highlights-grid">
+            <!-- Highlight 1 -->
+            <div class="highlight-card">
+                <div class="highlight-icon-box icon-gold">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3 class="highlight-title">Earned Through Challenge</h3>
+                <p class="highlight-desc">Successfully meet the exam's passing requirements.</p>
+            </div>
+
+            <!-- Highlight 2 -->
+            <div class="highlight-card">
+                <div class="highlight-icon-box icon-violet">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3 class="highlight-title">Recognize Your Achievement</h3>
+                <p class="highlight-desc">Receive a certificate for qualifying performance.</p>
+            </div>
+
+            <!-- Highlight 3 -->
+            <div class="highlight-card">
+                <div class="highlight-icon-box icon-emerald">
+                    <i class="fas fa-share-nodes"></i>
+                </div>
+                <h3 class="highlight-title">Showcase Your Skills</h3>
+                <p class="highlight-desc">Share your learning achievement professionally.</p>
+            </div>
+        </div>
+
+        <!-- ══ EXAM CRUCIBLE SPECIFICATIONS & RULES ══ -->
+        <div class="rules-card">
+            <div>
+                <h3 style="font-family: var(--font-display); font-size: 1.6rem; color: var(--text-pure); margin-bottom: 0.75rem;">
+                    Examination Conditions
+                </h3>
+                <p style="font-size: 0.95rem; color: #94A3B8; margin-bottom: 2rem;">
+                    To maintain the prestige and authenticity of SkillHub certifications, this examination operates under rigorous standards:
+                </p>
+
+                <div class="rules-spec-list">
+                    <div class="rule-spec-item">
+                        <div class="rule-bullet-icon"><i class="fas fa-clock"></i></div>
+                        <div class="rule-item-content">
+                            <strong>40-Minute Strict Timer</strong>
+                            <span>Timer begins immediately upon entry and counts down in real time.</span>
+                        </div>
+                    </div>
+
+                    <div class="rule-spec-item">
+                        <div class="rule-bullet-icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="rule-item-content">
+                            <strong>20 Comprehensive Assessment Questions</strong>
+                            <span>Evaluates deep conceptual foundations, practical applications, and synthesis.</span>
+                        </div>
+                    </div>
+
+                    <div class="rule-spec-item">
+                        <div class="rule-bullet-icon"><i class="fas fa-bullseye"></i></div>
+                        <div class="rule-item-content">
+                            <strong>70% Minimum Score Standard</strong>
+                            <span>Only candidates who demonstrate commanding subject mastery receive certification.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-crucible-callout">
+                <div class="crucible-mantra">
+                    “Rise to the Challenge. Earn Your Recognition.”
+                </div>
+                <p style="font-size: 0.92rem; color: #CBD5E1; margin: 0;">
+                    Review your course lecture notes and practice exercises before taking your seat. When you are prepared to demonstrate excellence, step forward.
+                </p>
+                <button type="button" class="btn-challenge-cta" onclick="openConfirmationModal()" style="padding: 1rem 2rem; font-size: 1rem;">
+                    <i class="fas fa-bolt"></i> TAKE THE CHALLENGE
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ CONFIRMATION MODAL ══ -->
+    <div id="confirmationModal" class="modal-backdrop" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-box">
+            <div class="modal-icon-badge">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <h3 class="modal-title">Are You Ready for Skill Hub's Toughest Challenge?</h3>
+            <p class="modal-desc">
+                Once initiated, your <strong>40-minute examination session</strong> will begin immediately. Navigating away or closing your browser may invalidate your attempt. Ensure you have a stable connection and an undisturbed testing environment.
+            </p>
+
+            <div class="modal-btn-row">
+                <button type="button" class="btn-modal-cancel" onclick="closeConfirmationModal()">
+                    Review Material First
+                </button>
+                <a th:href="@{/user/course/{id}/exam-simulation(id=${course.id})}" class="btn-challenge-cta" style="padding: 12px 24px; font-size: 0.95rem;">
+                    <i class="fas fa-bolt"></i> Begin Challenge Now
+                </a>
+            </div>
         </div>
     </div>
-</body>
 
+    <script>
+        function openConfirmationModal() {
+            document.getElementById('confirmationModal').style.display = 'flex';
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmationModal').style.display = 'none';
+        }
+
+        function closeModalOnBackdrop(e) {
+            if (e.target.id === 'confirmationModal') {
+                closeConfirmationModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeConfirmationModal();
+            }
+        });
+    </script>
+</body>
 </html>

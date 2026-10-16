@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Admin - Professional Exams</title></head>
+<body>
+    <h1>Professional Exams</h1>
+    <a th:href="@{/admin/professional-exams/create}">Create New Exam</a>
+    <table>
+        <tr><th>ID</th><th>Code</th><th>Title</th><th>Track</th><th>Status</th><th>Actions</th></tr>
+        <tr th:each="exam : ${exams}">
+            <td th:text="${exam.id}"></td>
+            <td th:text="${exam.examCode}"></td>
+            <td th:text="${exam.title}"></td>
+            <td th:text="${exam.track}"></td>
+            <td th:text="${exam.active ? 'Active' : 'Inactive'}"></td>
+            <td>
+                <a th:href="@{/admin/professional-exams/{id}/versions(id=${exam.id})}">Manage Versions</a>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Verify Course: ' + ${course.title} + ' | SkillHub Admin'">Review Course | SkillHub Admin</title>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+
+    <style>
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-subtle: #f1f5f9;
+            --border-subtle: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --border-focus: #6366f1;
+
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --primary-border: #c7d2fe;
+
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --warning-border: #fde68a;
+            --danger: #e11d48;
+            --danger-light: #fff1f2;
+            --danger-border: #fecdd3;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-full: 9999px;
+            --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .review-layout-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 5rem;
+        }
+
+        /* ══ TOPBAR BREADCRUMB & HEADER ══ */
+        .review-page-header {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-meta-trail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 6px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .header-sub-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .status-draft { background: var(--bg-card-subtle); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+        .status-pending { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+        .status-published { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+        .status-rejected { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+
+        /* Review Grid */
+        .review-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .review-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .review-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .review-card-header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .review-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .review-card-title i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Meta Rows */
+        .meta-spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .meta-spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .spec-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .spec-val {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Learning Objectives Grid */
+        .obj-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .obj-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: var(--bg-page);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .obj-item i {
+            color: var(--success);
+            margin-top: 3px;
+        }
+
+        /* Action Buttons */
+        .btn-approve-lg {
+            background: var(--success);
+            color: #ffffff;
+            border: 1px solid var(--success);
+            padding: 11px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-approve-lg:hover {
+            background: #047857;
+            border-color: #047857;
+        }
+
+        .btn-reject-lg {
+            background: #ffffff;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 11px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .btn-reject-lg:hover {
+            background: var(--danger-light);
+        }
+
+        /* Quick Feedback Tags */
+        .quick-tag-chip {
+            background: var(--bg-page);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            user-select: none;
+        }
+
+        .quick-tag-chip:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 580px;
+            padding: 2rem;
+            box-shadow: var(--shadow-modal);
+            animation: modalFade 0.2s ease-out;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ ADMIN SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
+            </a>
+            <a href="/admin/courses" class="nav-item active">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="topbar-title">Course Verification & Quality Audit</div>
+            <div class="topbar-actions">
+                <a href="/admin/courses" class="btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    <i class="fas fa-arrow-left"></i> Back to Review Queue
+                </a>
+            </div>
+        </header>
+
+        <main class="review-layout-container">
+
+            <!-- ══ VERIFICATION HEADER BAR ══ -->
+            <div class="review-page-header">
+                <div>
+                    <div class="header-meta-trail">
+                        <span>Admin Console</span>
+                        <span>/</span>
+                        <span>Verification Queue</span>
+                        <span>/</span>
+                        <span th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
+                    </div>
+
+                    <h1 class="header-title" th:text="${course.title}">Course Title</h1>
+
+                    <div class="header-sub-meta">
+                        <span>
+                            <i class="fas fa-user-tie" style="color: var(--primary);"></i>
+                            Instructor: <strong th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}">Instructor</strong>
+                        </span>
+                        <span>
+                            <i class="fas fa-folder" style="color: var(--primary);"></i>
+                            <span th:text="${course.subCategory ?: 'General'}">Subcategory</span>
+                        </span>
+                        <span>
+                            Status:
+                            <span class="status-pill status-published" th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}"><i class="fas fa-check-circle"></i> Published</span>
+                            <span class="status-pill status-pending" th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}"><i class="fas fa-clock"></i> Pending Review</span>
+                            <span class="status-pill status-draft" th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT}"><i class="fas fa-file-pen"></i> Draft</span>
+                            <span class="status-pill status-rejected" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}"><i class="fas fa-triangle-exclamation"></i> Changes Requested</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <form th:action="@{/admin/courses/{id}/approve(id=${course.id})}" method="post" onsubmit="return confirm('Approve and publish this course live to the student catalog?');">
+                        <button type="submit" class="btn-approve-lg">
+                            <i class="fas fa-check-circle"></i> Approve & Publish
+                        </button>
+                    </form>
+
+                    <button type="button" class="btn-reject-lg" onclick="openRejectModal()">
+                        <i class="fas fa-clipboard-question"></i> Request Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Existing rejection alert if rejected previously -->
+            <div th:if="${course.rejectionReason != null}" style="background: var(--danger-light); border-left: 4px solid var(--danger); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 2rem;">
+                <div style="font-weight: 700; color: #9f1239; margin-bottom: 4px;">
+                    <i class="fas fa-clock-rotate-left"></i> Previous Rejection Feedback & Correction History:
+                </div>
+                <div style="font-size: 0.92rem; color: #881337;" th:text="${course.rejectionReason}">Feedback details</div>
+            </div>
+
+            <!-- ══ 2-COLUMN REVIEW GRID ══ -->
+            <div class="review-grid">
+
+                <!-- ━━ LEFT COLUMN (2fr) ━━ -->
+                <div>
+                    <!-- 1. Core Course Identity & Metadata -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title">
+                                <i class="fas fa-circle-info"></i> Course Identity & Syllabus
+                            </h3>
+                            <span class="status-pill status-draft">Metadata Specs</span>
+                        </div>
+
+                        <div class="meta-spec-grid" style="margin-bottom: 1.5rem;">
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Course Title</span>
+                                <span class="spec-val" th:text="${course.title}">Title</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Subtitle / Hook</span>
+                                <span class="spec-val" th:text="${course.subtitle ?: 'N/A'}">Subtitle</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Format</span>
+                                <span class="spec-val" th:text="${course.format ?: 'Video Course'}">Format</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Teaching Method</span>
+                                <span class="spec-val" th:text="${course.teachingMethod ?: 'Self-paced'}">Teaching Method</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Experience Level</span>
+                                <span class="spec-val" th:text="${course.level ?: 'Beginner'}">Level</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Language</span>
+                                <span class="spec-val" th:text="${course.language ?: 'English'}">Language</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Access Duration</span>
+                                <span class="spec-val" th:text="${course.accessDuration ?: 'Lifetime Access'}">Duration</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Tags / Keywords</span>
+                                <span class="spec-val" th:text="${course.tags ?: 'None'}">Tags</span>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                            <span class="spec-label">Overview Description</span>
+                            <p style="margin: 6px 0 1rem 0; font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;" th:text="${course.description}">Description</p>
+                        </div>
+
+                        <div th:if="${course.longDescription != null and !#strings.isEmpty(course.longDescription)}" style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                            <span class="spec-label">Comprehensive Syllabus</span>
+                            <div style="margin-top: 6px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;" th:text="${course.longDescription}">Full syllabus</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Category-Specific Fields -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title">
+                                <i class="fas fa-sliders-h"></i> Specialized Discipline Attributes
+                            </h3>
+                            <span class="status-pill status-draft" th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
+                        </div>
+
+                        <div th:if="${#maps.isEmpty(categoryDataMap)}" style="color: var(--text-muted); font-size: 0.88rem; font-style: italic;">
+                            No specialized discipline fields specified for this course.
+                        </div>
+
+                        <div th:unless="${#maps.isEmpty(categoryDataMap)}" class="meta-spec-grid">
+                            <div class="meta-spec-item" th:each="entry : ${categoryDataMap}">
+                                <span class="spec-label" th:text="${entry.key}">Attribute Key</span>
+                                <span class="spec-val" th:text="${entry.value}">Attribute Value</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Intended Learners & Learning Objectives -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title">
+                                <i class="fas fa-bullseye"></i> Learning Objectives & Intended Audience
+                            </h3>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <span class="spec-label">Student Learning Objectives</span>
+                            <div class="obj-checklist" style="margin-top: 8px;">
+                                <div th:if="${course.learningObjectives == null or #strings.isEmpty(course.learningObjectives)}" style="color: var(--text-muted); font-size: 0.88rem;">
+                                    No objectives defined.
+                                </div>
+                                <div th:each="line : ${#strings.arraySplit(course.learningObjectives, '&#10;')}" class="obj-item">
+                                    <i class="fas fa-circle-check"></i>
+                                    <span th:text="${line}">Objective item</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="meta-spec-grid" style="border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Prerequisites & Requirements</span>
+                                <span class="spec-val" th:text="${course.requirements ?: 'None'}">Requirements</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Target Audience Persona</span>
+                                <span class="spec-val" th:text="${course.targetAudience ?: 'All learners'}">Target Audience</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Required Experience</span>
+                                <span class="spec-val" th:text="${course.requiredExperience ?: 'None'}">Experience</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Expected Skills</span>
+                                <span class="spec-val" th:text="${course.expectedSkills ?: 'N/A'}">Skills</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Recommended Age Range</span>
+                                <span class="spec-val" th:text="${course.ageRange ?: 'All Ages'}">Age</span>
+                            </div>
+                            <div class="meta-spec-item">
+                                <span class="spec-label">Accessibility & Setup</span>
+                                <span class="spec-val" th:text="${course.accessibilityRequirements ?: 'Standard setup'}">Setup</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Curriculum Modules & Lessons -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title">
+                                <i class="fas fa-list-ol"></i> Curriculum & Lesson Breakdown
+                            </h3>
+                            <span class="status-pill status-draft" th:text="${#lists.size(course.sections)} + ' Modules'">0 Modules</span>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(course.sections)}" style="color: var(--text-muted); font-size: 0.88rem; font-style: italic;">
+                            No sections created in this course.
+                        </div>
+
+                        <div th:each="section, sStat : ${course.sections}" style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); margin-bottom: 1rem; overflow: hidden;">
+                            <div style="background: var(--bg-page); padding: 10px 14px; font-weight: 700; font-size: 0.95rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                                <span th:text="'Module ' + ${sStat.count} + ': ' + ${section.title}">Section Title</span>
+                                <span style="font-size: 0.78rem; color: var(--text-muted);" th:text="${#lists.size(section.lectures)} + ' Lectures'">0 Lectures</span>
+                            </div>
+                            <div style="padding: 10px 14px; background: #ffffff;">
+                                <div th:if="${#lists.isEmpty(section.lectures)}" style="color: var(--text-muted); font-size: 0.85rem;">No lectures in this module.</div>
+                                <div th:each="lecture, lStat : ${section.lectures}" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border-subtle); font-size: 0.88rem;">
+                                    <div>
+                                        <i class="fas fa-circle-play" style="color: var(--primary); margin-right: 6px;"></i>
+                                        <strong th:text="${lecture.title}">Lecture Title</strong>
+                                        <span style="color: var(--text-muted); font-size: 0.8rem;" th:text="'(' + ${lecture.durationSeconds ?: 0} + 's)'">(0s)</span>
+                                    </div>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <span class="status-pill status-published" style="font-size: 0.7rem; padding: 2px 6px;" th:if="${lecture.preview}">Preview</span>
+                                        <span th:if="${lecture.videoUrl != null and !lecture.videoUrl.isEmpty()}" style="color: var(--primary); font-size: 0.8rem;">
+                                            <i class="fas fa-video"></i> Video Attached
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Downloadable Resources -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title">
+                                <i class="fas fa-download"></i> Downloadable Learning Resources
+                            </h3>
+                            <span class="status-pill status-draft" th:text="${#lists.size(course.resources)} + ' Files'">0 Files</span>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(course.resources)}" style="color: var(--text-muted); font-size: 0.88rem; font-style: italic;">
+                            No downloadable resource files attached.
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(course.resources)}" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div th:each="res : ${course.resources}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-page); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;" th:text="${res.title}">Resource Title</div>
+                                    <span style="font-size: 0.75rem; background: var(--bg-card-subtle); padding: 2px 6px; border-radius: var(--radius-sm);" th:text="${res.fileType}">PDF</span>
+                                    <span th:if="${res.description != null}" th:text="${res.description}" style="font-size: 0.8rem; color: var(--text-muted); margin-left: 8px;"></span>
+                                </div>
+                                <a th:href="${res.fileUrl}" target="_blank" class="btn-primary-admin" style="padding: 4px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-download"></i> Inspect File
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ━━ RIGHT COLUMN (1fr) ━━ -->
+                <div>
+                    <!-- Vendor Profile Card -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title"><i class="fas fa-user-check"></i> Vendor Profile</h3>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+                                <span th:text="${course.instructor != null ? #strings.substring(course.instructor.name, 0, 1) : 'V'}">V</span>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 1rem;" th:text="${course.instructor != null ? course.instructor.name : 'Unknown Vendor'}">Vendor Name</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);" th:text="${course.instructor != null ? course.instructor.email : 'N/A'}">email@skillhub.com</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); background: var(--bg-page); padding: 8px 12px; border-radius: var(--radius-sm);">
+                            <i class="fas fa-shield-halved" style="color: var(--success); margin-right: 6px;"></i> Verified Vendor Partner
+                        </div>
+                    </div>
+
+                    <!-- Pricing Card -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title"><i class="fas fa-tags"></i> Pricing Tier</h3>
+                            <span class="status-pill status-published" th:if="${course.price == null or course.price <= 0}">FREE</span>
+                            <span class="status-pill status-draft" th:unless="${course.price == null or course.price <= 0}">PAID</span>
+                        </div>
+
+                        <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.85rem; font-weight: 800; color: var(--text-main);"
+                                  th:text="${course.price == null or course.price <= 0} ? '₹0' : '₹' + ${#numbers.formatDecimal(course.price, 0, 0)}">₹0</span>
+                            <span th:if="${course.salePrice != null and course.salePrice > 0}" style="font-size: 1.1rem; color: var(--danger); font-weight: 700;"
+                                  th:text="'Sale: ₹' + ${#numbers.formatDecimal(course.salePrice, 0, 0)}">Sale ₹999</span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                            Access Duration: <strong th:text="${course.accessDuration ?: 'Lifetime Access'}">Lifetime Access</strong>
+                        </div>
+                    </div>
+
+                    <!-- Thumbnail Card -->
+                    <div class="review-card">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title"><i class="fas fa-image"></i> Thumbnail Artwork</h3>
+                        </div>
+                        <div style="text-align: center;">
+                            <img th:src="${course.imageUrl != null ? course.imageUrl : 'https://img-c.udemycdn.com/course/480x270/placeholder.jpg'}"
+                                 alt="Thumbnail" style="width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); max-height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+
+                    <!-- Video Teaser Card -->
+                    <div class="review-card" th:if="${course.videoUrl != null and !course.videoUrl.isEmpty()}">
+                        <div class="review-card-header">
+                            <h3 class="review-card-title"><i class="fas fa-film"></i> Promotional Teaser</h3>
+                        </div>
+                        <div th:if="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}">
+                            <p style="font-size: 0.88rem;">YouTube Link: <a th:href="${course.videoUrl}" target="_blank" th:text="${course.videoUrl}">Watch Teaser</a></p>
+                        </div>
+                        <div th:unless="${#strings.contains(course.videoUrl, 'youtube.com') or #strings.contains(course.videoUrl, 'youtu.be')}">
+                            <video th:src="${course.videoUrl}" controls style="width: 100%; border-radius: var(--radius-sm); max-height: 200px; background: #000;"></video>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ══ REJECT / REQUEST CHANGES MODAL ══ -->
+    <div id="rejectModal" class="modal-overlay">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--danger); display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-triangle-exclamation"></i> Request Changes / Reject Course
+                </h3>
+                <button type="button" onclick="closeRejectModal()" style="background: none; border: none; font-size: 1.25rem; color: var(--text-muted); cursor: pointer;">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0; margin-bottom: 1rem;">
+                Provide clear, actionable feedback items so the instructor knows exactly what needs revision before resubmitting.
+            </p>
+
+            <!-- Quick Suggestion Tags -->
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">One-Click Feedback Suggestions:</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span class="quick-tag-chip" onclick="appendReason('Please add at least 4 measurable learning objectives.')">+ Learning Objectives</span>
+                    <span class="quick-tag-chip" onclick="appendReason('Thumbnail image resolution is low. Please upload high-res 1280x720 artwork.')">+ Thumbnail Quality</span>
+                    <span class="quick-tag-chip" onclick="appendReason('Audio quality on Section 1 video is distorted. Please re-upload clearer audio.')">+ Audio/Video Quality</span>
+                    <span class="quick-tag-chip" onclick="appendReason('Please provide at least 2 complete lectures inside each module.')">+ Incomplete Lectures</span>
+                    <span class="quick-tag-chip" onclick="appendReason('Course pricing does not align with SkillHub platform guidelines.')">+ Pricing Policy</span>
+                </div>
+            </div>
+
+            <form th:action="@{/admin/courses/{id}/reject(id=${course.id})}" method="post">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.5rem;">Audit Feedback & Required Corrections <span style="color: var(--danger);">*</span></label>
+                    <textarea id="rejectReasonInput" name="reason" rows="5" required style="width: 100%; padding: 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9rem; box-sizing: border-box; outline: none;" placeholder="Detail the requested corrections here..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn-reject-lg" style="border-color: var(--border-subtle); color: var(--text-secondary);" onclick="closeRejectModal()">Cancel</button>
+                    <button type="submit" class="btn-approve-lg" style="background: var(--danger); border-color: var(--danger);"><i class="fas fa-paper-plane"></i> Send Feedback to Instructor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openRejectModal() {
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        function appendReason(text) {
+            const input = document.getElementById('rejectReasonInput');
+            if (input.value.trim().length > 0) {
+                input.value = input.value.trim() + '\n• ' + text;
+            } else {
+                input.value = '• ' + text;
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeRejectModal();
+        });
+    </script>
+</body>
+</html>

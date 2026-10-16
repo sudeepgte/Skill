@@ -1,8 +1,13 @@
 package com.skillhub.model;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "courses")
@@ -14,8 +19,10 @@ public class Course {
 
     @Column(length = 500)
     private String title;
+    
     @Column(name = "course_subtitle", columnDefinition = "LONGTEXT")
     private String subtitle; // Short description
+    
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -29,19 +36,30 @@ public class Course {
     @JoinColumn(name = "instructor_id")
     private User instructor;
 
-    private Double price;
+    private Double price = 0.0;
     private Double salePrice;
     private String imageUrl; // Thumbnail
 
     private String language;
-    private String level; // Beginner, Intermediate, Expert
+    private String level; // Beginner, Intermediate, Advanced, All Levels
 
     private boolean isPublished = false;
     private String status = "DRAFT";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private CourseStatus status = CourseStatus.DRAFT;
+
+    @Column(columnDefinition = "TEXT")
+    private String rejectionReason;
+
+    private LocalDateTime submittedAt;
+    private LocalDateTime reviewedAt;
+
     private String lastUpdated;
 
     @Column(length = 1000)
-    private String videoUrl;
+    private String videoUrl; // Promotional or intro video
 
     @Column(columnDefinition = "TEXT")
     private String learningObjectives; // New line separated
@@ -54,14 +72,42 @@ public class Course {
 
     private String contentLength; // e.g. "10h 30m"
 
+    // Course Format & Teaching Method
+    private String format; // Video Course, Text Course, Practical / Hands-on Course, Project-based Course, Instructor-led Course
+    private String teachingMethod; // Self-paced, Cohort-based, Interactive Practice, Live Sessions
+    private String tags; // Comma-separated tags/skills
+
+    // Intended Learners Details
+    @Column(columnDefinition = "TEXT")
+    private String targetAudience;
+
+    private String requiredExperience; // Beginner / No Experience, Intermediate, Advanced
+
+    @Column(columnDefinition = "TEXT")
+    private String expectedSkills;
+
+    private String ageRange; // All Ages, Kids (6-12), Teens (13-17), Adults (18+)
+
+    @Column(columnDefinition = "TEXT")
+    private String accessibilityRequirements;
+
+    private String accessDuration; // Lifetime Access, 1 Year Access, 6 Months Access
+
+    // Structured JSON for Category-Specific Dynamic Fields
+    @Column(name = "category_specific_data", columnDefinition = "LONGTEXT")
+    private String categorySpecificData;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
     private List<CourseSection> sections = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseResource> resources = new ArrayList<>();
+
     private Long viewCount = 0L;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Enrollment> enrollments = new java.util.ArrayList<>();
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wishlist> wishlist = new ArrayList<>();
@@ -83,6 +129,81 @@ public class Course {
     public void addSection(CourseSection section) {
         sections.add(section);
         section.setCourse(this);
+    }
+
+    public void addResource(CourseResource resource) {
+        resources.add(resource);
+        resource.setCourse(this);
+    }
+
+    // Category Specific Data Helper Methods
+    public Map<String, String> getCategoryDataMap() {
+        if (this.categorySpecificData == null || this.categorySpecificData.trim().isEmpty()) {
+            return new HashMap<>();
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(this.categorySpecificData, new TypeReference<Map<String, String>>() {});
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    public void setCategoryDataMap(Map<String, String> dataMap) {
+        if (dataMap == null || dataMap.isEmpty()) {
+            this.categorySpecificData = null;
+        } else {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                this.categorySpecificData = mapper.writeValueAsString(dataMap);
+            } catch (Exception e) {
+                this.categorySpecificData = null;
+            }
+        }
+    }
+
+    public String getCategoryDataValue(String key) {
+        Map<String, String> map = getCategoryDataMap();
+        return map != null ? map.get(key) : null;
+    }
+
+    public void putCategoryData(String key, String value) {
+        Map<String, String> map = getCategoryDataMap();
+        map.put(key, value);
+        setCategoryDataMap(map);
+    }
+
+    // Status & Publishing compatibility methods
+    public CourseStatus getStatus() {
+        if (status == null) {
+            return isPublished ? CourseStatus.PUBLISHED : CourseStatus.DRAFT;
+        }
+        return status;
+    }
+
+    public void setStatus(CourseStatus status) {
+        this.status = status;
+        if (status == CourseStatus.PUBLISHED) {
+            this.isPublished = true;
+        } else {
+            this.isPublished = false;
+        }
+    }
+
+    public boolean isPublished() {
+        if (status != null) {
+            return status == CourseStatus.PUBLISHED;
+        }
+        return isPublished;
+    }
+
+    public void setPublished(boolean published) {
+        this.isPublished = published;
+        if (published) {
+            this.status = CourseStatus.PUBLISHED;
+        } else if (this.status == CourseStatus.PUBLISHED) {
+            this.status = CourseStatus.DRAFT;
+        }
     }
 
     // Getters and Setters
@@ -187,10 +308,28 @@ public class Course {
 
     public boolean isPublished() {
         return isPublished;
+    public String getRejectionReason() {
+        return rejectionReason;
     }
 
-    public void setPublished(boolean published) {
-        isPublished = published;
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public void setReviewedAt(LocalDateTime reviewedAt) {
+        this.reviewedAt = reviewedAt;
     }
 
     public String getLastUpdated() {
@@ -241,12 +380,100 @@ public class Course {
         this.contentLength = contentLength;
     }
 
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getTeachingMethod() {
+        return teachingMethod;
+    }
+
+    public void setTeachingMethod(String teachingMethod) {
+        this.teachingMethod = teachingMethod;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getTargetAudience() {
+        return targetAudience;
+    }
+
+    public void setTargetAudience(String targetAudience) {
+        this.targetAudience = targetAudience;
+    }
+
+    public String getRequiredExperience() {
+        return requiredExperience;
+    }
+
+    public void setRequiredExperience(String requiredExperience) {
+        this.requiredExperience = requiredExperience;
+    }
+
+    public String getExpectedSkills() {
+        return expectedSkills;
+    }
+
+    public void setExpectedSkills(String expectedSkills) {
+        this.expectedSkills = expectedSkills;
+    }
+
+    public String getAgeRange() {
+        return ageRange;
+    }
+
+    public void setAgeRange(String ageRange) {
+        this.ageRange = ageRange;
+    }
+
+    public String getAccessibilityRequirements() {
+        return accessibilityRequirements;
+    }
+
+    public void setAccessibilityRequirements(String accessibilityRequirements) {
+        this.accessibilityRequirements = accessibilityRequirements;
+    }
+
+    public String getAccessDuration() {
+        return accessDuration;
+    }
+
+    public void setAccessDuration(String accessDuration) {
+        this.accessDuration = accessDuration;
+    }
+
+    public String getCategorySpecificData() {
+        return categorySpecificData;
+    }
+
+    public void setCategorySpecificData(String categorySpecificData) {
+        this.categorySpecificData = categorySpecificData;
+    }
+
     public List<CourseSection> getSections() {
         return sections;
     }
 
     public void setSections(List<CourseSection> sections) {
         this.sections = sections;
+    }
+
+    public List<CourseResource> getResources() {
+        return resources;
+    }
+
+    public void setResources(List<CourseResource> resources) {
+        this.resources = resources;
     }
 
     public List<Enrollment> getEnrollments() {

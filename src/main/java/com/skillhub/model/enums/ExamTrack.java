@@ -1,0 +1,4 @@
+package com.skillhub.model.enums;
+public enum ExamTrack {
+    DEVELOPMENT, FULL_STACK, FRONTEND, BACKEND, TESTING, DEVOPS, DATA_ENGINEERING, CLOUD, CYBERSECURITY, DATABASE
+}

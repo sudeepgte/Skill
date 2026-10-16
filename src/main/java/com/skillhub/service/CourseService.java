@@ -1,16 +1,23 @@
 package com.skillhub.service;
 
+import com.skillhub.model.Category;
 import com.skillhub.model.Course;
 import com.skillhub.model.CourseSection;
+import com.skillhub.model.CourseStatus;
+import com.skillhub.model.Lecture;
 import com.skillhub.repository.CourseRepository;
+import com.skillhub.repository.CourseSectionRepository;
+import com.skillhub.repository.LectureRepository;
 import com.skillhub.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@org.springframework.transaction.annotation.Transactional
+@Transactional
 public class CourseService {
 
     @Autowired
@@ -21,6 +28,10 @@ public class CourseService {
 
     @Autowired
     private jakarta.persistence.EntityManager entityManager;
+    private CourseSectionRepository courseSectionRepository;
+
+    @Autowired
+    private LectureRepository lectureRepository;
 
     public List<Course> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
@@ -29,9 +40,25 @@ public class CourseService {
     }
 
     public List<Course> getPublishedCourses() {
-        List<Course> courses = courseRepository.findByIsPublishedTrue();
+        List<Course> courses = courseRepository.findPublishedCourses(CourseStatus.PUBLISHED);
         courses.forEach(this::populateCourseRatings);
         return courses;
+    }
+
+    public List<Course> getPendingReviewCourses() {
+        List<Course> courses = courseRepository.findByStatus(CourseStatus.PENDING_REVIEW);
+        courses.forEach(this::populateCourseRatings);
+        return courses;
+    }
+
+    public List<Course> getCoursesByStatus(CourseStatus status) {
+        List<Course> courses = courseRepository.findByStatus(status);
+        courses.forEach(this::populateCourseRatings);
+        return courses;
+    }
+
+    public long countPendingCourses() {
+        return courseRepository.countByStatus(CourseStatus.PENDING_REVIEW);
     }
 
     public long countCourses() {
@@ -46,16 +73,21 @@ public class CourseService {
         return courses;
     }
 
-    public List<Course> getCoursesByCategory(String categoryName) {
-        List<Course> courses = courseRepository.findByCategoryName(categoryName);
+    public List<Course> getCoursesByInstructorAndStatus(String email, CourseStatus status) {
+        List<Course> courses = courseRepository.findByInstructorEmailAndStatus(email, status);
         courses.forEach(this::populateCourseRatings);
         return courses;
     }
 
-    public List<Course> getCoursesByCategory(com.skillhub.model.Category category) {
-        List<Course> courses = courseRepository.findByCategory(category);
+    public List<Course> getCoursesByCategory(String categoryName) {
+        List<Course> courses = courseRepository.findPublishedByCategoryName(CourseStatus.PUBLISHED, categoryName);
         courses.forEach(this::populateCourseRatings);
         return courses;
+    }
+
+    public List<Course> getCoursesByCategory(Category category) {
+        if (category == null) return List.of();
+        return getCoursesByCategory(category.getName());
     }
 
     public Course getCourseById(Long id) {
@@ -71,6 +103,9 @@ public class CourseService {
                     }
                 });
             }
+            if (course.getResources() != null) {
+                course.getResources().size();
+            }
         }
         return course;
     }
@@ -80,13 +115,8 @@ public class CourseService {
     }
 
     public void createCourse(Course course, String instructorEmail) {
-        // Find instructor
-        // For now, we assume the logged-in admin is the instructor
-        // In a real multi-instructor app, this would be looked up
-        // Assuming the repository for user exists and we can find by email
-        // Logic to set instructor handled in Controller or here if we inject
-        // UserRepository
-        course.setPublished(true); // Always published
+        course.setStatus(CourseStatus.DRAFT);
+        course.setPublished(false);
         course.setViewCount(0L);
         courseRepository.save(course);
     }
@@ -114,17 +144,52 @@ public class CourseService {
     public void publishCourse(Long id) {
         Course course = courseRepository.findById(id).orElse(null);
         if (course != null) {
+            course.setStatus(CourseStatus.PUBLISHED);
             course.setPublished(true);
+            course.setReviewedAt(LocalDateTime.now());
+            course.setRejectionReason(null);
+            courseRepository.save(course);
+        }
+    }
+
+    public void approveCourse(Long id) {
+        publishCourse(id);
+    }
+
+    public void rejectCourse(Long id, String reason) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            course.setStatus(CourseStatus.REJECTED);
+            course.setPublished(false);
+            course.setReviewedAt(LocalDateTime.now());
+            course.setRejectionReason(reason);
+            courseRepository.save(course);
+        }
+    }
+
+    public void submitCourseForReview(Long id) {
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            course.setStatus(CourseStatus.PENDING_REVIEW);
+            course.setPublished(false);
+            course.setSubmittedAt(LocalDateTime.now());
+            course.setRejectionReason(null);
             courseRepository.save(course);
         }
     }
 
     public void unpublishCourse(Long id) {
-        // Disabling unpublish functionality as requested - courses are always published
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course != null) {
+            course.setStatus(CourseStatus.ARCHIVED);
+            course.setPublished(false);
+            courseRepository.save(course);
+        }
     }
 
     public List<Course> searchCourses(String query) {
         List<Course> courses = courseRepository.findByTitleContainingIgnoreCase(query);
+        courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED);
         courses.forEach(this::populateCourseRatings);
         return courses;
     }
@@ -140,19 +205,12 @@ public class CourseService {
         course.setReviewCount(reviewCount);
     }
 
-    @Autowired
-    private com.skillhub.repository.CourseSectionRepository courseSectionRepository;
-
-    @Autowired
-    private com.skillhub.repository.LectureRepository lectureRepository;
-
     public void addSectionToCourse(Long courseId, String title) {
         Course course = getCourseById(courseId);
         if (course != null) {
             CourseSection section = new CourseSection();
             section.setTitle(title);
             section.setCourse(course);
-            // Auto position at the end
             if (course.getSections() != null) {
                 section.setPosition(course.getSections().size() + 1);
             } else {
@@ -162,11 +220,10 @@ public class CourseService {
         }
     }
 
-    public void addLectureToSection(Long sectionId, com.skillhub.model.Lecture lecture) {
+    public void addLectureToSection(Long sectionId, Lecture lecture) {
         CourseSection section = courseSectionRepository.findById(sectionId).orElse(null);
         if (section != null) {
             lecture.setSection(section);
-            // Auto position
             if (section.getLectures() != null) {
                 lecture.setPosition(section.getLectures().size() + 1);
             } else {
@@ -179,15 +236,12 @@ public class CourseService {
     public void updateCourseStats(Long courseId) {
         Course course = courseRepository.findById(courseId).orElse(null);
         if (course != null) {
-            // Use fresh repository stats
             long totalLectures = lectureRepository.countByCourseId(courseId);
             Long totalSecondsObj = lectureRepository.sumDurationByCourseId(courseId);
             long totalSeconds = (totalSecondsObj != null) ? totalSecondsObj : 0;
 
-            // Format Duration
             long hours = totalSeconds / 3600;
             long minutes = (totalSeconds % 3600) / 60;
-            // Handle edge case where e.g. 59s -> 0m
             if (totalSeconds > 0 && totalSeconds < 60) {
                 minutes = 1;
             }
@@ -201,8 +255,8 @@ public class CourseService {
             // Format: "X lectures Ã¢â‚¬Â¢ Yh Zm"
             String finalContentLength = totalLectures + " lectures Ã¢â‚¬Â¢ " + timeString.trim();
 
-            course.setContentLength(finalContentLength);
-
+            String finalContentLength1 = totalLectures + " lectures • " + timeString.trim();
+            course.setContentLength(finalContentLength1);
             courseRepository.save(course);
         }
     }
@@ -220,25 +274,23 @@ public class CourseService {
         courseSectionRepository.save(s1);
 
         // Lesson 1: Video (YouTube)
-        com.skillhub.model.Lecture l1 = new com.skillhub.model.Lecture();
+        Lecture l1 = new Lecture();
         l1.setTitle("Core Concepts & Mindset");
         l1.setSection(s1);
         l1.setPosition(1);
-        l1.setVideoUrl("https://www.youtube.com/watch?v=aqS_607XF_U"); // Sample photography video
+        l1.setVideoUrl("https://www.youtube.com/watch?v=aqS_607XF_U");
         l1.setDurationSeconds(600);
-        l1.setContent(
-                "Welcome to your first lesson! In this article, we dive deep into the mindset required for mastering new skills. Consistency is key.");
+        l1.setContent("Welcome to your first lesson! In this article, we dive deep into the mindset required for mastering new skills. Consistency is key.");
         lectureRepository.save(l1);
 
         // Lesson 2: Reading Material (Article Only)
-        com.skillhub.model.Lecture l2 = new com.skillhub.model.Lecture();
+        Lecture l2 = new Lecture();
         l2.setTitle("Essential Tools & Setup");
         l2.setSection(s1);
         l2.setPosition(2);
-        l2.setVideoUrl(null); // No video, purely reading
+        l2.setVideoUrl(null);
         l2.setDurationSeconds(300);
-        l2.setContent(
-                "<h2>The Checklist</h2><ul><li>Patience</li><li>Correct Environment</li><li>Quality Tools</li></ul><p>Use the Audio Mode to listen to this while you gather your tools!</p>");
+        l2.setContent("<h2>The Checklist</h2><ul><li>Patience</li><li>Correct Environment</li><li>Quality Tools</li></ul><p>Use the Audio Mode to listen to this while you gather your tools!</p>");
         lectureRepository.save(l2);
 
         updateCourseStats(courseId);
