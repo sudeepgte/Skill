@@ -52,6 +52,7 @@
             <th:block th:if="${user != null}">
                 <a href="/profile?tab=courses" class="nav-link">My Course</a>
                 <a href="/user/certifications" class="nav-link">Exams</a>
+                <a href="/student/professional-exams" class="nav-link">Professional Exams</a>
 
                 <!-- Icons -->
                 <a href="/student/wishlist" class="nav-icon" title="Wishlist">
@@ -80,6 +81,7 @@
                         </div>
                         <a href="/profile">My Profile</a>
                         <a href="/profile?tab=courses">My Courses</a>
+                        <a href="/student/professional-exams">Professional Exams</a>
                         <a href="/profile?tab=security">Change Password</a>
                         <div class="nav-user-menu-divider"></div>
                         <a th:href="@{/logout}" style="color: #ef4444; font-weight: 600;">Logout</a>

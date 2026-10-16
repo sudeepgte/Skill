@@ -1,26 +1,213 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Create Exam</title></head>
+
+<head>
+    <title>Create Professional Exam | SkillHub Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
 <body>
-    <h1>Create Professional Exam</h1>
-    <form th:action="@{/admin/professional-exams/create}" method="post" th:object="${exam}">
-        <label>Code: <input type="text" th:field="*{examCode}" required /></label><br/>
-        <label>Title: <input type="text" th:field="*{title}" required /></label><br/>
-        <label>Track: 
-            <select th:field="*{track}">
-                <option th:each="t : ${tracks}" th:value="${t}" th:text="${t}"></option>
-            </select>
-        </label><br/>
-        <label>Difficulty: 
-            <select th:field="*{level}">
-                <option th:each="d : ${difficulties}" th:value="${d}" th:text="${d}"></option>
-            </select>
-        </label><br/>
-        <label>Duration (mins): <input type="number" th:field="*{durationMinutes}" /></label><br/>
-        <label>Total Marks: <input type="number" th:field="*{totalMarks}" /></label><br/>
-        <label>Passing Marks: <input type="number" th:field="*{passingMarks}" /></label><br/>
-        <label>Max Attempts: <input type="number" th:field="*{maximumAttempts}" /></label><br/>
-        <button type="submit">Create</button>
-    </form>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
+            </a>
+
+            <a href="/admin/courses" class="nav-item">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Certifications</div>
+
+            <a href="/admin/professional-exams" class="nav-item active">
+                <i class="fas fa-award"></i> Professional Exams
+            </a>
+
+            <a href="/admin/professional-exams/applications" class="nav-item">
+                <i class="fas fa-id-card"></i> Exam Applications
+            </a>
+
+            <a href="/admin/professional-exams/question-bank" class="nav-item">
+                <i class="fas fa-database"></i> Question Bank
+            </a>
+
+            <a href="/admin/professional-exams/results" class="nav-item">
+                <i class="fas fa-certificate"></i> Results & Certs
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">Create Certification Blueprint</div>
+
+            <div class="topbar-actions" style="margin-left: auto;">
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'A'}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <div style="margin-bottom: 2rem;">
+                <a th:href="@{/admin/professional-exams}" style="color: var(--accent); text-decoration: none; font-size: 1.4rem; font-weight: 600;">
+                    <i class="fas fa-arrow-left"></i> Back to Professional Exams
+                </a>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Create Professional Exam</h1>
+                    <p>Define standard exam code, difficulty tier, target engineering track, and passing criteria.</p>
+                </div>
+            </div>
+
+            <!-- Form Panel -->
+            <div class="panel" style="max-width: 80rem;">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-plus-circle" style="color:var(--accent); margin-right:0.8rem;"></i> Exam Blueprint Configuration</span>
+                </div>
+
+                <div class="panel-body">
+                    <form th:action="@{/admin/professional-exams/create}" method="post" th:object="${exam}">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Exam Code *</label>
+                                <input type="text" class="form-control" th:field="*{examCode}" placeholder="e.g. JAVA-ARCH-01" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Exam Title *</label>
+                                <input type="text" class="form-control" th:field="*{title}" placeholder="e.g. Certified Java Enterprise Architect" required />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Specialization Track *</label>
+                                <select class="form-control" th:field="*{track}" required>
+                                    <option th:each="t : ${tracks}" th:value="${t}" th:text="${t}">BACKEND</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Difficulty Level *</label>
+                                <select class="form-control" th:field="*{level}" required>
+                                    <option th:each="d : ${difficulties}" th:value="${d}" th:text="${d}">INTERMEDIATE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Duration (Minutes) *</label>
+                                <input type="number" class="form-control" th:field="*{durationMinutes}" min="10" placeholder="120" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Maximum Attempts Allowed</label>
+                                <input type="number" class="form-control" th:field="*{maximumAttempts}" min="1" placeholder="3" />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Total Marks *</label>
+                                <input type="number" class="form-control" th:field="*{totalMarks}" min="1" placeholder="100" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Passing Marks *</label>
+                                <input type="number" class="form-control" th:field="*{passingMarks}" min="1" placeholder="70" required />
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2.4rem; display: flex; gap: 1.2rem;">
+                            <button type="submit" class="btn-primary-admin" style="background: var(--accent); color: #fff; padding: 1rem 2.4rem;">
+                                <i class="fas fa-check"></i> Create Exam Blueprint
+                            </button>
+                            <a th:href="@{/admin/professional-exams}" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 1rem 2rem;">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const sidebar  = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
+
 </html>

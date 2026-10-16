@@ -1,8 +1,198 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${exam.title} + ' | SkillHub Certification'">Exam Details | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style>
+        :root {
+            --primary: #5624d0;
+            --primary-hover: #401b9c;
+            --dark: #1c1d1f;
+            --muted: #6a6f73;
+            --bg-light: #f7f9fa;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-container {
+            max-width: 900px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+        .breadcrumb {
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .details-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .exam-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 0 0.5rem;
+            color: var(--dark);
+        }
+        .badge {
+            background: #ede9fe;
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+        .exam-description {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #334155;
+            margin-bottom: 2rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2.5rem;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .info-label {
+            font-size: 0.82rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .actions-row {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .btn-apply {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-apply:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(86, 36, 208, 0.25);
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.9rem 1.5rem;
+        }
+        .btn-back:hover { color: var(--dark); }
+    </style>
+</head>
 <body>
-    <h1 th:text="${exam.title}"></h1>
-    <p th:text="${exam.description}"></p>
-    <a th:href="@{/student/professional-exams/{id}/apply(id=${exam.id})}">Apply Now</a>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-container">
+        <div class="breadcrumb">
+            <a href="/student/professional-exams"><i class="fas fa-arrow-left"></i> All Certifications</a> &nbsp;/&nbsp; <span th:text="${exam.title}">Exam Details</span>
+        </div>
+
+        <div class="details-card">
+            <div class="exam-header">
+                <div>
+                    <span class="badge" th:text="${exam.level != null ? exam.level : 'Professional Exam'}">Professional Exam</span>
+                    <h1 class="exam-title" th:text="${exam.title}">Certification Title</h1>
+                </div>
+            </div>
+
+            <p class="exam-description" th:text="${exam.description != null && !exam.description.isEmpty() ? exam.description : 'This comprehensive certification exam tests hands-on proficiency and conceptual problem solving to ensure industry readiness.'}">Exam description...</p>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label"><i class="far fa-clock"></i> Duration</span>
+                    <span class="info-value" th:text="${exam.durationMinutes > 0 ? exam.durationMinutes + ' Minutes' : '60 Minutes'}">60 Minutes</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-bullseye"></i> Passing Score</span>
+                    <span class="info-value" th:text="${exam.passingMarks > 0 ? exam.passingMarks + ' Marks' : '70%'}">70%</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-tag"></i> Exam Fee</span>
+                    <span class="info-value" style="color: #16a34a;" th:text="${exam.applicationFee != null && exam.applicationFee > 0 ? '₹' + exam.applicationFee : 'Free'}">Free</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-award"></i> Credential</span>
+                    <span class="info-value">Verified Certificate</span>
+                </div>
+            </div>
+
+            <div class="actions-row">
+                <a th:href="@{/student/professional-exams/{id}/apply(id=${exam.id})}" class="btn-apply">
+                    <i class="fas fa-file-signature"></i> Apply Now
+                </a>
+                <a href="/student/professional-exams" class="btn-back">
+                    Back to Exams
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

@@ -10,7 +10,7 @@ public class CommonController {
     private com.skillhub.service.CourseService courseService;
 
     @GetMapping("/courses/{category}")
-    public String browseCategory(@org.springframework.web.bind.annotation.PathVariable String category,
+    public String browseCategory(@org.springframework.web.bind.annotation.PathVariable("category") String category,
             org.springframework.ui.Model model) {
         model.addAttribute("categoryName", category);
         model.addAttribute("courses", courseService.getCoursesByCategory(category));
@@ -38,7 +38,7 @@ public class CommonController {
     private com.skillhub.service.CategoryService categoryService;
 
     @GetMapping("/library")
-    public String videoLibrary(@org.springframework.web.bind.annotation.RequestParam(required = false) Long categoryId,
+    public String videoLibrary(@org.springframework.web.bind.annotation.RequestParam(value = "categoryId", required = false) Long categoryId,
             org.springframework.ui.Model model) {
 
         if (categoryId != null) {
@@ -71,7 +71,7 @@ public class CommonController {
     }
 
     @GetMapping("/instructor/{id}")
-    public String viewInstructorDetails(@org.springframework.web.bind.annotation.PathVariable Long id, org.springframework.ui.Model model) {
+    public String viewInstructorDetails(@org.springframework.web.bind.annotation.PathVariable("id") Long id, org.springframework.ui.Model model) {
         com.skillhub.model.User instructor = userService.getUserById(id);
         if (instructor == null || !"INSTRUCTOR".equals(instructor.getRole()) || !instructor.isApproved() || instructor.isBlocked()) {
             return "redirect:/";

@@ -108,7 +108,7 @@ public class ChatController {
 
     @GetMapping("/api/chat/history")
     @ResponseBody
-    public List<com.skillhub.dto.MessageDTO> getChatHistory(@RequestParam String otherUserEmail, java.security.Principal principal) {
+    public List<com.skillhub.dto.MessageDTO> getChatHistory(@RequestParam("otherUserEmail") String otherUserEmail, java.security.Principal principal) {
         String myEmail = principal.getName();
         User currentUser = userService.findByEmail(myEmail);
         User otherUser = userService.findByEmail(otherUserEmail);

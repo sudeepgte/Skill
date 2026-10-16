@@ -33,45 +33,45 @@ public class ProfessionalExamAttemptRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExamAttemptOverviewResponse> getAttemptOverview(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<ExamAttemptOverviewResponse> getAttemptOverview(@PathVariable("id") Long id, Authentication auth) {
         return ResponseEntity.ok(attemptService.getAttemptOverview(id, getAuthenticatedUser(auth)));
     }
 
     @GetMapping("/{id}/questions/{number}")
-    public ResponseEntity<ExamQuestionResponse> getQuestion(@PathVariable Long id, @PathVariable int number, Authentication auth) {
+    public ResponseEntity<ExamQuestionResponse> getQuestion(@PathVariable("id") Long id, @PathVariable("number") int number, Authentication auth) {
         return ResponseEntity.ok(attemptService.getQuestion(id, number, getAuthenticatedUser(auth)));
     }
 
     @PostMapping("/{id}/answers")
-    public ResponseEntity<AnswerSubmitResponse> saveAnswer(@PathVariable Long id, 
-                                                          @RequestParam int questionNumber, 
+    public ResponseEntity<AnswerSubmitResponse> saveAnswer(@PathVariable("id") Long id, 
+                                                          @RequestParam("questionNumber") int questionNumber, 
                                                           @Valid @RequestBody AnswerSubmitRequest req, 
                                                           Authentication auth) {
         return ResponseEntity.ok(attemptService.saveAnswer(id, questionNumber, req, getAuthenticatedUser(auth)));
     }
 
     @PutMapping("/{id}/questions/{number}/review")
-    public ResponseEntity<Void> markForReview(@PathVariable Long id, 
-                                             @PathVariable int number, 
-                                             @RequestParam boolean review, 
+    public ResponseEntity<Void> markForReview(@PathVariable("id") Long id, 
+                                             @PathVariable("number") int number, 
+                                             @RequestParam("review") boolean review, 
                                              Authentication auth) {
         attemptService.markForReview(id, number, review, getAuthenticatedUser(auth));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/palette")
-    public ResponseEntity<QuestionPaletteResponse> getPalette(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<QuestionPaletteResponse> getPalette(@PathVariable("id") Long id, Authentication auth) {
         return ResponseEntity.ok(attemptService.getPalette(id, getAuthenticatedUser(auth)));
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Void> submitExam(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<Void> submitExam(@PathVariable("id") Long id, Authentication auth) {
         attemptService.submitExam(id, getAuthenticatedUser(auth));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/execute-code")
-    public ResponseEntity<CodeExecutionResult> executeCode(@PathVariable Long id, 
+    public ResponseEntity<CodeExecutionResult> executeCode(@PathVariable("id") Long id, 
                                                           @Valid @RequestBody CodingExecutionRequest req, 
                                                           Authentication auth) {
         return ResponseEntity.ok(attemptService.executeCode(id, req, getAuthenticatedUser(auth)));

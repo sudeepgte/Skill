@@ -24,7 +24,7 @@ public class PublicCertificateController {
     private RateLimitingService rateLimitingService;
 
     @GetMapping("/{id}")
-    public String verify(@PathVariable String id, HttpServletRequest request, Model model) {
+    public String verify(@PathVariable("id") String id, HttpServletRequest request, Model model) {
         String clientIp = getClientIp(request);
 
         // Enumeration protection: Max 30 requests per minute per IP

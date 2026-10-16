@@ -41,7 +41,7 @@ public class StudentProfessionalExamController {
     }
     
     @GetMapping("/{id}")
-    public String examDetails(@PathVariable Long id, Model model) {
+    public String examDetails(@PathVariable("id") Long id, Model model) {
         ProfessionalExam exam = examRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
         model.addAttribute("exam", exam);
@@ -49,7 +49,7 @@ public class StudentProfessionalExamController {
     }
     
     @GetMapping("/{id}/apply")
-    public String applyForm(@PathVariable Long id, Model model) {
+    public String applyForm(@PathVariable("id") Long id, Model model) {
         ProfessionalExam exam = examRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
         model.addAttribute("exam", exam);
@@ -58,13 +58,20 @@ public class StudentProfessionalExamController {
     }
     
     @PostMapping("/{id}/apply")
-    public String submitApplication(@PathVariable Long id, @ModelAttribute ProfessionalExamApplication app, Principal p) {
+    public String submitApplication(@PathVariable("id") Long id,
+            @ModelAttribute ProfessionalExamApplication app,
+            Principal p,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         User user = getUser(p);
         ProfessionalExam exam = examRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
 
+        app.setId(null);
         app.setProfessionalExam(exam);
         app.setUser(user);
+        if (app.getEmail() == null || app.getEmail().isEmpty()) {
+            app.setEmail(user.getEmail());
+        }
         app.setApplicationNumber("APP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         app.setStatus(ApplicationStatus.SUBMITTED);
 
@@ -83,11 +90,12 @@ public class StudentProfessionalExamController {
         }
 
         appRepo.save(app);
+        redirectAttributes.addFlashAttribute("success", "Your application has been submitted successfully!");
         return "redirect:/student/professional-exams";
     }
 
     @GetMapping("/attempt/{attemptId}")
-    public String attemptExam(@PathVariable Long attemptId, Model model, Principal p) {
+    public String attemptExam(@PathVariable("attemptId") Long attemptId, Model model, Principal p) {
         User user = getUser(p);
         ProfessionalExamAttempt attempt = attemptRepo.findById(attemptId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found"));
@@ -102,7 +110,7 @@ public class StudentProfessionalExamController {
     }
     
     @GetMapping("/results/{attemptId}")
-    public String results(@PathVariable Long attemptId, Model model, Principal p) {
+    public String results(@PathVariable("attemptId") Long attemptId, Model model, Principal p) {
         User user = getUser(p);
         ProfessionalExamAttempt attempt = attemptRepo.findById(attemptId)
                 .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found"));

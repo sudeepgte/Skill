@@ -106,10 +106,6 @@ public class InstructorController {
         double totalRating = 0.0;
         int totalReviews = 0;
 
-        for (Course course : courses) {
-            Double avg = reviewRepository.getAverageRatingByCourseId(course.getId()).orElse(0.0);
-            Integer count = reviewRepository.countByCourseId(course.getId());
-            
         for (Course course : allInstructorCourses) {
             if (course.getEnrollments() != null) {
                 totalStudents += course.getEnrollments().size();
@@ -243,7 +239,6 @@ public class InstructorController {
         double totalRating = 0.0;
         int totalReviews = 0;
 
-        for (com.skillhub.model.Course course : courses) {
         for (Course course : courses) {
             totalEnrolled += (course.getEnrollments() != null ? course.getEnrollments().size() : 0);
             totalViews += (course.getViewCount() != null ? course.getViewCount() : 0);
@@ -375,7 +370,7 @@ public class InstructorController {
 
         if (course.getId() == null) {
             course.setPublished(false);
-            course.setStatus("DRAFT");
+            course.setStatus(CourseStatus.DRAFT);
         }
         if (isNew) {
             targetCourse = course;
@@ -450,47 +445,30 @@ public class InstructorController {
 
 
         // Process Curriculum Videos and Validate Titles
-        if (course.getSections() != null) {
-            for (com.skillhub.model.CourseSection section : course.getSections()) {
-                if (!startsWithLetter.test(section.getTitle())) {
-                    redirectAttributes.addFlashAttribute("error", "Section titles must start with a letter.");
-                    return "redirect:/vendor/courses/create";
-                }
-                section.setCourse(course);
-                if (section.getLectures() != null) {
-                    for (com.skillhub.model.Lecture lecture : section.getLectures()) {
-                        if (!startsWithLetter.test(lecture.getTitle())) {
-                            redirectAttributes.addFlashAttribute("error", "Lecture titles must start with a letter.");
-                            return "redirect:/vendor/courses/create";
-                        }
-                        if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
-                            String lecMimeType = lecture.getVideoFile().getContentType();
-                            if (lecMimeType == null || !lecMimeType.startsWith("video/")) {
-                                redirectAttributes.addFlashAttribute("error", "Lecture video must be a valid video file.");
-                                return "redirect:/vendor/courses/create";
-                            }
-                            lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
-                        } else if (course.getId() != null && lecture.getId() != null) {
-                            // Fetch existing videoUrl if possible (will handle in service if needed)
-                        }
-                        lecture.setSection(section);
-                        // If file uploaded, store it
-                        if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
-                            String storedUrl = fileStorageService.store(lecture.getVideoFile());
-                            lecture.setVideoUrl(storedUrl);
-        // Curriculum sections & lectures processing if supplied in form
         if (course.getSections() != null && !course.getSections().isEmpty()) {
             for (CourseSection section : course.getSections()) {
                 if (section.getTitle() != null && !section.getTitle().trim().isEmpty()) {
+                    if (!startsWithLetter.test(section.getTitle())) {
+                        redirectAttributes.addFlashAttribute("error", "Section titles must start with a letter.");
+                        return isNew ? "redirect:/vendor/courses/create" : "redirect:/vendor/courses/" + targetCourse.getId() + "/edit";
+                    }
                     section.setCourse(targetCourse);
                     if (section.getLectures() != null) {
                         for (Lecture lecture : section.getLectures()) {
                             if (lecture.getTitle() != null && !lecture.getTitle().trim().isEmpty()) {
-                                lecture.setSection(section);
-                                if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
-                                    String storedUrl = fileStorageService.store(lecture.getVideoFile());
-                                    lecture.setVideoUrl(storedUrl);
+                                if (!startsWithLetter.test(lecture.getTitle())) {
+                                    redirectAttributes.addFlashAttribute("error", "Lecture titles must start with a letter.");
+                                    return isNew ? "redirect:/vendor/courses/create" : "redirect:/vendor/courses/" + targetCourse.getId() + "/edit";
                                 }
+                                if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
+                                    String lecMimeType = lecture.getVideoFile().getContentType();
+                                    if (lecMimeType == null || !lecMimeType.startsWith("video/")) {
+                                        redirectAttributes.addFlashAttribute("error", "Lecture video must be a valid video file.");
+                                        return isNew ? "redirect:/vendor/courses/create" : "redirect:/vendor/courses/" + targetCourse.getId() + "/edit";
+                                    }
+                                    lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
+                                }
+                                lecture.setSection(section);
                             }
                         }
                     }
@@ -582,19 +560,6 @@ public class InstructorController {
         }
     }
 
-    @PostMapping("/courses/{id}/submit")
-    public String submitCourse(@PathVariable("id") Long id, Principal principal, RedirectAttributes redirectAttributes) {
-        String email = principal.getName();
-        Course course = courseService.getCourseById(id);
-        if (course != null && course.getInstructor().getEmail().equals(email)) {
-            course.setStatus("PENDING_REVIEW");
-            courseService.saveCourse(course);
-            redirectAttributes.addFlashAttribute("success", "Course submitted for review successfully!");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Unable to submit course.");
-        }
-        return "redirect:/vendor/dashboard?tab=courses";
-    }
 
     @PostMapping("/courses/{id}/delete")
     public String deleteCourse(@PathVariable("id") Long id, Principal principal,

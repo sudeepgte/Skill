@@ -38,7 +38,12 @@ public class AdminProfessionalExamController {
     @Autowired private ProfessionalExamBlueprintRepository blueprintRepo;
 
     private User getAdmin(Principal p) {
-        return userRepo.findByEmail(p.getName());
+        return p != null ? userRepo.findByEmail(p.getName()) : null;
+    }
+
+    @ModelAttribute("user")
+    public User populateUser(Principal principal) {
+        return getAdmin(principal);
     }
 
     @GetMapping
@@ -46,6 +51,7 @@ public class AdminProfessionalExamController {
         model.addAttribute("exams", examRepo.findAll());
         model.addAttribute("totalExams", examRepo.count());
         model.addAttribute("totalApplications", appRepo.count());
+        model.addAttribute("pendingApplications", appRepo.countByStatus(ApplicationStatus.SUBMITTED));
         model.addAttribute("totalResults", resultRepo.count());
         return "admin/professional-exams/list";
     }
@@ -75,14 +81,14 @@ public class AdminProfessionalExamController {
     }
     
     @GetMapping("/{id}/versions")
-    public String versions(@PathVariable Long id, Model model) {
+    public String versions(@PathVariable("id") Long id, Model model) {
         model.addAttribute("exam", examRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Exam not found")));
         model.addAttribute("versions", versionRepo.findByProfessionalExamId(id));
         return "admin/professional-exams/versions";
     }
 
     @PostMapping("/versions/{versionId}/publish")
-    public String publishVersion(@PathVariable Long versionId, Principal p, Model model) {
+    public String publishVersion(@PathVariable("versionId") Long versionId, Principal p, Model model) {
         ProfessionalExamVersion version = versionRepo.findById(versionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Version not found"));
 
@@ -147,32 +153,35 @@ public class AdminProfessionalExamController {
     }
 
     @GetMapping("/question-bank")
-    public String questionBank(@RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "20") int size,
-                               @RequestParam(required = false) String search,
+    public String questionBank(@RequestParam(name = "page", defaultValue = "0") int page,
+                               @RequestParam(name = "size", defaultValue = "20") int size,
+                               @RequestParam(name = "search", required = false) String search,
                                Model model) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<ProfessionalExamQuestion> questionPage = questionRepo.findAll(pageable);
         
         model.addAttribute("questions", questionPage.getContent());
         model.addAttribute("page", questionPage);
+        model.addAttribute("totalApplications", appRepo.count());
         return "admin/professional-exams/question-bank";
     }
     
     @GetMapping("/applications")
-    public String applications(@RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "20") int size,
+    public String applications(@RequestParam(name = "page", defaultValue = "0") int page,
+                               @RequestParam(name = "size", defaultValue = "20") int size,
                                Model model) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<ProfessionalExamApplication> appPage = appRepo.findAll(pageable);
 
         model.addAttribute("applications", appPage.getContent());
         model.addAttribute("page", appPage);
+        model.addAttribute("totalApplications", appRepo.count());
+        model.addAttribute("pendingApplications", appRepo.countByStatus(ApplicationStatus.SUBMITTED));
         return "admin/professional-exams/applications";
     }
 
     @PostMapping("/applications/{appId}/approve")
-    public String approveApplication(@PathVariable Long appId, Principal p) {
+    public String approveApplication(@PathVariable("appId") Long appId, Principal p) {
         ProfessionalExamApplication app = appRepo.findById(appId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
@@ -189,7 +198,9 @@ public class AdminProfessionalExamController {
     }
 
     @PostMapping("/applications/{appId}/reject")
-    public String rejectApplication(@PathVariable Long appId, @RequestParam(defaultValue = "Eligibility criteria not met") String reason, Principal p) {
+    public String rejectApplication(@PathVariable("appId") Long appId, 
+                                    @RequestParam(name = "reason", defaultValue = "Eligibility criteria not met") String reason, 
+                                    Principal p) {
         ProfessionalExamApplication app = appRepo.findById(appId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
@@ -203,32 +214,35 @@ public class AdminProfessionalExamController {
     }
     
     @GetMapping("/results")
-    public String results(@RequestParam(defaultValue = "0") int page,
-                          @RequestParam(defaultValue = "20") int size,
+    public String results(@RequestParam(name = "page", defaultValue = "0") int page,
+                          @RequestParam(name = "size", defaultValue = "20") int size,
                           Model model) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<ProfessionalExamResult> resultPage = resultRepo.findAll(pageable);
 
         model.addAttribute("results", resultPage.getContent());
         model.addAttribute("page", resultPage);
+        model.addAttribute("totalResults", resultRepo.count());
+        model.addAttribute("totalApplications", appRepo.count());
         return "admin/professional-exams/results";
     }
 
     @GetMapping("/security-events")
-    public String securityEvents(@RequestParam(defaultValue = "0") int page,
-                                 @RequestParam(defaultValue = "20") int size,
+    public String securityEvents(@RequestParam(name = "page", defaultValue = "0") int page,
+                                 @RequestParam(name = "size", defaultValue = "20") int size,
                                  Model model) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<ProfessionalExamSecurityEvent> events = securityEventRepo.findAll(pageable);
 
         model.addAttribute("events", events.getContent());
         model.addAttribute("page", events);
+        model.addAttribute("totalApplications", appRepo.count());
         return "admin/professional-exams/security-events";
     }
 
     @PostMapping("/certificates/{certificateId}/revoke")
-    public String revokeCertificate(@PathVariable String certificateId,
-                                    @RequestParam String reason,
+    public String revokeCertificate(@PathVariable("certificateId") String certificateId,
+                                    @RequestParam("reason") String reason,
                                     Principal p) {
         certificateService.revokeCertificate(certificateId, reason, getAdmin(p));
         return "redirect:/admin/professional-exams/results";

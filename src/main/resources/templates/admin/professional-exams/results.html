@@ -1,12 +1,265 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Exam Results & Certificates | SkillHub Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .subnav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.4rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.2rem;
+        }
+        .subnav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.6rem;
+            border-radius: 0.8rem;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-decoration: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        .subnav-tab:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(167, 139, 250, 0.08);
+        }
+        .subnav-tab.active {
+            color: #fff;
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+
 <body>
-    <h1>Exam Results</h1>
-    <table>
-        <tr th:each="r : ${results}">
-            <td th:text="${r.percentage + '%'}"></td>
-            <td th:text="${r.grade}"></td>
-        </tr>
-    </table>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
+            </a>
+
+            <a href="/admin/courses" class="nav-item">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Certifications</div>
+
+            <a href="/admin/professional-exams" class="nav-item">
+                <i class="fas fa-award"></i> Professional Exams
+            </a>
+
+            <a href="/admin/professional-exams/applications" class="nav-item">
+                <i class="fas fa-id-card"></i> Exam Applications
+            </a>
+
+            <a href="/admin/professional-exams/question-bank" class="nav-item">
+                <i class="fas fa-database"></i> Question Bank
+            </a>
+
+            <a href="/admin/professional-exams/results" class="nav-item active">
+                <i class="fas fa-certificate"></i> Results & Certs
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">Exam Results & Certifications</div>
+
+            <form class="topbar-search" action="/home" method="get">
+                <i class="fas fa-search"></i>
+                <input type="text" name="query" placeholder="Search results...">
+            </form>
+
+            <div class="topbar-actions">
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'A'}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Subnav Tabs -->
+            <div class="subnav-tabs">
+                <a href="/admin/professional-exams" class="subnav-tab">
+                    <i class="fas fa-award"></i> All Exams
+                </a>
+                <a href="/admin/professional-exams/applications" class="subnav-tab">
+                    <i class="fas fa-id-card"></i> Candidate Applications
+                </a>
+                <a href="/admin/professional-exams/question-bank" class="subnav-tab">
+                    <i class="fas fa-database"></i> Question Bank
+                </a>
+                <a href="/admin/professional-exams/results" class="subnav-tab active">
+                    <i class="fas fa-certificate"></i> Results & Certs
+                </a>
+                <a href="/admin/professional-exams/security-events" class="subnav-tab">
+                    <i class="fas fa-shield-alt"></i> Security Events
+                </a>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Exam Results & Issued Certificates</h1>
+                    <p>Review candidate performance scores, certificate issues, and manage credential revocations.</p>
+                </div>
+            </div>
+
+            <!-- Panel: Results Table -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-certificate" style="color:var(--accent); margin-right:0.8rem;"></i> Evaluation Records</span>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Candidate</th>
+                                <th>Exam Track</th>
+                                <th>Score</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                                <th>Evaluated At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${results}">
+                                <td th:text="${r.id}">1</td>
+                                <td>
+                                    <strong style="color:var(--text);" th:text="${r.attempt != null and r.attempt.user != null ? r.attempt.user.name : 'Candidate'}">Student</strong>
+                                    <div style="font-size:1.2rem; color:var(--text-muted);" th:text="${r.attempt != null and r.attempt.user != null ? r.attempt.user.email : ''}">student@example.com</div>
+                                </td>
+                                <td>
+                                    <span th:text="${r.attempt != null and r.attempt.professionalExam != null ? r.attempt.professionalExam.title : 'Professional Exam'}">Exam Track</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${r.obtainedMarks} + ' / ' + ${r.totalMarks}">85 / 100</strong>
+                                    <span style="font-size:1.2rem; color:var(--text-muted);" th:text="'(' + ${#numbers.formatDecimal(r.percentage, 1, 1)} + '%)'">(85%)</span>
+                                </td>
+                                <td>
+                                    <span class="pill pill-blue" th:text="${r.grade}">A</span>
+                                </td>
+                                <td>
+                                    <span th:if="${r.status == 'PASS' or r.status == 'PASSED'}" class="pill pill-green"><i class="fas fa-check-circle"></i> Passed</span>
+                                    <span th:unless="${r.status == 'PASS' or r.status == 'PASSED'}" class="pill pill-red"><i class="fas fa-times-circle"></i> Failed</span>
+                                </td>
+                                <td>
+                                    <span th:text="${r.evaluatedAt != null ? #temporals.format(r.evaluatedAt, 'dd MMM yyyy, HH:mm') : 'Recently'}">16 Oct 2026</span>
+                                </td>
+                            </tr>
+
+                            <tr th:if="${results == null or results.empty}">
+                                <td colspan="7" style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+                                    <i class="fas fa-certificate" style="font-size: 3.6rem; color: var(--border); display: block; margin-bottom: 1.2rem;"></i>
+                                    <strong>No completed exam evaluations yet</strong>
+                                    <p style="margin-top: 0.4rem; font-size: 1.3rem;">Completed exam attempts and graded candidate results will be archived here.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div th:if="${page != null and page.totalPages > 1}" style="display: flex; justify-content: space-between; align-items: center; padding: 1.6rem 2.4rem; border-top: 1px solid var(--border);">
+                    <div style="font-size: 1.3rem; color: var(--text-muted);">
+                        Page <span th:text="${page.number + 1}">1</span> of <span th:text="${page.totalPages}">1</span>
+                    </div>
+                    <div style="display: flex; gap: 0.8rem;">
+                        <a th:if="${page.hasPrevious()}" th:href="@{/admin/professional-exams/results(page=${page.number - 1})}" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border);">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                        <a th:if="${page.hasNext()}" th:href="@{/admin/professional-exams/results(page=${page.number + 1})}" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border);">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const sidebar  = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
 </body>
+
 </html>

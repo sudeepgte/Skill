@@ -5,6 +5,8 @@
     <title>Checkout | SkillHub</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Razorpay Checkout SDK (CDN with local fallback) -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='/js/razorpay.js';document.head.appendChild(s);"></script>
     <style>
         :root {
             --primary: #5624d0;
@@ -75,6 +77,43 @@
         .method-card.active {
             border-color: var(--primary);
             background: #f8f7ff;
+        }
+
+        .method-card.razorpay-card {
+            border: 2px solid #528ff0;
+            background: #f7faff;
+        }
+
+        .method-card.razorpay-card.active {
+            border-color: #0c2340;
+            background: #edf5ff;
+            box-shadow: 0 4px 15px rgba(12, 35, 64, 0.08);
+        }
+
+        .badge-recommended {
+            background: linear-gradient(135deg, #0c2340 0%, #1555a6 100%);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .razorpay-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #ffffff;
+            border: 1px solid #d1d7dc;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0c2340;
+            margin-top: 4px;
         }
 
         .method-card input[type="radio"] {
@@ -162,36 +201,66 @@
             <form id="paymentForm" th:action="@{/payment/process}" method="post">
                 <input type="hidden" name="courseId" th:value="${course.id}">
                 
-                <div class="method-card active" onclick="selectMethod('CARD')">
-                    <div class="method-icon"><i class="fas fa-credit-card"></i></div>
-                    <div>
-                        <div style="font-weight: 700;">Credit / Debit Card</div>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);">Visa, Mastercard, RuPay</div>
+                <!-- 1. Dedicated Razorpay Gateway Card (Recommended & Default) -->
+                <div class="method-card razorpay-card active" onclick="selectMethod('RAZORPAY')">
+                    <div class="method-icon" style="color: #0c2340;">
+                        <i class="fas fa-bolt" style="color: #0c2340;"></i>
                     </div>
-                    <input type="radio" name="method" value="CARD" checked>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                            <span style="color: #0c2340;">Razorpay Secure Checkout</span>
+                            <span class="badge-recommended">Recommended</span>
+                        </div>
+                        <div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
+                            All-in-one: Cards, UPI (GPay, PhonePe, Paytm), Net Banking &amp; QR
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                            <span class="razorpay-pill"><i class="fab fa-google-pay" style="color:#4285F4;"></i> GPay</span>
+                            <span class="razorpay-pill"><i class="fas fa-qrcode" style="color:#5f259f;"></i> PhonePe</span>
+                            <span class="razorpay-pill"><i class="fas fa-credit-card" style="color:#0c2340;"></i> Cards</span>
+                            <span class="razorpay-pill"><i class="fas fa-university" style="color:#008080;"></i> NetBanking</span>
+                        </div>
+                    </div>
+                    <input type="radio" name="method" value="RAZORPAY" checked>
                 </div>
 
+                <!-- 2. UPI / Google Pay -->
                 <div class="method-card" onclick="selectMethod('UPI')">
                     <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
-                    <div>
-                        <div style="font-weight: 700;">UPI / Google Pay</div>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);">Instant with PhonePe, GPay, BHIM</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">UPI / QR Code</div>
+                        <div style="font-size: 0.88rem; color: var(--text-muted);">Instant with PhonePe, GPay, Paytm, BHIM via Razorpay</div>
                     </div>
                     <input type="radio" name="method" value="UPI">
                 </div>
 
+                <!-- 3. Credit / Debit Card -->
+                <div class="method-card" onclick="selectMethod('CARD')">
+                    <div class="method-icon"><i class="fas fa-credit-card"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">Credit / Debit Card</div>
+                        <div style="font-size: 0.88rem; color: var(--text-muted);">Visa, Mastercard, RuPay, Maestro via Razorpay</div>
+                    </div>
+                    <input type="radio" name="method" value="CARD">
+                </div>
+
+                <!-- 4. Wallets -->
                 <div class="method-card" onclick="selectMethod('WALLET')">
                     <div class="method-icon"><i class="fas fa-wallet"></i></div>
-                    <div>
-                        <div style="font-weight: 700;">Wallets</div>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);">Paytm, PhonePe Wallet, MobiKwik</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700;">Wallets &amp; Net Banking</div>
+                        <div style="font-size: 0.88rem; color: var(--text-muted);">Paytm, PhonePe Wallet, Net Banking across all banks</div>
                     </div>
                     <input type="radio" name="method" value="WALLET">
                 </div>
 
-                <button type="submit" class="btn-pay">Complete Purchase</button>
+                <div id="checkoutError" style="display: none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 12px 15px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 500;"></div>
+
+                <button type="button" class="btn-pay" id="payBtn" onclick="initiateRazorpayPayment()">
+                    <i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ₹<span th:text="${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">2100</span> with Razorpay
+                </button>
                 <div class="secure-badge">
-                    <i class="fas fa-lock"></i> SSL Secure 256-bit Encryption
+                    <i class="fas fa-shield-alt" style="color: #0c2340;"></i> Powered by Razorpay &bull; 256-bit SSL Secure Checkout
                 </div>
             </form>
         </div>
@@ -224,97 +293,171 @@
         </div>
     </div>
 
-    <!-- Razorpay SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
     <script th:inline="javascript">
         const courseId = [[${course.id}]];
-        
+        const formattedTotal = '₹' + [[${#numbers.formatDecimal(course.price * 1.05, 1, 0)}]];
+        let currentMethod = 'RAZORPAY';
+
         function selectMethod(method) {
+            currentMethod = method;
             document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
             const cards = document.querySelectorAll('.method-card');
             cards.forEach(card => {
-                if(card.querySelector('input').value === method) {
+                const radio = card.querySelector('input');
+                if (radio && radio.value === method) {
                     card.classList.add('active');
-                    card.querySelector('input').checked = true;
+                    radio.checked = true;
                 }
             });
+            updateButtonText(method);
         }
 
-        // Handle Razorpay Payment
-        document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const btn = this.querySelector('.btn-pay');
-            const originalText = btn.innerText;
-            btn.innerText = "Processing...";
-            btn.disabled = true;
+        function updateButtonText(method) {
+            const btn = document.getElementById('payBtn');
+            if (!btn || btn.disabled) return;
+            btn.innerHTML = '<i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ' + formattedTotal + ' with Razorpay';
+        }
 
-            // Step 1: Create Order on Server
-            fetch('/payment/create-order?courseId=' + courseId, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    openRazorpay(data);
-                } else {
-                    alert('Error: ' + data.message);
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Failed to initiate payment. Please try again.');
-                btn.innerText = originalText;
+        function showError(msg) {
+            const errBox = document.getElementById('checkoutError');
+            if (errBox) {
+                errBox.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i> ' + msg;
+                errBox.style.display = 'block';
+            } else {
+                alert(msg);
+            }
+        }
+
+        function resetButton() {
+            const btn = document.getElementById('payBtn');
+            if (btn) {
                 btn.disabled = false;
-            });
-        });
+                btn.innerHTML = '<i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ' + formattedTotal + ' with Razorpay';
+            }
+        }
 
-        function openRazorpay(orderData) {
-            const options = {
-                "key": [[${@environment.getProperty('razorpay.key.id')}]], // Dynamically fetch from backend properties
-                "amount": orderData.amount,
-                "currency": "INR",
-                "name": "SkillHub",
-                "description": "Course Purchase",
-                "image": "/images/logo.png",
-                "order_id": orderData.orderId,
-                "handler": function (response) {
-                    // Step 2: Verify Payment on Server
-                    verifyPayment(response);
-                },
-                "prefill": {
-                    "name": orderData.userName,
-                    "email": orderData.userEmail,
-                    "contact": orderData.userPhone || ""
-                },
-                "theme": {
-                    "color": "#5624d0"
-                },
-                "modal": {
-                    "ondismiss": function() {
-                        const btn = document.querySelector('.btn-pay');
-                        btn.innerText = "Complete Purchase";
-                        btn.disabled = false;
+        async function initiateRazorpayPayment() {
+            const btn = document.getElementById('payBtn');
+            const errBox = document.getElementById('checkoutError');
+            if (errBox) errBox.style.display = 'none';
+
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Opening Razorpay...';
+                btn.disabled = true;
+            }
+
+            try {
+                // 1. Ensure Razorpay SDK is available
+                let rzpConstructor = window.Razorpay;
+                if (!rzpConstructor) {
+                    for (let i = 0; i < 20; i++) {
+                        await new Promise(r => setTimeout(r, 100));
+                        if (window.Razorpay) {
+                            rzpConstructor = window.Razorpay;
+                            break;
+                        }
                     }
                 }
-            };
-            const rzp = new Razorpay(options);
-            rzp.open();
+
+                if (!rzpConstructor) {
+                    throw new Error('Razorpay Checkout SDK is still loading. Please check your internet connection or disable ad-blockers and try again.');
+                }
+
+                // 2. Obtain CSRF Token
+                const csrfInput = document.querySelector('input[name="_csrf"]');
+                const csrfToken = csrfInput ? csrfInput.value : '';
+                const headers = { 'Accept': 'application/json' };
+                if (csrfToken) {
+                    headers['X-CSRF-TOKEN'] = csrfToken;
+                }
+
+                // 3. Create Razorpay Order on server
+                const orderResp = await fetch('/payment/create-order?courseId=' + courseId, {
+                    method: 'POST',
+                    headers: headers
+                });
+
+                if (!orderResp.ok) {
+                    throw new Error('Server returned HTTP ' + orderResp.status + ' while generating order.');
+                }
+
+                const orderData = await orderResp.json();
+                if (orderData.status !== 'success') {
+                    throw new Error(orderData.message || 'Unable to generate Razorpay order.');
+                }
+
+                // 4. Launch full Razorpay Modal
+                const razorpayKey = orderData.keyId || [[${razorpayKeyId}]];
+                const options = {
+                    "key": razorpayKey,
+                    "amount": orderData.amount,
+                    "currency": "INR",
+                    "name": "SkillHub",
+                    "description": "Course: " + [[${course.title}]],
+                    "image": "/images/logo.png",
+                    "order_id": orderData.orderId,
+                    "handler": function (response) {
+                        verifyPayment(response);
+                    },
+                    "prefill": {
+                        "name": orderData.userName || "Student",
+                        "email": orderData.userEmail || "",
+                        "contact": orderData.userPhone || "9876543210"
+                    },
+                    "theme": {
+                        "color": "#5624d0"
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            resetButton();
+                        }
+                    }
+                };
+
+                const rzp = new rzpConstructor(options);
+                rzp.on('payment.failed', function (response) {
+                    const failMsg = response.error ? (response.error.description || response.error.reason) : 'Payment cancelled';
+                    showError('Payment failed: ' + failMsg);
+                    resetButton();
+                });
+                rzp.open();
+
+            } catch (err) {
+                console.error('Razorpay Error:', err);
+                showError(err.message || 'Could not launch Razorpay checkout modal.');
+                resetButton();
+            }
+        }
+
+        // Prevent accidental default form submission
+        const paymentForm = document.getElementById('paymentForm');
+        if (paymentForm) {
+            paymentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                initiateRazorpayPayment();
+            });
         }
 
         function verifyPayment(razorpayResponse) {
+            const btn = document.getElementById('payBtn');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Verifying payment...';
+                btn.disabled = true;
+            }
+
+            const csrfInput = document.querySelector('input[name="_csrf"]');
+            const csrfToken = csrfInput ? csrfInput.value : '';
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            }
+
             fetch('/payment/verify', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: headers,
                 body: JSON.stringify({
                     razorpay_order_id: razorpayResponse.razorpay_order_id,
                     razorpay_payment_id: razorpayResponse.razorpay_payment_id,
@@ -326,13 +469,14 @@
                 if (data.status === 'success') {
                     window.location.href = data.redirectUrl;
                 } else {
-                    alert('Payment verification failed: ' + data.message);
-                    location.reload();
+                    showError('Payment verification failed: ' + data.message);
+                    resetButton();
                 }
             })
             .catch(err => {
-                console.error(err);
-                alert('Server error during verification.');
+                console.error('Verification error:', err);
+                showError('Server error during payment verification: ' + err.message);
+                resetButton();
             });
         }
     </script>

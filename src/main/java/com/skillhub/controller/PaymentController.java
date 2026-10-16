@@ -28,8 +28,11 @@ public class PaymentController {
     @Autowired
     private UserService userService;
 
+    @org.springframework.beans.factory.annotation.Value("${razorpay.key.id}")
+    private String razorpayKeyId;
+
     @GetMapping("/checkout/{courseId}")
-    public String showCheckout(@PathVariable Long courseId, Model model, Principal principal) {
+    public String showCheckout(@PathVariable("courseId") Long courseId, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         
         Course course = courseService.getCourseById(courseId);
@@ -38,6 +41,7 @@ public class PaymentController {
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("course", course);
         model.addAttribute("user", user);
+        model.addAttribute("razorpayKeyId", razorpayKeyId);
         return "course/checkout";
     }
 
@@ -46,7 +50,7 @@ public class PaymentController {
      */
     @PostMapping("/payment/create-order")
     @ResponseBody
-    public Map<String, Object> createOrder(@RequestParam Long courseId, Principal principal) {
+    public Map<String, Object> createOrder(@RequestParam("courseId") Long courseId, Principal principal) {
         Map<String, Object> response = new HashMap<>();
         try {
             if (principal == null) {
@@ -63,9 +67,14 @@ public class PaymentController {
             response.put("status", "success");
             response.put("orderId", payment.getRazorpayOrderId());
             response.put("amount", (int)(payment.getAmount() * 100)); // paise
-            response.put("userName", user.getName());
-            response.put("userEmail", user.getEmail());
-            response.put("userPhone", user.getPhone());
+            response.put("keyId", razorpayKeyId);
+            response.put("userName", user.getName() != null ? user.getName() : "Student");
+            response.put("userEmail", user.getEmail() != null ? user.getEmail() : "");
+            String phone = user.getPhone();
+            if (phone == null || phone.trim().isEmpty()) {
+                phone = "9876543210";
+            }
+            response.put("userPhone", phone);
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", e.getMessage());
@@ -108,7 +117,7 @@ public class PaymentController {
     }
 
     @PostMapping("/payment/process")
-    public String processPayment(@RequestParam Long courseId, @RequestParam String method, Principal principal) {
+    public String processPayment(@RequestParam("courseId") Long courseId, @RequestParam("method") String method, Principal principal) {
         if (principal == null) return "redirect:/login";
         
         User user = userService.findByEmail(principal.getName());
@@ -119,7 +128,7 @@ public class PaymentController {
     }
 
     @GetMapping("/payment/success/{txnId}")
-    public String showSuccess(@PathVariable String txnId, Model model, Principal principal) {
+    public String showSuccess(@PathVariable("txnId") String txnId, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);
@@ -130,7 +139,7 @@ public class PaymentController {
     }
 
     @GetMapping("/payment/receipt/{txnId}")
-    public String showReceipt(@PathVariable String txnId, Model model, Principal principal) {
+    public String showReceipt(@PathVariable("txnId") String txnId, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);

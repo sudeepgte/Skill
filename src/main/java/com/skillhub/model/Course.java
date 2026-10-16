@@ -44,7 +44,6 @@ public class Course {
     private String level; // Beginner, Intermediate, Advanced, All Levels
 
     private boolean isPublished = false;
-    private String status = "DRAFT";
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -190,6 +189,21 @@ public class Course {
         }
     }
 
+    public void setStatus(String status) {
+        if (status != null) {
+            try {
+                this.status = CourseStatus.valueOf(status.trim().toUpperCase());
+            } catch (Exception ignored) {
+                this.status = CourseStatus.DRAFT;
+            }
+        }
+        if (this.status == CourseStatus.PUBLISHED) {
+            this.isPublished = true;
+        } else {
+            this.isPublished = false;
+        }
+    }
+
     public boolean isPublished() {
         if (status != null) {
             return status == CourseStatus.PUBLISHED;
@@ -303,11 +317,6 @@ public class Course {
         this.level = level;
     }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public boolean isPublished() {
-        return isPublished;
     public String getRejectionReason() {
         return rejectionReason;
     }
