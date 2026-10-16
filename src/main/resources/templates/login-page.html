@@ -252,8 +252,14 @@
             </div>
 
             <!-- Alerts -->
+            <div th:if="${error}" class="alert" style="color:#b32d2e; background:#fff2f2;" th:text="${error}">
+                Invalid password reset token.
+            </div>
             <div th:if="${param.error}" class="alert" style="color:#b32d2e; background:#fff2f2;">
                 Invalid email or password.
+            </div>
+            <div th:if="${param.resetSuccess}" class="alert" style="color:#0f3e0f; background:#e9f7ef;">
+                Password reset successfully! Please login with your new password.
             </div>
             <div th:if="${param.logout}" class="alert" style="color:#0f3e0f; background:#e9f7ef;">
                 Successfully logged out.

@@ -52,18 +52,45 @@
         }
 
         .chat-header {
-            padding: 1.25rem;
+            padding: 1rem 1.25rem;
             background: #5624d0;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 0.5rem;
         }
 
         .chat-header h3 {
             margin: 0;
             font-size: 16px;
             font-weight: 600;
+        }
+
+        .chat-header-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        .chat-header-btn:hover {
+            background: rgba(255, 255, 255, 0.32);
+            transform: scale(1.08);
+        }
+
+        .chat-header-btn:active {
+            transform: scale(0.94);
         }
 
         .connection-status {
@@ -73,6 +100,7 @@
             background: #cbd5e1;
             display: inline-block;
             margin-right: 4px;
+            flex-shrink: 0;
         }
 
         .status-online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
@@ -120,6 +148,7 @@
             justify-content: center;
             font-weight: 700;
             font-size: 14px;
+            position: relative;
         }
 
         .message-bubble {
@@ -190,10 +219,11 @@
         }
 
         .chat-footer {
-            padding: 1rem;
+            padding: 0.85rem 1rem;
             border-top: 1px solid #e2e8f0;
             display: flex;
             gap: 0.5rem;
+            background: #ffffff;
         }
 
         .chat-footer input {
@@ -203,39 +233,110 @@
             padding: 0.5rem 1rem;
             outline: none;
             font-size: 14px;
+            font-family: inherit;
+            background: #ffffff;
+            color: #1e293b;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .send-btn {
+        .chat-footer input:focus {
+            border-color: #5624d0;
+            box-shadow: 0 0 0 2px rgba(86, 36, 208, 0.15);
+        }
+
+        .chat-photo-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        .chat-photo-btn:hover {
+            background: #ede9fe;
+            color: #5624d0;
+            border-color: #c4b5fd;
+            transform: scale(1.08);
+        }
+
+        .chat-photo-btn:active {
+            transform: scale(0.94);
+        }
+
+        .send-btn, .chat-send-btn {
             background: #5624d0;
             color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            padding: 0;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(86, 36, 208, 0.35);
+        }
+
+        .send-btn:hover, .chat-send-btn:hover {
+            background: #431ba6;
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(86, 36, 208, 0.45);
+        }
+
+        .send-btn:active, .chat-send-btn:active {
+            transform: scale(0.94);
+        }
+
+        @keyframes chatSpin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .chat-spin {
+            animation: chatSpin 0.8s linear infinite;
         }
     </style>
 </head>
 <body>
     <div th:fragment="chat-widget" class="chat-widget-container" id="chatWidgetContainer">
         <!-- FAB -->
-        <div class="chat-fab" id="chatFab">
-            <i class="fas fa-comment-dots"></i>
+        <div class="chat-fab" id="chatFab" title="SkillHub Chat">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
         </div>
 
         <!-- Chat Window -->
         <div class="chat-window" id="chatWindow">
             <div class="chat-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <button class="chat-header-btn" id="backToContacts" title="Back to contacts" type="button" style="display:none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
                     <div id="statusDot" class="connection-status"></div>
-                    <h3 id="chatHeaderTitle">SkillHub Chat</h3>
+                    <h3 id="chatHeaderTitle" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">SkillHub Chat</h3>
                 </div>
-                <div style="display: flex; gap: 12px;">
-                    <i class="fas fa-chevron-left" id="backToContacts" style="display:none; cursor:pointer;"></i>
-                    <i class="fas fa-times" id="closeChat" style="cursor:pointer;"></i>
+                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                    <button class="chat-header-btn" id="closeChat" title="Close chat" type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -248,7 +349,10 @@
                     <!-- Messages will be loaded here -->
                 </div>
                 <div id="chatLoading" style="display:none; text-align:center; padding: 2rem; color: #64748b;">
-                    <i class="fas fa-spinner fa-spin"></i><br><small>Loading history...</small>
+                    <svg class="chat-spin" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5624d0" stroke-width="2.5" style="display: inline-block; margin-bottom: 8px;">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
+                    <br><small style="font-weight: 500;">Loading history...</small>
                 </div>
             </div>
 
@@ -258,18 +362,35 @@
                 </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <input type="file" id="chatFileInput" style="display:none;" accept="image/*,.pdf,.doc,.docx,.zip">
-                    <button class="send-btn" id="attachBtn" style="background:#f1f5f9; color:#64748b;" title="Attach File">
-                        <i class="fas fa-paperclip"></i>
+                    <button class="chat-photo-btn" id="attachBtn" type="button" title="Choose photo or file">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
                     </button>
                     <input type="text" id="chatInput" placeholder="Type a message...">
-                    <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                    <button class="send-btn chat-send-btn" id="sendBtn" type="button" title="Send message">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Scripts -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script th:src="@{/js/sockjs.min.js}" src="/js/sockjs.min.js"></script>
+        <script th:src="@{/js/stomp.min.js}" src="/js/stomp.min.js"></script>
+        <script>
+            if (typeof SockJS === 'undefined') {
+                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"><\/script>');
+            }
+            if (typeof Stomp === 'undefined') {
+                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"><\/script>');
+            }
+        </script>
         <script th:inline="javascript">
             let stompClient = null;
             let currentRecipientEmail = null;
@@ -299,22 +420,29 @@
                 closeChat.onclick = () => chatWindow.style.display = 'none';
 
                 backToContacts.onclick = () => {
-                    messageList.style.display = 'none';
-                    chatFooter.style.display = 'none';
-                    contactList.style.display = 'flex';
-                    backToContacts.style.display = 'none';
+                    messageList.style.setProperty('display', 'none', 'important');
+                    chatFooter.style.setProperty('display', 'none', 'important');
+                    contactList.style.setProperty('display', 'flex', 'important');
+                    backToContacts.style.setProperty('display', 'none', 'important');
                     headerTitle.innerText = 'SkillHub Chat';
                     currentRecipientEmail = null;
+                    loadContacts();
                 };
 
                 function connect() {
-                    const socket = new SockJS('/ws');
-                    stompClient = Stomp.over(socket);
-                    stompClient.debug = console.log; // Enable logging for verification
-                    stompClient.connect({}, function (frame) {
-                        statusDot.classList.add('status-online');
-                        statusDot.classList.remove('status-offline');
-                        console.log("WebSocket Connected: " + frame);
+                    if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+                        console.warn("SockJS or Stomp not yet loaded. Retrying in 1s...");
+                        setTimeout(connect, 1000);
+                        return;
+                    }
+                    try {
+                        const socket = new SockJS('/ws');
+                        stompClient = Stomp.over(socket);
+                        stompClient.debug = () => {}; // Cleaner console output
+                        stompClient.connect({}, function (frame) {
+                            statusDot.classList.add('status-online');
+                            statusDot.classList.remove('status-offline');
+                            console.log("WebSocket Connected successfully");
                         
                         stompClient.subscribe('/user/queue/messages', function (message) {
                             const chatMessage = JSON.parse(message.body);
@@ -355,6 +483,12 @@
                         statusDot.classList.remove('status-online');
                         setTimeout(connect, 5000); // Reconnect
                     });
+                    } catch (e) {
+                        console.error("Error connecting WebSocket:", e);
+                        statusDot.classList.add('status-offline');
+                        statusDot.classList.remove('status-online');
+                        setTimeout(connect, 5000);
+                    }
                 }
 
                 function loadContacts() {
@@ -394,7 +528,7 @@
                     contactList.style.setProperty('display', 'none', 'important');
                     messageList.style.setProperty('display', 'flex', 'important');
                     chatFooter.style.setProperty('display', 'flex', 'important');
-                    backToContacts.style.setProperty('display', 'block', 'important');
+                    backToContacts.style.setProperty('display', 'inline-flex', 'important');
                     
                     const chatLoading = document.getElementById('chatLoading');
                     chatLoading.style.display = 'block';
@@ -463,7 +597,7 @@
                                     <div style="font-weight:600; font-size:12px;">${msg.fileName || 'Attachment'}</div>
                                     <div style="font-size:10px; opacity:0.8;">Click to download</div>
                                 </div>
-                            `;
+                            contentHtml = `
                             el.appendChild(link);
                         }
                     }
@@ -485,39 +619,91 @@
 
                 function sendMessage(fileData = null) {
                     const content = chatInput.value.trim();
-                    if ((content || fileData) && stompClient && currentRecipientEmail) {
-                        const now = new Date();
-                        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
-                        
-                        const msgObj = {
-                            recipientEmail: currentRecipientEmail,
-                            content: content
-                        };
+                    if (!content && !fileData) return;
+                    
+                    if (!currentRecipientEmail) {
+                        alert("Please select a student contact first to send a message.");
+                        return;
+                    }
 
-                        if (fileData) {
-                            msgObj.fileUrl = fileData.url;
-                            msgObj.fileType = fileData.type;
-                            msgObj.fileName = fileData.name;
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+                    
+                    const msgObj = {
+                        senderEmail: currentUserEmail,
+                        recipientEmail: currentRecipientEmail,
+                        content: content
+                    };
+
+                    if (fileData) {
+                        msgObj.fileUrl = fileData.url;
+                        msgObj.fileType = fileData.type;
+                        msgObj.fileName = fileData.name;
+                    }
+
+                    // Clear input immediately so user sees responsiveness
+                    chatInput.value = '';
+
+                    // Optimistic append to UI
+                    appendMessage({
+                        senderEmail: currentUserEmail,
+                        content: content,
+                        timestamp: timeStr,
+                        fileUrl: msgObj.fileUrl,
+                        fileType: msgObj.fileType,
+                        fileName: msgObj.fileName
+                    });
+
+                    // 1. Try WebSocket send first if connected
+                    let sentViaSocket = false;
+                    if (stompClient && stompClient.connected) {
+                        try {
+                            stompClient.send("/app/chat.send", {}, JSON.stringify(msgObj));
+                            sentViaSocket = true;
+                            console.log("Chat: Message sent via WebSocket");
+                        } catch (err) {
+                            console.warn("Chat: WebSocket send failed, falling back to HTTP REST", err);
                         }
+                    }
 
-                        // Optimistic append
-                        appendMessage({
-                            senderEmail: currentUserEmail,
-                            content: content,
-                            timestamp: timeStr,
-                            fileUrl: msgObj.fileUrl,
-                            fileType: msgObj.fileType,
-                            fileName: msgObj.fileName
+                    // 2. Fallback to HTTP REST API if WebSocket is not connected or failed
+                    if (!sentViaSocket) {
+                        console.log("Chat: Sending message via HTTP REST endpoint");
+                        fetch('/api/chat/send', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(msgObj)
+                        })
+                        .then(r => {
+                            if (!r.ok) {
+                                console.error("Chat: HTTP send returned status " + r.status);
+                            } else {
+                                console.log("Chat: Message delivered successfully via HTTP REST API");
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Chat: HTTP send error:", err);
                         });
-
-                        stompClient.send("/app/chat.send", {}, JSON.stringify(msgObj));
-                        chatInput.value = '';
                     }
                 }
 
                 // File Upload Logic
                 const chatFileInput = document.getElementById('chatFileInput');
                 const attachBtn = document.getElementById('attachBtn');
+
+                const photoIconSvg = `
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>`;
+
+                const spinnerSvg = `
+                    <svg class="chat-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>`;
 
                 attachBtn.onclick = () => chatFileInput.click();
 
@@ -528,7 +714,7 @@
                     const formData = new FormData();
                     formData.append('file', file);
 
-                    attachBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    attachBtn.innerHTML = spinnerSvg;
                     attachBtn.disabled = true;
 
                     fetch('/api/chat/upload', {
@@ -537,14 +723,14 @@
                     })
                     .then(r => r.json())
                     .then(data => {
-                        attachBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
+                        attachBtn.innerHTML = photoIconSvg;
                         attachBtn.disabled = false;
                         sendMessage(data);
                         chatFileInput.value = '';
                     })
                     .catch(err => {
                         console.error("Upload failed", err);
-                        attachBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
+                        attachBtn.innerHTML = photoIconSvg;
                         attachBtn.disabled = false;
                         alert("Upload failed. Please try again.");
                     });

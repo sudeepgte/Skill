@@ -106,18 +106,23 @@ public class ForgotPasswordController {
     }
 
     @GetMapping("/reset-password")
-    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+    public String showResetPasswordForm(@RequestParam(name = "token", required = false) String token, Model model) {
+        if (token == null || token.trim().isEmpty()) {
+            model.addAttribute("error", "Password reset token is missing.");
+            return "login-page";
+        }
+
         Optional<PasswordResetToken> tokenOptional = tokenRepository.findByToken(token);
 
         if (!tokenOptional.isPresent()) {
             model.addAttribute("error", "Invalid password reset token.");
-            return "login"; // Or specific error page
+            return "login-page";
         }
 
         PasswordResetToken resetToken = tokenOptional.get();
         if (resetToken.isExpired()) {
             model.addAttribute("error", "Token has expired. Please request a new one.");
-            return "login";
+            return "login-page";
         }
 
         PasswordDto passwordDto = new PasswordDto();
@@ -132,13 +137,13 @@ public class ForgotPasswordController {
 
         if (!tokenOptional.isPresent()) {
             model.addAttribute("error", "Invalid token.");
-            return "login";
+            return "login-page";
         }
 
         PasswordResetToken token = tokenOptional.get();
         if (token.isExpired()) {
             model.addAttribute("error", "Token has expired.");
-            return "login";
+            return "login-page";
         }
 
         if (!passwordDto.getNewPassword().equals(passwordDto.getConfirmPassword())) {

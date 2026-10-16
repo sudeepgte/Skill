@@ -702677,6 +702677,7 @@ Caused by: org.hibernate.StaleObjectStateException: Row was updated or deleted b
 	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:138)
 	... 119 more
 --------------------------------------------------
+<<<<<<< HEAD
 --- Error at 2026-10-16T17:31:00.792486500 ---
 org.apache.catalina.connector.ClientAbortException: java.io.IOException: An established connection was aborted by the software in your host machine
 	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:342)
@@ -702693,6 +702694,20 @@ org.apache.catalina.connector.ClientAbortException: java.io.IOException: An esta
 	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
 	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:630)
 	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+=======
+--- Error at 2026-10-16T18:17:22.795689200 ---
+org.springframework.web.bind.MissingServletRequestParameterException: Required request parameter 'token' for method parameter type String is not present
+	at org.springframework.web.method.annotation.RequestParamMethodArgumentResolver.handleMissingValueInternal(RequestParamMethodArgumentResolver.java:220)
+	at org.springframework.web.method.annotation.RequestParamMethodArgumentResolver.handleMissingValue(RequestParamMethodArgumentResolver.java:196)
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.resolveArgument(AbstractNamedValueMethodArgumentResolver.java:125)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:227)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:181)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+>>>>>>> 153713303699f73fc3b6a2b8ebbc7b92f48edaf1
 	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
 	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
 	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
@@ -702797,6 +702812,7 @@ org.apache.catalina.connector.ClientAbortException: java.io.IOException: An esta
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+<<<<<<< HEAD
 	at java.base/java.lang.Thread.run(Thread.java:842)
 Caused by: java.io.IOException: An established connection was aborted by the software in your host machine
 	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
@@ -702833,6 +702849,22 @@ org.apache.catalina.connector.ClientAbortException: java.io.IOException: An esta
 	at org.springframework.http.converter.AbstractHttpMessageConverter.write(AbstractHttpMessageConverter.java:235)
 	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:630)
 	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+=======
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+--------------------------------------------------
+--- Error at 2026-10-16T18:22:59.777363800 ---
+org.springframework.web.bind.MissingServletRequestParameterException: Required request parameter 'token' for method parameter type String is not present
+	at org.springframework.web.method.annotation.RequestParamMethodArgumentResolver.handleMissingValueInternal(RequestParamMethodArgumentResolver.java:220)
+	at org.springframework.web.method.annotation.RequestParamMethodArgumentResolver.handleMissingValue(RequestParamMethodArgumentResolver.java:196)
+	at org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver.resolveArgument(AbstractNamedValueMethodArgumentResolver.java:125)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:227)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:181)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+>>>>>>> 153713303699f73fc3b6a2b8ebbc7b92f48edaf1
 	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
 	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
 	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
@@ -702937,6 +702969,7 @@ org.apache.catalina.connector.ClientAbortException: java.io.IOException: An esta
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+<<<<<<< HEAD
 	at java.base/java.lang.Thread.run(Thread.java:842)
 Caused by: java.io.IOException: An established connection was aborted by the software in your host machine
 	at java.base/sun.nio.ch.SocketDispatcher.write0(Native Method)
@@ -705471,4 +705504,7 @@ Caused by: java.io.IOException: An established connection was aborted by the sof
 	at org.apache.coyote.Response.doWrite(Response.java:628)
 	at org.apache.catalina.connector.OutputBuffer.realWriteBytes(OutputBuffer.java:330)
 	... 118 more
+=======
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+>>>>>>> 153713303699f73fc3b6a2b8ebbc7b92f48edaf1
 --------------------------------------------------
