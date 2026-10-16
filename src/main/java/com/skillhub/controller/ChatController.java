@@ -40,7 +40,29 @@ public class ChatController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload java.util.Map<String, String> payload, java.security.Principal principal) {
-        String senderEmail = principal.getName();
+        String senderEmail = (principal != null) ? principal.getName() : payload.get("senderEmail");
+        if (senderEmail != null) {
+            processMessage(payload, senderEmail);
+        }
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/api/chat/send")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> sendMessageRest(
+            @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> payload, 
+            java.security.Principal principal) {
+        String senderEmail = (principal != null) ? principal.getName() : payload.get("senderEmail");
+        if (senderEmail == null || senderEmail.trim().isEmpty()) {
+            return org.springframework.http.ResponseEntity.status(401).body(java.util.Map.of("error", "Unauthorized: Sender required"));
+        }
+        com.skillhub.dto.MessageDTO dto = processMessage(payload, senderEmail);
+        if (dto != null) {
+            return org.springframework.http.ResponseEntity.ok(dto);
+        }
+        return org.springframework.http.ResponseEntity.badRequest().body(java.util.Map.of("error", "Failed to send message: Invalid recipient or empty content"));
+    }
+
+    public com.skillhub.dto.MessageDTO processMessage(java.util.Map<String, String> payload, String senderEmail) {
         String recipientEmail = payload.get("recipientEmail");
         String content = payload.get("content");
         
@@ -48,6 +70,10 @@ public class ChatController {
         String fileUrl = payload.get("fileUrl");
         String fileType = payload.get("fileType");
         String fileName = payload.get("fileName");
+
+        if ((content == null || content.trim().isEmpty()) && (fileUrl == null || fileUrl.isEmpty())) {
+            return null;
+        }
 
         User sender = userService.findByEmail(senderEmail);
         User recipient = userService.findByEmail(recipientEmail);
@@ -66,23 +92,36 @@ public class ChatController {
             // Convert to DTO for broadcasting
             com.skillhub.dto.MessageDTO dto = convertToDTO(message);
 
-            // Send to recipient's private queue
-            messagingTemplate.convertAndSendToUser(recipientEmail, "/queue/messages", dto);
-            // Echo back to sender for synchronization across tabs
-            messagingTemplate.convertAndSendToUser(senderEmail, "/queue/messages", dto);
+            try {
+                // Send to recipient's private queue
+                messagingTemplate.convertAndSendToUser(recipientEmail, "/queue/messages", dto);
+                // Echo back to sender for synchronization across tabs
+                messagingTemplate.convertAndSendToUser(senderEmail, "/queue/messages", dto);
+            } catch (Exception ex) {
+                System.err.println("ChatController: WebSocket broadcast error (saved to DB): " + ex.getMessage());
+            }
 
             // Trigger Notification
             String notificationMsg = (fileUrl != null) ? "Sent an attachment" : content;
             if (notificationMsg != null && notificationMsg.length() > 50) {
                 notificationMsg = notificationMsg.substring(0, 47) + "...";
             }
-            notificationService.createAndSend(
-                recipient, 
-                "New Message from " + sender.getName(), 
-                notificationMsg, 
-                "CHAT"
-            );
+            try {
+                notificationService.createAndSend(
+                    recipient, 
+                    "New Message from " + sender.getName(), 
+                    notificationMsg, 
+                    "CHAT"
+                );
+            } catch (Exception ex) {
+                System.err.println("ChatController: Notification send error: " + ex.getMessage());
+            }
+
+            return dto;
+        } else {
+            System.err.println("ChatController: Sender or recipient not found. Sender: " + senderEmail + ", Recipient: " + recipientEmail);
         }
+        return null;
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/api/chat/upload")
@@ -108,7 +147,12 @@ public class ChatController {
 
     @GetMapping("/api/chat/history")
     @ResponseBody
-    public List<com.skillhub.dto.MessageDTO> getChatHistory(@RequestParam("otherUserEmail") String otherUserEmail, java.security.Principal principal) {
+    public List<com.skillhub.dto.MessageDTO> getChatHistory(
+            @RequestParam(name = "otherUserEmail", required = false) String otherUserEmail, 
+            java.security.Principal principal) {
+        if (principal == null || otherUserEmail == null || otherUserEmail.trim().isEmpty()) {
+            return List.of();
+        }
         String myEmail = principal.getName();
         User currentUser = userService.findByEmail(myEmail);
         User otherUser = userService.findByEmail(otherUserEmail);
