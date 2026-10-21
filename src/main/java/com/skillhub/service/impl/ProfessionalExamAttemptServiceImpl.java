@@ -170,9 +170,17 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
         res.setNegativeMarks(q.getNegativeMarks() != null ? q.getNegativeMarks().doubleValue() : 0.0);
         res.setAnswered(aq.isAnswered());
         res.setMarkedForReview(aq.isMarkedForReview());
+        res.setCodeLanguage(q.getCodeLanguage());
+        res.setStarterCode(q.getCodeStarterTemplate());
 
         answerRepository.findByAttemptIdAndQuestionId(attemptId, q.getId()).ifPresent(ans -> {
-            res.setSavedAnswer(ans.getSelectedOption());
+            if (ans.getSelectedOption() != null && !ans.getSelectedOption().isEmpty()) {
+                res.setSavedAnswer(ans.getSelectedOption());
+            } else if (ans.getCodeAnswer() != null && !ans.getCodeAnswer().isEmpty()) {
+                res.setSavedAnswer(ans.getCodeAnswer());
+            } else if (ans.getTextAnswer() != null && !ans.getTextAnswer().isEmpty()) {
+                res.setSavedAnswer(ans.getTextAnswer());
+            }
         });
 
         return res;
@@ -305,7 +313,8 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
                 .orElseThrow(() -> new BusinessException("ATTEMPT_NOT_FOUND"));
         
         // IDOR Protection: User ownership verification
-        if (!attempt.getStudent().getId().equals(user.getId())) {
+        boolean isAdmin = user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()));
+        if (!isAdmin && !attempt.getStudent().getId().equals(user.getId())) {
             observabilityService.increment("authorization_failure_count");
             log.warn("IDOR attempt detected: User {} tried accessing Attempt {}", user.getId(), attemptId);
             throw new BusinessException("UNAUTHORIZED_ATTEMPT_ACCESS");

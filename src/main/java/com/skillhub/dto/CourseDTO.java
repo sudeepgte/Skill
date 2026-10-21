@@ -177,7 +177,7 @@ public class CourseDTO {
     }
 
     public void setLevel(String level) {
-        this.level = level;
+        this.level = "DM Sansmediate".equalsIgnoreCase(level) ? "Intermediate" : level;
     }
 
     public boolean isPublished() {

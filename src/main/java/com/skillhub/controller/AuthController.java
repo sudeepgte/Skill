@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
 
 @Controller
 public class AuthController {
@@ -47,7 +48,10 @@ public class AuthController {
     }
 
     @GetMapping("/register/admin")
-    public String registerAdmin(Model model, HttpServletRequest request) {
+    public String registerAdmin(Model model, HttpServletRequest request, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getAuthorities().stream().noneMatch(a -> "ADMIN".equals(a.getAuthority()) || "ROLE_ADMIN".equals(a.getAuthority()))) {
+            return "redirect:/login";
+        }
         request.getSession(true);
         User user = new User();
         user.setRole("ADMIN");
@@ -61,13 +65,21 @@ public class AuthController {
     public String saveUser(@ModelAttribute("user") User user,
                            @RequestParam(value = "role", defaultValue = "STUDENT") String role,
                            @RequestParam(value = "categoryName", required = false) String categoryName,
-                           @RequestParam(value = "newCategoryName", required = false) String newCategoryName) {
+                           @RequestParam(value = "newCategoryName", required = false) String newCategoryName,
+                           Authentication authentication) {
         try {
             // Check if email exists
             if (userService.findByEmail(user.getEmail()) != null) {
                 return "redirect:/register?error=exists";
             }
             
+            // Restrict ADMIN role assignment to authenticated admins only
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                if (authentication == null || !authentication.isAuthenticated() || authentication.getAuthorities().stream().noneMatch(a -> "ADMIN".equals(a.getAuthority()) || "ROLE_ADMIN".equals(a.getAuthority()))) {
+                    return "redirect:/login";
+                }
+            }
+
             user.setRole(role);
             
             // Handling Vendor specific selections

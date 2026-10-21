@@ -1,9 +1,13 @@
 package com.skillhub.controller;
 
 import com.skillhub.model.*;
+import com.skillhub.service.CourseService;
 import com.skillhub.service.EnrollmentService;
 import com.skillhub.service.UserService;
+import com.skillhub.repository.EnrollmentRepository;
+import com.skillhub.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +22,13 @@ public class EnrollmentController {
     private EnrollmentService enrollmentService;
 
     @Autowired
-    private com.skillhub.repository.EnrollmentRepository enrollmentRepository;
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private UserService userService;
@@ -26,9 +36,23 @@ public class EnrollmentController {
     @PostMapping("/{courseId}")
     public ResponseEntity<?> enrollUser(@PathVariable("courseId") Long courseId, Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
         }
         User user = userService.findByEmail(principal.getName());
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Course not found"));
+        }
+
+        boolean isFree = course.getPrice() == null || course.getPrice() <= 0;
+        if (!isFree) {
+            boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, PaymentStatus.SUCCESS);
+            if (!hasPaid) {
+                return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                        .body(Map.of("message", "Payment required for this course", "redirect", "/checkout/" + courseId));
+            }
+        }
+
         enrollmentService.enrollUser(user, courseId);
         return ResponseEntity.ok(Map.of("message", "Enrolled successfully"));
     }

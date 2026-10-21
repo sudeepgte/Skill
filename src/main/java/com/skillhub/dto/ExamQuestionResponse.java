@@ -13,6 +13,8 @@ public class ExamQuestionResponse {
     private boolean answered;
     private boolean markedForReview;
     private String savedAnswer;
+    private String codeLanguage;
+    private String starterCode;
 
     // Getters and setters
     public int getQuestionNumber() { return questionNumber; }
@@ -39,4 +41,8 @@ public class ExamQuestionResponse {
     public void setMarkedForReview(boolean markedForReview) { this.markedForReview = markedForReview; }
     public String getSavedAnswer() { return savedAnswer; }
     public void setSavedAnswer(String savedAnswer) { this.savedAnswer = savedAnswer; }
+    public String getCodeLanguage() { return codeLanguage; }
+    public void setCodeLanguage(String codeLanguage) { this.codeLanguage = codeLanguage; }
+    public String getStarterCode() { return starterCode; }
+    public void setStarterCode(String starterCode) { this.starterCode = starterCode; }
 }

@@ -34,8 +34,21 @@ public class PaymentService {
     private RazorpayClient client;
 
     @PostConstruct
-    public void init() throws RazorpayException {
-        this.client = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+    public void init() {
+        try {
+            if (razorpayKeyId != null && razorpayKeySecret != null && !razorpayKeyId.isEmpty() && !razorpayKeySecret.isEmpty()) {
+                this.client = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not initialize Razorpay client: " + e.getMessage());
+        }
+    }
+
+    private synchronized RazorpayClient getClient() throws RazorpayException {
+        if (this.client == null) {
+            this.client = new RazorpayClient(razorpayKeyId, razorpayKeySecret);
+        }
+        return this.client;
     }
 
     /**
@@ -45,15 +58,15 @@ public class PaymentService {
     public Payment createOrder(User user, Course course) throws RazorpayException {
         JSONObject orderRequest = new JSONObject();
         // Razorpay amount is in paise (1 INR = 100 paise)
-        double originalPrice = course.getPrice();
+        double originalPrice = course.getPrice() != null ? course.getPrice() : 0.0;
         double serviceFee = originalPrice * 0.05;
         double totalAmount = originalPrice + serviceFee;
 
-        orderRequest.put("amount", (int) (totalAmount * 100));
+        orderRequest.put("amount", (int) Math.round(totalAmount * 100));
         orderRequest.put("currency", "INR");
         orderRequest.put("receipt", "txn_" + UUID.randomUUID().toString().substring(0, 8));
 
-        Order razorpayOrder = client.orders.create(orderRequest);
+        Order razorpayOrder = getClient().orders.create(orderRequest);
         String orderId = razorpayOrder.get("id");
 
         // Save a pending payment record
@@ -98,7 +111,7 @@ public class PaymentService {
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Razorpay signature verification failed: " + e.getMessage());
         }
         return false;
     }
@@ -108,12 +121,12 @@ public class PaymentService {
         // Create payment record
         Payment payment = new Payment();
         payment.setTransactionId("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-        double originalPrice = course.getPrice();
+        double originalPrice = course.getPrice() != null ? course.getPrice() : 0.0;
         double serviceFee = originalPrice * 0.05;
         double totalAmount = originalPrice + serviceFee;
         payment.setAmount(totalAmount);
         payment.setPaymentMethod(method);
-        payment.setStatus(PaymentStatus.SUCCESS); // Simulating success
+        payment.setStatus(PaymentStatus.SUCCESS);
         payment.setPaymentDate(LocalDateTime.now());
         payment.setUser(user);
         payment.setCourse(course);
@@ -127,6 +140,8 @@ public class PaymentService {
     }
 
     public Payment getPaymentByTransactionId(String transactionId) {
-        return paymentRepository.findByTransactionId(transactionId).orElse(null);
+        return paymentRepository.findByTransactionId(transactionId)
+                .or(() -> paymentRepository.findByRazorpayPaymentId(transactionId))
+                .orElse(null);
     }
 }

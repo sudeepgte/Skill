@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -15,6 +15,8 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" onerror="this.onerror=null; this.href='/css/font-awesome-fallback.css';">
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <!-- Footer Styles -->
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
@@ -739,29 +741,36 @@
                 </div>
 
                 <div class="sidebar-content">
+                    <!-- Price Display -->
+                    <div style="padding: 15px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 15px;">
+                         <div th:if="${course.price != null and course.price > 0}" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+                             <span style="font-size: 3rem; font-weight: 800; color: var(--text-dark);">&#8377;<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
+                         </div>
+                         <div th:unless="${course.price != null and course.price > 0}">
+                             <span style="font-size: 2.6rem; font-weight: 800; color: #1c1d1f;">Free</span>
+                         </div>
+                    </div>
+
+                    <!-- Watch Now (if enrolled) -->
                     <th:block th:if="${isEnrolled}">
                         <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy"
-                            style="display:block; text-align:center; text-decoration:none; box-sizing: border-box;">Watch
-                            Now</a>
-                    </th:block>
-                    <th:block th:unless="${isEnrolled}">
-                        <!-- Sidebar Price Display -->
-                        <div style="padding: 15px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 15px;">
-                             <div th:if="${course.price != null and course.price > 0}" style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
-                                 <span style="font-size: 3rem; font-weight: 800; color: var(--text-dark);">₹<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">2000</span></span>
-                             </div>
-                             <div th:unless="${course.price != null and course.price > 0}">
-                                 <span style="font-size: 2.6rem; font-weight: 800; color: #1c1d1f;">Free</span>
-                             </div>
-                        </div>
-                        
-                        <!-- For Paid: Link to Checkout -->
-                        <a th:if="${course.price > 0}" th:href="'/checkout/' + ${course.id}" class="btn-buy" style="display:block; text-align:center; text-decoration:none;">Buy Now</a>
-                        
-                        <!-- For Free: Button for API enrollment -->
-                        <button th:unless="${course.price > 0}" class="btn-buy" id="enrollBtnSidebar">Enroll for Free</button>
+                            style="display:block; text-align:center; text-decoration:none; box-sizing: border-box; margin-bottom: 10px;">Watch Now</a>
                     </th:block>
 
+                    <!-- Buy Now Button (for Paid Courses - opens Razorpay directly) -->
+                    <th:block th:if="${course.price != null and course.price > 0}">
+                        <button type="button" class="btn-buy" id="buyNowRazorpayBtn"
+                            th:data-course-id="${course.id}"
+                            th:data-course-title="${course.title}"
+                            style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px; background-color: var(--primary); color: white; border: none; font-size: 1.1rem; font-weight: 600; padding: 12px; border-radius: 6px;">
+                            <i class="fas fa-bolt" style="margin-right: 6px;"></i> Buy Now
+                        </button>
+                    </th:block>
+
+                    <!-- Free Course: Enroll for Free -->
+                    <th:block th:if="${(course.price == null or course.price <= 0) and not isEnrolled}">
+                        <button class="btn-buy" id="enrollBtnSidebar" style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px;">Enroll for Free</button>
+                    </th:block>
                     <!-- Wishlist Button -->
                     <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
                         style="background-color: transparent; color: var(--text-dark); border: 1px solid var(--text-dark); margin-top: 10px;">
@@ -1276,7 +1285,7 @@
         // Enroll / Buy Button Logic
         document.querySelectorAll('.btn-buy').forEach(function (button) {
             // Skip wishlist, links, and toggle buttons (with onclick)
-            if (button.id === 'addToWishlistBtn' ||
+            if (button.id === 'addToWishlistBtn' || button.id === 'buyNowRazorpayBtn' ||
                 button.tagName.toLowerCase() === 'a' ||
                 button.hasAttribute('onclick')) return;
 
@@ -1313,6 +1322,125 @@
             });
         });
 
+        // Direct Razorpay Buy Now Button Handler
+        const buyNowBtn = document.getElementById("buyNowRazorpayBtn");
+        if (buyNowBtn) {
+            buyNowBtn.addEventListener("click", async function () {
+                const courseId = this.getAttribute("data-course-id") || /*[[${course.id}]]*/ 0;
+                const courseTitle = this.getAttribute("data-course-title") || /*[[${course.title}]]*/ "Course";
+                const originalHtml = buyNowBtn.innerHTML;
+
+                if (typeof Razorpay === "undefined") {
+                    alert("Razorpay payment gateway is loading. Please check your internet connection and try again.");
+                    return;
+                }
+
+                try {
+                    buyNowBtn.disabled = true;
+                    buyNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i> Processing...';
+
+                    const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').getAttribute('content') : "";
+                    const csrfHeader = (document.querySelector('meta[name="_csrf_header"]') ? document.querySelector('meta[name="_csrf_header"]').getAttribute('content') : "") || "X-CSRF-TOKEN";
+                    const headers = {};
+                    if (csrfToken) {
+                        headers[csrfHeader] = csrfToken;
+                    }
+
+                    const response = await fetch("/payment/create-order?courseId=" + courseId, {
+                        method: "POST",
+                        headers: headers
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data.status !== "success") {
+                        if (data.message === "User not logged in") {
+                            window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname);
+                            return;
+                        }
+                        throw new Error(data.message || "Failed to create payment order");
+                    }
+
+                    const options = {
+                        "key": data.keyId,
+                        "amount": data.amount,
+                        "currency": "INR",
+                        "name": "SkillHub",
+                        "description": "Course: " + courseTitle,
+                        "image": "/images/logo.png",
+                        "order_id": data.orderId,
+                        "prefill": {
+                            "name": data.userName || "Student",
+                            "email": data.userEmail || "",
+                            "contact": data.userPhone || "9876543210"
+                        },
+                        "theme": {
+                            "color": "#5624d0"
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                buyNowBtn.disabled = false;
+                                buyNowBtn.innerHTML = originalHtml;
+                            }
+                        },
+                        "handler": function (rzpResponse) {
+                            buyNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 6px;"></i> Verifying...';
+
+                            const verifyHeaders = {
+                                "Content-Type": "application/json"
+                            };
+                            if (csrfToken) {
+                                verifyHeaders[csrfHeader] = csrfToken;
+                            }
+
+                            fetch("/payment/verify", {
+                                method: "POST",
+                                headers: verifyHeaders,
+                                body: JSON.stringify({
+                                    razorpay_order_id: rzpResponse.razorpay_order_id,
+                                    razorpay_payment_id: rzpResponse.razorpay_payment_id,
+                                    razorpay_signature: rzpResponse.razorpay_signature
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(verifyData => {
+                                if (verifyData.status === "success") {
+                                    window.location.href = verifyData.redirectUrl || ("/user/course/" + courseId + "/learn");
+                                } else {
+                                    alert("Payment verification failed: " + (verifyData.message || "Signature mismatch"));
+                                    buyNowBtn.disabled = false;
+                                    buyNowBtn.innerHTML = originalHtml;
+                                }
+                            })
+                            .catch(err => {
+                                alert("Error verifying payment: " + err.message);
+                                buyNowBtn.disabled = false;
+                                buyNowBtn.innerHTML = originalHtml;
+                            });
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.on("payment.failed", function (failResp) {
+                        const errorMsg = failResp.error ? (failResp.error.description || failResp.error.reason) : "Payment cancelled";
+                        alert("Payment failed: " + errorMsg);
+                        buyNowBtn.disabled = false;
+                        buyNowBtn.innerHTML = originalHtml;
+                    });
+                    rzp.open();
+
+                } catch (err) {
+                    console.error("Error starting payment:", err);
+                    alert(err.message || "Could not initiate Razorpay payment.");
+                    buyNowBtn.disabled = false;
+                    buyNowBtn.innerHTML = originalHtml;
+                }
+            });
+        }
         // Wishlist Logic
         document.getElementById('addToWishlistBtn')?.addEventListener('click', function () {
             const courseId = this.getAttribute('data-course-id');

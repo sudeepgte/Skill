@@ -1,5 +1,6 @@
 package com.skillhub.repository;
 
+import com.skillhub.model.Course;
 import com.skillhub.model.Payment;
 import com.skillhub.model.User;
 import com.skillhub.model.PaymentStatus;
@@ -10,5 +11,9 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByTransactionId(String transactionId);
     Optional<Payment> findByRazorpayOrderId(String razorpayOrderId);
+    Optional<Payment> findByRazorpayPaymentId(String razorpayPaymentId);
     List<Payment> findByUserAndStatusOrderByPaymentDateDesc(User user, PaymentStatus status);
+    Optional<Payment> findByUserAndCourseAndStatus(User user, Course course, PaymentStatus status);
+    boolean existsByUserAndCourseAndStatus(User user, Course course, PaymentStatus status);
+    List<Payment> findByUserAndCourse(User user, Course course);
 }

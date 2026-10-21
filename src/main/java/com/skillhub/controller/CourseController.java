@@ -55,6 +55,15 @@ public class CourseController {
     @Autowired
     private com.skillhub.service.NotificationService notificationService;
 
+    @Autowired
+    private com.skillhub.repository.PaymentRepository paymentRepository;
+
+    @Autowired
+    private com.skillhub.repository.ExamQuestionRepository examQuestionRepository;
+
+    @Autowired
+    private com.skillhub.repository.ExamAttemptRepository examAttemptRepository;
+
     @GetMapping({ "/course/{id}", "/user/course/{id}" })
     public String getCourseDetails(@PathVariable("id") Long id, Model model, Principal principal) {
         // Fetch entity
@@ -354,10 +363,19 @@ public class CourseController {
         }
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
         com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (user == null || course == null) {
+            return "redirect:/courses";
+        }
 
         // check if enrolled
         if (enrollmentRepository.findByStudentAndCourse(user, course).isEmpty()) {
             return "redirect:/user/course/" + id;
+        }
+
+        // Ensure questions are populated for the exam view
+        List<com.skillhub.model.ExamQuestion> questions = examQuestionRepository.findByCourseId(id);
+        if (questions != null && !questions.isEmpty()) {
+            course.setExamQuestions(questions);
         }
 
         model.addAttribute("course", course);
@@ -365,28 +383,124 @@ public class CourseController {
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/user/course/{id}/exam/pass")
-    public String passExam(@PathVariable("id") Long id, Principal principal) {
+    public String passExam(@PathVariable("id") Long id,
+                           @org.springframework.web.bind.annotation.RequestParam(required = false) java.util.Map<String, String> allParams,
+                           Principal principal,
+                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (principal == null) {
             return "redirect:/login";
         }
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
         com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (user == null || course == null) {
+            return "redirect:/courses";
+        }
 
-        enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(enrollment -> {
-            enrollment.setExamPassed(true);
-            enrollment.setCertificateDate(java.time.LocalDateTime.now());
-            enrollmentRepository.save(enrollment);
-        });
+        com.skillhub.model.Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course).orElse(null);
+        if (enrollment == null) {
+            redirectAttributes.addFlashAttribute("error", "You must be enrolled in the course to attempt the exam.");
+            return "redirect:/user/course/" + id;
+        }
 
-        return "redirect:/?certificateData=earned";
+        // Fetch questions for this course
+        List<com.skillhub.model.ExamQuestion> questions = examQuestionRepository.findByCourseId(id);
+        if (questions == null || questions.isEmpty()) {
+            questions = course.getExamQuestions();
+        }
+
+        // Verified evaluation of submitted test questions (BUG-017)
+        if (questions == null || questions.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No assessment questions have been configured for this course. Exam cannot be evaluated.");
+            return "redirect:/user/course/" + id + "/exam";
+        }
+
+        int totalQuestions = questions.size();
+        int answeredCount = 0;
+        int correctCount = 0;
+
+        for (com.skillhub.model.ExamQuestion q : questions) {
+            String submittedAnswer = null;
+            if (allParams != null) {
+                if (allParams.containsKey("q" + q.getId())) {
+                    submittedAnswer = allParams.get("q" + q.getId());
+                } else if (allParams.containsKey("q_" + q.getId())) {
+                    submittedAnswer = allParams.get("q_" + q.getId());
+                } else if (allParams.containsKey(String.valueOf(q.getId()))) {
+                    submittedAnswer = allParams.get(String.valueOf(q.getId()));
+                } else if (allParams.containsKey("question_" + q.getId())) {
+                    submittedAnswer = allParams.get("question_" + q.getId());
+                }
+            }
+
+            if (submittedAnswer != null && !submittedAnswer.trim().isEmpty()) {
+                answeredCount++;
+                String expected = q.getCorrectOption();
+                if (expected == null || expected.trim().isEmpty()) {
+                    expected = q.getCorrectAnswer();
+                }
+                if (expected != null && submittedAnswer.trim().equalsIgnoreCase(expected.trim())) {
+                    correctCount++;
+                }
+            }
+        }
+
+        // Direct POST without answering questions is strictly rejected
+        if (answeredCount == 0) {
+            redirectAttributes.addFlashAttribute("error", "Exam submission rejected: You must answer the test questions.");
+            return "redirect:/user/course/" + id + "/exam";
+        }
+
+        int scorePercentage = (int) Math.round(((double) correctCount / totalQuestions) * 100.0);
+        boolean passed = scorePercentage >= 70; // 70% passing threshold
+
+        // Record the exam attempt
+        com.skillhub.model.ExamAttempt attempt = new com.skillhub.model.ExamAttempt(course, user, scorePercentage, passed);
+        examAttemptRepository.save(attempt);
+
+        if (!passed) {
+            redirectAttributes.addFlashAttribute("error", "Exam failed. You scored " + scorePercentage + "% (" + correctCount + "/" + totalQuestions + " correct). A minimum score of 70% is required to pass.");
+            return "redirect:/user/course/" + id + "/exam?score=" + scorePercentage;
+        }
+
+        // Only on verified pass: mark exam passed and award official certificate date
+        enrollment.setExamPassed(true);
+        enrollment.setCertificateDate(java.time.LocalDateTime.now());
+        enrollmentRepository.save(enrollment);
+
+        redirectAttributes.addFlashAttribute("success", "Congratulations! You passed the exam with " + scorePercentage + "% and earned your certificate!");
+        return "redirect:/user/certifications?score=" + scorePercentage;
     }
 
     @GetMapping("/course/enroll/{id}")
-    public String enrollCourse(@PathVariable("id") Long id, Principal principal) {
+    public String enrollCourse(@PathVariable("id") Long id, Principal principal, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (principal == null) {
             return "redirect:/login";
         }
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course == null) {
+            return "redirect:/courses";
+        }
+
+        // If user is already enrolled, take them straight to profile or learning room
+        if (enrollmentService.isEnrolled(user, course)) {
+            return "redirect:/profile?tab=courses";
+        }
+
+        // Check if course is free or paid
+        boolean isFree = course.getPrice() == null || course.getPrice() <= 0;
+        if (isFree) {
+            enrollmentService.enrollUser(user, id);
+            return "redirect:/profile?tab=courses";
+        }
+
+        // Paid course: verify payment receipt/order before creating an enrollment record (BUG-016)
+        boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
+        if (!hasPaid) {
+            redirectAttributes.addFlashAttribute("error", "Payment required. Please complete checkout to enroll in this course.");
+            return "redirect:/checkout/" + id;
+        }
+
         enrollmentService.enrollUser(user, id);
         return "redirect:/profile?tab=courses";
     }

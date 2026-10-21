@@ -58,6 +58,9 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
     @GetMapping({"", "/"})
     public String adminRoot() {
         return "redirect:/admin/dashboard";
@@ -93,6 +96,67 @@ public class AdminController {
         model.addAttribute("pendingReports", pendingReports);
 
         return "admin/dashboard";
+    }
+
+    @GetMapping("/analytics")
+    public String showAnalytics(Model model) {
+        long totalUsers = userService.countUsers();
+        long totalCourses = courseService.countCourses();
+        long totalEnrollments = enrollmentRepository.count();
+        long totalInstructors = userService.getAllUsers().stream()
+                .filter(u -> "INSTRUCTOR".equals(u.getRole()))
+                .count();
+
+        long activeUsers = userService.countActiveUsers24h();
+        if (activeUsers == 0 && totalUsers > 0) {
+            activeUsers = userService.getAllUsers().stream().filter(u -> !u.isBlocked()).count();
+        }
+        long inactiveUsers = Math.max(0, totalUsers - activeUsers);
+
+        // Last 7 days enrollment trajectory
+        List<String> enrollmentLabels = new ArrayList<>();
+        List<Long> enrollmentValues = new ArrayList<>();
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("MMM dd");
+
+        List<Enrollment> allEnrollments = enrollmentRepository.findAll();
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate date = today.minusDays(i);
+            enrollmentLabels.add(date.format(formatter));
+            long count = allEnrollments.stream()
+                    .filter(e -> e.getEnrolledAt() != null && e.getEnrolledAt().toLocalDate().isEqual(date))
+                    .count();
+            enrollmentValues.add(count);
+        }
+
+        // Popular Categories & their enrollment count
+        List<Category> categories = categoryService.getAllCategories();
+        List<String> categoryLabels = new ArrayList<>();
+        List<Long> categoryValues = new ArrayList<>();
+        if (categories != null) {
+            for (Category cat : categories) {
+                categoryLabels.add(cat.getName());
+                long count = allEnrollments.stream()
+                        .filter(e -> e.getCourse() != null && e.getCourse().getCategory() != null
+                                && cat.getName() != null
+                                && cat.getName().equalsIgnoreCase(e.getCourse().getCategory().getName()))
+                        .count();
+                categoryValues.add(count);
+            }
+        }
+
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalCourses", totalCourses);
+        model.addAttribute("totalEnrollments", totalEnrollments);
+        model.addAttribute("totalInstructors", totalInstructors);
+        model.addAttribute("activeUsers", activeUsers);
+        model.addAttribute("inactiveUsers", inactiveUsers);
+        model.addAttribute("enrollmentLabels", enrollmentLabels);
+        model.addAttribute("enrollmentValues", enrollmentValues);
+        model.addAttribute("categoryLabels", categoryLabels);
+        model.addAttribute("categoryValues", categoryValues);
+
+        return "admin/analytics";
     }
 
     @GetMapping("/users")

@@ -2,265 +2,507 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout | SkillHub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSRF Meta Tags for AJAX -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <!-- Razorpay Checkout SDK (CDN with local fallback) -->
     <script src="https://checkout.razorpay.com/v1/checkout.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='/js/razorpay.js';document.head.appendChild(s);"></script>
+
     <style>
         :root {
             --primary: #5624d0;
             --primary-hover: #401b9c;
+            --rzp-blue: #0c2340;
+            --rzp-cyan: #00BAF2;
             --text-dark: #1c1d1f;
-            --text-muted: #6a6f73;
-            --bg-light: #f7f9fa;
-            --border: #d1d7dc;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
             --white: #ffffff;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
             margin: 0;
             line-height: 1.6;
         }
 
+        /* Top Checkout Brand Bar */
+        .checkout-header {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-inner {
+            max-width: 1040px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: var(--text-dark);
+        }
+
+        .secure-badge-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--success);
+            background: #ecfdf5;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #a7f3d0;
+        }
+
         .checkout-container {
-            max-width: 1000px;
-            margin: 4rem auto;
+            max-width: 1040px;
+            margin: 2.5rem auto 4rem;
             display: grid;
             grid-template-columns: 1fr 380px;
             gap: 2rem;
-            padding: 0 2rem;
+            padding: 0 1.5rem;
+        }
+
+        @media (max-width: 860px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .payment-section {
             background: var(--white);
-            padding: 2.5rem;
+            padding: 2rem 2.2rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
         }
 
         .order-summary {
             background: var(--white);
             padding: 2rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 14px;
             height: fit-content;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
         }
 
         h2 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
+            font-weight: 700;
             margin-top: 0;
-            margin-bottom: 2rem;
-        }
-
-        .method-card {
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            cursor: pointer;
-            margin-bottom: 1.2rem;
-            transition: all 0.2s;
-            position: relative;
+            gap: 10px;
         }
 
-        .method-card:hover {
-            border-color: var(--primary);
-            background: #f8f7ff;
+        /* Razorpay Official Gateway Card */
+        .rzp-main-card {
+            border: 2px solid #0c2340;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(12, 35, 64, 0.08);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.25s ease;
         }
 
-        .method-card.active {
-            border-color: var(--primary);
-            background: #f8f7ff;
+        .rzp-card-header {
+            background: linear-gradient(135deg, #0c2340 0%, #153e75 100%);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .method-card.razorpay-card {
-            border: 2px solid #528ff0;
-            background: #f7faff;
-        }
-
-        .method-card.razorpay-card.active {
-            border-color: #0c2340;
-            background: #edf5ff;
-            box-shadow: 0 4px 15px rgba(12, 35, 64, 0.08);
-        }
-
-        .badge-recommended {
-            background: linear-gradient(135deg, #0c2340 0%, #1555a6 100%);
-            color: #ffffff;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 0.2rem 0.55rem;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-
-        .razorpay-pill {
+        .rzp-logo-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            background: #ffffff;
-            border: 1px solid #d1d7dc;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .rzp-logo-text {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.3px;
+        }
+
+        .rzp-status-pill {
+            background: #00BAF2;
             color: #0c2340;
-            margin-top: 4px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .method-card input[type="radio"] {
-            position: absolute;
-            right: 1.5rem;
-            width: 20px;
-            height: 20px;
-            accent-color: var(--primary);
+        .rzp-card-body {
+            padding: 1.5rem;
+            background: #fbfdff;
         }
 
-        .method-icon {
-            font-size: 1.8rem;
-            color: var(--primary);
-            width: 40px;
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 1.2rem 0;
+        }
+
+        @media (max-width: 540px) {
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .method-chip {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #334155;
+            transition: all 0.2s;
+        }
+
+        .method-chip:hover {
+            border-color: #0284c7;
+            background: #f0f9ff;
+        }
+
+        .method-chip i {
+            font-size: 1.25rem;
+            width: 24px;
             text-align: center;
         }
 
+        .billing-preview {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 1.2rem 0;
+            font-size: 0.88rem;
+        }
+
+        .billing-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .billing-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .billing-label {
+            color: #64748b;
+        }
+
+        .billing-val {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .btn-pay-rzp {
+            width: 100%;
+            background: linear-gradient(135deg, #0c2340 0%, #1555a6 100%);
+            color: #ffffff;
+            border: none;
+            padding: 1.15rem 1.5rem;
+            font-family: inherit;
+            font-size: 1.12rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(12, 35, 64, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .btn-pay-rzp:hover {
+            background: linear-gradient(135deg, #08192e 0%, #0e448b 100%);
+            box-shadow: 0 6px 20px rgba(12, 35, 64, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-pay-rzp:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .trust-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 12px;
+            margin-top: 1.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex-wrap: wrap;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Order Summary Styles */
         .course-preview {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
         }
 
         .course-thumb {
-            width: 100px;
+            width: 90px;
             height: 60px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
         .price-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            color: #475569;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
+            align-items: baseline;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
             border-top: 2px dashed var(--border);
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #0f172a;
         }
 
-        .btn-pay {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 1.2rem;
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 2rem;
-            transition: background 0.2s;
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0 0;
+            border-top: 1px solid var(--border);
+            padding-top: 1.2rem;
         }
 
-        .btn-pay:hover {
-            background: var(--primary-hover);
-        }
-
-        .secure-badge {
+        .features-list li {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            margin-top: 1.5rem;
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .features-list li i {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 
+    <!-- Header Bar -->
+    <header class="checkout-header">
+        <div class="header-inner">
+            <a href="/" class="brand-logo">
+                <span class="brand-name">Skill<span>Hub</span></span>
+            </a>
+            <div class="secure-badge-top">
+                <i class="fas fa-lock"></i> 100% Secure Checkout
+            </div>
+        </div>
+    </header>
+
     <div class="checkout-container">
         <!-- Left: Payment Methods -->
         <div class="payment-section">
-            <h2>Select Payment Method</h2>
-            <form id="paymentForm" th:action="@{/payment/process}" method="post">
+            <!-- Flash Message from CourseController redirect -->
+            <div th:if="${error}" class="alert-warning">
+                <i class="fas fa-shield-alt" style="font-size: 1.2rem;"></i>
+                <span th:text="${error}">Payment required. Please complete checkout to enroll in this course.</span>
+            </div>
+
+            <h2><i class="fas fa-credit-card" style="color: var(--primary);"></i> Payment Gateway</h2>
+
+            <form id="paymentForm" onsubmit="event.preventDefault(); initiateRazorpayPayment();">
                 <input type="hidden" name="courseId" th:value="${course.id}">
-                
-                <!-- 1. Dedicated Razorpay Gateway Card (Recommended & Default) -->
-                <div class="method-card razorpay-card active" onclick="selectMethod('RAZORPAY')">
-                    <div class="method-icon" style="color: #0c2340;">
-                        <i class="fas fa-bolt" style="color: #0c2340;"></i>
-                    </div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                            <span style="color: #0c2340;">Razorpay Secure Checkout</span>
-                            <span class="badge-recommended">Recommended</span>
+
+                <!-- Official Razorpay Gateway Card -->
+                <div class="rzp-main-card">
+                    <div class="rzp-card-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="rzp-logo-badge">
+                                <!-- Razorpay Official Lightning / Arrow SVG -->
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: middle;">
+                                    <path d="M12 2L2 19.5h8.5L12 14l3.5 5.5H22L12 2z" fill="#00BAF2"/>
+                                </svg>
+                                <span class="rzp-logo-text">Razorpay</span>
+                            </div>
+                            <span class="rzp-status-pill"><i class="fas fa-check-circle"></i> Official Gateway</span>
                         </div>
-                        <div style="font-size: 0.88rem; color: var(--text-muted); margin-top: 2px;">
-                            All-in-one: Cards, UPI (GPay, PhonePe, Paytm), Net Banking &amp; QR
-                        </div>
-                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
-                            <span class="razorpay-pill"><i class="fab fa-google-pay" style="color:#4285F4;"></i> GPay</span>
-                            <span class="razorpay-pill"><i class="fas fa-qrcode" style="color:#5f259f;"></i> PhonePe</span>
-                            <span class="razorpay-pill"><i class="fas fa-credit-card" style="color:#0c2340;"></i> Cards</span>
-                            <span class="razorpay-pill"><i class="fas fa-university" style="color:#008080;"></i> NetBanking</span>
+                        <div style="font-size: 0.82rem; opacity: 0.9;">
+                            <i class="fas fa-shield-alt"></i> RBI Authorized
                         </div>
                     </div>
-                    <input type="radio" name="method" value="RAZORPAY" checked>
-                </div>
 
-                <!-- 2. UPI / Google Pay -->
-                <div class="method-card" onclick="selectMethod('UPI')">
-                    <div class="method-icon"><i class="fas fa-mobile-alt"></i></div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700;">UPI / QR Code</div>
-                        <div style="font-size: 0.88rem; color: var(--text-muted);">Instant with PhonePe, GPay, Paytm, BHIM via Razorpay</div>
+                    <div class="rzp-card-body">
+                        <div style="font-size: 0.92rem; color: #475569; margin-bottom: 0.8rem; font-weight: 500;">
+                            India's leading payment gateway. Complete your payment using any of the supported methods:
+                        </div>
+
+                        <!-- Real Supported Payment Modes -->
+                        <div class="method-grid">
+                            <div class="method-chip">
+                                <i class="fab fa-google-pay" style="color: #4285F4;"></i>
+                                <div>
+                                    <div style="color: #0f172a;">UPI / QR Code</div>
+                                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 400;">GPay, PhonePe, Paytm, BHIM</div>
+                                </div>
+                            </div>
+                            <div class="method-chip">
+                                <i class="fas fa-credit-card" style="color: #0c2340;"></i>
+                                <div>
+                                    <div style="color: #0f172a;">Credit &amp; Debit Cards</div>
+                                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 400;">Visa, Mastercard, RuPay</div>
+                                </div>
+                            </div>
+                            <div class="method-chip">
+                                <i class="fas fa-university" style="color: #0891b2;"></i>
+                                <div>
+                                    <div style="color: #0f172a;">Net Banking</div>
+                                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 400;">50+ Major Indian Banks</div>
+                                </div>
+                            </div>
+                            <div class="method-chip">
+                                <i class="fas fa-wallet" style="color: #8b5cf6;"></i>
+                                <div>
+                                    <div style="color: #0f172a;">Wallets &amp; EMI</div>
+                                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 400;">Amazon Pay, Mobikwik, etc.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Information Box -->
+                        <div class="billing-preview">
+                            <div class="billing-row">
+                                <span class="billing-label">Student:</span>
+                                <span class="billing-val" th:text="${user != null and user.name != null ? user.name : 'Student'}">Student</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Email:</span>
+                                <span class="billing-val" th:text="${user != null and user.email != null ? user.email : ''}">student@email.com</span>
+                            </div>
+                            <div class="billing-row">
+                                <span class="billing-label">Instant Access:</span>
+                                <span class="billing-val" style="color: var(--success);"><i class="fas fa-bolt"></i> Activated immediately upon payment</span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Error Box -->
+                        <div id="checkoutError" style="display: none; color: #991b1b; background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 500;"></div>
+
+                        <!-- Main Checkout Button -->
+                        <button type="button" class="btn-pay-rzp" id="payBtn" onclick="initiateRazorpayPayment()">
+                            <i class="fas fa-lock"></i>
+                            <span>Pay ₹<span th:text="${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">1050</span> with Razorpay</span>
+                        </button>
+
+                        <!-- Trust / Security Seals -->
+                        <div class="trust-grid">
+                            <div class="trust-item">
+                                <i class="fas fa-shield-alt" style="color: #10b981;"></i> 256-Bit SSL
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-check-circle" style="color: #0284c7;"></i> PCI-DSS Level 1
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-bolt" style="color: #eab308;"></i> Instant Activation
+                            </div>
+                            <div class="trust-item">
+                                <i class="fas fa-undo" style="color: #6366f1;"></i> 30-Day Guarantee
+                            </div>
+                        </div>
                     </div>
-                    <input type="radio" name="method" value="UPI">
-                </div>
-
-                <!-- 3. Credit / Debit Card -->
-                <div class="method-card" onclick="selectMethod('CARD')">
-                    <div class="method-icon"><i class="fas fa-credit-card"></i></div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700;">Credit / Debit Card</div>
-                        <div style="font-size: 0.88rem; color: var(--text-muted);">Visa, Mastercard, RuPay, Maestro via Razorpay</div>
-                    </div>
-                    <input type="radio" name="method" value="CARD">
-                </div>
-
-                <!-- 4. Wallets -->
-                <div class="method-card" onclick="selectMethod('WALLET')">
-                    <div class="method-icon"><i class="fas fa-wallet"></i></div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700;">Wallets &amp; Net Banking</div>
-                        <div style="font-size: 0.88rem; color: var(--text-muted);">Paytm, PhonePe Wallet, Net Banking across all banks</div>
-                    </div>
-                    <input type="radio" name="method" value="WALLET">
-                </div>
-
-                <div id="checkoutError" style="display: none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 12px 15px; margin-bottom: 15px; font-size: 0.9rem; font-weight: 500;"></div>
-
-                <button type="button" class="btn-pay" id="payBtn" onclick="initiateRazorpayPayment()">
-                    <i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ₹<span th:text="${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">2100</span> with Razorpay
-                </button>
-                <div class="secure-badge">
-                    <i class="fas fa-shield-alt" style="color: #0c2340;"></i> Powered by Razorpay &bull; 256-bit SSL Secure Checkout
                 </div>
             </form>
         </div>
@@ -269,54 +511,45 @@
         <div class="order-summary">
             <h2>Order Summary</h2>
             <div class="course-preview">
-                <img th:src="${course.imageUrl}" class="course-thumb" alt="Course">
-                <div style="font-weight: 600; font-size: 0.95rem;" th:text="${course.title}">Course Title</div>
+                <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/default-course.png'}" 
+                     class="course-thumb" alt="Course" onerror="this.src='/images/logo.png'">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.98rem; color: #0f172a; line-height: 1.4;" th:text="${course.title}">Course Title</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;" th:if="${course.instructor != null}" th:text="'By ' + ${course.instructor.name}">By Instructor</div>
+                </div>
             </div>
 
             <div class="price-row">
                 <span>Course Price</span>
-                <span th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹2000</span>
+                <span style="font-weight: 600; color: #0f172a;" th:text="'₹' + ${#numbers.formatDecimal(course.price, 1, 0)}">₹1000</span>
             </div>
             <div class="price-row">
-                <span>Service Fee (5%)</span>
-                <span th:text="'₹' + ${#numbers.formatDecimal(course.price * 0.05, 1, 0)}">₹100</span>
+                <span>Platform &amp; Tax Fee (5%)</span>
+                <span style="font-weight: 600; color: #0f172a;" th:text="'₹' + ${#numbers.formatDecimal(course.price * 0.05, 1, 0)}">₹50</span>
             </div>
 
             <div class="total-row">
-                <span>Total</span>
-                <span th:text="'₹' + ${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">₹2100</span>
+                <span>Total Due</span>
+                <span style="color: #0c2340;" th:text="'₹' + ${#numbers.formatDecimal(course.price * 1.05, 1, 0)}">₹1050</span>
             </div>
 
-            <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted);">
-                By completing your purchase, you agree to SkillHub's <a href="#">Terms of Service</a>.
+            <ul class="features-list">
+                <li><i class="fas fa-check"></i> Full Lifetime Access</li>
+                <li><i class="fas fa-check"></i> Certificate of Completion</li>
+                <li><i class="fas fa-check"></i> Mobile, Tablet &amp; Desktop Access</li>
+                <li><i class="fas fa-check"></i> 30-Day Money-Back Guarantee</li>
+            </ul>
+
+            <div style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+                By completing your purchase, you agree to SkillHub's <a href="/terms" style="color: var(--primary);">Terms of Service</a>.
             </div>
         </div>
     </div>
 
     <script th:inline="javascript">
-        const courseId = [[${course.id}]];
-        const formattedTotal = '₹' + [[${#numbers.formatDecimal(course.price * 1.05, 1, 0)}]];
-        let currentMethod = 'RAZORPAY';
-
-        function selectMethod(method) {
-            currentMethod = method;
-            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
-            const cards = document.querySelectorAll('.method-card');
-            cards.forEach(card => {
-                const radio = card.querySelector('input');
-                if (radio && radio.value === method) {
-                    card.classList.add('active');
-                    radio.checked = true;
-                }
-            });
-            updateButtonText(method);
-        }
-
-        function updateButtonText(method) {
-            const btn = document.getElementById('payBtn');
-            if (!btn || btn.disabled) return;
-            btn.innerHTML = '<i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ' + formattedTotal + ' with Razorpay';
-        }
+        /*<![CDATA[*/
+        const courseId = /*[[${course.id}]]*/ 0;
+        const formattedTotal = '₹' + /*[[${#numbers.formatDecimal(course.price * 1.05, 1, 0)}]]*/ '1050';
 
         function showError(msg) {
             const errBox = document.getElementById('checkoutError');
@@ -332,7 +565,7 @@
             const btn = document.getElementById('payBtn');
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-lock" style="margin-right: 8px;"></i> Pay ' + formattedTotal + ' with Razorpay';
+                btn.innerHTML = '<i class="fas fa-lock"></i> <span>Pay ' + formattedTotal + ' with Razorpay</span>';
             }
         }
 
@@ -342,12 +575,12 @@
             if (errBox) errBox.style.display = 'none';
 
             if (btn) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Opening Razorpay...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Connecting to Razorpay...</span>';
                 btn.disabled = true;
             }
 
             try {
-                // 1. Ensure Razorpay SDK is available
+                // 1. Ensure Razorpay SDK is loaded
                 let rzpConstructor = window.Razorpay;
                 if (!rzpConstructor) {
                     for (let i = 0; i < 20; i++) {
@@ -360,40 +593,50 @@
                 }
 
                 if (!rzpConstructor) {
-                    throw new Error('Razorpay Checkout SDK is still loading. Please check your internet connection or disable ad-blockers and try again.');
+                    throw new Error('Razorpay Checkout SDK is still loading. Please check your internet connection and try again.');
                 }
 
                 // 2. Obtain CSRF Token
-                const csrfInput = document.querySelector('input[name="_csrf"]');
-                const csrfToken = csrfInput ? csrfInput.value : '';
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
                 const headers = { 'Accept': 'application/json' };
                 if (csrfToken) {
-                    headers['X-CSRF-TOKEN'] = csrfToken;
+                    headers[csrfHeader] = csrfToken;
                 }
 
-                // 3. Create Razorpay Order on server
+                // 3. Create live Razorpay Order on server
                 const orderResp = await fetch('/payment/create-order?courseId=' + courseId, {
                     method: 'POST',
                     headers: headers
                 });
 
+                if (orderResp.status === 401) {
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+
                 if (!orderResp.ok) {
-                    throw new Error('Server returned HTTP ' + orderResp.status + ' while generating order.');
+                    throw new Error('Server returned HTTP ' + orderResp.status + ' while creating Razorpay order.');
                 }
 
                 const orderData = await orderResp.json();
                 if (orderData.status !== 'success') {
+                    if (orderData.message === 'User not logged in') {
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                        return;
+                    }
                     throw new Error(orderData.message || 'Unable to generate Razorpay order.');
                 }
 
                 // 4. Launch full Razorpay Modal
-                const razorpayKey = orderData.keyId || [[${razorpayKeyId}]];
+                const razorpayKey = orderData.keyId || /*[[${razorpayKeyId}]]*/ '';
+                const courseTitle = /*[[${course.title}]]*/ 'Course';
                 const options = {
                     "key": razorpayKey,
                     "amount": orderData.amount,
                     "currency": "INR",
                     "name": "SkillHub",
-                    "description": "Course: " + [[${course.title}]],
+                    "description": "Course: " + courseTitle,
                     "image": "/images/logo.png",
                     "order_id": orderData.orderId,
                     "handler": function (response) {
@@ -405,7 +648,7 @@
                         "contact": orderData.userPhone || "9876543210"
                     },
                     "theme": {
-                        "color": "#5624d0"
+                        "color": "#0c2340"
                     },
                     "modal": {
                         "ondismiss": function() {
@@ -429,30 +672,21 @@
             }
         }
 
-        // Prevent accidental default form submission
-        const paymentForm = document.getElementById('paymentForm');
-        if (paymentForm) {
-            paymentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                initiateRazorpayPayment();
-            });
-        }
-
         function verifyPayment(razorpayResponse) {
             const btn = document.getElementById('payBtn');
             if (btn) {
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Verifying payment...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Verifying payment...</span>';
                 btn.disabled = true;
             }
 
-            const csrfInput = document.querySelector('input[name="_csrf"]');
-            const csrfToken = csrfInput ? csrfInput.value : '';
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
             const headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             };
             if (csrfToken) {
-                headers['X-CSRF-TOKEN'] = csrfToken;
+                headers[csrfHeader] = csrfToken;
             }
 
             fetch('/payment/verify', {
@@ -467,7 +701,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    window.location.href = data.redirectUrl;
+                    window.location.href = data.redirectUrl || ('/payment/success/' + razorpayResponse.razorpay_payment_id);
                 } else {
                     showError('Payment verification failed: ' + data.message);
                     resetButton();
@@ -479,6 +713,7 @@
                 resetButton();
             });
         }
+        /*]]>*/
     </script>
 </body>
 </html>

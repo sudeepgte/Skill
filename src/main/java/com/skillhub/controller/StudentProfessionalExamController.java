@@ -101,7 +101,8 @@ public class StudentProfessionalExamController {
                 .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found"));
 
         // IDOR Protection: verify user ownership
-        if (!attempt.getStudent().getId().equals(user.getId())) {
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole());
+        if (!isAdmin && !attempt.getStudent().getId().equals(user.getId())) {
             throw new AccessDeniedException("Access denied: You do not own this examination attempt.");
         }
 
@@ -116,7 +117,8 @@ public class StudentProfessionalExamController {
                 .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found"));
 
         // IDOR Protection: verify user ownership
-        if (!attempt.getStudent().getId().equals(user.getId())) {
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole());
+        if (!isAdmin && !attempt.getStudent().getId().equals(user.getId())) {
             throw new AccessDeniedException("Access denied: You do not have permission to view these results.");
         }
 

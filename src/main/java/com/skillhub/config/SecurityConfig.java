@@ -55,11 +55,11 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/api/**")))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/register/admin", "/admin/register", "/saveUser",
-                                "/login", "/forgot-password", "/reset-password",
+                        .requestMatchers("/", "/register", "/saveUser",
+                                "/login", "/forgot-password", "/reset-password", "/verify-otp",
                                 "/api/auth/**",
                                 "/css/**", "/js/**", "/images/**",
-                                "/course/**", "/error", "/uploads/**",
+                                "/course/**", "/courses", "/courses/**", "/pricing", "/library", "/error", "/uploads/**",
                                 "/about", "/contact", "/submit-contact-form",
                                 "/business", "/teaching", "/app", "/help", "/blog", "/faq", 
                                 "/instructors", "/instructor/**",
@@ -69,15 +69,16 @@ public class SecurityConfig {
                                 "/api/health",
                                 "/api/newsletter/**", "/newsletter/**")
                         .permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN")
+                        .requestMatchers("/register/admin", "/admin/register", "/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/api/upload-video").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
                 .headers(headers -> headers
                         .contentTypeOptions(contentType -> {})
                         .frameOptions(frame -> frame.sameOrigin())
                         .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss:; frame-ancestors 'self';")))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss: https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';")))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

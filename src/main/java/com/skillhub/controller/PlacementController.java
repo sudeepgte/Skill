@@ -24,7 +24,7 @@ public class PlacementController {
     private CategoryService categoryService;
 
     // --- DASHBOARD ---
-    @GetMapping
+    @GetMapping({"", "/", "/dashboard"})
     public String getPlacementDashboard(Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
         User user = userService.findByEmail(principal.getName());
