@@ -286,7 +286,40 @@ public class InstructorController {
     @GetMapping("/courses/create")
     public String createCourseForm(Model model, Principal principal) {
         Course course = new Course();
-        course.setCategory(new Category());
+        List<Category> allCategories = categoryService.getAllCategories();
+        Category selectedCategory = null;
+
+        if (principal != null) {
+            User instructor = userService.findByEmail(principal.getName());
+            if (instructor != null) {
+                model.addAttribute("instructor", instructor);
+                model.addAttribute("vendor", instructor);
+                model.addAttribute("user", instructor);
+                String expertise = instructor.getSkills() != null && !instructor.getSkills().isBlank()
+                        ? instructor.getSkills()
+                        : instructor.getExpertise();
+                if (expertise != null && !expertise.isBlank()) {
+                    for (Category cat : allCategories) {
+                        if (cat.getName() != null && (cat.getName().equalsIgnoreCase(expertise.trim())
+                                || cat.getName().toLowerCase().contains(expertise.trim().toLowerCase())
+                                || expertise.trim().toLowerCase().contains(cat.getName().toLowerCase()))) {
+                            selectedCategory = cat;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (selectedCategory != null) {
+            course.setCategory(selectedCategory);
+            model.addAttribute("defaultCategoryId", selectedCategory.getId());
+            model.addAttribute("defaultCategoryName", selectedCategory.getName());
+        } else {
+            course.setCategory(new Category());
+            model.addAttribute("defaultCategoryId", "");
+            model.addAttribute("defaultCategoryName", "");
+        }
         course.setPrice(0.0);
         course.setStatus(CourseStatus.DRAFT);
         course.setFormat("Video Course");
@@ -296,6 +329,13 @@ public class InstructorController {
         course.setAccessDuration("Lifetime Access");
 
         model.addAttribute("course", course);
+        if (course.getCategory() != null && course.getCategory().getId() != null) {
+            model.addAttribute("defaultCategoryId", course.getCategory().getId());
+            model.addAttribute("defaultCategoryName", course.getCategory().getName());
+        } else {
+            model.addAttribute("defaultCategoryId", "");
+            model.addAttribute("defaultCategoryName", "");
+        }
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("subcategoriesMap", categoryService.getCategorySubcategoriesMap());
         model.addAttribute("categoryFieldsMap", categoryService.getAllCategoryFieldDefinitions());
@@ -308,8 +348,21 @@ public class InstructorController {
     public String editCourse(@PathVariable("id") Long id, Model model, Principal principal) {
         String email = principal.getName();
         Course course = getOwnedCourseOrThrow(id, email);
+        User instructor = userService.findByEmail(email);
+        if (instructor != null) {
+            model.addAttribute("instructor", instructor);
+            model.addAttribute("vendor", instructor);
+            model.addAttribute("user", instructor);
+        }
 
         model.addAttribute("course", course);
+        if (course.getCategory() != null && course.getCategory().getId() != null) {
+            model.addAttribute("defaultCategoryId", course.getCategory().getId());
+            model.addAttribute("defaultCategoryName", course.getCategory().getName());
+        } else {
+            model.addAttribute("defaultCategoryId", "");
+            model.addAttribute("defaultCategoryName", "");
+        }
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("subcategoriesMap", categoryService.getCategorySubcategoriesMap());
         model.addAttribute("categoryFieldsMap", categoryService.getAllCategoryFieldDefinitions());
@@ -531,7 +584,6 @@ public class InstructorController {
     public String submitCourseForReview(@PathVariable("id") Long id, Principal principal, RedirectAttributes redirectAttributes) {
         String email = principal.getName();
         Course course = getOwnedCourseOrThrow(id, email);
-
         if (course.getTitle() == null || course.getTitle().trim().isEmpty() ||
             course.getDescription() == null || course.getDescription().trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Course title and description are required before submitting.");

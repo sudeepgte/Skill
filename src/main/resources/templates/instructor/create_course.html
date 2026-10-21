@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/vendor_dashboard.css}">
 
     <style>
         :root {
@@ -219,18 +220,33 @@
             color: #92400e;
         }
 
-        /* ══ STUDIO LAYOUT ══ */
+        /* ══ STUDIO LAYOUT & VENDOR SIDEBAR INTEGRATION ══ */
+        .vendor-dashboard-container {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .vendor-main.studio-vendor-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 0 0 5rem 0;
+            min-height: 100vh;
+            background-color: var(--bg-page);
+            width: calc(100% - 260px);
+            position: relative;
+        }
+
         .studio-container {
-            max-width: 1280px;
-            margin: 2rem auto 8rem;
-            padding: 0 1.5rem;
+            max-width: 1440px;
+            margin: 1.5rem auto 7rem;
+            padding: 0 1.75rem;
             display: grid;
-            grid-template-columns: 310px 1fr;
+            grid-template-columns: 1fr 320px;
             gap: 2rem;
             align-items: start;
         }
 
-        /* ══ STEPPER SIDEBAR ══ */
+        /* ══ STEPPER SIDEBAR (RIGHT SIDE) ══ */
         .stepper-sidebar {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -275,7 +291,7 @@
         .progress-bar-fill {
             height: 100%;
             background: var(--primary);
-            width: 20%;
+            width: 0%;
             border-radius: var(--radius-full);
             transition: width 0.3s ease;
         }
@@ -342,6 +358,13 @@
             background: var(--success);
             color: #ffffff;
             border-color: var(--success);
+        }
+
+        .step-item.active.completed .step-indicator {
+            background: var(--success);
+            color: #ffffff;
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
         }
 
         .step-content-meta {
@@ -592,6 +615,142 @@
             padding: 1.5rem;
             margin-top: 1rem;
             transition: var(--transition-smooth);
+        }
+
+        /* ══ MULTI-SELECT DROPDOWN STYLING ══ */
+        .multiselect-container {
+            position: relative;
+            width: 100%;
+        }
+        .multiselect-box {
+            min-height: 44px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition-smooth);
+            user-select: none;
+        }
+        .multiselect-box:hover {
+            border-color: var(--border-focus);
+        }
+        .multiselect-box.active {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .multiselect-tags-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            flex: 1;
+        }
+        .multiselect-tags-wrapper .placeholder-text {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+        .multiselect-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light, #eef2ff);
+            color: var(--primary, #4f46e5);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .multiselect-tag-pill .remove-tag-btn {
+            cursor: pointer;
+            color: var(--primary);
+            opacity: 0.7;
+            transition: opacity 0.15s;
+        }
+        .multiselect-tag-pill .remove-tag-btn:hover {
+            opacity: 1;
+            color: #ef4444;
+        }
+        .multiselect-caret {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+            margin-left: 8px;
+        }
+        .multiselect-caret.rotated {
+            transform: rotate(180deg);
+        }
+        .multiselect-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 220px;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 6px 0;
+        }
+        .multiselect-menu.open {
+            display: block;
+        }
+        .multiselect-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.15s;
+            margin: 0;
+        }
+        .multiselect-item:hover {
+            background: var(--bg-hover, #f8fafc);
+        }
+        .multiselect-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--primary, #4f46e5);
+        }
+
+        /* ══ INLINE FIELD VALIDATION ERROR STYLING ══ */
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
+        .upload-dropzone.input-error {
+            border: 2px dashed #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        .field-error-text {
+            color: #dc2626;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 0.35rem;
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+            line-height: 1.4;
+            animation: fadeIn 0.15s ease-in;
+        }
+        .field-error-text::before {
+            content: "⚠ ";
+            font-weight: 700;
+            color: #dc2626;
+        }
+        .field-error-text.visible {
+            display: flex !important;
         }
 
         /* ══ LEARNING OBJECTIVES BUILDER ══ */
@@ -963,9 +1122,9 @@
         .studio-sticky-footer {
             position: fixed;
             bottom: 0;
-            left: 0;
+            left: 260px;
             right: 0;
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid var(--border-subtle);
             padding: 1rem 2.5rem;
@@ -974,6 +1133,7 @@
             align-items: center;
             z-index: 850;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
+            transition: left 0.2s ease;
         }
 
         .footer-left {
@@ -1064,7 +1224,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 9999;
             padding: 2rem;
             overflow-y: auto;
         }
@@ -1122,7 +1282,25 @@
         }
 
         /* Responsive Breakpoints */
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
+            .studio-container {
+                grid-template-columns: 1fr 280px;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .vendor-sidebar {
+                display: none;
+            }
+            .vendor-main.studio-vendor-main {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .studio-sticky-footer {
+                left: 0 !important;
+            }
             .studio-container {
                 grid-template-columns: 1fr;
             }
@@ -1164,44 +1342,88 @@
 
 <body>
 
-    <!-- ══ STUDIO TOPBAR ══ -->
-    <header class="studio-topbar">
-        <div class="topbar-left">
-            <a href="/vendor/dashboard" class="brand-logo">
-                <i class="fas fa-graduation-cap"></i> SkillHub
+    <div class="vendor-dashboard-container">
+
+        <!-- ══ SIDEBAR (FROM VENDOR DASHBOARD) ══ -->
+        <aside class="vendor-sidebar">
+            <a th:href="@{/}" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.5rem 2.5rem 1.5rem;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
+                        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
+                </div>
             </a>
-            <span class="studio-badge">Authoring Studio</span>
-            <span class="breadcrumb-divider">/</span>
-            <div class="breadcrumb-trail">
-                <a href="/vendor/dashboard?tab=courses" class="breadcrumb-link">Courses</a>
-                <span class="breadcrumb-divider">/</span>
-                <span id="headerCourseTitle" style="font-weight: 600; color: var(--text-main);"
-                      th:text="${isEdit ? course.title : 'New Course'}">New Course</span>
+
+            <nav class="vendor-nav">
+                <a th:href="@{/vendor/dashboard(tab='courses')}" class="vendor-nav-item">
+                    <i class="fas fa-th-large"></i> My Courses
+                </a>
+                <a th:href="@{/vendor/courses/create}" class="vendor-nav-item active">
+                    <i class="fas fa-plus-circle"></i> Create New Course
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='students')}" class="vendor-nav-item">
+                    <i class="fas fa-users"></i> Students
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='analytics')}" class="vendor-nav-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='reviews')}" class="vendor-nav-item">
+                    <i class="fas fa-star"></i> Student Reviews
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item">
+                    <i class="fas fa-question-circle"></i> Student Questions
+                </a>
+                <a th:href="@{/vendor/exams}" class="vendor-nav-item">
+                    <i class="fas fa-file-signature"></i> Manage Exams
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item">
+                    <i class="fas fa-user-circle"></i> Profile Management
+                </a>
+            </nav>
+
+            <div class="vendor-sidebar-footer">
+                <a th:href="@{/logout}" class="vendor-nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
-        </div>
+        </aside>
 
-        <div class="topbar-right">
-            <span class="save-indicator active" id="saveIndicator">
-                <span class="save-indicator-dot"></span>
-                <span id="saveIndicatorText">Draft auto-saved</span>
-            </span>
+        <!-- ══ MAIN STUDIO CONTENT WRAPPER ══ -->
+        <main class="vendor-main studio-vendor-main">
 
-            <span th:if="${course.id != null}">
-                <span th:if="${course.status == null or course.status.name() == 'DRAFT'}" class="status-pill status-draft"><i class="fas fa-file-pen"></i> Draft</span>
-                <span th:if="${course.status != null and course.status.name() == 'PENDING_REVIEW'}" class="status-pill status-pending"><i class="fas fa-clock"></i> In Review</span>
-                <span th:if="${course.status != null and course.status.name() == 'PUBLISHED'}" class="status-pill status-published"><i class="fas fa-check-circle"></i> Published</span>
-                <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> Needs Revision</span>
-            </span>
+            <!-- ══ STUDIO TOPBAR ══ -->
+            <header class="studio-topbar">
+                <div class="topbar-left">
+                    <span class="studio-badge"><i class="fas fa-layer-group" style="margin-right: 4px;"></i> Course Studio</span>
+                    <span class="breadcrumb-divider">/</span>
+                    <div class="breadcrumb-trail">
+                        <a href="/vendor/dashboard?tab=courses" class="breadcrumb-link">My Courses</a>
+                        <span class="breadcrumb-divider">/</span>
+                        <span id="headerCourseTitle" style="font-weight: 700; color: var(--text-main);"
+                              th:text="${isEdit ? course.title : 'New Course'}">New Course</span>
+                    </div>
+                </div>
 
-            <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
-                <i class="fas fa-eye"></i> Live Student Preview
-            </button>
+                <div class="topbar-right">
+                    <span class="save-indicator active" id="saveIndicator">
+                        <span class="save-indicator-dot"></span>
+                        <span id="saveIndicatorText">Draft auto-saved</span>
+                    </span>
 
-            <a href="/vendor/dashboard?tab=courses" class="btn-secondary" style="padding: 8px 12px;">
-                <i class="fas fa-xmark"></i> Exit
-            </a>
-        </div>
-    </header>
+                    <span th:if="${course.id != null}">
+                        <span th:if="${course.status == null or course.status.name() == 'DRAFT'}" class="status-pill status-draft"><i class="fas fa-file-pen"></i> Draft</span>
+                        <span th:if="${course.status != null and course.status.name() == 'PENDING_REVIEW'}" class="status-pill status-pending"><i class="fas fa-clock"></i> In Review</span>
+                        <span th:if="${course.status != null and course.status.name() == 'PUBLISHED'}" class="status-pill status-published"><i class="fas fa-check-circle"></i> Published</span>
+                        <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> Needs Revision</span>
+                    </span>
+
+                    <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
+                        <i class="fas fa-eye"></i> Live Student Preview
+                    </button>
+                </div>
+            </header>
 
     <!-- Error Alert -->
     <div th:if="${error}" class="alert-banner error">
@@ -1242,71 +1464,8 @@
         <input type="hidden" th:field="*{id}" th:if="${course.id != null}">
 
         <div class="studio-container">
-            <!-- ━━ LEFT STEPPER SIDEBAR ━━ -->
-            <aside class="stepper-sidebar">
-                <div class="stepper-header">
-                    <div class="stepper-title">
-                        <span>Course Authoring Steps</span>
-                        <span class="progress-pct-badge" id="stepperPct">20% Done</span>
-                    
-
-                    
-                        <div class="progress-bar-fill" id="stepperProgressBar"></div>
-                    </div>
-                </div>
-
-                <nav class="stepper-nav">
-                    <button type="button" class="step-item active" id="stepBtn-basic" onclick="switchStep('basic')">
-                        <div class="step-indicator" id="indicator-basic">1</div>
-                        <div class="step-content-meta">
-                            <div class="step-title">Basic Information</div>
-                            <div class="step-desc">Title, category & syllabus</div>
-                        </div>
-                    </button>
-
-                    <button type="button" class="step-item" id="stepBtn-intended" onclick="switchStep('intended')">
-                        <div class="step-indicator" id="indicator-intended">2</div>
-                        <div class="step-content-meta">
-                            <div class="step-title">Intended Learners</div>
-                            <div class="step-desc">Objectives & prerequisites</div>
-                        </div>
-                    </button>
-
-                    <button type="button" class="step-item" id="stepBtn-curriculum" onclick="switchStep('curriculum')">
-                        <div class="step-indicator" id="indicator-curriculum">3</div>
-                        <div class="step-content-meta">
-                            <div class="step-title">Curriculum Builder</div>
-                            <div class="step-desc">Modules, lectures & video</div>
-                        </div>
-                    </button>
-
-                    <button type="button" class="step-item" id="stepBtn-media" onclick="switchStep('media')">
-                        <div class="step-indicator" id="indicator-media">4</div>
-                        <div class="step-content-meta">
-                            <div class="step-title">Course Media</div>
-                            <div class="step-desc">Thumbnail, teaser & files</div>
-                        </div>
-                    </button>
-
-                    <button type="button" class="step-item" id="stepBtn-pricing" onclick="switchStep('pricing')">
-                        <div class="step-indicator" id="indicator-pricing">5</div>
-                        <div class="step-content-meta">
-                            <div class="step-title">Pricing & Review</div>
-                            <div class="step-desc">Tier, policy & submission</div>
-                        </div>
-                    </button>
-                </nav>
-
-                <div class="sidebar-footer-card">
-                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text-main);">
-                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Authoring Tip
-                    </div>
-                    <div>High-quality thumbnails and crisp learning objectives increase student enrollments by up to 3.4x.</div>
-                </div>
-            </aside>
-
-            <!-- ━━ RIGHT WIZARD CONTENT ━━ -->
-            <main class="wizard-main">
+            <!-- ━━ LEFT: MAIN WIZARD CONTENT ━━ -->
+            <div class="wizard-main">
 
                 <!-- ════ STEP 1: BASIC INFORMATION & DYNAMIC CATEGORY ════ -->
                 <div id="stepPanel-basic" class="tab-panel active">
@@ -1331,6 +1490,7 @@
                             <input type="text" id="title" th:field="*{title}" class="input-text"
                                    placeholder="e.g. Master Cloud-Native Microservices with Spring Boot & Docker"
                                    required maxlength="120" oninput="handleTitleInput(this)">
+                            <div class="field-error-text" id="titleError"></div>
                             <p class="field-helper">Actionable, outcome-driven title. Must start with a letter and describe what students achieve.</p>
                         </div>
 
@@ -1342,6 +1502,7 @@
                             <input type="text" id="subtitle" th:field="*{subtitle}" class="input-text"
                                    placeholder="e.g. Build enterprise-grade backend APIs, CI/CD pipelines, and scale on cloud clusters."
                                    maxlength="160" oninput="handleSubtitleInput(this)">
+                            <div class="field-error-text" id="subtitleError"></div>
                             <p class="field-helper">A concise 1-2 sentence hook highlighting practical applications and tools.</p>
                         </div>
 
@@ -1351,7 +1512,8 @@
                             </div>
                             <textarea id="description" th:field="*{description}" class="input-textarea" rows="3"
                                       placeholder="Summarize the core curriculum, methodology, and primary student value proposition..."
-                                      required oninput="validateAlphaStart(this)"></textarea>
+                                      required oninput="validateAlphaStart(this); clearFieldError(this);"></textarea>
+                            <div class="field-error-text" id="descriptionError"></div>
                             <p class="field-helper">Displayed on course cards, category discovery listings, and search snippets.</p>
                         </div>
 
@@ -1361,7 +1523,8 @@
                             </div>
                             <textarea id="longDescription" th:field="*{longDescription}" class="input-textarea" rows="6"
                                       placeholder="Elaborate on course methodology, project deliverables, prerequisites, and career opportunities..."
-                                      oninput="validateAlphaStart(this)"></textarea>
+                                      oninput="validateAlphaStart(this); clearFieldError(this);"></textarea>
+                            <div class="field-error-text" id="longDescriptionError"></div>
                             <p class="field-helper">Full detailed syllabus rendered on the course landing page description tab.</p>
                         </div>
                     </div>
@@ -1380,13 +1543,20 @@
                         <div class="grid-2 form-row">
                             <!-- Styled Searchable Category Selection -->
                             <div>
-                                <label class="field-label" for="category">Course Category <span class="field-required">*</span></label>
+                                <label class="field-label" for="category">Course Category <span class="field-required">*</span>
+                                    <span th:if="${defaultCategoryName != null and !#strings.isEmpty(defaultCategoryName)}"
+                                          style="font-size: 0.76rem; background: #e0e7ff; color: #4338ca; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">
+                                        <i class="fas fa-check-circle"></i> Default (Registered: <span th:text="${defaultCategoryName}"></span>)
+                                    </span>
+                                </label>
                                 <div class="category-select-wrapper">
-                                    <select id="category" th:field="*{category.id}" class="input-select" required onchange="onCategoryChanged()">
-                                        <option value="" disabled selected>-- Select Course Category --</option>
-                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:data-name="${cat.name}"></option>
+                                    <select id="category" name="category.id" class="input-select" required onchange="onCategoryChanged()">
+                                        <option value="" disabled th:selected="${course.category == null or course.category.id == null}">-- Select Course Category --</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:data-name="${cat.name}"
+                                                th:selected="${course.category != null and course.category.id == cat.id}"></option>
                                     </select>
                                 </div>
+                                <div class="field-error-text" id="categoryError"></div>
                                 <div id="selectedCategoryPill" class="selected-category-banner" style="display: none;">
                                     <span class="selected-category-text">
                                         <i class="fas fa-tags"></i> <span id="selectedCategoryName">Category</span>
@@ -1406,7 +1576,7 @@
                             </div>
                         </div>
 
-                        <div class="grid-4 form-row">
+                        <div class="grid-3 form-row">
                             <div>
                                 <label class="field-label" for="level">Experience Level</label>
                                 <select id="level" th:field="*{level}" class="input-select">
@@ -1417,39 +1587,53 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="field-label" for="language">Language</label>
-                                <select id="language" th:field="*{language}" class="input-select">
-                                    <option value="English">English</option>
-                                    <option value="Hindi">Hindi</option>
-                                    <option value="Spanish">Spanish</option>
-                                    <option value="French">French</option>
-                                    <option value="German">German</option>
-                                    <option value="Japanese">Japanese</option>
-                                    <option value="Mandarin">Mandarin</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                <label class="field-label">Language <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Multi-select)</span></label>
+                                <div class="multiselect-container" id="languageMultiContainer">
+                                    <div class="multiselect-box" onclick="toggleMultiDropdown('language')">
+                                        <div class="multiselect-tags-wrapper" id="languageTags">
+                                            <span class="placeholder-text">Select languages...</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down multiselect-caret" id="languageCaret"></i>
+                                    </div>
+                                    <div class="multiselect-menu" id="languageMenu">
+                                        <label class="multiselect-item"><input type="checkbox" value="English" onchange="syncMultiSelect('language')"> English</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Hindi" onchange="syncMultiSelect('language')"> Hindi</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Kannada" onchange="syncMultiSelect('language')"> Kannada</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Telugu" onchange="syncMultiSelect('language')"> Telugu</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Tamil" onchange="syncMultiSelect('language')"> Tamil</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Malayalam" onchange="syncMultiSelect('language')"> Malayalam</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Spanish" onchange="syncMultiSelect('language')"> Spanish</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="French" onchange="syncMultiSelect('language')"> French</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="German" onchange="syncMultiSelect('language')"> German</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Japanese" onchange="syncMultiSelect('language')"> Japanese</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Mandarin" onchange="syncMultiSelect('language')"> Mandarin</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Other" onchange="syncMultiSelect('language')"> Other</label>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="language" name="language" th:field="*{language}">
                             </div>
                             <div>
-                                <label class="field-label" for="format">Format</label>
-                                <select id="format" th:field="*{format}" class="input-select">
-                                    <option value="Video Course">Video Course</option>
-                                    <option value="Text-based Course">Text-based Course</option>
-                                    <option value="Practical Hands-on">Practical Hands-on</option>
-                                    <option value="Project-based">Project-based Course</option>
-                                    <option value="Instructor-led Live">Instructor-led Live</option>
-                                    <option value="Blended Learning">Blended Learning</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="field-label" for="teachingMethod">Delivery Method</label>
-                                <select id="teachingMethod" th:field="*{teachingMethod}" class="input-select">
-                                    <option value="Self-paced">Self-paced On-Demand</option>
-                                    <option value="Cohort-based">Cohort-based</option>
-                                    <option value="1-on-1 Mentorship">1-on-1 Mentorship</option>
-                                    <option value="Hands-on Workshop">Hands-on Workshop</option>
-                                </select>
+                                <label class="field-label">Format <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(Multi-select)</span></label>
+                                <div class="multiselect-container" id="formatMultiContainer">
+                                    <div class="multiselect-box" onclick="toggleMultiDropdown('format')">
+                                        <div class="multiselect-tags-wrapper" id="formatTags">
+                                            <span class="placeholder-text">Select formats...</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down multiselect-caret" id="formatCaret"></i>
+                                    </div>
+                                    <div class="multiselect-menu" id="formatMenu">
+                                        <label class="multiselect-item"><input type="checkbox" value="Video Course" onchange="syncMultiSelect('format')"> Video Course</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Text-based Course" onchange="syncMultiSelect('format')"> Text-based Course</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Practical Hands-on" onchange="syncMultiSelect('format')"> Practical Hands-on</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Project-based" onchange="syncMultiSelect('format')"> Project-based Course</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Instructor-led Live" onchange="syncMultiSelect('format')"> Instructor-led Live</label>
+                                        <label class="multiselect-item"><input type="checkbox" value="Blended Learning" onchange="syncMultiSelect('format')"> Blended Learning</label>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="format" name="format" th:field="*{format}">
                             </div>
                         </div>
+                        <input type="hidden" id="teachingMethod" name="teachingMethod" th:field="*{teachingMethod}">
 
                         <div class="form-row">
                             <label class="field-label" for="tags">Keywords, Tags & Tech Stack</label>
@@ -1498,16 +1682,17 @@
 
                         <div class="form-row">
                             <div class="field-label">
-                                <span>Measurable Learning Objectives <span class="field-required">*</span></span>
+                                <span>Measurable Learning Objectives</span>
                                 <span class="char-counter" id="objectivesCounter">0 Objectives defined</span>
                             </div>
                             <p class="field-helper" style="margin-bottom: 1rem;">
-                                Enter at least 4 clear, action-oriented competencies (e.g., "Build and deploy production Docker containers on Kubernetes").
+                                Add key skills, outcomes, and competencies learners will gain after completing this course.
                             </p>
 
                             <div class="objectives-list" id="objectivesList">
                                 <!-- Populated by JS -->
                             </div>
+                            <div class="field-error-text" id="objectivesError" style="margin-bottom: 0.75rem;"></div>
 
                             <button type="button" class="btn-dashed-add" onclick="addObjective()">
                                 <i class="fas fa-plus"></i> Add Another Learning Objective
@@ -1618,6 +1803,7 @@
                         </div>
 
                         <!-- Sections Accordion Container -->
+                        <div class="field-error-text" id="curriculumError" style="margin-top: 0.5rem; margin-bottom: 0.75rem;"></div>
                         <div id="sectionsContainer">
                             <!-- Pre-populate existing sections in edit mode -->
                             <div th:each="sec, secStat : ${course.sections}" class="section-card expanded" th:id="'section-' + ${secStat.index}">
@@ -1626,9 +1812,12 @@
                                 <div class="section-card-header" th:onclick="'toggleSection(' + ${secStat.index} + ')'">
                                     <div class="section-title-wrapper" onclick="event.stopPropagation()">
                                         <span class="section-badge" th:text="'Module ' + ${secStat.count}">Module 1</span>
-                                        <input type="text" th:name="'sections[' + ${secStat.index} + '].title'" th:value="${sec.title}" class="section-title-input"
-                                               placeholder="e.g. Module title" required
-                                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                        <div style="flex: 1;">
+                                            <input type="text" th:name="'sections[' + ${secStat.index} + '].title'" th:value="${sec.title}" class="section-title-input"
+                                                   placeholder="e.g. Module title" required
+                                                   oninput="validateAlphaStart(this); recalculateCurriculum(); clearFieldError(this);">
+                                            <div class="field-error-text" th:id="'secTitleError-' + ${secStat.index}"></div>
+                                        </div>
                                     </div>
                                     <div class="section-actions" onclick="event.stopPropagation()">
                                         <span class="status-pill status-draft" th:id="'secLectureBadge-' + ${secStat.index}" style="font-size: 0.72rem;"
@@ -1643,6 +1832,7 @@
                                 </div>
 
                                 <div class="section-body" th:id="'secBody-' + ${secStat.index}">
+                                    <div class="field-error-text" th:id="'secLectureError-' + ${secStat.index}" style="margin-bottom: 0.5rem;"></div>
                                     <div class="lectures-list" th:id="'lectures-' + ${secStat.index}">
                                         <div th:each="lec, lecStat : ${sec.lectures}" class="lecture-card" th:id="'lecture-' + ${secStat.index} + '-' + ${lecStat.index}">
                                             <div class="lecture-top-row">
@@ -1662,7 +1852,8 @@
                                                     <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
                                                     <input type="text" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].title'" th:value="${lec.title}" class="input-text"
                                                            placeholder="e.g. Setting up Development Environment" required
-                                                           oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                                           oninput="validateAlphaStart(this); recalculateCurriculum(); clearFieldError(this);">
+                                                    <div class="field-error-text" th:id="'lecTitleError-' + ${secStat.index} + '-' + ${lecStat.index}"></div>
                                                 </div>
                                                 <div>
                                                     <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
@@ -1714,6 +1905,7 @@
                             <p class="upload-dropzone-help">Supports JPG, PNG, and WebP (Max file size: 5MB)</p>
                             <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display: none;" onchange="previewThumbnail(event)">
                         </div>
+                        <div class="field-error-text" id="thumbnailError" style="margin-top: 0.5rem; margin-bottom: 0.75rem;"></div>
 
                         <!-- Image Preview Card -->
                         <div id="imagePreviewContainer" class="media-preview-container"
@@ -1746,6 +1938,7 @@
                             <p class="upload-dropzone-help">High-definition video (1080p recommended, max 200MB)</p>
                             <input type="file" id="promoVideo" name="promoVideo" accept="video/mp4,video/*" style="display: none;" onchange="handlePromoVideoSelect(event)">
                         </div>
+                        <div class="field-error-text" id="promoVideoError" style="margin-top: 0.5rem; margin-bottom: 0.75rem;"></div>
 
                         <div id="videoStatusContainer" class="media-preview-container"
                              th:style="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)} ? 'display: flex;' : 'display: none;'">
@@ -1848,6 +2041,7 @@
                                     <input type="number" id="price" th:field="*{price}" class="input-number"
                                            step="1" min="0" max="99999" placeholder="e.g. 1999"
                                            oninput="handlePriceInput(this)">
+                                    <div class="field-error-text" id="priceError"></div>
                                     <p class="field-helper">Standard enrollment retail price.</p>
                                 </div>
                                 <div>
@@ -1855,6 +2049,7 @@
                                     <input type="number" id="salePrice" th:field="*{salePrice}" class="input-number"
                                            step="1" min="0" max="99999" placeholder="e.g. 999"
                                            oninput="handlePriceInput(this)">
+                                    <div class="field-error-text" id="salePriceError"></div>
                                     <p class="field-helper">Special promotional price for discounts and seasonal sales.</p>
                                 </div>
                             </div>
@@ -1936,20 +2131,77 @@
 
                 </div>
 
-            </main>
+            </div>
+
+            <!-- ━━ RIGHT: STEPPER PROGRESS SIDEBAR ━━ -->
+            <aside class="stepper-sidebar">
+                <div class="stepper-header">
+                    <div class="stepper-title">
+                        <span>Course Authoring Steps</span>
+                        <span class="progress-pct-badge" id="stepperPct">0% Done</span>
+                    </div>
+
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="stepperProgressBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <nav class="stepper-nav">
+                    <button type="button" class="step-item active" id="stepBtn-basic" onclick="switchStep('basic')">
+                        <div class="step-indicator" id="indicator-basic">1</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Basic Information</div>
+                            <div class="step-desc">Title, category & syllabus</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-intended" onclick="switchStep('intended')">
+                        <div class="step-indicator" id="indicator-intended">2</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Intended Learners</div>
+                            <div class="step-desc">Objectives & prerequisites</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-curriculum" onclick="switchStep('curriculum')">
+                        <div class="step-indicator" id="indicator-curriculum">3</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Curriculum Builder</div>
+                            <div class="step-desc">Modules, lectures & video</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-media" onclick="switchStep('media')">
+                        <div class="step-indicator" id="indicator-media">4</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Course Media</div>
+                            <div class="step-desc">Thumbnail, teaser & files</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-pricing" onclick="switchStep('pricing')">
+                        <div class="step-indicator" id="indicator-pricing">5</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Pricing & Review</div>
+                            <div class="step-desc">Tier, policy & submission</div>
+                        </div>
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer-card">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text-main);">
+                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Authoring Tip
+                    </div>
+                    <div>High-quality thumbnails and crisp learning objectives increase student enrollments by up to 3.4x.</div>
+                </div>
+            </aside>
         </div>
 
         <!-- ══ STICKY BOTTOM ACTION FOOTER ══ -->
         <footer class="studio-sticky-footer">
             <div class="footer-left">
-                <a href="/vendor/dashboard?tab=courses" class="btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Dashboard
-                </a>
                 <button type="button" class="btn-secondary" id="btnSaveDraftFooter" onclick="submitCourseForm('draft')">
                     <i class="fas fa-floppy-disk"></i> Save Draft
-                </button>
-                <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
-                    <i class="fas fa-eye"></i> Live Student Preview
                 </button>
             </div>
 
@@ -1968,6 +2220,8 @@
             </div>
         </footer>
     </form>
+        </main>
+    </div>
 
     <!-- ══ LIVE COURSE PREVIEW MODAL ══ -->
     <div id="livePreviewModal" class="preview-modal-overlay" onclick="closePreviewIfBackdrop(event)">
@@ -2075,14 +2329,466 @@
         const savedCategoryData = /*[[${categoryDataMap}]]*/ {};
         const existingObjectivesStr = /*[[${course.learningObjectives}]]*/ '';
         const currentSavedSubCategory = /*[[${course.subCategory}]]*/ '';
+        const defaultCatId = /*[[${defaultCategoryId}]]*/ '';
+        const defaultCatName = /*[[${defaultCategoryName}]]*/ '';
+
+        // ── MULTI-SELECT DROPDOWN HANDLERS ──
+        function toggleMultiDropdown(type) {
+            const menu = document.getElementById(type + 'Menu');
+            const caret = document.getElementById(type + 'Caret');
+            const box = menu ? menu.previousElementSibling : null;
+            const otherType = (type === 'language') ? 'format' : 'language';
+            const otherMenu = document.getElementById(otherType + 'Menu');
+            const otherCaret = document.getElementById(otherType + 'Caret');
+            const otherBox = otherMenu ? otherMenu.previousElementSibling : null;
+
+            if (otherMenu) otherMenu.classList.remove('open');
+            if (otherCaret) otherCaret.classList.remove('rotated');
+            if (otherBox) otherBox.classList.remove('active');
+
+            if (!menu) return;
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if (caret) caret.classList.remove('rotated');
+                if (box) box.classList.remove('active');
+            } else {
+                menu.classList.add('open');
+                if (caret) caret.classList.add('rotated');
+                if (box) box.classList.add('active');
+            }
+        }
+
+        function syncMultiSelect(type) {
+            const menu = document.getElementById(type + 'Menu');
+            const hiddenInput = document.getElementById(type);
+            const tagsWrapper = document.getElementById(type + 'Tags');
+            if (!menu || !hiddenInput || !tagsWrapper) return;
+
+            const checkedBoxes = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked'));
+            const selectedVals = checkedBoxes.map(cb => cb.value.trim());
+
+            hiddenInput.value = selectedVals.join(', ');
+
+            if (selectedVals.length === 0) {
+                tagsWrapper.innerHTML = `<span class="placeholder-text">Select ${type === 'language' ? 'languages' : 'formats'}...</span>`;
+            } else {
+                tagsWrapper.innerHTML = '';
+                selectedVals.forEach(val => {
+                    const tag = document.createElement('span');
+                    tag.className = 'multiselect-tag-pill';
+                    tag.textContent = val + ' ';
+                    const rm = document.createElement('i');
+                    rm.className = 'fas fa-times remove-tag-btn';
+                    rm.title = 'Remove';
+                    rm.onclick = function(e) {
+                        removeMultiSelectTag(e, type, val);
+                    };
+                    tag.appendChild(rm);
+                    tagsWrapper.appendChild(tag);
+                });
+            }
+        }
+
+        function removeMultiSelectTag(event, type, val) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById(type + 'Menu');
+            if (!menu) return;
+            const cb = Array.from(menu.querySelectorAll('input[type="checkbox"]')).find(c => c.value.trim().toLowerCase() === val.trim().toLowerCase());
+            if (cb) {
+                cb.checked = false;
+                syncMultiSelect(type);
+            }
+        }
+
+        function initMultiSelect(type) {
+            const hiddenInput = document.getElementById(type);
+            const menu = document.getElementById(type + 'Menu');
+            if (!hiddenInput || !menu) return;
+
+            const rawVal = hiddenInput.value || '';
+            const existingVals = rawVal.split(',').map(s => s.trim().toLowerCase()).filter(s => s.length > 0);
+
+            const allCheckboxes = menu.querySelectorAll('input[type="checkbox"]');
+            allCheckboxes.forEach(cb => {
+                cb.checked = existingVals.includes(cb.value.trim().toLowerCase());
+            });
+
+            syncMultiSelect(type);
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            ['language', 'format'].forEach(type => {
+                const container = document.getElementById(type + 'MultiContainer');
+                const menu = document.getElementById(type + 'Menu');
+                const caret = document.getElementById(type + 'Caret');
+                const box = menu ? menu.previousElementSibling : null;
+                if (container && !container.contains(e.target)) {
+                    if (menu) menu.classList.remove('open');
+                    if (caret) caret.classList.remove('rotated');
+                    if (box) box.classList.remove('active');
+                }
+            });
+        });
 
         const steps = ['basic', 'intended', 'curriculum', 'media', 'pricing'];
         let currentStepIndex = 0;
 
         // ── STEP SWITCHING & PERSISTENCE ──
-        function switchStep(stepId) {
+        // CORE FIELD VALIDATION & ERROR MESSAGING ENGINE
+        function showFieldError(fieldOrId, message, stepId = null) {
+            let el = typeof fieldOrId === 'string' ? document.getElementById(fieldOrId) : fieldOrId;
+            if (!el && typeof fieldOrId === 'string') {
+                el = document.querySelector(`[name="${fieldOrId}"]`);
+            }
+            if (!el) return;
+
+            el.classList.add('input-error');
+
+            let errId = typeof fieldOrId === 'string' ? `${fieldOrId}Error` : (el.id ? `${el.id}Error` : null);
+            let errDiv = errId ? document.getElementById(errId) : null;
+
+            if (!errDiv && el.parentElement) {
+                errDiv = el.parentElement.querySelector('.field-error-text');
+            }
+            if (!errDiv && el.parentElement) {
+                errDiv = document.createElement('div');
+                errDiv.className = 'field-error-text';
+                if (errId) errDiv.id = errId;
+                if (el.parentElement.classList.contains('category-select-wrapper') || el.parentElement.classList.contains('multiselect-box')) {
+                    el.parentElement.parentElement.insertBefore(errDiv, el.parentElement.nextSibling);
+                } else {
+                    el.parentElement.insertBefore(errDiv, el.nextSibling);
+                }
+            }
+
+            if (errDiv) {
+                errDiv.textContent = message;
+                errDiv.classList.add('visible');
+                errDiv.style.display = 'flex';
+            }
+
+            const clearHandler = function() {
+                clearFieldError(el);
+                el.removeEventListener('input', clearHandler);
+                el.removeEventListener('change', clearHandler);
+            };
+            el.addEventListener('input', clearHandler);
+            el.addEventListener('change', clearHandler);
+        }
+
+        function clearFieldError(fieldOrId) {
+            let el = typeof fieldOrId === 'string' ? document.getElementById(fieldOrId) : fieldOrId;
+            if (!el && typeof fieldOrId === 'string') {
+                el = document.querySelector(`[name="${fieldOrId}"]`);
+            }
+            if (el) {
+                el.classList.remove('input-error');
+                let errId = typeof fieldOrId === 'string' ? `${fieldOrId}Error` : (el.id ? `${el.id}Error` : null);
+                let errDiv = errId ? document.getElementById(errId) : null;
+                if (!errDiv && el.parentElement) {
+                    errDiv = el.parentElement.querySelector('.field-error-text');
+                }
+                if (errDiv) {
+                    errDiv.textContent = '';
+                    errDiv.classList.remove('visible');
+                    errDiv.style.display = 'none';
+                }
+            }
+        }
+
+        function clearAllErrors() {
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            document.querySelectorAll('.field-error-text').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('visible');
+                el.style.display = 'none';
+            });
+        }
+
+        function validateStep(stepIndexOrId) {
+            let stepId = typeof stepIndexOrId === 'number' ? steps[stepIndexOrId] : stepIndexOrId;
+            let isValid = true;
+            let firstErrorElement = null;
+
+            function recordError(fieldOrId, message) {
+                isValid = false;
+                showFieldError(fieldOrId, message, stepId);
+                if (!firstErrorElement) {
+                    let el = typeof fieldOrId === 'string' ? document.getElementById(fieldOrId) : fieldOrId;
+                    if (!el && typeof fieldOrId === 'string') el = document.querySelector(`[name="${fieldOrId}"]`);
+                    firstErrorElement = el;
+                }
+            }
+
+            if (stepId === 'basic') {
+                const titleEl = document.getElementById('title');
+                const titleVal = titleEl ? titleEl.value.trim() : '';
+                if (!titleVal) {
+                    recordError('title', 'Course Title is required.');
+                } else if (!/^[a-zA-Z]/.test(titleVal)) {
+                    recordError('title', 'Course Title must start with a letter (A-Z).');
+                } else {
+                    clearFieldError('title');
+                }
+
+                const descEl = document.getElementById('description');
+                const descVal = descEl ? descEl.value.trim() : '';
+                if (!descVal) {
+                    recordError('description', 'Short overview description is required.');
+                } else if (!/^[a-zA-Z]/.test(descVal)) {
+                    recordError('description', 'Short overview description must start with a letter (A-Z).');
+                } else {
+                    clearFieldError('description');
+                }
+
+                const catEl = document.getElementById('category');
+                if (!catEl || !catEl.value || catEl.value === '') {
+                    recordError('category', 'Please select a Course Category.');
+                } else {
+                    clearFieldError('category');
+                }
+
+                const dynContainer = document.getElementById('dynamicFieldsContainer');
+                if (dynContainer) {
+                    const reqInputs = dynContainer.querySelectorAll('input[required], select[required], textarea[required]');
+                    reqInputs.forEach(inp => {
+                        const v = inp.value ? inp.value.trim() : '';
+                        if (!v) {
+                            const lbl = inp.closest('.form-row')?.querySelector('label')?.textContent?.replace('*', '').trim() || 'This field';
+                            recordError(inp, `${lbl} is required.`);
+                        } else {
+                            clearFieldError(inp);
+                        }
+                    });
+                }
+            } else if (stepId === 'intended') {
+                const objInputs = document.querySelectorAll('.objective-input');
+                let hasEmptyOrInvalid = false;
+                objInputs.forEach(inp => {
+                    const val = inp.value.trim();
+                    if (!val || !/^[a-zA-Z]/.test(val)) {
+                        inp.classList.add('input-error');
+                        hasEmptyOrInvalid = true;
+                        if (!firstErrorElement) firstErrorElement = inp;
+                        const onInp = function() {
+                            inp.classList.remove('input-error');
+                            clearObjectiveErrors();
+                        };
+                        inp.addEventListener('input', onInp, { once: true });
+                    } else {
+                        inp.classList.remove('input-error');
+                    }
+                });
+
+                const objErrDiv = document.getElementById('objectivesError');
+                if (hasEmptyOrInvalid) {
+                    isValid = false;
+                    if (objErrDiv) {
+                        objErrDiv.textContent = 'Please enter valid text (starting with a letter) for added objectives, or delete empty rows.';
+                        objErrDiv.classList.add('visible');
+                        objErrDiv.style.display = 'flex';
+                    }
+                } else {
+                    if (objErrDiv) {
+                        objErrDiv.textContent = '';
+                        objErrDiv.classList.remove('visible');
+                        objErrDiv.style.display = 'none';
+                    }
+                }
+            } else if (stepId === 'curriculum') {
+                const sections = document.querySelectorAll('.section-card');
+                const curErrDiv = document.getElementById('curriculumError');
+
+                if (sections.length === 0) {
+                    isValid = false;
+                    if (curErrDiv) {
+                        curErrDiv.textContent = 'Please add at least one module / section to the curriculum.';
+                        curErrDiv.classList.add('visible');
+                        curErrDiv.style.display = 'flex';
+                    }
+                    if (!firstErrorElement) firstErrorElement = curErrDiv;
+                } else {
+                    if (curErrDiv) {
+                        curErrDiv.textContent = '';
+                        curErrDiv.classList.remove('visible');
+                        curErrDiv.style.display = 'none';
+                    }
+
+                    sections.forEach((sec, sIdx) => {
+                        const secTitleInput = sec.querySelector('.section-title-input');
+                        const secTitleVal = secTitleInput ? secTitleInput.value.trim() : '';
+                        if (!secTitleVal) {
+                            recordError(secTitleInput, 'Module title is required.');
+                        } else if (!/^[a-zA-Z]/.test(secTitleVal)) {
+                            recordError(secTitleInput, 'Module title must start with a letter (A-Z).');
+                        } else {
+                            clearFieldError(secTitleInput);
+                        }
+
+                        const lectures = sec.querySelectorAll('.lecture-card');
+                        let secLecErrDiv = document.getElementById(`secLectureError-${sIdx}`);
+                        if (!secLecErrDiv) {
+                            secLecErrDiv = sec.querySelector(`[id^="secLectureError-"]`);
+                        }
+
+                        if (lectures.length === 0) {
+                            isValid = false;
+                            if (secLecErrDiv) {
+                                secLecErrDiv.textContent = 'Please add at least one lecture to this module.';
+                                secLecErrDiv.classList.add('visible');
+                                secLecErrDiv.style.display = 'flex';
+                            }
+                            if (!firstErrorElement) firstErrorElement = sec;
+                        } else {
+                            if (secLecErrDiv) {
+                                secLecErrDiv.textContent = '';
+                                secLecErrDiv.classList.remove('visible');
+                                secLecErrDiv.style.display = 'none';
+                            }
+
+                            lectures.forEach((lec, lIdx) => {
+                                const lecTitleInput = lec.querySelector('input[name*=".title"]');
+                                const lecTitleVal = lecTitleInput ? lecTitleInput.value.trim() : '';
+                                if (!lecTitleVal) {
+                                    recordError(lecTitleInput, 'Lecture title is required.');
+                                } else if (!/^[a-zA-Z]/.test(lecTitleVal)) {
+                                    recordError(lecTitleInput, 'Lecture title must start with a letter (A-Z).');
+                                } else {
+                                    clearFieldError(lecTitleInput);
+                                }
+                            });
+                        }
+                    });
+                }
+            } else if (stepId === 'media') {
+                const thumbInput = document.getElementById('thumbnail');
+                const imgPreview = document.getElementById('imagePreview');
+                const hasExistingImg = imgPreview && imgPreview.src && imgPreview.src.trim().length > 5 && !imgPreview.src.includes('course-placeholder.jpg');
+                const hasFileChosen = thumbInput && thumbInput.files && thumbInput.files.length > 0;
+                const thumbDrop = document.getElementById('thumbDropzone');
+                const thumbErr = document.getElementById('thumbnailError');
+
+                if (!hasExistingImg && !hasFileChosen) {
+                    isValid = false;
+                    if (thumbDrop) thumbDrop.classList.add('input-error');
+                    if (thumbErr) {
+                        thumbErr.textContent = 'Course thumbnail image is required. Please upload an image (JPG, PNG, or WebP).';
+                        thumbErr.classList.add('visible');
+                        thumbErr.style.display = 'flex';
+                    }
+                    if (!firstErrorElement) firstErrorElement = thumbDrop;
+                } else if (hasFileChosen) {
+                    const f = thumbInput.files[0];
+                    if (!f.type.startsWith('image/')) {
+                        isValid = false;
+                        if (thumbDrop) thumbDrop.classList.add('input-error');
+                        if (thumbErr) {
+                            thumbErr.textContent = 'Please select a valid image file (JPG, PNG, or WebP).';
+                            thumbErr.classList.add('visible');
+                            thumbErr.style.display = 'flex';
+                        }
+                        if (!firstErrorElement) firstErrorElement = thumbDrop;
+                    } else {
+                        if (thumbDrop) thumbDrop.classList.remove('input-error');
+                        if (thumbErr) {
+                            thumbErr.textContent = '';
+                            thumbErr.classList.remove('visible');
+                            thumbErr.style.display = 'none';
+                        }
+                    }
+                } else {
+                    if (thumbDrop) thumbDrop.classList.remove('input-error');
+                    if (thumbErr) {
+                        thumbErr.textContent = '';
+                        thumbErr.classList.remove('visible');
+                        thumbErr.style.display = 'none';
+                    }
+                }
+
+                const promoInput = document.getElementById('promoVideo');
+                const videoDrop = document.getElementById('videoDropzone');
+                const promoErr = document.getElementById('promoVideoError');
+                if (promoInput && promoInput.files && promoInput.files.length > 0) {
+                    const vf = promoInput.files[0];
+                    if (!vf.type.startsWith('video/')) {
+                        isValid = false;
+                        if (videoDrop) videoDrop.classList.add('input-error');
+                        if (promoErr) {
+                            promoErr.textContent = 'Promotional teaser must be a valid video file (.mp4).';
+                            promoErr.classList.add('visible');
+                            promoErr.style.display = 'flex';
+                        }
+                        if (!firstErrorElement) firstErrorElement = videoDrop;
+                    } else {
+                        if (videoDrop) videoDrop.classList.remove('input-error');
+                        if (promoErr) {
+                            promoErr.textContent = '';
+                            promoErr.classList.remove('visible');
+                            promoErr.style.display = 'none';
+                        }
+                    }
+                }
+            } else if (stepId === 'pricing') {
+                const tilePaid = document.getElementById('tilePaid');
+                const isPaid = tilePaid && tilePaid.classList.contains('selected');
+                const tileFree = document.getElementById('tileFree');
+                const isFree = tileFree && tileFree.classList.contains('selected');
+                const priceInput = document.getElementById('price');
+                const salePriceInput = document.getElementById('salePrice');
+
+                if (!isPaid && !isFree) {
+                    recordError('price', 'Please select an enrollment pricing tier (Paid or Free).');
+                } else if (isPaid) {
+                    const priceVal = priceInput ? parseFloat(priceInput.value) : 0;
+                    if (isNaN(priceVal) || priceVal <= 0) {
+                        recordError('price', 'Standard price is required and must be greater than 0 for paid courses.');
+                    } else {
+                        clearFieldError('price');
+                    }
+
+                    if (salePriceInput && salePriceInput.value && salePriceInput.value.trim() !== '') {
+                        const saleVal = parseFloat(salePriceInput.value);
+                        if (saleVal >= priceVal) {
+                            recordError('salePrice', 'Promotional discount price must be less than the standard price.');
+                        } else if (saleVal < 0) {
+                            recordError('salePrice', 'Promotional price cannot be negative.');
+                        } else {
+                            clearFieldError('salePrice');
+                        }
+                    } else {
+                        clearFieldError('salePrice');
+                    }
+                } else {
+                    clearFieldError('price');
+                    clearFieldError('salePrice');
+                }
+            }
+
+            if (!isValid && firstErrorElement) {
+                firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (typeof firstErrorElement.focus === 'function') {
+                    firstErrorElement.focus();
+                }
+            }
+
+            return isValid;
+        }
+
+        // STEP SWITCHING & PERSISTENCE
+        function switchStep(stepId, bypassValidation = false) {
             const targetIdx = steps.indexOf(stepId);
             if (targetIdx === -1) return;
+
+            // If navigating forward, validate intermediate steps
+            if (!bypassValidation && targetIdx > currentStepIndex) {
+                for (let i = currentStepIndex; i < targetIdx; i++) {
+                    if (!validateStep(i)) {
+                        return;
+                    }
+                }
+            }
+
             currentStepIndex = targetIdx;
 
             // Update tab panels
@@ -2122,31 +2828,193 @@
         }
 
         function nextStep() {
+            if (!validateStep(currentStepIndex)) {
+                return;
+            }
             if (currentStepIndex < steps.length - 1) {
-                switchStep(steps[currentStepIndex + 1]);
+                switchStep(steps[currentStepIndex + 1], true);
             }
         }
 
         function prevStep() {
             if (currentStepIndex > 0) {
-                switchStep(steps[currentStepIndex - 1]);
+                switchStep(steps[currentStepIndex - 1], true);
             }
         }
 
+        function calculateDynamicProgress() {
+            let totalPct = 0;
+
+            // ── STEP 1: BASIC INFORMATION (Max 20%) ──
+            const titleEl = document.getElementById('title');
+            const titleVal = titleEl ? titleEl.value.trim() : '';
+            if (titleVal.length >= 5 && /^[a-zA-Z]/.test(titleVal)) {
+                totalPct += 8;
+            } else if (titleVal.length > 0) {
+                totalPct += 4;
+            }
+
+            const descEl = document.getElementById('description');
+            const descVal = descEl ? descEl.value.trim() : '';
+            if (descVal.length >= 20 && /^[a-zA-Z]/.test(descVal)) {
+                totalPct += 8;
+            } else if (descVal.length > 0) {
+                totalPct += 4;
+            }
+
+            const catEl = document.getElementById('category');
+            if (catEl && catEl.value && catEl.value !== '') {
+                totalPct += 4;
+            }
+
+            // ── STEP 2: INTENDED LEARNERS (Max 20%) ──
+            const objInputs = document.querySelectorAll('.objective-input');
+            let validObjCount = 0;
+            objInputs.forEach(inp => {
+                const val = inp.value.trim();
+                if (val.length >= 3 && /^[a-zA-Z]/.test(val)) {
+                    validObjCount++;
+                }
+            });
+            if (validObjCount >= 2) {
+                totalPct += 14;
+            } else if (validObjCount === 1) {
+                totalPct += 8;
+            }
+
+            const prereqEl = document.getElementById('prerequisites') || document.querySelector('[name="prerequisites"]');
+            const prereqVal = prereqEl ? prereqEl.value.trim() : '';
+            const audEl = document.getElementById('targetAudience') || document.querySelector('[name="targetAudience"]');
+            const audVal = audEl ? audEl.value.trim() : '';
+
+            if (prereqVal.length >= 3 && audVal.length >= 3) {
+                totalPct += 6;
+            } else if (prereqVal.length >= 3 || audVal.length >= 3) {
+                totalPct += 3;
+            }
+
+            // ── STEP 3: CURRICULUM BUILDER (Max 20%) ──
+            const sections = document.querySelectorAll('.section-card');
+            let hasValidSection = false;
+            let hasValidLecture = false;
+
+            sections.forEach(sec => {
+                const secTitle = sec.querySelector('.section-title-input');
+                const secVal = secTitle ? secTitle.value.trim() : '';
+                if (secVal.length >= 3 && /^[a-zA-Z]/.test(secVal)) {
+                    hasValidSection = true;
+                }
+                const lectures = sec.querySelectorAll('.lecture-card');
+                lectures.forEach(lec => {
+                    const lecTitle = lec.querySelector('input[name*=".title"]');
+                    const lecVal = lecTitle ? lecTitle.value.trim() : '';
+                    if (lecVal.length >= 3 && /^[a-zA-Z]/.test(lecVal)) {
+                        hasValidLecture = true;
+                    }
+                });
+            });
+
+            if (hasValidSection) totalPct += 10;
+            if (hasValidLecture) totalPct += 10;
+
+            // ── STEP 4: COURSE MEDIA (Max 20%) ──
+            const thumbInput = document.getElementById('thumbnail');
+            const imgPreview = document.getElementById('imagePreview');
+            const hasExistingImg = imgPreview && imgPreview.src && imgPreview.src.trim().length > 5 && !imgPreview.src.includes('course-placeholder.jpg') && !imgPreview.src.endsWith('/');
+            const hasFileChosen = thumbInput && thumbInput.files && thumbInput.files.length > 0;
+
+            if (hasExistingImg || hasFileChosen) {
+                totalPct += 20;
+            }
+
+            // ── STEP 5: PRICING & REVIEW (Max 20%) ──
+            const tilePaid = document.getElementById('tilePaid');
+            const isPaid = tilePaid && tilePaid.classList.contains('selected');
+            const tileFree = document.getElementById('tileFree');
+            const isFree = tileFree && tileFree.classList.contains('selected');
+            const priceInput = document.getElementById('price');
+            const priceVal = priceInput ? parseFloat(priceInput.value) : 0;
+            const isEditMode = !!document.querySelector('input[name="id"]');
+
+            if (isPaid && !isNaN(priceVal) && priceVal > 0) {
+                totalPct += 20;
+            } else if (isFree && (window.userInteractedWithPricing || isEditMode)) {
+                totalPct += 20;
+            }
+
+            return Math.min(100, Math.max(0, totalPct));
+        }
+
+        function isStepCompleted(stepId) {
+            if (stepId === 'basic') {
+                const titleVal = document.getElementById('title')?.value?.trim() || '';
+                const descVal = document.getElementById('description')?.value?.trim() || '';
+                const catVal = document.getElementById('category')?.value || '';
+                return titleVal.length >= 3 && /^[a-zA-Z]/.test(titleVal) &&
+                       descVal.length >= 10 && /^[a-zA-Z]/.test(descVal) &&
+                       catVal !== '';
+            }
+            if (stepId === 'intended') {
+                const objInputs = document.querySelectorAll('.objective-input');
+                let validCount = 0;
+                objInputs.forEach(inp => {
+                    const v = inp.value.trim();
+                    if (v.length >= 3 && /^[a-zA-Z]/.test(v)) validCount++;
+                });
+                return validCount >= 1;
+            }
+            if (stepId === 'curriculum') {
+                const sections = document.querySelectorAll('.section-card');
+                if (sections.length === 0) return false;
+                let hasValidSec = false;
+                let hasValidLec = false;
+                sections.forEach(sec => {
+                    const secVal = sec.querySelector('.section-title-input')?.value?.trim() || '';
+                    if (secVal.length >= 3 && /^[a-zA-Z]/.test(secVal)) hasValidSec = true;
+                    sec.querySelectorAll('.lecture-card').forEach(lec => {
+                        const lecVal = lec.querySelector('input[name*=".title"]')?.value?.trim() || '';
+                        if (lecVal.length >= 3 && /^[a-zA-Z]/.test(lecVal)) hasValidLec = true;
+                    });
+                });
+                return hasValidSec && hasValidLec;
+            }
+            if (stepId === 'media') {
+                const thumbInput = document.getElementById('thumbnail');
+                const imgPreview = document.getElementById('imagePreview');
+                const hasExistingImg = imgPreview && imgPreview.src && imgPreview.src.trim().length > 5 && !imgPreview.src.includes('course-placeholder.jpg') && !imgPreview.src.endsWith('/');
+                const hasFileChosen = thumbInput && thumbInput.files && thumbInput.files.length > 0;
+                return hasExistingImg || hasFileChosen;
+            }
+            if (stepId === 'pricing') {
+                const tilePaid = document.getElementById('tilePaid');
+                const isPaid = tilePaid && tilePaid.classList.contains('selected');
+                const tileFree = document.getElementById('tileFree');
+                const isFree = tileFree && tileFree.classList.contains('selected');
+                const priceVal = parseFloat(document.getElementById('price')?.value);
+                const isEditMode = !!document.querySelector('input[name="id"]');
+                if (isPaid) return !isNaN(priceVal) && priceVal > 0;
+                if (isFree) return window.userInteractedWithPricing || isEditMode;
+                return false;
+            }
+            return false;
+        }
+
         function updateProgressState() {
-            const pct = Math.round(((currentStepIndex + 1) / steps.length) * 100);
-            document.getElementById('stepperPct').textContent = `${pct}% Done`;
-            document.getElementById('stepperProgressBar').style.width = `${pct}%`;
+            const pct = calculateDynamicProgress();
+            const pctBadge = document.getElementById('stepperPct');
+            const progressBar = document.getElementById('stepperProgressBar');
+            if (pctBadge) pctBadge.textContent = `${pct}% Done`;
+            if (progressBar) progressBar.style.width = `${pct}%`;
 
             steps.forEach((s, idx) => {
                 const btn = document.getElementById(`stepBtn-${s}`);
                 const ind = document.getElementById(`indicator-${s}`);
-                if (idx < currentStepIndex) {
+                if (!btn || !ind) return;
+
+                const completed = isStepCompleted(s);
+                if (completed) {
                     btn.classList.add('completed');
                     ind.innerHTML = '<i class="fas fa-check"></i>';
-                } else if (idx === currentStepIndex) {
-                    btn.classList.remove('completed');
-                    ind.textContent = `${idx + 1}`;
                 } else {
                     btn.classList.remove('completed');
                     ind.textContent = `${idx + 1}`;
@@ -2163,12 +3031,14 @@
             if (headerTitle) {
                 headerTitle.textContent = val.trim().length > 0 ? val.trim() : 'New Course';
             }
+            updateProgressState();
         }
 
         function handleSubtitleInput(input) {
             validateAlphaStart(input);
             const val = input.value;
             document.getElementById('subtitleCharCount').textContent = `${val.length} / 160`;
+            updateProgressState();
         }
 
         function validateAlphaStart(input) {
@@ -2194,6 +3064,7 @@
 
             updateSubcategories(catName);
             renderDynamicCategoryFields(catName);
+            updateProgressState();
         }
 
         function updateSubcategories(catName) {
@@ -2241,9 +3112,9 @@
                 html += `<label class="field-label" for="${fieldName}">${f.label} ${f.required ? '<span class="field-required">*</span>' : ''}</label>`;
 
                 if (f.type === 'textarea') {
-                    html += `<textarea id="${fieldName}" name="${fieldName}" class="input-textarea" rows="3" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this)">${val}</textarea>`;
+                    html += `<textarea id="${fieldName}" name="${fieldName}" class="input-textarea" rows="3" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this); clearFieldError(this);">${val}</textarea>`;
                 } else if (f.type === 'select') {
-                    html += `<select id="${fieldName}" name="${fieldName}" class="input-select" ${f.required ? 'required' : ''}>`;
+                    html += `<select id="${fieldName}" name="${fieldName}" class="input-select" ${f.required ? 'required' : ''} onchange="clearFieldError(this);">`;
                     html += `<option value="">-- Select ${f.label} --</option>`;
                     if (f.options) {
                         f.options.forEach(opt => {
@@ -2253,10 +3124,12 @@
                     }
                     html += `</select>`;
                 } else if (f.type === 'number') {
-                    html += `<input type="number" id="${fieldName}" name="${fieldName}" class="input-number" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`;
+                    html += `<input type="number" id="${fieldName}" name="${fieldName}" class="input-number" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="clearFieldError(this);">`;
                 } else {
-                    html += `<input type="text" id="${fieldName}" name="${fieldName}" class="input-text" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this)">`;
+                    html += `<input type="text" id="${fieldName}" name="${fieldName}" class="input-text" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this); clearFieldError(this);">`;
                 }
+
+                html += `<div class="field-error-text" id="${fieldName}Error"></div>`;
 
                 if (f.description) {
                     html += `<p class="field-helper">${f.description}</p>`;
@@ -2277,15 +3150,8 @@
             if (existingObjectivesStr && existingObjectivesStr.trim().length > 0) {
                 list = existingObjectivesStr.split('\n').map(s => s.trim()).filter(s => s.length > 0);
             }
-            if (list.length === 0) {
-                list = [
-                    "Master core conceptual foundations and architecture patterns",
-                    "Build and deploy production-ready practical applications",
-                    "Adopt industry best practices, testing, and debugging workflows",
-                    "Confidently design scalable domain solutions independently"
-                ];
-            }
 
+            // No hardcoded 4 default objectives: starts empty for new courses, user adds/removes freely
             list.forEach(obj => renderObjectiveRow(obj));
             updateObjectivesCounter();
         }
@@ -2296,12 +3162,25 @@
             div.className = 'objective-row';
             div.innerHTML = `
                 <i class="fas fa-grip-vertical objective-handle"></i>
-                <input type="text" class="objective-input" value="${text}" placeholder="Enter a measurable learning outcome..." oninput="validateAlphaStart(this); updateObjectivesCounter();">
-                <button type="button" class="btn-icon-danger" onclick="this.parentElement.remove(); updateObjectivesCounter();" title="Remove objective">
+                <input type="text" class="objective-input" value="${text}" placeholder="Enter a measurable learning outcome..." oninput="validateAlphaStart(this); updateObjectivesCounter(); clearFieldError(this); clearObjectiveErrors();">
+                <button type="button" class="btn-icon-danger" onclick="this.parentElement.remove(); updateObjectivesCounter(); clearObjectiveErrors();" title="Remove objective">
                     <i class="fas fa-trash-can"></i>
                 </button>
             `;
             container.appendChild(div);
+        }
+
+        function clearObjectiveErrors() {
+            const inputs = document.querySelectorAll('.objective-input');
+            const hasEmptyOrInvalid = Array.from(inputs).some(i => !i.value.trim() || !/^[a-zA-Z]/.test(i.value.trim()));
+            if (!hasEmptyOrInvalid) {
+                const errDiv = document.getElementById('objectivesError');
+                if (errDiv) {
+                    errDiv.textContent = '';
+                    errDiv.classList.remove('visible');
+                    errDiv.style.display = 'none';
+                }
+            }
         }
 
         function addObjective() {
@@ -2313,7 +3192,8 @@
 
         function updateObjectivesCounter() {
             const count = document.querySelectorAll('.objective-input').length;
-            document.getElementById('objectivesCounter').textContent = `${count} Objectives defined`;
+            document.getElementById('objectivesCounter').textContent = `${count} ${count === 1 ? 'Objective' : 'Objectives'} defined`;
+            updateProgressState();
         }
 
         // ── CURRICULUM ACCORDION BUILDER ──
@@ -2322,7 +3202,8 @@
 
         function addSection(title = '') {
             const container = document.getElementById('sectionsContainer');
-            const secIdx = sectionCount;
+            const secIdx = document.querySelectorAll('.section-card').length;
+            const moduleNum = secIdx + 1;
             const sectionDiv = document.createElement('div');
             sectionDiv.className = 'section-card expanded';
             sectionDiv.id = `section-${secIdx}`;
@@ -2331,10 +3212,13 @@
                 <input type="hidden" name="sections[${secIdx}].position" value="${secIdx}">
                 <div class="section-card-header" onclick="toggleSection(${secIdx})">
                     <div class="section-title-wrapper" onclick="event.stopPropagation()">
-                        <span class="section-badge">Module ${secIdx + 1}</span>
-                        <input type="text" name="sections[${secIdx}].title" value="${title}" class="section-title-input"
-                               placeholder="e.g. Module ${secIdx + 1}: Core Architecture & Setup" required
-                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                        <span class="section-badge">Module ${moduleNum}</span>
+                        <div style="flex: 1;">
+                            <input type="text" name="sections[${secIdx}].title" value="${title}" class="section-title-input"
+                                   placeholder="e.g. Module ${moduleNum}: Core Architecture & Setup" required
+                                   oninput="validateAlphaStart(this); recalculateCurriculum(); clearFieldError(this);">
+                            <div class="field-error-text" id="secTitleError-${secIdx}"></div>
+                        </div>
                     </div>
                     <div class="section-actions" onclick="event.stopPropagation()">
                         <span class="status-pill status-draft" id="secLectureBadge-${secIdx}" style="font-size: 0.72rem;">0 Lectures</span>
@@ -2348,19 +3232,17 @@
                 </div>
 
                 <div class="section-body" id="secBody-${secIdx}">
+                    <div class="field-error-text" id="secLectureError-${secIdx}" style="margin-bottom: 0.5rem;"></div>
                     <div class="lectures-list" id="lectures-${secIdx}">
                         <!-- Lectures -->
                     </div>
                     <button type="button" class="btn-dashed-add" onclick="addLecture(${secIdx})" style="padding: 8px 14px; font-size: 0.82rem;">
-                        <i class="fas fa-plus"></i> Add Lecture to Module ${secIdx + 1}
+                        <i class="fas fa-plus"></i> Add Lecture to Module ${moduleNum}
                     </button>
                 </div>
             `;
 
             container.appendChild(sectionDiv);
-            lectureCounts[secIdx] = 0;
-            sectionCount++;
-
             recalculateCurriculum();
             return secIdx;
         }
@@ -2377,17 +3259,23 @@
         }
 
         function confirmRemoveSection(secIdx) {
-            if (confirm(`Are you sure you want to delete Module ${secIdx + 1} and all its lectures?`)) {
-                const el = document.getElementById(`section-${secIdx}`);
-                if (el) el.remove();
+            const card = document.getElementById(`section-${secIdx}`);
+            const badge = card ? card.querySelector('.section-badge') : null;
+            const moduleName = badge ? badge.textContent.trim() : `Module ${secIdx + 1}`;
+            if (confirm(`Are you sure you want to delete ${moduleName} and all its lectures?`)) {
+                if (card) card.remove();
                 recalculateCurriculum();
             }
         }
 
         function addLecture(secId, title = '', duration = 300) {
-            if (!lectureCounts[secId]) lectureCounts[secId] = 0;
-            const lecId = lectureCounts[secId];
             const container = document.getElementById(`lectures-${secId}`);
+            if (!container) return;
+            const existingLectures = container.querySelectorAll('.lecture-card');
+            const lecId = existingLectures.length;
+            const moduleNum = secId + 1;
+            const lectureNum = lecId + 1;
+
             const lecDiv = document.createElement('div');
             lecDiv.id = `lecture-${secId}-${lecId}`;
             lecDiv.className = 'lecture-card';
@@ -2395,9 +3283,9 @@
             lecDiv.innerHTML = `
                 <div class="lecture-top-row">
                     <span class="lecture-num-badge">
-                        <i class="fas fa-circle-play" style="color: var(--primary);"></i> Lecture ${secId + 1}.${lecId + 1}
+                        <i class="fas fa-circle-play" style="color: var(--primary);"></i> Lecture ${moduleNum}.${lectureNum}
                     </span>
-                    <button type="button" class="btn-icon-danger" onclick="document.getElementById('lecture-${secId}-${lecId}').remove(); recalculateCurriculum();" title="Remove Lecture">
+                    <button type="button" class="btn-icon-danger" onclick="this.closest('.lecture-card').remove(); recalculateCurriculum();" title="Remove Lecture">
                         <i class="fas fa-trash-can"></i>
                     </button>
                 </div>
@@ -2405,9 +3293,10 @@
                 <div class="grid-2 form-row">
                     <div>
                         <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
-                        <input type="text" name="sections[${secId}].lectures[${lecId}].title" value="${title}" class="input-text"
+                        <input type="text" name="sections[${secId}].lectures[${lecId}].title" value="${title}" class="input-text lecture-title-input"
                                placeholder="e.g. Setting up Development Environment" required
-                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                               oninput="validateAlphaStart(this); recalculateCurriculum(); clearFieldError(this);">
+                        <div class="field-error-text" id="lecTitleError-${secId}-${lecId}"></div>
                     </div>
                     <div>
                         <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
@@ -2423,7 +3312,6 @@
             `;
 
             container.appendChild(lecDiv);
-            lectureCounts[secId]++;
             recalculateCurriculum();
         }
 
@@ -2431,29 +3319,179 @@
             const sections = document.querySelectorAll('.section-card');
             let totalLectures = 0;
             let totalSeconds = 0;
+            lectureCounts = {};
 
-            sections.forEach((sec, idx) => {
+            sections.forEach((sec, secIdx) => {
+                const moduleNum = secIdx + 1;
+                sec.id = `section-${secIdx}`;
+
+                // Header badge
+                const badge = sec.querySelector('.section-badge');
+                if (badge) badge.textContent = `Module ${moduleNum}`;
+
+                // Hidden section position input
+                const posInput = sec.querySelector('input[name$=".position"][name^="sections["]:not([name*="lectures"])');
+                if (posInput) {
+                    posInput.name = `sections[${secIdx}].position`;
+                    posInput.value = secIdx;
+                }
+
+                // Hidden section id input (edit mode)
+                const idInput = sec.querySelector('input[name$=".id"][name^="sections["]:not([name*="lectures"])');
+                if (idInput) {
+                    idInput.name = `sections[${secIdx}].id`;
+                }
+
+                // Section title input
+                const titleInput = sec.querySelector('.section-title-input');
+                if (titleInput) {
+                    titleInput.name = `sections[${secIdx}].title`;
+                }
+
+                // Section title error div
+                const titleErr = sec.querySelector('[id^="secTitleError-"]');
+                if (titleErr) {
+                    titleErr.id = `secTitleError-${secIdx}`;
+                }
+
+                // Lecture badge
+                const lecBadge = sec.querySelector('[id^="secLectureBadge-"]');
+                if (lecBadge) {
+                    lecBadge.id = `secLectureBadge-${secIdx}`;
+                }
+
+                // Delete button
+                const deleteBtn = sec.querySelector('.section-actions .btn-icon-danger');
+                if (deleteBtn) {
+                    deleteBtn.setAttribute('onclick', `confirmRemoveSection(${secIdx})`);
+                }
+
+                // Toggle button & chevron
+                const toggleBtn = sec.querySelector('.section-actions .btn-secondary');
+                if (toggleBtn) {
+                    toggleBtn.setAttribute('onclick', `toggleSection(${secIdx})`);
+                }
+
+                const chevron = sec.querySelector('[id^="secChevron-"]');
+                if (chevron) {
+                    chevron.id = `secChevron-${secIdx}`;
+                }
+
+                const header = sec.querySelector('.section-card-header');
+                if (header) {
+                    header.setAttribute('onclick', `toggleSection(${secIdx})`);
+                }
+
+                // Section body & containers
+                const body = sec.querySelector('.section-body');
+                if (body) {
+                    body.id = `secBody-${secIdx}`;
+                }
+
+                const lecErr = sec.querySelector('[id^="secLectureError-"]');
+                if (lecErr) {
+                    lecErr.id = `secLectureError-${secIdx}`;
+                }
+
+                const lecturesList = sec.querySelector('.lectures-list');
+                if (lecturesList) {
+                    lecturesList.id = `lectures-${secIdx}`;
+                }
+
+                // Add lecture button
+                const addLecBtn = sec.querySelector('.section-body > button.btn-dashed-add');
+                if (addLecBtn) {
+                    addLecBtn.setAttribute('onclick', `addLecture(${secIdx})`);
+                    addLecBtn.innerHTML = `<i class="fas fa-plus"></i> Add Lecture to Module ${moduleNum}`;
+                }
+
+                // Re-number and re-bind all lectures in this section
                 const lectures = sec.querySelectorAll('.lecture-card');
-                const badge = sec.querySelector(`[id^="secLectureBadge-"]`);
-                if (badge) badge.textContent = `${lectures.length} Lectures`;
-
+                if (lecBadge) {
+                    lecBadge.textContent = `${lectures.length} Lectures`;
+                }
                 totalLectures += lectures.length;
-                lectures.forEach(lec => {
-                    const durInput = lec.querySelector('input[type="number"]');
-                    if (durInput && durInput.value) {
-                        totalSeconds += parseInt(durInput.value) || 0;
+                lectureCounts[secIdx] = lectures.length;
+
+                lectures.forEach((lec, lecIdx) => {
+                    const lectureNum = lecIdx + 1;
+                    lec.id = `lecture-${secIdx}-${lecIdx}`;
+
+                    // Lecture badge
+                    const numBadge = lec.querySelector('.lecture-num-badge');
+                    if (numBadge) {
+                        numBadge.innerHTML = `<i class="fas fa-circle-play" style="color: var(--primary);"></i> Lecture ${moduleNum}.${lectureNum}`;
+                    }
+
+                    // Delete lecture button
+                    const delLecBtn = lec.querySelector('.lecture-top-row .btn-icon-danger');
+                    if (delLecBtn) {
+                        delLecBtn.setAttribute('onclick', `this.closest('.lecture-card').remove(); recalculateCurriculum();`);
+                    }
+
+                    // Hidden lecture id
+                    const lecIdInp = lec.querySelector('input[name*="lectures"][name$=".id"]');
+                    if (lecIdInp) {
+                        lecIdInp.name = `sections[${secIdx}].lectures[${lecIdx}].id`;
+                    }
+
+                    // Hidden lecture position
+                    const lecPosInp = lec.querySelector('input[name*="lectures"][name$=".position"]');
+                    if (lecPosInp) {
+                        lecPosInp.name = `sections[${secIdx}].lectures[${lecIdx}].position`;
+                        lecPosInp.value = lecIdx;
+                    }
+
+                    // Hidden lecture videoUrl
+                    const lecVidUrl = lec.querySelector('input[name*="lectures"][name$=".videoUrl"]');
+                    if (lecVidUrl) {
+                        lecVidUrl.name = `sections[${secIdx}].lectures[${lecIdx}].videoUrl`;
+                    }
+
+                    // Lecture title input
+                    const lecTitleInp = lec.querySelector('.lecture-title-input, input[name*="lectures"][name$=".title"]');
+                    if (lecTitleInp) {
+                        lecTitleInp.name = `sections[${secIdx}].lectures[${lecIdx}].title`;
+                        lecTitleInp.classList.add('lecture-title-input');
+                    }
+
+                    // Lecture title error
+                    const lecTitleErr = lec.querySelector('[id^="lecTitleError-"]');
+                    if (lecTitleErr) {
+                        lecTitleErr.id = `lecTitleError-${secIdx}-${lecIdx}`;
+                    }
+
+                    // Duration input
+                    const durInput = lec.querySelector('input[name*="durationSeconds"]');
+                    if (durInput) {
+                        durInput.name = `sections[${secIdx}].lectures[${lecIdx}].durationSeconds`;
+                        if (durInput.value) {
+                            totalSeconds += parseInt(durInput.value) || 0;
+                        }
+                    }
+
+                    // Video file input
+                    const vidFile = lec.querySelector('input[type="file"]');
+                    if (vidFile) {
+                        vidFile.name = `sections[${secIdx}].lectures[${lecIdx}].videoFile`;
                     }
                 });
             });
+
+            sectionCount = sections.length;
 
             const mins = Math.round(totalSeconds / 60);
             const hours = Math.floor(mins / 60);
             const remainMins = mins % 60;
             const durText = hours > 0 ? `${hours}h ${remainMins}m total` : `${mins} min total`;
 
-            document.getElementById('statSectionCount').textContent = `${sections.length} ${sections.length === 1 ? 'Section' : 'Sections'}`;
-            document.getElementById('statLectureCount').textContent = `${totalLectures} ${totalLectures === 1 ? 'Lecture' : 'Lectures'}`;
-            document.getElementById('statTotalDuration').textContent = durText;
+            const statSec = document.getElementById('statSectionCount');
+            if (statSec) statSec.textContent = `${sections.length} ${sections.length === 1 ? 'Section' : 'Sections'}`;
+            const statLec = document.getElementById('statLectureCount');
+            if (statLec) statLec.textContent = `${totalLectures} ${totalLectures === 1 ? 'Lecture' : 'Lectures'}`;
+            const statDur = document.getElementById('statTotalDuration');
+            if (statDur) statDur.textContent = durText;
+            updateProgressState();
         }
 
         // ── MEDIA UPLOAD HANDLERS ──
@@ -2464,8 +3502,20 @@
                 const container = document.getElementById('imagePreviewContainer');
                 preview.src = reader.result;
                 container.style.display = 'flex';
+                updateProgressState();
             };
-            if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+                const thumbDrop = document.getElementById('thumbDropzone');
+                if (thumbDrop) thumbDrop.classList.remove('input-error');
+                const thumbErr = document.getElementById('thumbnailError');
+                if (thumbErr) {
+                    thumbErr.textContent = '';
+                    thumbErr.classList.remove('visible');
+                    thumbErr.style.display = 'none';
+                }
+                updateProgressState();
+            }
         }
 
         function handlePromoVideoSelect(event) {
@@ -2474,6 +3524,15 @@
             if (event.target.files[0]) {
                 container.style.display = 'flex';
                 nameEl.textContent = event.target.files[0].name;
+                const videoDrop = document.getElementById('videoDropzone');
+                if (videoDrop) videoDrop.classList.remove('input-error');
+                updateProgressState();
+                const promoErr = document.getElementById('promoVideoError');
+                if (promoErr) {
+                    promoErr.textContent = '';
+                    promoErr.classList.remove('visible');
+                    promoErr.style.display = 'none';
+                }
             }
         }
 
@@ -2531,11 +3590,15 @@
 
         // ── PRICING SELECTION & VALIDATION ──
         function selectPricingMode(isFree) {
+            window.userInteractedWithPricing = true;
             const tilePaid = document.getElementById('tilePaid');
             const tileFree = document.getElementById('tileFree');
             const priceContainer = document.getElementById('pricingInputContainer');
             const priceInput = document.getElementById('price');
             const salePriceInput = document.getElementById('salePrice');
+
+            clearFieldError('price');
+            clearFieldError('salePrice');
 
             if (isFree) {
                 tileFree.classList.add('selected');
@@ -2553,11 +3616,15 @@
                     priceInput.value = '1999';
                 }
             }
+            updateProgressState();
         }
 
         function handlePriceInput(input) {
+            window.userInteractedWithPricing = true;
+            clearFieldError(input);
             if (input.value > 99999) input.value = 99999;
             if (input.value < 0) input.value = 0;
+            updateProgressState();
         }
 
         // ── PRE-FLIGHT AUDIT CHECKLIST ──
@@ -2568,18 +3635,26 @@
             const objInputs = document.querySelectorAll('.objective-input');
             const sections = document.querySelectorAll('.section-card');
 
-            const hasTitle = (titleVal.length > 3 && descVal.length > 5);
+            const hasTitle = (titleVal.length >= 3 && descVal.length >= 5);
             const hasCat = (catVal !== '');
-            const hasObjectives = (objInputs.length >= 2);
+            const hasObjectives = Array.from(objInputs).some(i => i.value.trim().length >= 3);
             const hasCurriculum = (sections.length >= 1);
+
+            const tilePaid = document.getElementById('tilePaid');
+            const isPaid = tilePaid && tilePaid.classList.contains('selected');
+            const tileFree = document.getElementById('tileFree');
+            const isFree = tileFree && tileFree.classList.contains('selected');
+            const priceVal = parseFloat(document.getElementById('price').value) || 0;
+            const isEditMode = !!document.querySelector('input[name="id"]');
+            const hasPricing = (isPaid && priceVal > 0) || (isFree && (window.userInteractedWithPricing || isEditMode));
 
             updateAuditItem('title', hasTitle);
             updateAuditItem('category', hasCat);
             updateAuditItem('objectives', hasObjectives);
             updateAuditItem('curriculum', hasCurriculum);
-            updateAuditItem('pricing', true);
+            updateAuditItem('pricing', hasPricing);
 
-            const allGood = hasTitle && hasCat && hasObjectives && hasCurriculum;
+            const allGood = hasTitle && hasCat && hasObjectives && hasCurriculum && hasPricing;
             const overallBadge = document.getElementById('auditOverallBadge');
             if (allGood) {
                 overallBadge.className = 'status-pill status-published';
@@ -2701,6 +3776,8 @@
             const actionInput = document.getElementById('courseAction');
             if (actionInput) actionInput.value = actionType;
 
+            clearAllErrors();
+
             // Aggregate learning objectives into newline-separated string
             const inputs = document.querySelectorAll('.objective-input');
             const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
@@ -2711,31 +3788,23 @@
             let titleVal = titleEl ? titleEl.value.trim() : '';
 
             if (actionType === 'submit') {
-                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
-                    alert('Please enter a valid Course Title starting with a letter.');
-                    switchStep('basic');
-                    if (titleEl) titleEl.focus();
-                    return false;
-                }
-                const descEl = document.getElementById('description');
-                const descVal = descEl ? descEl.value.trim() : '';
-                if (!descVal || !/^[a-zA-Z]/.test(descVal)) {
-                    alert('Please enter a Course Description starting with a letter.');
-                    switchStep('basic');
-                    if (descEl) descEl.focus();
-                    return false;
-                }
-                const catEl = document.getElementById('category');
-                if (!catEl || !catEl.value) {
-                    alert('Please select a Course Category before submitting for review.');
-                    switchStep('basic');
-                    if (catEl) catEl.focus();
-                    return false;
+                for (let i = 0; i < steps.length; i++) {
+                    if (!validateStep(i)) {
+                        switchStep(steps[i], true);
+                        validateStep(i);
+                        return false;
+                    }
                 }
             } else {
-                // Draft mode: if title is empty or does not start with a letter, give a fallback title so the server accepts it
-                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
-                    if (titleEl) titleEl.value = 'Draft Course ' + new Date().toLocaleDateString();
+                // Draft mode: validate title starts with letter if provided, or give clean fallback
+                if (!titleVal) {
+                    showFieldError('title', 'Please enter a Course Title before saving draft.', 'basic');
+                    switchStep('basic', true);
+                    return false;
+                } else if (!/^[a-zA-Z]/.test(titleVal)) {
+                    showFieldError('title', 'Course Title must start with a letter (A-Z).', 'basic');
+                    switchStep('basic', true);
+                    return false;
                 }
             }
 
@@ -2745,51 +3814,112 @@
             if (btnSave) { btnSave.style.opacity = '0.7'; btnSave.style.pointerEvents = 'none'; }
             if (btnSub) { btnSub.style.opacity = '0.7'; btnSub.style.pointerEvents = 'none'; }
 
+            // Show celebratory / submission feedback modal popup
+            const modal = document.getElementById('courseSubmitModal');
+            if (modal) {
+                const title = document.getElementById('submitModalTitle');
+                const desc = document.getElementById('submitModalDesc');
+                if (actionType === 'submit') {
+                    if (title) title.textContent = 'Submitting Course for Review...';
+                    if (desc) desc.textContent = 'Your course is being submitted to the admin team for approval.';
+                } else {
+                    if (title) title.textContent = 'Saving Course Draft...';
+                    if (desc) desc.textContent = 'Your course draft is being updated safely.';
+                }
+                modal.style.display = 'flex';
+            }
+
             form.submit();
         }
 
-        document.getElementById('courseForm').addEventListener('submit', function(e) {
-            const inputs = document.querySelectorAll('.objective-input');
-            const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
-            const finalObj = document.getElementById('finalObjectives');
-            if (finalObj) finalObj.value = objectives.join('\n');
-        });
+        const courseFormEl = document.getElementById('courseForm');
+        if (courseFormEl) {
+            courseFormEl.addEventListener('input', function() {
+                updateProgressState();
+            });
+            courseFormEl.addEventListener('change', function() {
+                updateProgressState();
+            });
+            courseFormEl.addEventListener('submit', function(e) {
+                const inputs = document.querySelectorAll('.objective-input');
+                const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+                const finalObj = document.getElementById('finalObjectives');
+                if (finalObj) finalObj.value = objectives.join('\n');
+            });
+        }
 
         // ── INITIALIZATION ──
         document.addEventListener('DOMContentLoaded', function() {
             initObjectives();
 
+            // Init Multi-select for Language & Format
+            initMultiSelect('language');
+            initMultiSelect('format');
+
             // Set pricing mode initial state
-            const currentPrice = parseFloat(document.getElementById('price').value);
-            if (isNaN(currentPrice) || currentPrice === 0) {
-                selectPricingMode(true);
+            const isEditMode = !!document.querySelector('input[name="id"]');
+            const priceInputEl = document.getElementById('price');
+            const currentPrice = priceInputEl ? parseFloat(priceInputEl.value) : NaN;
+            if (isEditMode) {
+                window.userInteractedWithPricing = true;
+                if (!isNaN(currentPrice) && currentPrice > 0) {
+                    selectPricingMode(false);
+                } else {
+                    selectPricingMode(true);
+                }
             } else {
-                selectPricingMode(false);
+                window.userInteractedWithPricing = false;
+                const tilePaid = document.getElementById('tilePaid');
+                const tileFree = document.getElementById('tileFree');
+                if (tilePaid) tilePaid.classList.remove('selected');
+                if (tileFree) tileFree.classList.remove('selected');
+                if (priceInputEl) priceInputEl.value = '';
             }
 
-            // Category initialization
+            // Category initialization: pre-select instructor's registered category by default
             const catSelect = document.getElementById('category');
-            if (catSelect && catSelect.value) {
-                onCategoryChanged();
+            if (catSelect) {
+                if ((!catSelect.value || catSelect.value === '') && typeof defaultCatId !== 'undefined' && defaultCatId) {
+                    catSelect.value = defaultCatId;
+                }
+                if (catSelect.value) {
+                    onCategoryChanged();
+                }
             }
 
             // Initial section if brand new course, or count existing sections
             const sectionsContainer = document.getElementById('sectionsContainer');
             const existingCards = sectionsContainer.querySelectorAll('.section-card');
             if (existingCards.length === 0) {
-                const s0 = addSection('Foundations & Course Roadmap');
-                addLecture(s0, 'Welcome to the Course & Architecture Overview', 300);
+                const s0 = addSection('');
+                addLecture(s0, '', 300);
             } else {
-                sectionCount = existingCards.length;
-                existingCards.forEach((sec, idx) => {
-                    lectureCounts[idx] = sec.querySelectorAll('.lecture-card').length;
-                });
                 recalculateCurriculum();
             }
 
-            // Sync step 1
+            // Sync step 1 & initial dynamic progress calculation
             switchStep('basic');
+            updateProgressState();
         });
     </script>
+
+    <!-- Course Creation / Submission Feedback Modal -->
+    <div id="courseSubmitModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; animation: fadeIn 0.2s ease;">
+        <div style="background: white; border-radius: 20px; max-width: 480px; width: 90%; padding: 2.2rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative;">
+            <div style="width: 72px; height: 72px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.25rem;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;" id="submitModalTitle">Course Saved Successfully!</h3>
+            <p style="font-size: 0.95rem; color: #475569; line-height: 1.5; margin-bottom: 1.8rem;" id="submitModalDesc">Your course details have been securely recorded.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="btn-primary" onclick="window.location.href='/vendor/dashboard?tab=courses'" style="padding: 10px 20px; border-radius: 10px;">
+                    <i class="fas fa-layer-group" style="margin-right: 6px;"></i> View My Courses
+                </button>
+                <button type="button" class="btn-secondary" onclick="document.getElementById('courseSubmitModal').style.display='none'" style="padding: 10px 16px; border-radius: 10px;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
