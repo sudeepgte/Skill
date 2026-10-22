@@ -2,422 +2,3423 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Create New Course | SkillHub</title>
-    <!-- CSRF Tokens for AJAX -->
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Course: ' + course.title + ' | SkillHub Admin Studio' : 'Create New Course | SkillHub Admin Studio'}">Create Course | SkillHub Admin Studio</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <style>
-        .form-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-            border: 1px solid #e1e4e8;
+        :root {
+            /* Clean Commercial Palette */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-subtle: #f1f5f9;
+            --border-subtle: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --border-focus: #6366f1;
+
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+
+            /* Brand Accent: Deep Indigo */
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --primary-border: #c7d2fe;
+
+            /* Semantics */
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --warning-border: #fde68a;
+            --danger: #e11d48;
+            --danger-light: #fff1f2;
+            --danger-border: #fecdd3;
+            --info: #2563eb;
+            --info-light: #eff6ff;
+            --info-border: #bfdbfe;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+            --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-full: 9999px;
+            --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
-            color: #2d2f31;
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-        .form-control {
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══ TOPBAR NAVIGATION ══ */
+        .studio-topbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .brand-logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-logo i {
+            color: var(--primary);
+            font-size: 1.35rem;
+        }
+
+        .studio-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .breadcrumb-divider {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-trail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .breadcrumb-link:hover {
+            color: var(--primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .save-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .save-indicator.active {
+            color: var(--success);
+        }
+
+        .save-indicator-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--success);
+            display: inline-block;
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .status-draft { background: var(--bg-card-subtle); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+        .status-pending { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+        .status-published { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+        .status-rejected { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+
+        /* ══ NOTIFICATIONS & REJECTION BANNER ══ */
+        .alert-banner {
+            max-width: 1280px;
+            margin: 1.25rem auto 0;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.92rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-banner.error {
+            background: var(--danger-light);
+            border: 1px solid var(--danger-border);
+            color: #9f1239;
+        }
+
+        .alert-banner.success {
+            background: var(--success-light);
+            border: 1px solid var(--success-border);
+            color: #065f46;
+        }
+
+        .alert-banner.warning {
+            background: var(--warning-light);
+            border: 1px solid var(--warning-border);
+            color: #92400e;
+        }
+
+        
+        /* ══ MULTI-SELECT DROPDOWN ══ */
+        .multi-select-wrapper {
+            position: relative;
             width: 100%;
-            padding: 10px;
-            border: 1px solid #2d2f31;
-            border-radius: 0;
-            font-size: 1rem;
         }
 
-        .form-control:focus {
+        .multi-select-trigger {
+            min-height: 44px;
+            padding: 4px 10px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            transition: var(--transition-smooth);
+        }
+
+        .multi-select-trigger:hover {
+            border-color: var(--border-hover);
+        }
+
+        .multi-select-trigger.active {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .selected-tag-chip {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-sm);
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .selected-tag-chip .remove-tag {
+            cursor: pointer;
+            color: var(--primary);
+            opacity: 0.7;
+            font-size: 0.75rem;
+            transition: opacity 0.15s ease;
+        }
+
+        .selected-tag-chip .remove-tag:hover {
+            opacity: 1;
+            color: var(--danger);
+        }
+
+        .multi-select-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            display: none;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .multi-select-menu.open {
+            display: block;
+        }
+
+        .multi-select-search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            background: var(--bg-card-subtle);
+        }
+
+        .multi-select-search-box input {
+            border: none;
+            background: transparent;
             outline: none;
-            border-color: #a435f0;
+            font-size: 0.85rem;
+            width: 100%;
+            color: var(--text-main);
         }
 
-        .section-title {
+        .multi-select-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            max-height: 170px;
+            overflow-y: auto;
+        }
+
+        .multi-select-option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            transition: background 0.15s ease;
+            user-select: none;
+        }
+
+        .multi-select-option-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .multi-select-option-item.selected {
+            background: rgba(99, 102, 241, 0.08);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .multi-select-option-item input[type="checkbox"] {
+            accent-color: var(--primary);
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ══ STUDIO LAYOUT ══ */
+        .studio-container {
+            max-width: 1280px;
+            margin: 2rem auto 8rem;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* ══ STEPPER SIDEBAR ══ */
+        .stepper-sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            position: sticky;
+            top: 85px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stepper-header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .stepper-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0 0 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-pct-badge {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-card-subtle);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 20%;
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        .stepper-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .step-item:hover {
+            background: var(--bg-card-subtle);
+        }
+
+        .step-item.active {
+            background: var(--primary-light);
+            border-color: var(--primary-border);
+        }
+
+        .step-item.active .step-title {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .step-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: var(--bg-card-subtle);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            transition: var(--transition-smooth);
+        }
+
+        .step-item.active .step-indicator {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .step-item.completed .step-indicator {
+            background: var(--success);
+            color: #ffffff;
+            border-color: var(--success);
+        }
+
+        .step-content-meta {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .step-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+        }
+
+        .sidebar-footer-card {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ══ MAIN WIZARD CONTENT ══ */
+        .wizard-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Section Component */
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .form-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .form-card-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-title {
             font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #e1e4e8;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .help-text {
+        .card-header-title i {
+            color: var(--primary);
+            font-size: 1.15rem;
+        }
+
+        .card-header-subtitle {
             font-size: 0.85rem;
-            color: #6a6f73;
-            margin-top: 0.25rem;
+            color: var(--text-secondary);
+            margin: 4px 0 0 0;
         }
 
-        .btn-submit {
-            background-color: #a435f0;
-            color: white;
-            padding: 12px 24px;
-            font-weight: 700;
+        /* Form Fields */
+        .form-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .field-required {
+            color: var(--danger);
+            margin-left: 2px;
+        }
+
+        .char-counter {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .field-helper {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .input-text,
+        .input-number,
+        .input-select,
+        .input-textarea {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background: #ffffff;
+            transition: var(--transition-smooth);
+            outline: none;
+        }
+
+        .input-textarea {
+            height: auto;
+            padding: 12px 14px;
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .input-text:focus,
+        .input-number:focus,
+        .input-select:focus,
+        
+        .input-invalid,
+        .input-invalid:focus {
+            border-color: #e11d48 !important;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+            background-color: #fff1f2 !important;
+        }
+
+        .field-validation-error {
+            color: #e11d48;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-textarea:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            background: #ffffff;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        /* ══ CUSTOM SEARCHABLE CATEGORY PICKER ══ */
+        .category-select-wrapper {
+            position: relative;
+        }
+
+        .category-search-box {
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .category-search-box i {
+            position: absolute;
+            left: 12px;
+            top: 13px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .category-search-input {
+            width: 100%;
+            height: 40px;
+            padding-left: 34px;
+            padding-right: 12px;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition-smooth);
+            background: #ffffff;
+        }
+
+        .category-search-input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .selected-category-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            border-radius: var(--radius-sm);
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .selected-category-text {
+            color: var(--primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Dynamic Category Attributes Card */
+        .dynamic-attributes-container {
+            background: var(--bg-page);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        /* ══ LEARNING OBJECTIVES BUILDER ══ */
+        .objectives-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .objective-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            transition: var(--transition-smooth);
+        }
+
+        .objective-row:focus-within {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+
+        .objective-handle {
+            color: var(--text-muted);
+            cursor: grab;
+            font-size: 0.85rem;
+            padding: 0 4px;
+        }
+
+        .objective-input {
+            flex: 1;
             border: none;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background: transparent;
+            padding: 4px 6px;
+        }
+
+        .btn-icon-danger {
+            background: none;
+            border: none;
+            color: var(--text-muted);
             cursor: pointer;
-            font-size: 1rem;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-smooth);
         }
 
-        .btn-submit:hover {
-            background-color: #8710d8;
+        .btn-icon-danger:hover {
+            color: var(--danger);
+            background: var(--danger-light);
         }
 
-        .btn-cancel {
-            background-color: transparent;
-            color: #2d2f31;
-            padding: 12px 24px;
+        .btn-dashed-add {
+            width: 100%;
+            padding: 10px 16px;
+            background: #ffffff;
+            border: 1.5px dashed var(--border-hover);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .btn-dashed-add:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* ══ INTERACTIVE CURRICULUM BUILDER ══ */
+        .curriculum-summary-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .curriculum-stats {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .curriculum-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .section-card-header {
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border-bottom: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition-smooth);
+        }
+
+        .section-card.expanded .section-card-header {
+            background: var(--bg-page);
+            border-bottom-color: var(--border-subtle);
+        }
+
+        .section-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .section-badge {
+            background: var(--bg-card-subtle);
+            color: var(--text-secondary);
             font-weight: 700;
-            border: 1px solid #2d2f31;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        .section-title-input {
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background: transparent;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            width: 70%;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+        }
+
+        .section-title-input:hover,
+        .section-title-input:focus {
+            border-color: var(--border-subtle);
+            background: #ffffff;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-body {
+            padding: 1.25rem;
+            display: none;
+        }
+
+        .section-card.expanded .section-body {
+            display: block;
+        }
+
+        .lectures-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .lecture-card {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .lecture-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .lecture-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .lecture-num-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ══ DRAG & DROP MEDIA UPLOADS ══ */
+        .upload-dropzone {
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 2.25rem 1.5rem;
+            text-align: center;
+            background: #ffffff;
             cursor: pointer;
-            margin-right: 1rem;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .upload-dropzone:hover,
+        .upload-dropzone.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-dropzone-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-dropzone-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin: 0 0 4px 0;
+        }
+
+        .upload-dropzone-help {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .media-preview-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-page);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+
+        .media-thumbnail-preview {
+            width: 160px;
+            height: 95px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            background: #000000;
+        }
+
+        /* Pricing Radio Tiles */
+        .pricing-radio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-tile {
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #ffffff;
+        }
+
+        .pricing-tile:hover {
+            border-color: var(--border-hover);
+        }
+
+        .pricing-tile.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .pricing-tile-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .pricing-tile-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin: 0 0 4px 0;
+        }
+
+        .pricing-tile-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Pre-flight Audit Checklist */
+        .audit-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .audit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-page);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+        }
+
+        .audit-item-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .audit-status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+        }
+
+        .audit-pass { background: var(--success-light); color: var(--success); }
+        .audit-warn { background: var(--warning-light); color: var(--warning); }
+
+        /* ══ STICKY ACTION FOOTER BAR ══ */
+        .studio-sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-subtle);
+            padding: 1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 850;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Standard Buttons */
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+            padding: 9px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
             text-decoration: none;
-            display: inline-block;
+            font-family: inherit;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-subtle);
+            border-color: var(--border-hover);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: 1px solid var(--primary);
+            padding: 9px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-submit-review {
+            background: var(--success);
+            color: #ffffff;
+            border: 1px solid var(--success);
+            padding: 9px 22px;
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+            font-family: inherit;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-submit-review:hover {
+            background: #047857;
+            border-color: #047857;
+        }
+
+        /* ══ LIVE PREVIEW MODAL ══ */
+        .preview-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .preview-modal-dialog {
+            background: var(--bg-page);
+            width: 100%;
+            max-width: 1100px;
+            max-height: 90vh;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-modal);
+            animation: modalScale 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .preview-modal-header {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 1rem 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-modal-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Student View Mock Hero */
+        .preview-hero {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 2.5rem 2rem;
+        }
+
+        .preview-hero-content {
+            max-width: 800px;
+        }
+
+        .preview-content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .studio-container {
+                grid-template-columns: 1fr;
+            }
+            .stepper-sidebar {
+                position: relative;
+                top: 0;
+            }
+            .grid-4 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .studio-topbar {
+                padding: 0.75rem 1rem;
+            }
+            .studio-container {
+                padding: 0 1rem;
+                margin-bottom: 9rem;
+            }
+            .grid-2, .grid-3, .pricing-radio-grid {
+                grid-template-columns: 1fr;
+            }
+            .preview-content-grid {
+                grid-template-columns: 1fr;
+            }
+            .studio-sticky-footer {
+                padding: 0.85rem 1rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .footer-left, .footer-right {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
 
-<body style="background-color: #f7f9fa;">
+<body>
 
-    <nav class="navbar">
-        <a href="/" class="logo"><span class="logo-text">SkillHub <span
-                    style="font-weight:300; font-size: 0.8em; opacity: 0.8;">Admin Console</span></span></a>
-        <div class="nav-actions">
-            <a href="/admin/dashboard" class="btn btn-ghost">Back to Dashboard</a>
-        </div>
-    </nav>
-
-    <div class="container" style="padding-top: 2rem; padding-bottom: 4rem; max-width: 800px;">
-
-        <div style="margin-bottom: 2rem;">
-            <h1 th:text="${course.id == null ? 'Create a New Course' : 'Edit Course'}">Create a New Course</h1>
-            <!-- NEW: Display simplified stats if available -->
-            <div th:if="${course.id != null}" style="color: #6a6f73; margin-top: 10px;">
-                <span th:text="${course.sections != null ? course.sections.size() : 0}">0</span> sections â€¢
-                <span th:text="${course.contentLength != null ? course.contentLength : '0m'}">0m</span> total length
+    <!-- ══ STUDIO TOPBAR ══ -->
+    <header class="studio-topbar">
+        <div class="topbar-left">
+            <a href="/admin/dashboard" class="brand-logo">
+                <i class="fas fa-graduation-cap"></i> SkillHub
+            </a>
+            <span class="studio-badge">Admin Studio</span>
+            <span class="breadcrumb-divider">/</span>
+            <div class="breadcrumb-trail">
+                <a href="/admin/courses" class="breadcrumb-link">Courses</a>
+                <span class="breadcrumb-divider">/</span>
+                <span id="headerCourseTitle" style="font-weight: 600; color: var(--text-main);"
+                      th:text="${isEdit ? course.title : 'New Course'}">New Course</span>
             </div>
-            <p style="color: #6a6f73;">Fill in the details below to create a new course. You can add sections and videos
-                after creating the course.</p>
         </div>
 
-        <div th:object="${course}">
-            <!-- Decoupled Main Form -->
-            <form id="courseForm" th:action="@{/admin/courses/save}" method="post" enctype="multipart/form-data"></form>
-            <!-- Hidden ID for Updates -->
-            <input type="hidden" th:field="*{id}" form="courseForm">
+        <div class="topbar-right">
+            <span class="save-indicator active" id="saveIndicator">
+                <span class="save-indicator-dot"></span>
+                <span id="saveIndicatorText">Draft auto-saved</span>
+            </span>
 
-            <!-- Basic Information -->
-            <div class="form-section">
-                <div class="section-title">Basic Information</div>
+            <span th:if="${course.id != null}">
+                <span th:if="${course.status == null or course.status.name() == 'DRAFT'}" class="status-pill status-draft"><i class="fas fa-file-pen"></i> Draft</span>
+                <span th:if="${course.status != null and course.status.name() == 'PENDING_REVIEW'}" class="status-pill status-pending"><i class="fas fa-clock"></i> In Review</span>
+                <span th:if="${course.status != null and course.status.name() == 'PUBLISHED'}" class="status-pill status-published"><i class="fas fa-check-circle"></i> Published</span>
+                <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> Needs Revision</span>
+            </span>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Course Title</label>
-                    <input type="text" class="form-control" th:field="*{title}" form="courseForm"
-                        placeholder="e.g. The Complete Java Bootcamp" required>
-                    <div class="help-text">A catchy and descriptive title for your course.</div>
-                </div>
+            <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
+                <i class="fas fa-eye"></i> Live Student Preview
+            </button>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Course Subtitle</label>
-                    <input type="text" class="form-control" th:field="*{subtitle}" form="courseForm"
-                        placeholder="e.g. Learn Java from scratch and build 10 projects" required>
-                    <div class="help-text">A short, punchy summary of what students will learn.</div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 1.5rem;">
-                    <div>
-                        <label class="form-label">Category</label>
-                        <select class="form-control" th:field="*{category}" id="categorySelect" required
-                            form="courseForm">
-                            <option value="">Select a category</option>
-                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:data-name="${cat.name}"
-                                th:text="${cat.name}">Development
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Subcategory</label>
-                        <select class="form-control" th:field="*{subCategory}" id="subCategorySelect" required
-                            form="courseForm">
-                            <option value="">Select a category first</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Price ($)</label>
-                    <input type="number" step="0.01" class="form-control" th:field="*{price}" placeholder="e.g. 49.99"
-                        required form="courseForm">
-                </div>
-
-                <script>
-                    const subCategories = {
-                        // New Names
-                        "Development and IT": ["Web Development", "Data Science", "Mobile Development", "Programming Languages", "Game Development"],
-                        "Business Marketing": ["Business Strategy", "Entrepreneurship", "E-commerce", "Project Management"],
-                        "Office Productivity and Design": ["Microsoft", "Google", "SAP", "Apple", "Oracle"],
-                        "Music": ["Instruments", "Vocal", "Music Production", "Music Fundamentals"],
-                        "Health Fitness and Yoga": ["Fitness", "Yoga", "Nutrition and Diet", "Mental Health"],
-                        "Art, Craft and Painting": ["Painting", "Craft", "Drawing", "Sketching"],
-                        "Kids Learning and Speaking Course": ["Public Speaking", "Vocabulary", "Clay Modeling"],
-                        "Language": ["English", "Hindi", "Kannada", "Telugu", "Tamil"],
-                        "Photography": ["Street Photography", "Mobile Photography", "Landscape Photography", "Wildlife Photography"],
-
-                        // Legacy Names (Mapping to new lists)
-                        "Development": ["Web Development", "Data Science", "Mobile Development", "Programming Languages", "Game Development"],
-                        "Business": ["Business Strategy", "Entrepreneurship", "E-commerce", "Project Management"],
-                        "Office Productivity": ["Microsoft", "Google", "SAP", "Apple", "Oracle"],
-                        "Health & Fitness": ["Fitness", "Yoga", "Nutrition and Diet", "Mental Health"]
-                    };
-
-                    const categorySelect = document.getElementById('categorySelect');
-                    const subCategorySelect = document.getElementById('subCategorySelect');
-
-                    categorySelect.addEventListener('change', function () {
-                        const selectedOption = this.options[this.selectedIndex];
-                        const categoryName = selectedOption.getAttribute('data-name');
-
-                        // Clear existing options
-                        subCategorySelect.innerHTML = '<option value="">Select a subcategory</option>';
-
-                        if (categoryName && subCategories[categoryName]) {
-                            subCategories[categoryName].forEach(sub => {
-                                const option = document.createElement('option');
-                                option.value = sub;
-                                option.textContent = sub;
-                                subCategorySelect.appendChild(option);
-                            });
-                        }
-                    });
-                </script>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label class="form-label">Level</label>
-                        <select class="form-control" th:field="*{level}" form="courseForm">
-                            <option value="All Levels">All Levels</option>
-                            <option value="Beginner">Beginner</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Expert">Expert</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label">Language</label>
-                        <select class="form-control" th:field="*{language}" form="courseForm">
-                            <option value="English">English</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="French">French</option>
-                            <option value="German">German</option>
-                            <option value="Hindi">Hindi</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Descriptions & Objectives -->
-            <div class="form-section">
-                <div class="section-title">Description & Intended Learners</div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Long Description</label>
-                    <textarea class="form-control" th:field="*{longDescription}" rows="6"
-                        placeholder="Detailed description of the course content..." required
-                        form="courseForm"></textarea>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">What will students learn? (Objectives)</label>
-                    <textarea class="form-control" th:field="*{learningObjectives}" rows="4"
-                        placeholder="Enter each objective on a new line" form="courseForm"></textarea>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Requirements</label>
-                    <textarea class="form-control" th:field="*{requirements}" rows="3"
-                        placeholder="Enter each requirement on a new line (e.g. Basic computer skills)"
-                        form="courseForm"></textarea>
-                </div>
-            </div>
-
-            <!-- Course Media & Video (Preview/Promo) -->
-            <div class="form-section">
-                <div class="section-title">Course Promo Media</div>
-                <div class="help-text">This is the main promotional video shown to unsubscribed users.</div>
-
-                <div style="margin-bottom: 1.5rem; margin-top: 1rem;">
-                    <label class="form-label">Course Image URL</label>
-                    <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="https://..." required
-                        form="courseForm">
-                    <div class="help-text">Paste a direct link to a 16:9 image (e.g., Unsplash, Imgur, or hosted asset).
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label class="form-label">Promo Video</label>
-                    
-                    <!-- NEW: Display current video info -->
-                    <div th:if="${course.videoUrl != null}" style="margin-bottom: 1rem; padding: 10px; background: #eef2f7; border-radius: 4px; font-size: 0.9rem;">
-                        <span style="font-weight: 600; color: #5624d0;"><i class="fas fa-play-circle"></i> Current Video: </span>
-                        <span th:text="${course.videoUrl}">/uploads/abc.mp4</span>
-                    </div>
-                    <div class="help-text" style="margin-bottom: 10px;">Upload a video file OR provide a YouTube URL.
-                    </div>
-
-                    <div style="display: flex; gap: 20px; margin-bottom: 15px;">
-                        <label style="font-weight: normal;">
-                            <input type="radio" name="uploadType" value="file" checked onchange="toggleUploadType()"
-                                form="courseForm" style="width: auto;">
-                            Upload File
-                        </label>
-                        <label style="font-weight: normal;">
-                            <input type="radio" name="uploadType" value="youtube" onchange="toggleUploadType()"
-                                form="courseForm" style="width: auto;">
-                            YouTube URL
-                        </label>
-                    </div>
-
-                    <div id="fileGroup">
-                        <input type="file" name="videoFile" accept="video/*" class="form-control" form="courseForm">
-                    </div>
-
-                    <div id="youtubeGroup" style="display: none;">
-                        <input type="text" name="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..."
-                            class="form-control" form="courseForm">
-                    </div>
-
-                    <script>
-                        function toggleUploadType() {
-                            const type = document.querySelector('input[name="uploadType"]:checked').value;
-                            const fileGroup = document.getElementById('fileGroup');
-                            const youtubeGroup = document.getElementById('youtubeGroup');
-
-                            if (type === 'file') {
-                                fileGroup.style.display = 'block';
-                                youtubeGroup.style.display = 'none';
-                            } else {
-                                fileGroup.style.display = 'none';
-                                youtubeGroup.style.display = 'block';
-                            }
-                        }
-                    </script>
-                </div>
-            </div>
-
-            <!-- COURSE CURRICULUM (Only for existing courses) -->
-            <div class="form-section" th:if="${course.id != null}">
-                <div id="curriculum-container">
-                    <div th:replace="~{admin/fragments/curriculum :: curriculum_content}"></div>
-                </div>
-            </div>
-
-            <div class="form-section" th:if="${course.id == null}">
-                <div class="section-title">Course Curriculum</div>
-                <div style="color: #6a6f73; font-style: italic;">
-                    <i class="fas fa-info-circle"></i> Please create/save the course first to start adding sections and
-                    lectures.
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div style="text-align: right; margin-top: 2rem;">
-                <a href="/admin/dashboard" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit" form="courseForm">Save Course & Continue &rarr;</button>
-            </div>
-
+            <button th:if="${isEdit}" type="button" class="btn-secondary" style="color: var(--danger); border-color: var(--danger-border); background: var(--danger-light); padding: 8px 12px;" onclick="confirmDeleteCourse()">
+                <i class="fas fa-trash"></i> Delete Course
+            </button>
+            <form th:if="${isEdit}" id="deleteCourseForm" th:action="@{/admin/courses/delete}" method="post" style="display:none;">
+                <input type="hidden" name="id" th:value="${course.id}">
+            </form>
+            <a href="/admin/courses" class="btn-secondary" style="padding: 8px 12px;">
+                <i class="fas fa-xmark"></i> Exit
+            </a>
         </div>
+    </header>
 
+    <!-- Error Alert -->
+    <div th:if="${error}" class="alert-banner error">
+        <i class="fas fa-circle-exclamation" style="font-size: 1.2rem; margin-top: 1px;"></i>
+        <div>
+            <strong>Validation Notice:</strong> <span th:text="${error}">Error details</span>
+        </div>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 SkillHub, Inc. Admin Console.</p>
+    <!-- Success Alert -->
+    <div th:if="${success}" class="alert-banner success">
+        <i class="fas fa-circle-check" style="font-size: 1.2rem; margin-top: 1px;"></i>
+        <div>
+            <strong>Success:</strong> <span th:text="${success}">Success message</span>
         </div>
-    </footer>
+    </div>
 
-    <!-- AJAX Curriculum Handling -->
-    <script>
-        function handleCurriculumAction(event, form) {
-            console.log("handleCurriculumAction called for form:", form);
-            event.preventDefault();
+    <!-- Rejection Feedback Alert (for vendor resubmissions) -->
+    <div th:if="${course != null and course.rejectionReason != null and !#strings.isEmpty(course.rejectionReason)}" class="alert-banner warning">
+        <i class="fas fa-clipboard-check" style="font-size: 1.4rem; color: #d97706; margin-top: 2px;"></i>
+        <div style="flex: 1;">
+            <div style="font-weight: 700; color: #92400e; margin-bottom: 4px;">
+                Admin Verification Audit Feedback & Correction Items
+            </div>
+            <div style="background: rgba(254, 243, 199, 0.7); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--warning-border); color: #78350f; font-size: 0.9rem;" th:text="${course.rejectionReason}">
+                Specific changes requested by the administrative review team.
+            </div>
+            <div style="margin-top: 6px; font-size: 0.8rem; color: #92400e;">
+                Address the feedback items below and click <strong>Submit for Review</strong> to resubmit for publishing verification.
+            </div>
+        </div>
+    </div>
 
-            const formData = new FormData(form);
-            const actionUrl = form.getAttribute('action');
-            const feedback = document.getElementById('curriculum-feedback');
+    <!-- ══ MAIN COURSE FORM ══ -->
+    <form th:action="@{/admin/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data" id="courseForm" novalidate>
+        <input type="hidden" name="action" id="courseAction" value="draft">
+        <!-- Hidden identifier for edit mode -->
+        <input type="hidden" th:field="*{id}" th:if="${course.id != null}">
 
-            console.log("Submitting to:", actionUrl);
+        <div class="studio-container">
+            <!-- ━━ LEFT STEPPER SIDEBAR ━━ -->
+            <aside class="stepper-sidebar">
+                <div class="stepper-header">
+                    <div class="stepper-title">
+                        <span>Course Authoring Steps</span>
+                        <span class="progress-pct-badge" id="stepperPct">20% Done</span>
+                    
 
-            // Show loading state
-            if (feedback) {
-                feedback.style.display = 'block';
-                feedback.style.background = '#e2e6ea';
-                feedback.style.color = '#333';
-                feedback.textContent = 'Updating...';
+                    
+                        <div class="progress-bar-fill" id="stepperProgressBar"></div>
+                    </div>
+                </div>
+
+                <nav class="stepper-nav">
+                    <button type="button" class="step-item active" id="stepBtn-basic" onclick="switchStep('basic')">
+                        <div class="step-indicator" id="indicator-basic">1</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Basic Information</div>
+                            <div class="step-desc">Title, category & syllabus</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-intended" onclick="switchStep('intended')">
+                        <div class="step-indicator" id="indicator-intended">2</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Intended Learners</div>
+                            <div class="step-desc">Objectives & prerequisites</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-curriculum" onclick="switchStep('curriculum')">
+                        <div class="step-indicator" id="indicator-curriculum">3</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Curriculum Builder</div>
+                            <div class="step-desc">Modules, lectures & video</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-media" onclick="switchStep('media')">
+                        <div class="step-indicator" id="indicator-media">4</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Course Media</div>
+                            <div class="step-desc">Thumbnail, teaser & files</div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="step-item" id="stepBtn-pricing" onclick="switchStep('pricing')">
+                        <div class="step-indicator" id="indicator-pricing">5</div>
+                        <div class="step-content-meta">
+                            <div class="step-title">Pricing & Review</div>
+                            <div class="step-desc">Tier, policy & submission</div>
+                        </div>
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer-card">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text-main);">
+                        <i class="fas fa-lightbulb" style="color: var(--warning);"></i> Authoring Tip
+                    </div>
+                    <div>High-quality thumbnails and crisp learning objectives increase student enrollments by up to 3.4x.</div>
+                </div>
+            </aside>
+
+            <!-- ━━ RIGHT WIZARD CONTENT ━━ -->
+            <main class="wizard-main">
+
+                <!-- ════ STEP 1: BASIC INFORMATION & DYNAMIC CATEGORY ════ -->
+                <div id="stepPanel-basic" class="tab-panel active">
+                    
+                    <!-- Card 1: Course Identity -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-info-circle"></i> Course Identity & Overview
+                                </h3>
+                                <p class="card-header-subtitle">Give your course a clear title, catchy subtitle, and high-impact overview.</p>
+                            </div>
+                            <span class="status-pill status-draft">Step 1 of 5</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-label">
+                                <label for="title">Course Title <span class="field-required">*</span></label>
+                                <span class="char-counter" id="titleCharCount">0 / 120</span>
+                            </div>
+                            <input type="text" id="title" th:field="*{title}" class="input-text"
+                                   placeholder="e.g. Master Cloud-Native Microservices with Spring Boot & Docker"
+                                   required maxlength="120" oninput="handleTitleInput(this)">
+                            <p class="field-helper">Actionable, outcome-driven title. Must start with a letter and describe what students achieve.</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-label">
+                                <label for="subtitle">Course Subtitle / Tagline</label>
+                                <span class="char-counter" id="subtitleCharCount">0 / 160</span>
+                            </div>
+                            <input type="text" id="subtitle" th:field="*{subtitle}" class="input-text"
+                                   placeholder="e.g. Build enterprise-grade backend APIs, CI/CD pipelines, and scale on cloud clusters."
+                                   maxlength="160" oninput="handleSubtitleInput(this)">
+                            <p class="field-helper">A concise 1-2 sentence hook highlighting practical applications and tools.</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-label">
+                                <label for="description">Short Overview Description <span class="field-required">*</span></label>
+                            </div>
+                            <textarea id="description" th:field="*{description}" class="input-textarea" rows="3"
+                                      placeholder="Summarize the core curriculum, methodology, and primary student value proposition..."
+                                      required oninput="validateAlphaStart(this)"></textarea>
+                            <p class="field-helper">Displayed on course cards, category discovery listings, and search snippets.</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-label">
+                                <label for="longDescription">Comprehensive Syllabus & Full Course Description</label>
+                            </div>
+                            <textarea id="longDescription" th:field="*{longDescription}" class="input-textarea" rows="6"
+                                      placeholder="Elaborate on course methodology, project deliverables, prerequisites, and career opportunities..."
+                                      oninput="validateAlphaStart(this)"></textarea>
+                            <p class="field-helper">Full detailed syllabus rendered on the course landing page description tab.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Classification & Dynamic Category Selection -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-layer-group"></i> Course Classification & Category
+                                </h3>
+                                <p class="card-header-subtitle">Choose the discipline to unlock specialized configuration fields.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2 form-row">
+                            <!-- Styled Searchable Category Selection -->
+                            <div>
+                                <label class="field-label" for="category">Course Category <span class="field-required">*</span></label>
+                                <div class="category-select-wrapper">
+                                    <select id="category" th:field="*{category.id}" class="input-select" required onchange="onCategoryChanged()">
+                                        <option value="" disabled selected>-- Select Course Category --</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:data-name="${cat.name}"></option>
+                                    </select>
+                                </div>
+                                <div id="selectedCategoryPill" class="selected-category-banner" style="display: none;">
+                                    <span class="selected-category-text">
+                                        <i class="fas fa-tags"></i> <span id="selectedCategoryName">Category</span>
+                                    </span>
+                                    <span style="font-size: 0.75rem; color: var(--primary);">Specialized Fields Active</span>
+                                </div>
+                                <p class="field-helper">Selecting a category immediately loads relevant subcategories and specialized metadata.</p>
+                            </div>
+
+                            <!-- Dynamic Subcategory Selection -->
+                            <div>
+                                <label class="field-label" for="subCategory">Subcategory</label>
+                                <select id="subCategory" th:field="*{subCategory}" class="input-select">
+                                    <option value="">-- Select Subcategory --</option>
+                                </select>
+                                <p class="field-helper">Pinpoints the specific specialization within the broader category.</p>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="teachingMethod" id="teachingMethod" th:value="${course.teachingMethod != null ? course.teachingMethod : 'Self-paced'}">
+                        
+                        <div class="grid-3 form-row">
+                            <div>
+                                <label class="field-label" for="level">Experience Level</label>
+                                <select id="level" th:field="*{level}" class="input-select">
+                                    <option value="All Levels">All Levels</option>
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label" for="languageSelectTrigger">Instruction Language(s) <span class="field-required">*</span></label>
+                                <input type="hidden" id="language" th:field="*{language}">
+                                <div class="multi-select-wrapper" id="languageMultiSelect">
+                                    <div class="multi-select-trigger" id="languageSelectTrigger" onclick="toggleLanguageDropdown(event)">
+                                        <div class="selected-tags" id="selectedLanguageTags"></div>
+                                        <span class="placeholder-text" id="languagePlaceholder">Select Language(s)...</span>
+                                        <i class="fas fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; margin-left: auto;"></i>
+                                    </div>
+                                    <div class="multi-select-menu" id="languageSelectMenu">
+                                        <div class="multi-select-search-box">
+                                            <i class="fas fa-search" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                                            <input type="text" id="languageSearchInput" placeholder="Search languages..." oninput="filterLanguages(this.value)" onclick="event.stopPropagation()">
+                                        </div>
+                                        <div class="multi-select-options-list" id="languageOptionsList">
+                                            <!-- Dynamically populated options with checkboxes -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="field-helper">Select one or multiple instruction languages (e.g. English, Hindi).</p>
+                            </div>
+                            <div>
+                                <label class="field-label" for="format">Format</label>
+                                <select id="format" th:field="*{format}" class="input-select">
+                                    <option value="Video Course">Video Course</option>
+                                    <option value="Text-based Course">Text-based Course</option>
+                                    <option value="Practical Hands-on">Practical Hands-on</option>
+                                    <option value="Project-based">Project-based Course</option>
+                                    <option value="Instructor-led Live">Instructor-led Live</option>
+                                    <option value="Blended Learning">Blended Learning</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field-label" for="tags">Keywords, Tags & Tech Stack</label>
+                            <input type="text" id="tags" th:field="*{tags}" class="input-text"
+                                   placeholder="e.g. React, Spring Boot, AWS, Docker, Kubernetes, Microservices">
+                            <p class="field-helper">Comma-separated tags to power search filters and catalog recommendations.</p>
+                        </div>
+
+                        <!-- Card 3: Dynamic Category-Specific Configuration -->
+                        <div id="dynamicCategoryCard" class="dynamic-attributes-container">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-sliders-h" style="color: var(--primary);"></i>
+                                    <span id="categorySectionHeading">Category-Specific Configuration</span>
+                                </h4>
+                                <span id="categoryPill" class="status-pill status-draft">Select Category</span>
+                            </div>
+                            <p class="field-helper" id="categorySectionHelp" style="margin-top: 0; margin-bottom: 1.25rem;">
+                                Specialized fields tailored specifically to this discipline. Choose a category above to load relevant fields.
+                            </p>
+
+                            <div id="dynamicFieldsContainer">
+                                <div style="padding: 1.75rem; text-align: center; color: var(--text-muted); border: 1.5px dashed var(--border-subtle); border-radius: var(--radius-sm); background: #ffffff;">
+                                    <i class="fas fa-layer-group" style="font-size: 2rem; margin-bottom: 8px; color: var(--border-hover);"></i>
+                                    <p style="margin: 0; font-size: 0.88rem;">Select a Course Category above to configure specialized discipline fields.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ════ STEP 2: INTENDED LEARNERS & OUTCOMES ════ -->
+                <div id="stepPanel-intended" class="tab-panel">
+                    
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-bullseye"></i> Learning Objectives & Competencies
+                                </h3>
+                                <p class="card-header-subtitle">What measurable skills will learners master after finishing this course?</p>
+                            </div>
+                            <span class="status-pill status-draft">Step 2 of 5</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="field-label">
+                                <span>Measurable Learning Objectives</span>
+                                <span class="char-counter" id="objectivesCounter">0 Objectives defined</span>
+                            </div>
+                            <p class="field-helper" style="margin-bottom: 1rem;">
+                                Add clear, action-oriented competencies (e.g., "Build and deploy production Docker containers on Kubernetes").
+                            </p>
+
+                            <div class="objectives-list" id="objectivesList">
+                                <!-- Populated by JS -->
+                            </div>
+
+                            <button type="button" class="btn-dashed-add" onclick="addObjective()">
+                                <i class="fas fa-plus"></i> Add Another Learning Objective
+                            </button>
+                            <!-- Hidden input for join string serialization -->
+                            <input type="hidden" th:field="*{learningObjectives}" id="finalObjectives">
+                        </div>
+                    </div>
+
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-users"></i> Audience Persona & Prerequisites
+                                </h3>
+                                <p class="card-header-subtitle">Define prerequisites, hardware, and the ideal learner persona.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field-label" for="requirements">Prerequisites & Course Requirements</label>
+                            <textarea id="requirements" th:field="*{requirements}" class="input-textarea" rows="3"
+                                      placeholder="e.g. Basic familiarity with Java syntax and git. Free software tools installed."
+                                      oninput="validateAlphaStart(this)"></textarea>
+                            <p class="field-helper">Knowledge, prior courses, or development environments required before enrolling.</p>
+                        </div>
+
+                        <div class="grid-2 form-row">
+                            <div>
+                                <label class="field-label" for="targetAudience">Target Audience Persona</label>
+                                <textarea id="targetAudience" th:field="*{targetAudience}" class="input-textarea" rows="3"
+                                          placeholder="e.g. Junior software developers, backend engineers, and CS students looking to master production cloud architecture."
+                                          oninput="validateAlphaStart(this)"></textarea>
+                                <p class="field-helper">Who benefits the most from taking this course.</p>
+                            </div>
+                            <div>
+                                <label class="field-label" for="requiredExperience">Required Experience Level</label>
+                                <input type="text" id="requiredExperience" th:field="*{requiredExperience}" class="input-text"
+                                       placeholder="e.g. 6+ months coding experience or Absolute Beginner">
+                                <p class="field-helper">Specific experience level required to follow along comfortably.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid-2 form-row">
+                            <div>
+                                <label class="field-label" for="expectedSkills">Expected Skills Acquired</label>
+                                <input type="text" id="expectedSkills" th:field="*{expectedSkills}" class="input-text"
+                                       placeholder="e.g. Microservices Architecture, Docker Containerization, CI/CD">
+                                <p class="field-helper">Core hard and soft skills students will gain.</p>
+                            </div>
+                            <div>
+                                <label class="field-label" for="ageRange">Recommended Age Range</label>
+                                <select id="ageRange" th:field="*{ageRange}" class="input-select">
+                                    <option value="All Ages">All Ages Welcome</option>
+                                    <option value="Kids (4-7 years)">Early Childhood (4-7 years)</option>
+                                    <option value="Kids (8-12 years)">Kids / Pre-Teens (8-12 years)</option>
+                                    <option value="Teens (13-17 years)">Teens (13-17 years)</option>
+                                    <option value="Adults (18+ years)">Adults (18+ years)</option>
+                                </select>
+                                <p class="field-helper">Age target for academic or safety-sensitive programs.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field-label" for="accessibilityRequirements">Accessibility & Environmental Setup</label>
+                            <textarea id="accessibilityRequirements" th:field="*{accessibilityRequirements}" class="input-textarea" rows="2"
+                                      placeholder="e.g. Dual screen setup recommended, quiet room for audio listening, yoga mat for exercises."
+                                      oninput="validateAlphaStart(this)"></textarea>
+                            <p class="field-helper">Special equipment, physical space, or accommodations needed.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ════ STEP 3: INTERACTIVE CURRICULUM BUILDER ════ -->
+                <div id="stepPanel-curriculum" class="tab-panel">
+                    
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-list-ol"></i> Curriculum & Lesson Authoring
+                                </h3>
+                                <p class="card-header-subtitle">Structure your course into modules and rich multimedia lessons.</p>
+                            </div>
+                            <span class="status-pill status-draft">Step 3 of 5</span>
+                        </div>
+
+                        <!-- Real-time Curriculum Stats Bar -->
+                        <div class="curriculum-summary-bar">
+                            <div class="curriculum-stats">
+                                <div class="curriculum-stat-item">
+                                    <i class="fas fa-folder-open"></i>
+                                    <span id="statSectionCount">1 Section</span>
+                                </div>
+                                <div class="curriculum-stat-item">
+                                    <i class="fas fa-video"></i>
+                                    <span id="statLectureCount">1 Lecture</span>
+                                </div>
+                                <div class="curriculum-stat-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span id="statTotalDuration">5 min total</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="addSection()" style="padding: 6px 12px; font-size: 0.82rem;">
+                                <i class="fas fa-plus"></i> Add Section
+                            </button>
+                        </div>
+
+                        <!-- Sections Accordion Container -->
+                        <div id="sectionsContainer">
+                            <!-- Pre-populate existing sections in edit mode -->
+                            <div th:each="sec, secStat : ${course.sections}" class="section-card expanded" th:id="'section-' + ${secStat.index}">
+                                <input type="hidden" th:name="'sections[' + ${secStat.index} + '].id'" th:value="${sec.id}">
+                                <input type="hidden" th:name="'sections[' + ${secStat.index} + '].position'" th:value="${secStat.index}">
+                                <div class="section-card-header" th:onclick="'toggleSection(' + ${secStat.index} + ')'">
+                                    <div class="section-title-wrapper" onclick="event.stopPropagation()">
+                                        <span class="section-badge" th:text="'Module ' + ${secStat.count}">Module 1</span>
+                                        <input type="text" th:name="'sections[' + ${secStat.index} + '].title'" th:value="${sec.title}" class="section-title-input"
+                                               placeholder="e.g. Module title" required
+                                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                    </div>
+                                    <div class="section-actions" onclick="event.stopPropagation()">
+                                        <span class="status-pill status-draft" th:id="'secLectureBadge-' + ${secStat.index}" style="font-size: 0.72rem;"
+                                              th:text="${(sec.lectures != null ? sec.lectures.size() : 0) + ' Lectures'}">0 Lectures</span>
+                                        <button type="button" class="btn-icon-danger" th:onclick="'confirmRemoveSection(' + ${secStat.index} + ')'" title="Delete Module">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                        <button type="button" class="btn-secondary" style="padding: 4px 8px; border: none; font-size: 0.85rem;" th:onclick="'toggleSection(' + ${secStat.index} + ')'">
+                                            <i class="fas fa-chevron-down" th:id="'secChevron-' + ${secStat.index}"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="section-body" th:id="'secBody-' + ${secStat.index}">
+                                    <div class="lectures-list" th:id="'lectures-' + ${secStat.index}">
+                                        <div th:each="lec, lecStat : ${sec.lectures}" class="lecture-card" th:id="'lecture-' + ${secStat.index} + '-' + ${lecStat.index}">
+                                            <div class="lecture-top-row">
+                                                <span class="lecture-num-badge">
+                                                    <i class="fas fa-circle-play" style="color: var(--primary);"></i>
+                                                    <span th:text="'Lecture ' + ${secStat.count} + '.' + ${lecStat.count}">Lecture 1.1</span>
+                                                </span>
+                                                <button type="button" class="btn-icon-danger" th:onclick="'document.getElementById(\'lecture-' + ${secStat.index} + '-' + ${lecStat.index} + '\').remove(); recalculateCurriculum();'" title="Remove Lecture">
+                                                    <i class="fas fa-trash-can"></i>
+                                                </button>
+                                            </div>
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].id'" th:value="${lec.id}">
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].position'" th:value="${lecStat.index}">
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoUrl'" th:value="${lec.videoUrl}">
+                                            <div class="grid-2 form-row">
+                                                <div>
+                                                    <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
+                                                    <input type="text" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].title'" th:value="${lec.title}" class="input-text"
+                                                           placeholder="e.g. Setting up Development Environment" required
+                                                           oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                                </div>
+                                                <div>
+                                                    <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
+                                                    <input type="number" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].durationSeconds'" th:value="${lec.durationSeconds}" class="input-number"
+                                                           min="0" oninput="recalculateCurriculum();">
+                                                </div>
+                                            </div>
+                                            <div class="form-row" style="margin-bottom: 0;">
+                                                <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4)</label>
+                                                <input type="file" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoFile'" accept="video/*" class="input-text" style="padding-top: 8px;">
+                                                <div th:if="${lec.videoUrl != null and !#strings.isEmpty(lec.videoUrl)}" style="font-size: 0.75rem; color: var(--success); margin-top: 4px;">
+                                                    <i class="fas fa-check-circle"></i> Video uploaded
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-dashed-add" th:onclick="'addLecture(' + ${secStat.index} + ')'" style="padding: 8px 14px; font-size: 0.82rem;">
+                                        <i class="fas fa-plus"></i> <span th:text="'Add Lecture to Module ' + ${secStat.count}">Add Lecture</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-dashed-add" onclick="addSection()" style="padding: 14px 20px; font-size: 0.92rem; margin-top: 1rem;">
+                            <i class="fas fa-folder-plus"></i> Add New Curriculum Module / Section
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- ════ STEP 4: COURSE MEDIA & DOWNLOADABLE RESOURCES ════ -->
+                <div id="stepPanel-media" class="tab-panel">
+                    
+                    <!-- Thumbnail Upload Card -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-image"></i> Course Cover Thumbnail Image
+                                </h3>
+                                <p class="card-header-subtitle">Upload high-resolution artwork (16:9 ratio, 1280x720 recommended).</p>
+                            </div>
+                            <span class="status-pill status-draft">Step 4 of 5</span>
+                        </div>
+
+                        <div class="upload-dropzone" id="thumbDropzone" onclick="document.getElementById('thumbnail').click()">
+                            <i class="fas fa-cloud-arrow-up upload-dropzone-icon"></i>
+                            <h4 class="upload-dropzone-title">Click to Browse or Drag Image Here</h4>
+                            <p class="upload-dropzone-help">Supports JPG, PNG, and WebP (Max file size: 5MB)</p>
+                            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="display: none;" onchange="previewThumbnail(event)">
+                        </div>
+
+                        <!-- Image Preview Card -->
+                        <div id="imagePreviewContainer" class="media-preview-container"
+                             th:style="${course.imageUrl != null and !#strings.isEmpty(course.imageUrl)} ? 'display: flex;' : 'display: none;'">
+                            <img id="imagePreview" th:src="${course.imageUrl != null ? course.imageUrl : ''}" alt="Cover Preview" class="media-thumbnail-preview">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px;">Thumbnail Attached</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">This image will represent your course on student discovery cards and search results.</div>
+                                <button type="button" class="btn-secondary" onclick="document.getElementById('thumbnail').click()" style="padding: 6px 12px; font-size: 0.82rem;">
+                                    <i class="fas fa-arrows-rotate"></i> Replace Image
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Promo Video Upload Card -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-play-circle"></i> Promotional Teaser Video
+                                </h3>
+                                <p class="card-header-subtitle">A 1-2 minute teaser video giving students a preview of your course.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-dropzone" id="videoDropzone" onclick="document.getElementById('promoVideo').click()">
+                            <i class="fas fa-film upload-dropzone-icon"></i>
+                            <h4 class="upload-dropzone-title">Upload Promotional Video (.mp4)</h4>
+                            <p class="upload-dropzone-help">High-definition video (1080p recommended, max 200MB)</p>
+                            <input type="file" id="promoVideo" name="promoVideo" accept="video/mp4,video/*" style="display: none;" onchange="handlePromoVideoSelect(event)">
+                        </div>
+
+                        <div id="videoStatusContainer" class="media-preview-container"
+                             th:style="${course.videoUrl != null and !#strings.isEmpty(course.videoUrl)} ? 'display: flex;' : 'display: none;'">
+                            <div style="width: 50px; height: 50px; border-radius: var(--radius-sm); background: var(--primary-light); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.5rem;">
+                                <i class="fas fa-file-video"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);" id="videoFileName">
+                                    <span th:text="${course.videoUrl != null ? 'Promotional Video Ready' : 'Video Selected'}">Video Ready</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--success); font-weight: 600;"><i class="fas fa-check-circle"></i> Ready for upload and streaming</div>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('promoVideo').click()" style="padding: 6px 12px; font-size: 0.82rem;">
+                                <i class="fas fa-arrows-rotate"></i> Change Video
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Downloadable Resources Card -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-download"></i> Downloadable Learning Resources
+                                </h3>
+                                <p class="card-header-subtitle">Attach PDFs, starter source code, slide decks, cheat sheets, or practice projects.</p>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="addResourceRow()" style="padding: 6px 12px; font-size: 0.82rem;">
+                                <i class="fas fa-plus"></i> Add File
+                            </button>
+                        </div>
+
+                        <!-- Existing Resources (if editing) -->
+                        <div th:if="${course.resources != null and !course.resources.isEmpty()}" style="margin-bottom: 1.5rem;">
+                            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">Existing Attached Files:</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div th:each="res : ${course.resources}" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-page); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i class="fas fa-file-lines" style="color: var(--primary);"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 0.9rem;" th:text="${res.title}">Resource Title</div>
+                                            <span style="font-size: 0.75rem; background: var(--bg-card-subtle); padding: 2px 6px; border-radius: var(--radius-sm);" th:text="${res.fileType}">PDF</span>
+                                        </div>
+                                    </div>
+                                    <a th:href="${res.fileUrl}" target="_blank" class="btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;">
+                                        <i class="fas fa-external-link-alt"></i> View File
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="resourceRowsContainer">
+                            <!-- Injected dynamically -->
+                        </div>
+
+                        <button type="button" class="btn-dashed-add" onclick="addResourceRow()">
+                            <i class="fas fa-plus"></i> Add Downloadable Resource
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- ════ STEP 5: PRICING & REVIEW ════ -->
+                <div id="stepPanel-pricing" class="tab-panel">
+                    
+                    <!-- Pricing Model Card -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-tag"></i> Course Enrollment Pricing Tier
+                                </h3>
+                                <p class="card-header-subtitle">Set enrollment tier and optional promotional sale price.</p>
+                            </div>
+                            <span class="status-pill status-draft">Step 5 of 5</span>
+                        </div>
+
+                        <div class="pricing-radio-grid">
+                            <div class="pricing-tile" id="tilePaid" onclick="selectPricingMode(false)">
+                                <i class="fas fa-gem pricing-tile-icon"></i>
+                                <div>
+                                    <div class="pricing-tile-title">Paid Premium Course</div>
+                                    <div class="pricing-tile-desc">Set retail price with optional promotional launch discounts.</div>
+                                </div>
+                            </div>
+
+                            <div class="pricing-tile" id="tileFree" onclick="selectPricingMode(true)">
+                                <i class="fas fa-gift pricing-tile-icon" style="color: var(--success);"></i>
+                                <div>
+                                    <div class="pricing-tile-title">Free Access Course</div>
+                                    <div class="pricing-tile-desc">Open enrollment for all registered SkillHub students.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pricingInputContainer">
+                            <div class="grid-2 form-row">
+                                <div>
+                                    <label class="field-label" for="price">Standard Price (INR ₹)</label>
+                                    <input type="number" id="price" th:field="*{price}" class="input-number"
+                                           step="1" min="0" max="99999" placeholder="e.g. 1999"
+                                           oninput="handlePriceInput(this)">
+                                    <p class="field-helper">Standard enrollment retail price.</p>
+                                </div>
+                                <div>
+                                    <label class="field-label" for="salePrice">Promotional Discount Price (INR ₹)</label>
+                                    <input type="number" id="salePrice" th:field="*{salePrice}" class="input-number"
+                                           step="1" min="0" max="99999" placeholder="e.g. 999"
+                                           oninput="handlePriceInput(this)">
+                                    <p class="field-helper">Special promotional price for discounts and seasonal sales.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label class="field-label" for="accessDuration">Course Access Duration</label>
+                            <select id="accessDuration" th:field="*{accessDuration}" class="input-select">
+                                <option value="Lifetime Access">Lifetime Access (Recommended by SkillHub)</option>
+                                <option value="1 Year Access">1 Year Access</option>
+                                <option value="6 Months Access">6 Months Access</option>
+                                <option value="90 Days Access">90 Days Access</option>
+                            </select>
+                            <p class="field-helper">Duration students retain access to video lessons, updates, and community.</p>
+                        </div>
+                    </div>
+
+                    <!-- Pre-Flight Submission Audit Card -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <div>
+                                <h3 class="card-header-title">
+                                    <i class="fas fa-clipboard-check"></i> Pre-Flight Submission Audit Checklist
+                                </h3>
+                                <p class="card-header-subtitle">Ensure all required components are completed before submitting for admin review.</p>
+                            </div>
+                            <span class="status-pill status-pending" id="auditOverallBadge">Audit Pending</span>
+                        </div>
+
+                        <div class="audit-checklist">
+                            <div class="audit-item" id="audit-title">
+                                <div class="audit-item-label">
+                                    <i class="fas fa-circle-check" style="color: var(--success);"></i>
+                                    <span>Course Title & Overview Description</span>
+                                </div>
+                                <span class="audit-status-badge audit-pass" id="badge-title">Ready</span>
+                            </div>
+
+                            <div class="audit-item" id="audit-category">
+                                <div class="audit-item-label">
+                                    <i class="fas fa-circle-check" style="color: var(--success);"></i>
+                                    <span>Category & Subcategory Selection</span>
+                                </div>
+                                <span class="audit-status-badge audit-pass" id="badge-category">Ready</span>
+                            </div>
+
+                            <div class="audit-item" id="audit-objectives">
+                                <div class="audit-item-label">
+                                    <i class="fas fa-circle-check" style="color: var(--success);"></i>
+                                    <span>Learning Objectives (Minimum 2 defined)</span>
+                                </div>
+                                <span class="audit-status-badge audit-pass" id="badge-objectives">Ready</span>
+                            </div>
+
+                            <div class="audit-item" id="audit-curriculum">
+                                <div class="audit-item-label">
+                                    <i class="fas fa-circle-check" style="color: var(--success);"></i>
+                                    <span>Curriculum Modules & Lessons</span>
+                                </div>
+                                <span class="audit-status-badge audit-pass" id="badge-curriculum">Ready</span>
+                            </div>
+
+                            <div class="audit-item" id="audit-pricing">
+                                <div class="audit-item-label">
+                                    <i class="fas fa-circle-check" style="color: var(--success);"></i>
+                                    <span>Pricing Configuration</span>
+                                </div>
+                                <span class="audit-status-badge audit-pass" id="badge-pricing">Ready</span>
+                            </div>
+                        </div>
+
+                        <div style="background: var(--bg-page); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.5rem; display: flex; align-items: flex-start; gap: 12px;">
+                            <i class="fas fa-shield-halved" style="color: var(--primary); font-size: 1.5rem; margin-top: 2px;"></i>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+                                <strong style="color: var(--text-main);">Publishing Workflow:</strong> Upon submission, your course is routed to the administrative verification queue. The SkillHub quality team verifies video audio clarity, curriculum coherence, and policy compliance within 24–48 hours. Once approved, it is published automatically to the student marketplace.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ══ STICKY BOTTOM ACTION FOOTER ══ -->
+        <footer class="studio-sticky-footer">
+            <div class="footer-left">
+                <a href="/admin/courses" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Courses
+                </a>
+                <button type="button" class="btn-secondary" id="btnSaveDraftFooter" onclick="submitCourseForm('draft')">
+                    <i class="fas fa-floppy-disk"></i> Save Draft
+                </button>
+                <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
+                    <i class="fas fa-eye"></i> Live Student Preview
+                </button>
+            </div>
+
+            <div class="footer-right">
+                <button type="button" class="btn-secondary" id="btnPrevStep" onclick="prevStep()">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+
+                <button type="button" class="btn-primary" id="btnNextStep" onclick="nextStep()">
+                    Next Step <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <button type="button" class="btn-submit-review" id="btnSubmitReview" style="display: none;" onclick="submitCourseForm('submit')">
+                    <i class="fas fa-check-circle"></i> Publish Course
+                </button>
+            </div>
+        </footer>
+    </form>
+
+    <!-- ══ LIVE COURSE PREVIEW MODAL ══ -->
+    <div id="livePreviewModal" class="preview-modal-overlay" onclick="closePreviewIfBackdrop(event)">
+        <div class="preview-modal-dialog">
+            <div class="preview-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="status-pill status-pending" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
+                        <i class="fas fa-eye"></i> Student View Preview
+                    </span>
+                    <span style="font-size: 0.85rem; color: #94a3b8;">Draft Mode • Not Published to Public</span>
+                </div>
+                <button type="button" onclick="closeLivePreviewModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.25rem; cursor: pointer;">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="preview-modal-body">
+                <!-- Preview Student Hero -->
+                <div class="preview-hero">
+                    <div class="preview-hero-content">
+                        <div style="font-size: 0.82rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;" id="previewCategoryBreadcrumb">
+                            Development & IT > Cloud & DevOps
+                        </div>
+                        <h1 style="font-size: 1.85rem; font-weight: 800; margin: 0 0 10px 0; line-height: 1.3;" id="previewTitle">
+                            Course Title
+                        </h1>
+                        <p style="font-size: 1.05rem; color: #cbd5e1; margin: 0 0 1rem 0; line-height: 1.4;" id="previewSubtitle">
+                            Course subtitle hook describing real-world outcomes.
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.85rem; color: #94a3b8; flex-wrap: wrap;">
+                            <span style="color: #facc15; font-weight: 700;">★ 4.9 (New Course)</span>
+                            <span><i class="fas fa-user-tie"></i> <span th:text="${course.instructor != null ? course.instructor.name : 'Verified Instructor'}">Instructor Name</span></span>
+                            <span><i class="fas fa-globe"></i> <span id="previewLanguage">English</span></span>
+                            <span><i class="fas fa-signal"></i> <span id="previewLevel">Beginner</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Content 2-Column Grid -->
+                <div class="preview-content-grid">
+                    <!-- Left Column -->
+                    <div>
+                        <!-- What You'll Learn Box -->
+                        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.75rem;">
+                            <h3 style="margin: 0 0 1rem 0; font-size: 1.15rem; font-weight: 700;">What you'll learn</h3>
+                            <div id="previewObjectivesContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.88rem;">
+                                <!-- Dynamic items -->
+                            </div>
+                        </div>
+
+                        <!-- Curriculum Structure -->
+                        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700;">Course Content</h3>
+                                <span style="font-size: 0.85rem; color: var(--text-secondary);" id="previewCurriculumStats">0 sections • 0 lectures</span>
+                            </div>
+                            <div id="previewSectionsList" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Dynamic sections preview -->
+                            </div>
+                        </div>
+
+                        <!-- Requirements -->
+                        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem;">
+                            <h3 style="margin: 0 0 0.75rem 0; font-size: 1.15rem; font-weight: 700;">Requirements</h3>
+                            <p id="previewRequirements" style="margin: 0; font-size: 0.9rem; color: var(--text-secondary); white-space: pre-wrap;">
+                                No prior knowledge required.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Sticky Mock Card -->
+                    <div>
+                        <div style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); position: sticky; top: 1rem;">
+                            <img id="previewThumbnailImg" src="/images/course-placeholder.jpg" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" alt="Preview"
+                                 style="width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+                            
+                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 1rem;">
+                                <span style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);" id="previewPriceText">₹1,999</span>
+                                <span style="font-size: 1rem; color: var(--text-muted); text-decoration: line-through;" id="previewSalePriceOld"></span>
+                            </div>
+
+                            <button type="button" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem; margin-bottom: 0.75rem; pointer-events: none;">
+                                Enroll Now (Student Action)
+                            </button>
+                            <p style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin: 0 0 1rem 0;">30-Day Money-Back Guarantee</p>
+
+                            <div style="font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                                <div><i class="fas fa-video" style="color: var(--primary); width: 18px;"></i> On-demand video lectures</div>
+                                <div><i class="fas fa-infinity" style="color: var(--primary); width: 18px;"></i> <span id="previewAccessText">Lifetime Access</span></div>
+                                <div><i class="fas fa-mobile-screen" style="color: var(--primary); width: 18px;"></i> Access on mobile and desktop</div>
+                                <div><i class="fas fa-certificate" style="color: var(--primary); width: 18px;"></i> Certificate of Completion</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ JAVASCRIPT STATE ENGINE ══ -->
+    <script th:inline="javascript">
+        // Pre-loaded Model Data from Spring Backend
+        const subcategoriesData = /*[[${subcategoriesMap}]]*/ {};
+        const categoryFieldsData = /*[[${categoryFieldsMap}]]*/ {};
+        const savedCategoryData = /*[[${categoryDataMap}]]*/ {};
+        const existingObjectivesStr = /*[[${course.learningObjectives}]]*/ '';
+        const currentSavedSubCategory = /*[[${course.subCategory}]]*/ '';
+
+        const steps = ['basic', 'intended', 'curriculum', 'media', 'pricing'];
+        let currentStepIndex = 0;
+
+        // ── MANDATORY STEP VALIDATION ENGINE ──
+        function showFieldError(inputEl, message) {
+            if (!inputEl) return;
+            inputEl.classList.add('input-invalid');
+            inputEl.style.borderColor = '#e11d48';
+            inputEl.style.boxShadow = '0 0 0 3px rgba(225, 29, 72, 0.15)';
+            
+            const parent = inputEl.closest('.form-row') || inputEl.parentElement;
+            let existingMsg = parent.querySelector('.field-validation-error');
+            if (!existingMsg) {
+                existingMsg = document.createElement('div');
+                existingMsg.className = 'field-validation-error';
+                existingMsg.style.color = '#e11d48';
+                existingMsg.style.fontSize = '0.82rem';
+                existingMsg.style.fontWeight = '600';
+                existingMsg.style.marginTop = '6px';
+                existingMsg.style.display = 'flex';
+                existingMsg.style.alignItems = 'center';
+                existingMsg.style.gap = '6px';
+                parent.appendChild(existingMsg);
+            }
+            existingMsg.innerHTML = '<i class="fas fa-circle-exclamation"></i> ' + message;
+
+            const clearHandler = function() {
+                clearFieldError(inputEl);
+                inputEl.removeEventListener('input', clearHandler);
+                inputEl.removeEventListener('change', clearHandler);
+            };
+            inputEl.addEventListener('input', clearHandler);
+            inputEl.addEventListener('change', clearHandler);
+
+            inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            inputEl.focus();
+        }
+
+        function clearFieldError(inputEl) {
+            if (!inputEl) return;
+            inputEl.classList.remove('input-invalid');
+            inputEl.style.borderColor = '';
+            inputEl.style.boxShadow = '';
+            const parent = inputEl.closest('.form-row') || inputEl.parentElement;
+            if (parent) {
+                const existingMsg = parent.querySelector('.field-validation-error');
+                if (existingMsg) existingMsg.remove();
+            }
+        }
+
+        function showStepAlert(stepId, message) {
+            const panel = document.getElementById(`stepPanel-${stepId}`);
+            if (!panel) return;
+            let alertDiv = panel.querySelector('.step-validation-banner');
+            if (!alertDiv) {
+                alertDiv = document.createElement('div');
+                alertDiv.className = 'step-validation-banner alert-banner error';
+                alertDiv.style.marginBottom = '1.5rem';
+                alertDiv.style.display = 'flex';
+                alertDiv.style.alignItems = 'center';
+                alertDiv.style.gap = '10px';
+                panel.insertBefore(alertDiv, panel.firstChild);
+            }
+            alertDiv.innerHTML = `<i class="fas fa-circle-exclamation" style="font-size: 1.2rem;"></i><span>${message}</span>`;
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function clearStepAlert(stepId) {
+            const panel = document.getElementById(`stepPanel-${stepId}`);
+            if (!panel) return;
+            const alertDiv = panel.querySelector('.step-validation-banner');
+            if (alertDiv) alertDiv.remove();
+        }
+
+        function validateStep(stepId) {
+            clearStepAlert(stepId);
+
+            if (stepId === 'basic') {
+                // 1. Course Title
+                const titleEl = document.getElementById('title');
+                const titleVal = titleEl ? titleEl.value.trim() : '';
+                if (!titleVal) {
+                    showStepAlert('basic', 'Please fill in the required Course Title before moving to the next step.');
+                    showFieldError(titleEl, 'Course Title is mandatory.');
+                    return false;
+                }
+                if (!/^[a-zA-Z]/.test(titleVal)) {
+                    showStepAlert('basic', 'Course Title must start with a letter (A-Z).');
+                    showFieldError(titleEl, 'Course Title must start with a letter.');
+                    return false;
+                }
+
+                // 2. Short Overview Description
+                const descEl = document.getElementById('description');
+                const descVal = descEl ? descEl.value.trim() : '';
+                if (!descVal) {
+                    showStepAlert('basic', 'Please fill in the Short Overview Description before moving to the next step.');
+                    showFieldError(descEl, 'Short Overview Description is mandatory.');
+                    return false;
+                }
+                if (!/^[a-zA-Z]/.test(descVal)) {
+                    showStepAlert('basic', 'Course Description must start with a letter (A-Z).');
+                    showFieldError(descEl, 'Course Description must start with a letter.');
+                    return false;
+                }
+
+                // 3. Category
+                const catEl = document.getElementById('category');
+                if (!catEl || !catEl.value || catEl.value === '') {
+                    showStepAlert('basic', 'Please select a Course Category before moving to the next step.');
+                    showFieldError(catEl, 'Course Category is mandatory.');
+                    return false;
+                }
+
+                // 4. Subcategory
+                const subCatEl = document.getElementById('subCategory');
+                if (subCatEl && subCatEl.options.length > 1 && (!subCatEl.value || subCatEl.value === '')) {
+                    showStepAlert('basic', 'Please select a Subcategory specialization before moving to the next step.');
+                    showFieldError(subCatEl, 'Subcategory specialization is mandatory.');
+                    return false;
+                }
+
+                // 5. Instruction Languages (Multi-select)
+                const hiddenLang = document.getElementById('language');
+                const langVal = hiddenLang ? hiddenLang.value.trim() : '';
+                if (!langVal || selectedLanguages.length === 0) {
+                    const langTrigger = document.getElementById('languageSelectTrigger');
+                    showStepAlert('basic', 'Please select at least one Instruction Language before moving to the next step.');
+                    showFieldError(langTrigger, 'At least one instruction language is mandatory.');
+                    return false;
+                }
+
+                // 6. Dynamic Specialized Category Attributes
+                const dynamicContainer = document.getElementById('dynamicFieldsContainer');
+                if (dynamicContainer) {
+                    const reqDynamicInputs = dynamicContainer.querySelectorAll('input[required], textarea[required], select[required]');
+                    for (const input of reqDynamicInputs) {
+                        const val = input.value ? input.value.trim() : '';
+                        if (!val || val === '') {
+                            const label = dynamicContainer.querySelector(`label[for="${input.id}"]`);
+                            const labelText = label ? label.textContent.replace('*', '').trim() : 'Specialized attribute';
+                            showStepAlert('basic', `Please fill in the mandatory specialization: "${labelText}".`);
+                            showFieldError(input, `${labelText} is mandatory.`);
+                            return false;
+                        }
+                    }
+                }
+
+                // 7. General scan of any other required fields on Step 1
+                const basicPanel = document.getElementById('stepPanel-basic');
+                if (basicPanel) {
+                    const allReq = basicPanel.querySelectorAll('input[required], textarea[required], select[required]');
+                    for (const el of allReq) {
+                        if (el.type === 'hidden') continue;
+                        const val = el.value ? el.value.trim() : '';
+                        if (!val || val === '') {
+                            const label = basicPanel.querySelector(`label[for="${el.id}"]`) || el.closest('.form-row')?.querySelector('.field-label');
+                            const labelText = label ? label.textContent.replace('*', '').trim() : 'Field';
+                            showStepAlert('basic', `Please fill in mandatory field: "${labelText}".`);
+                            showFieldError(el, `${labelText} is mandatory.`);
+                            return false;
+                        }
+                    }
+                }
+
+            } else if (stepId === 'intended') {
+                const inputs = document.querySelectorAll('.objective-input');
+                for (const inp of inputs) {
+                    if (!inp.value.trim()) {
+                        showStepAlert('intended', 'Please enter text for all learning objectives you added, or remove the empty rows.');
+                        showFieldError(inp, 'Please enter a learning objective or click the trash icon to remove it.');
+                        return false;
+                    }
+                }
+
+                // Scan any required fields in step 2
+                const intendedPanel = document.getElementById('stepPanel-intended');
+                if (intendedPanel) {
+                    const allReq = intendedPanel.querySelectorAll('input[required], textarea[required], select[required]');
+                    for (const el of allReq) {
+                        if (el.type === 'hidden') continue;
+                        const val = el.value ? el.value.trim() : '';
+                        if (!val || val === '') {
+                            const label = intendedPanel.querySelector(`label[for="${el.id}"]`) || el.closest('.form-row')?.querySelector('.field-label');
+                            const labelText = label ? label.textContent.replace('*', '').trim() : 'Field';
+                            showStepAlert('intended', `Please fill in mandatory field: "${labelText}".`);
+                            showFieldError(el, `${labelText} is mandatory.`);
+                            return false;
+                        }
+                    }
+                }
+
+            } else if (stepId === 'curriculum') {
+                const secInputs = document.querySelectorAll('.section-title-input');
+                if (secInputs.length === 0) {
+                    showStepAlert('curriculum', 'Please add at least one curriculum section before moving to the next step.');
+                    return false;
+                }
+                for (let sec of secInputs) {
+                    if (!sec.value.trim() || !/^[a-zA-Z]/.test(sec.value.trim())) {
+                        showStepAlert('curriculum', 'Each Section Title is mandatory and must start with a letter.');
+                        showFieldError(sec, 'Section Title must start with a letter.');
+                        return false;
+                    }
+                }
+                const lecInputs = document.querySelectorAll('.lecture-title-input');
+                if (lecInputs.length === 0) {
+                    showStepAlert('curriculum', 'Please add at least one lecture to your course section.');
+                    return false;
+                }
+                for (let lec of lecInputs) {
+                    if (!lec.value.trim() || !/^[a-zA-Z]/.test(lec.value.trim())) {
+                        showStepAlert('curriculum', 'Each Lecture Title is mandatory and must start with a letter.');
+                        showFieldError(lec, 'Lecture Title must start with a letter.');
+                        return false;
+                    }
+                }
+            } else if (stepId === 'pricing') {
+                const priceInput = document.getElementById('price');
+                const isPaid = document.getElementById('pricingModePaid') && document.getElementById('pricingModePaid').classList.contains('selected');
+                if (isPaid) {
+                    const priceVal = parseFloat(priceInput.value);
+                    if (isNaN(priceVal) || priceVal <= 0) {
+                        showStepAlert('pricing', 'Please enter a valid course price greater than ₹0.');
+                        showFieldError(priceInput, 'Price must be greater than 0.');
+                        return false;
+                    }
+                }
             }
 
-            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            return true;
+        }
 
-            const headers = {};
-            if (csrfToken && csrfHeader) {
-                headers[csrfHeader] = csrfToken;
+        function switchStep(stepId, bypassValidation = false) {
+            const targetIdx = steps.indexOf(stepId);
+            if (targetIdx === -1) return;
+
+            // If user attempts to jump forward, validate all preceding steps first
+            if (!bypassValidation && targetIdx > currentStepIndex) {
+                for (let i = currentStepIndex; i < targetIdx; i++) {
+                    if (!validateStep(steps[i])) {
+                        return; // Prevent navigating forward if current/intermediate step is invalid!
+                    }
+                }
             }
 
-            fetch(actionUrl, {
-                method: 'POST',
-                headers: headers,
-                body: formData
-            })
-                .then(response => {
-                    console.log("Response status:", response.status);
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`Server returned ${response.status}: ${text}`);
+            currentStepIndex = targetIdx;
+
+            // Update tab panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            const activePanel = document.getElementById(`stepPanel-${stepId}`);
+            if (activePanel) activePanel.classList.add('active');
+
+            // Update sidebar buttons
+            document.querySelectorAll('.step-item').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`stepBtn-${stepId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Update Progress bar & Indicators
+            updateProgressState();
+
+            // Adjust Footer Buttons
+            const btnPrev = document.getElementById('btnPrevStep');
+            const btnNext = document.getElementById('btnNextStep');
+            const btnSubmit = document.getElementById('btnSubmitReview');
+
+            if (currentStepIndex === 0) {
+                btnPrev.style.display = 'none';
+            } else {
+                btnPrev.style.display = 'inline-flex';
+            }
+
+            if (currentStepIndex === steps.length - 1) {
+                btnNext.style.display = 'none';
+                btnSubmit.style.display = 'inline-flex';
+                runPreFlightAudit();
+            } else {
+                btnNext.style.display = 'inline-flex';
+                btnSubmit.style.display = 'none';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() {
+            const currentStepId = steps[currentStepIndex];
+            if (!validateStep(currentStepId)) {
+                return; // Prevent moving to next step if current step fails validation!
+            }
+            if (currentStepIndex < steps.length - 1) {
+                switchStep(steps[currentStepIndex + 1], true);
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                switchStep(steps[currentStepIndex - 1]);
+            }
+        }
+
+        function updateProgressState() {
+            const pct = Math.round(((currentStepIndex + 1) / steps.length) * 100);
+            document.getElementById('stepperPct').textContent = `${pct}% Done`;
+            document.getElementById('stepperProgressBar').style.width = `${pct}%`;
+
+            steps.forEach((s, idx) => {
+                const btn = document.getElementById(`stepBtn-${s}`);
+                const ind = document.getElementById(`indicator-${s}`);
+                if (idx < currentStepIndex) {
+                    btn.classList.add('completed');
+                    ind.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (idx === currentStepIndex) {
+                    btn.classList.remove('completed');
+                    ind.textContent = `${idx + 1}`;
+                } else {
+                    btn.classList.remove('completed');
+                    ind.textContent = `${idx + 1}`;
+                }
+            });
+        }
+
+        // ── LIVE INPUT HANDLERS & CHAR COUNTERS ──
+        function handleTitleInput(input) {
+            validateAlphaStart(input);
+            const val = input.value;
+            document.getElementById('titleCharCount').textContent = `${val.length} / 120`;
+            const headerTitle = document.getElementById('headerCourseTitle');
+            if (headerTitle) {
+                headerTitle.textContent = val.trim().length > 0 ? val.trim() : 'New Course';
+            }
+        }
+
+        function handleSubtitleInput(input) {
+            validateAlphaStart(input);
+            const val = input.value;
+            document.getElementById('subtitleCharCount').textContent = `${val.length} / 160`;
+        }
+
+        function validateAlphaStart(input) {
+            const val = input.value;
+            if (val.length > 0 && /^[^a-zA-Z]/.test(val)) {
+                input.value = val.replace(/^[^a-zA-Z]+/, '');
+            }
+        }
+
+        // ── DYNAMIC CATEGORY LOGIC ──
+        function onCategoryChanged() {
+            const catSelect = document.getElementById('category');
+            const selectedOpt = catSelect.options[catSelect.selectedIndex];
+            if (!selectedOpt) return;
+
+            const catName = selectedOpt.getAttribute('data-name') || selectedOpt.text.trim();
+            
+            // Show selected banner
+            const banner = document.getElementById('selectedCategoryPill');
+            const bannerName = document.getElementById('selectedCategoryName');
+            banner.style.display = 'flex';
+            bannerName.textContent = catName;
+
+            updateSubcategories(catName);
+            renderDynamicCategoryFields(catName);
+        }
+
+        function updateSubcategories(catName) {
+            const subSelect = document.getElementById('subCategory');
+            subSelect.innerHTML = '<option value="">-- Select Subcategory --</option>';
+
+            const subList = subcategoriesData[catName] || [];
+            subList.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                if (sub === currentSavedSubCategory) {
+                    opt.selected = true;
+                }
+                subSelect.appendChild(opt);
+            });
+        }
+
+        function renderDynamicCategoryFields(catName) {
+            const container = document.getElementById('dynamicFieldsContainer');
+            const heading = document.getElementById('categorySectionHeading');
+            const pill = document.getElementById('categoryPill');
+
+            heading.textContent = `Specialized Attributes: ${catName}`;
+            pill.textContent = catName;
+
+            const fields = categoryFieldsData[catName] || [];
+            if (fields.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); border: 1.5px dashed var(--border-subtle); border-radius: var(--radius-sm); background: #ffffff;">
+                        <p style="margin: 0; font-size: 0.88rem;">No specialized fields required for <strong>${catName}</strong>. Proceed to next step.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="grid-2">';
+            fields.forEach(f => {
+                const fieldKey = f.key;
+                const fieldName = `catData_${fieldKey}`;
+                const val = (savedCategoryData && savedCategoryData[fieldKey]) ? savedCategoryData[fieldKey] : '';
+                const isFullWidth = (f.type === 'textarea');
+
+                html += `<div class="form-row" style="${isFullWidth ? 'grid-column: span 2;' : ''} margin-bottom: 0;">`;
+                html += `<label class="field-label" for="${fieldName}">${f.label} ${f.required ? '<span class="field-required">*</span>' : ''}</label>`;
+
+                if (f.type === 'textarea') {
+                    html += `<textarea id="${fieldName}" name="${fieldName}" class="input-textarea" rows="3" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this)">${val}</textarea>`;
+                } else if (f.type === 'select') {
+                    html += `<select id="${fieldName}" name="${fieldName}" class="input-select" ${f.required ? 'required' : ''}>`;
+                    html += `<option value="">-- Select ${f.label} --</option>`;
+                    if (f.options) {
+                        f.options.forEach(opt => {
+                            const isSel = (opt === val) ? 'selected' : '';
+                            html += `<option value="${opt}" ${isSel}>${opt}</option>`;
                         });
                     }
-                    return response.text();
-                })
-                .then(html => {
-                    console.log("Response received, length:", html.length);
-                    if (html.includes('<html')) {
-                        console.log("Full page redirect detected, reloading...");
-                        window.location.reload();
-                    } else {
-                        const container = document.getElementById('curriculum-container');
-                        if (container) {
-                            container.innerHTML = html;
-                        } else {
-                            console.error("curriculum-container not found!");
-                            window.location.reload();
-                        }
+                    html += `</select>`;
+                } else if (f.type === 'number') {
+                    html += `<input type="number" id="${fieldName}" name="${fieldName}" class="input-number" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''}>`;
+                } else {
+                    html += `<input type="text" id="${fieldName}" name="${fieldName}" class="input-text" value="${val}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} oninput="validateAlphaStart(this)">`;
+                }
 
-                        const newFeedback = document.getElementById('curriculum-feedback');
-                        if (newFeedback) {
-                            newFeedback.style.display = 'block';
-                            newFeedback.style.background = '#d4edda';
-                            newFeedback.style.color = '#155724';
-                            newFeedback.textContent = 'Updated successfully!';
-                            setTimeout(() => newFeedback.style.display = 'none', 3000);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Curriculum Action Error:', error);
-                    const newFeedback = document.getElementById('curriculum-feedback');
-                    if (newFeedback) {
-                        newFeedback.style.display = 'block';
-                        newFeedback.style.background = '#f8d7da';
-                        newFeedback.style.color = '#721c24';
-                        newFeedback.textContent = 'Error: ' + error.message;
-                    }
-                    alert("Error updating curriculum: " + error.message);
-                });
+                if (f.description) {
+                    html += `<p class="field-helper">${f.description}</p>`;
+                }
+                html += `</div>`;
+            });
+            html += '</div>';
 
-            return false;
+            container.innerHTML = html;
         }
+
+        // ── LEARNING OBJECTIVES BUILDER ──
+        function initObjectives() {
+            const container = document.getElementById('objectivesList');
+            container.innerHTML = '';
+
+            let list = [];
+            if (existingObjectivesStr && existingObjectivesStr.trim().length > 0) {
+                list = existingObjectivesStr.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+            }
+            
+
+            list.forEach(obj => renderObjectiveRow(obj));
+            updateObjectivesCounter();
+        }
+
+        function renderObjectiveRow(text = '') {
+            const container = document.getElementById('objectivesList');
+            const div = document.createElement('div');
+            div.className = 'objective-row';
+            div.innerHTML = `
+                <i class="fas fa-grip-vertical objective-handle"></i>
+                <input type="text" class="objective-input" value="${text}" placeholder="Enter a measurable learning outcome..." oninput="validateAlphaStart(this); updateObjectivesCounter();">
+                <button type="button" class="btn-icon-danger" onclick="this.parentElement.remove(); updateObjectivesCounter();" title="Remove objective">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addObjective() {
+            renderObjectiveRow('');
+            updateObjectivesCounter();
+            const inputs = document.querySelectorAll('.objective-input');
+            if (inputs.length > 0) inputs[inputs.length - 1].focus();
+        }
+
+        function updateObjectivesCounter() {
+            const count = document.querySelectorAll('.objective-input').length;
+            document.getElementById('objectivesCounter').textContent = `${count} Objectives defined`;
+        }
+
+        // ── CURRICULUM ACCORDION BUILDER ──
+        let sectionCount = 0;
+        let lectureCounts = {};
+
+        function addSection(title = '') {
+            const container = document.getElementById('sectionsContainer');
+            const secIdx = container.querySelectorAll('.section-card').length;
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section-card expanded';
+            sectionDiv.id = `section-${secIdx}`;
+
+            sectionDiv.innerHTML = `
+                <input type="hidden" name="sections[${secIdx}].position" value="${secIdx}">
+                <div class="section-card-header" onclick="toggleSection(${secIdx})">
+                    <div class="section-title-wrapper" onclick="event.stopPropagation()">
+                        <span class="section-badge">Module ${secIdx + 1}</span>
+                        <input type="text" name="sections[${secIdx}].title" value="${title}" class="section-title-input"
+                               placeholder="e.g. Module ${secIdx + 1}: Core Architecture & Setup" required
+                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                    </div>
+                    <div class="section-actions" onclick="event.stopPropagation()">
+                        <span class="status-pill status-draft" id="secLectureBadge-${secIdx}" style="font-size: 0.72rem;">0 Lectures</span>
+                        <button type="button" class="btn-icon-danger" onclick="confirmRemoveSection(${secIdx})" title="Delete Module">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                        <button type="button" class="btn-secondary" style="padding: 4px 8px; border: none; font-size: 0.85rem;" onclick="toggleSection(${secIdx})">
+                            <i class="fas fa-chevron-down" id="secChevron-${secIdx}"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-body" id="secBody-${secIdx}">
+                    <div class="lectures-list" id="lectures-${secIdx}">
+                        <!-- Lectures -->
+                    </div>
+                    <button type="button" class="btn-dashed-add" onclick="addLecture(${secIdx})" style="padding: 8px 14px; font-size: 0.82rem;">
+                        <i class="fas fa-plus"></i> Add Lecture to Module ${secIdx + 1}
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(sectionDiv);
+            reindexCurriculum();
+            return secIdx;
+        }
+
+        function toggleSection(secIdx) {
+            const card = document.getElementById(`section-${secIdx}`);
+            const chevron = document.getElementById(`secChevron-${secIdx}`);
+            if (card) {
+                card.classList.toggle('expanded');
+                if (chevron) {
+                    chevron.className = card.classList.contains('expanded') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+                }
+            }
+        }
+
+        function confirmRemoveSection(secIdx) {
+            if (confirm('Are you sure you want to delete this module and all its lectures?')) {
+                const el = document.getElementById(`section-${secIdx}`);
+                if (el) el.remove();
+                reindexCurriculum();
+            }
+        }
+
+        function removeLecture(btn) {
+            const card = btn.closest('.lecture-card');
+            if (card) card.remove();
+            reindexCurriculum();
+        }
+
+        function addLecture(secId, title = '', duration = 300) {
+            const container = document.getElementById(`lectures-${secId}`);
+            if (!container) return;
+            const lecId = container.querySelectorAll('.lecture-card').length;
+            const lecDiv = document.createElement('div');
+            lecDiv.id = `lecture-${secId}-${lecId}`;
+            lecDiv.className = 'lecture-card';
+
+            lecDiv.innerHTML = `
+                <div class="lecture-top-row">
+                    <span class="lecture-num-badge">
+                        <i class="fas fa-circle-play" style="color: var(--primary);"></i> Lecture ${secId + 1}.${lecId + 1}
+                    </span>
+                    <button type="button" class="btn-icon-danger" onclick="removeLecture(this)" title="Remove Lecture">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+                <input type="hidden" name="sections[${secId}].lectures[${lecId}].position" value="${lecId}">
+                <div class="grid-2 form-row">
+                    <div>
+                        <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
+                        <input type="text" name="sections[${secId}].lectures[${lecId}].title" value="${title}" class="input-text lecture-title-input"
+                               placeholder="e.g. Setting up Development Environment" required
+                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                    </div>
+                    <div>
+                        <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
+                        <input type="number" name="sections[${secId}].lectures[${lecId}].durationSeconds" value="${duration}" class="input-number"
+                               min="0" oninput="recalculateCurriculum();">
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 0;">
+                    <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4)</label>
+                    <input type="file" name="sections[${secId}].lectures[${lecId}].videoFile" accept="video/*" class="input-text" style="padding-top: 8px;">
+                </div>
+            `;
+
+            container.appendChild(lecDiv);
+            reindexCurriculum();
+        }
+
+        function reindexCurriculum() {
+            const sections = document.querySelectorAll('#sectionsContainer .section-card');
+            sectionCount = sections.length;
+            lectureCounts = {};
+
+            sections.forEach((sec, sIdx) => {
+                sec.id = `section-${sIdx}`;
+
+                const posInput = sec.querySelector('input[type="hidden"][name*="].position"]');
+                if (posInput) {
+                    posInput.name = `sections[${sIdx}].position`;
+                    posInput.value = sIdx;
+                }
+
+                const header = sec.querySelector('.section-card-header');
+                if (header) header.setAttribute('onclick', `toggleSection(${sIdx})`);
+
+                const badge = sec.querySelector('.section-badge');
+                if (badge) badge.textContent = `Module ${sIdx + 1}`;
+
+                const titleInput = sec.querySelector('.section-title-input');
+                if (titleInput) {
+                    titleInput.name = `sections[${sIdx}].title`;
+                    titleInput.placeholder = `e.g. Module ${sIdx + 1}: Core Architecture & Setup`;
+                }
+
+                const delBtn = sec.querySelector('.section-actions .btn-icon-danger');
+                if (delBtn) delBtn.setAttribute('onclick', `confirmRemoveSection(${sIdx})`);
+
+                const chevronBtn = sec.querySelector('.section-actions .btn-secondary');
+                if (chevronBtn) chevronBtn.setAttribute('onclick', `toggleSection(${sIdx})`);
+
+                const chevron = sec.querySelector('.section-actions i[id^="secChevron-"]');
+                if (chevron) chevron.id = `secChevron-${sIdx}`;
+
+                const badgeSec = sec.querySelector('[id^="secLectureBadge-"]');
+                if (badgeSec) badgeSec.id = `secLectureBadge-${sIdx}`;
+
+                const secBody = sec.querySelector('.section-body');
+                if (secBody) secBody.id = `secBody-${sIdx}`;
+
+                const lecturesList = sec.querySelector('.lectures-list');
+                if (lecturesList) lecturesList.id = `lectures-${sIdx}`;
+
+                const addLecBtn = sec.querySelector('.section-body .btn-dashed-add');
+                if (addLecBtn) {
+                    addLecBtn.setAttribute('onclick', `addLecture(${sIdx})`);
+                    addLecBtn.innerHTML = `<i class="fas fa-plus"></i> Add Lecture to Module ${sIdx + 1}`;
+                }
+
+                const lectures = sec.querySelectorAll('.lecture-card');
+                lectureCounts[sIdx] = lectures.length;
+                lectures.forEach((lec, lIdx) => {
+                    lec.id = `lecture-${sIdx}-${lIdx}`;
+                    const numBadge = lec.querySelector('.lecture-num-badge');
+                    if (numBadge) {
+                        numBadge.innerHTML = `<i class="fas fa-circle-play" style="color: var(--primary);"></i> Lecture ${sIdx + 1}.${lIdx + 1}`;
+                    }
+                    const lecDelBtn = lec.querySelector('.lecture-top-row .btn-icon-danger');
+                    if (lecDelBtn) {
+                        lecDelBtn.setAttribute('onclick', `removeLecture(this)`);
+                    }
+                    const lecPos = lec.querySelector('input[type="hidden"][name*="lectures["]');
+                    if (lecPos) {
+                        lecPos.name = `sections[${sIdx}].lectures[${lIdx}].position`;
+                        lecPos.value = lIdx;
+                    }
+                    const lecTitle = lec.querySelector('input[name*="].title"]');
+                    if (lecTitle) lecTitle.name = `sections[${sIdx}].lectures[${lIdx}].title`;
+                    const lecDur = lec.querySelector('input[name*="].durationSeconds"]');
+                    if (lecDur) lecDur.name = `sections[${sIdx}].lectures[${lIdx}].durationSeconds`;
+                    const lecVid = lec.querySelector('input[name*="].videoFile"]');
+                    if (lecVid) lecVid.name = `sections[${sIdx}].lectures[${lIdx}].videoFile`;
+                });
+            });
+
+            recalculateCurriculum();
+        }
+
+        function recalculateCurriculum() {
+            const sections = document.querySelectorAll('.section-card');
+            let totalLectures = 0;
+            let totalSeconds = 0;
+
+            sections.forEach((sec, idx) => {
+                const lectures = sec.querySelectorAll('.lecture-card');
+                const badge = sec.querySelector(`[id^="secLectureBadge-"]`);
+                if (badge) badge.textContent = `${lectures.length} Lectures`;
+
+                totalLectures += lectures.length;
+                lectures.forEach(lec => {
+                    const durInput = lec.querySelector('input[type="number"]');
+                    if (durInput && durInput.value) {
+                        totalSeconds += parseInt(durInput.value) || 0;
+                    }
+                });
+            });
+
+            const mins = Math.round(totalSeconds / 60);
+            const hours = Math.floor(mins / 60);
+            const remainMins = mins % 60;
+            const durText = hours > 0 ? `${hours}h ${remainMins}m total` : `${mins} min total`;
+
+            document.getElementById('statSectionCount').textContent = `${sections.length} ${sections.length === 1 ? 'Section' : 'Sections'}`;
+            document.getElementById('statLectureCount').textContent = `${totalLectures} ${totalLectures === 1 ? 'Lecture' : 'Lectures'}`;
+            document.getElementById('statTotalDuration').textContent = durText;
+        }
+
+        // ── MEDIA UPLOAD HANDLERS ──
+        function previewThumbnail(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('imagePreview');
+                const container = document.getElementById('imagePreviewContainer');
+                preview.src = reader.result;
+                container.style.display = 'flex';
+            };
+            if (event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function handlePromoVideoSelect(event) {
+            const container = document.getElementById('videoStatusContainer');
+            const nameEl = document.getElementById('videoFileName');
+            if (event.target.files[0]) {
+                container.style.display = 'flex';
+                nameEl.textContent = event.target.files[0].name;
+            }
+        }
+
+        // ── DOWNLOADABLE RESOURCES BUILDER ──
+        let resourceIndex = 0;
+        function addResourceRow() {
+            const container = document.getElementById('resourceRowsContainer');
+            const div = document.createElement('div');
+            const curIdx = resourceIndex;
+            div.id = `resource-row-${curIdx}`;
+            div.className = 'lecture-card';
+            div.style.marginBottom = '10px';
+
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-weight: 700; font-size: 0.85rem; color: var(--text-main);">
+                        <i class="fas fa-paperclip" style="color: var(--primary);"></i> Resource Item ${curIdx + 1}
+                    </span>
+                    <button type="button" class="btn-icon-danger" onclick="document.getElementById('resource-row-${curIdx}').remove();" title="Remove Resource">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+
+                <div class="grid-3 form-row" style="margin-bottom: 8px;">
+                    <div>
+                        <label class="field-label" style="font-size: 0.8rem;">Resource Title</label>
+                        <input type="text" name="resourceTitles" class="input-text" placeholder="e.g. Starter Code / PDF Cheat Sheet">
+                    </div>
+                    <div>
+                        <label class="field-label" style="font-size: 0.8rem;">Resource Type</label>
+                        <select name="resourceTypes" class="input-select">
+                            <option value="CODE">Source Code / Repository</option>
+                            <option value="PDF">PDF Guide / E-Book</option>
+                            <option value="ZIP">ZIP Archive</option>
+                            <option value="SLIDES">Slide Presentation</option>
+                            <option value="DOCX">Document / Worksheet</option>
+                            <option value="AUDIO">Audio Track / Sample</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="field-label" style="font-size: 0.8rem;">File</label>
+                        <input type="file" name="resourceFiles" required class="input-text" style="padding-top: 8px;">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="field-label" style="font-size: 0.8rem;">Instructions for Students</label>
+                    <input type="text" name="resourceDescriptions" class="input-text" placeholder="Brief note on how to use this resource">
+                </div>
+            `;
+
+            container.appendChild(div);
+            resourceIndex++;
+        }
+
+        // ── PRICING SELECTION & VALIDATION ──
+        function selectPricingMode(isFree) {
+            const tilePaid = document.getElementById('tilePaid');
+            const tileFree = document.getElementById('tileFree');
+            const priceContainer = document.getElementById('pricingInputContainer');
+            const priceInput = document.getElementById('price');
+            const salePriceInput = document.getElementById('salePrice');
+
+            if (isFree) {
+                tileFree.classList.add('selected');
+                tilePaid.classList.remove('selected');
+                priceContainer.style.opacity = '0.35';
+                priceContainer.style.pointerEvents = 'none';
+                priceInput.value = '0';
+                salePriceInput.value = '';
+            } else {
+                tilePaid.classList.add('selected');
+                tileFree.classList.remove('selected');
+                priceContainer.style.opacity = '1';
+                priceContainer.style.pointerEvents = 'auto';
+                if (!priceInput.value || priceInput.value === '0') {
+                    priceInput.value = '1999';
+                }
+            }
+        }
+
+        function handlePriceInput(input) {
+            if (input.value > 99999) input.value = 99999;
+            if (input.value < 0) input.value = 0;
+        }
+
+        // ── PRE-FLIGHT AUDIT CHECKLIST ──
+        function runPreFlightAudit() {
+            const titleVal = document.getElementById('title').value.trim();
+            const descVal = document.getElementById('description').value.trim();
+            const catVal = document.getElementById('category').value;
+            const objInputs = document.querySelectorAll('.objective-input');
+            const sections = document.querySelectorAll('.section-card');
+
+            const hasTitle = (titleVal.length > 3 && descVal.length > 5);
+            const hasCat = (catVal !== '');
+            const hasObjectives = (objInputs.length >= 2);
+            const hasCurriculum = (sections.length >= 1);
+
+            updateAuditItem('title', hasTitle);
+            updateAuditItem('category', hasCat);
+            updateAuditItem('objectives', hasObjectives);
+            updateAuditItem('curriculum', hasCurriculum);
+            updateAuditItem('pricing', true);
+
+            const allGood = hasTitle && hasCat && hasObjectives && hasCurriculum;
+            const overallBadge = document.getElementById('auditOverallBadge');
+            if (allGood) {
+                overallBadge.className = 'status-pill status-published';
+                overallBadge.innerHTML = '<i class="fas fa-check-circle"></i> Ready for Review';
+            } else {
+                overallBadge.className = 'status-pill status-pending';
+                overallBadge.innerHTML = '<i class="fas fa-clock"></i> Complete Required Items';
+            }
+        }
+
+        function updateAuditItem(id, isPass) {
+            const badge = document.getElementById(`badge-${id}`);
+            if (badge) {
+                if (isPass) {
+                    badge.className = 'audit-status-badge audit-pass';
+                    badge.textContent = 'Pass';
+                } else {
+                    badge.className = 'audit-status-badge audit-warn';
+                    badge.textContent = 'Incomplete';
+                }
+            }
+        }
+
+        // ── LIVE STUDENT PREVIEW MODAL ENGINE ──
+        function openLivePreviewModal() {
+            // Gather form data into preview modal
+            const title = document.getElementById('title').value.trim() || 'Untitled Course Draft';
+            const subtitle = document.getElementById('subtitle').value.trim() || 'Master practical skills with structured modules.';
+            const catSelect = document.getElementById('category');
+            const catName = catSelect.selectedIndex > 0 ? catSelect.options[catSelect.selectedIndex].text : 'General';
+            const subCategory = document.getElementById('subCategory').value || 'Overview';
+            const language = document.getElementById('language').value;
+            const level = document.getElementById('level').value;
+            const requirements = document.getElementById('requirements').value.trim() || 'No special hardware or prerequisites required.';
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
+            const access = document.getElementById('accessDuration').value;
+
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewSubtitle').textContent = subtitle;
+            document.getElementById('previewCategoryBreadcrumb').textContent = `${catName} > ${subCategory}`;
+            document.getElementById('previewLanguage').textContent = language;
+            document.getElementById('previewLevel').textContent = level;
+            document.getElementById('previewRequirements').textContent = requirements;
+            document.getElementById('previewAccessText').textContent = access;
+
+            // Thumbnail preview
+            const thumbImg = document.getElementById('previewThumbnailImg');
+            const localImg = document.getElementById('imagePreview');
+            if (localImg && localImg.src && localImg.src.length > 5 && !localImg.src.endsWith('/')) {
+                thumbImg.src = localImg.src;
+            } else {
+                thumbImg.src = '/images/course-placeholder.jpg';
+            }
+
+            // Price text
+            const priceText = document.getElementById('previewPriceText');
+            const saleOld = document.getElementById('previewSalePriceOld');
+            if (price === 0) {
+                priceText.textContent = 'FREE';
+                saleOld.textContent = '';
+            } else if (salePrice > 0 && salePrice < price) {
+                priceText.textContent = `₹${salePrice}`;
+                saleOld.textContent = `₹${price}`;
+            } else {
+                priceText.textContent = `₹${price}`;
+                saleOld.textContent = '';
+            }
+
+            // Objectives list
+            const objContainer = document.getElementById('previewObjectivesContainer');
+            objContainer.innerHTML = '';
+            const objInputs = document.querySelectorAll('.objective-input');
+            objInputs.forEach(input => {
+                if (input.value.trim().length > 0) {
+                    const item = document.createElement('div');
+                    item.innerHTML = `<i class="fas fa-check" style="color: var(--success); margin-right: 6px;"></i> ${input.value.trim()}`;
+                    objContainer.appendChild(item);
+                }
+            });
+
+            // Sections list
+            const secContainer = document.getElementById('previewSectionsList');
+            secContainer.innerHTML = '';
+            const sections = document.querySelectorAll('.section-card');
+            sections.forEach((sec, idx) => {
+                const titleInput = sec.querySelector('.section-title-input');
+                const title = titleInput ? titleInput.value : `Section ${idx + 1}`;
+                const lectures = sec.querySelectorAll('.lecture-card');
+                const row = document.createElement('div');
+                row.style = 'padding: 8px 12px; background: var(--bg-page); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; justify-content: space-between;';
+                row.innerHTML = `
+                    <span><strong>Section ${idx + 1}:</strong> ${title}</span>
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">${lectures.length} lectures</span>
+                `;
+                secContainer.appendChild(row);
+            });
+
+            document.getElementById('livePreviewModal').style.display = 'flex';
+        }
+
+        function closeLivePreviewModal() {
+            document.getElementById('livePreviewModal').style.display = 'none';
+        }
+
+        function closePreviewIfBackdrop(e) {
+            if (e.target.id === 'livePreviewModal') {
+                closeLivePreviewModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLivePreviewModal();
+        });
+
+        // ── FORM SUBMISSION ENGINE (DRAFT & REVIEW) ──
+        
+        function confirmDeleteCourse() {
+            if (confirm('Are you sure you want to permanently delete this course? This action cannot be undone.')) {
+                document.getElementById('deleteCourseForm').submit();
+            }
+        }
+
+        function submitCourseForm(actionType) {
+            const form = document.getElementById('courseForm');
+            const actionInput = document.getElementById('courseAction');
+            if (actionInput) actionInput.value = actionType;
+
+            // Aggregate learning objectives into newline-separated string
+            const inputs = document.querySelectorAll('.objective-input');
+            const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+            const finalObj = document.getElementById('finalObjectives');
+            if (finalObj) finalObj.value = objectives.join('\n');
+
+            const titleEl = document.getElementById('title');
+            let titleVal = titleEl ? titleEl.value.trim() : '';
+
+            if (actionType === 'submit') {
+                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
+                    alert('Please enter a valid Course Title starting with a letter.');
+                    switchStep('basic');
+                    if (titleEl) titleEl.focus();
+                    return false;
+                }
+                const descEl = document.getElementById('description');
+                const descVal = descEl ? descEl.value.trim() : '';
+                if (!descVal || !/^[a-zA-Z]/.test(descVal)) {
+                    alert('Please enter a Course Description starting with a letter.');
+                    switchStep('basic');
+                    if (descEl) descEl.focus();
+                    return false;
+                }
+                const catEl = document.getElementById('category');
+                if (!catEl || !catEl.value) {
+                    alert('Please select a Course Category before publishing.');
+                    switchStep('basic');
+                    if (catEl) catEl.focus();
+                    return false;
+                }
+            } else {
+                // Draft mode: if title is empty or does not start with a letter, give a fallback title so the server accepts it
+                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
+                    if (titleEl) titleEl.value = 'Draft Course ' + new Date().toLocaleDateString();
+                }
+            }
+
+            // Prevent duplicate clicks
+            const btnSave = document.getElementById('btnSaveDraftFooter');
+            const btnSub = document.getElementById('btnSubmitReview');
+            if (btnSave) { btnSave.style.opacity = '0.7'; btnSave.style.pointerEvents = 'none'; }
+            if (btnSub) { btnSub.style.opacity = '0.7'; btnSub.style.pointerEvents = 'none'; }
+
+            form.submit();
+        }
+
+        document.getElementById('courseForm').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.objective-input');
+            const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+            const finalObj = document.getElementById('finalObjectives');
+            if (finalObj) finalObj.value = objectives.join('\n');
+        });
+
+        
+        // ── LANGUAGE MULTI-SELECT ENGINE ──
+        const availableLanguagesList = [
+            'English', 'Hindi', 'Spanish', 'French', 'German', 'Japanese', 
+            'Mandarin', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Marathi', 
+            'Bengali', 'Arabic', 'Portuguese', 'Russian', 'Italian', 'Korean', 'Urdu', 'Other'
+        ];
+        let selectedLanguages = [];
+
+        function initLanguageMultiSelect() {
+            const hiddenInput = document.getElementById('language');
+            const initialVal = hiddenInput ? hiddenInput.value.trim() : '';
+            if (initialVal) {
+                selectedLanguages = initialVal.split(',').map(s => s.trim()).filter(Boolean);
+            } else {
+                selectedLanguages = ['English'];
+            }
+            renderLanguageOptions('');
+            updateSelectedLanguageUI();
+        }
+
+        function renderLanguageOptions(filter) {
+            const container = document.getElementById('languageOptionsList');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const query = (filter || '').toLowerCase();
+            const filtered = availableLanguagesList.filter(l => l.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="padding: 8px 10px; font-size: 0.82rem; color: var(--text-muted); text-align: center;">No matching languages</div>';
+                return;
+            }
+
+            filtered.forEach(lang => {
+                const isSelected = selectedLanguages.includes(lang);
+                const item = document.createElement('div');
+                item.className = 'multi-select-option-item' + (isSelected ? ' selected' : '');
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleLanguageSelection(lang);
+                };
+
+                item.innerHTML = `
+                    <input type="checkbox" id="chk-lang-${lang}" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleLanguageSelection('${lang}')">
+                    <label for="chk-lang-${lang}" style="cursor: pointer; flex: 1;" onclick="event.stopPropagation(); toggleLanguageSelection('${lang}')">${lang}</label>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function toggleLanguageSelection(lang) {
+            const idx = selectedLanguages.indexOf(lang);
+            if (idx === -1) {
+                selectedLanguages.push(lang);
+            } else {
+                selectedLanguages.splice(idx, 1);
+            }
+            updateSelectedLanguageUI();
+            const searchInput = document.getElementById('languageSearchInput');
+            renderLanguageOptions(searchInput ? searchInput.value : '');
+            
+            const trigger = document.getElementById('languageSelectTrigger');
+            clearFieldError(trigger);
+        }
+
+        function removeLanguageTag(lang, e) {
+            if (e) e.stopPropagation();
+            const idx = selectedLanguages.indexOf(lang);
+            if (idx !== -1) {
+                selectedLanguages.splice(idx, 1);
+                updateSelectedLanguageUI();
+                const searchInput = document.getElementById('languageSearchInput');
+                renderLanguageOptions(searchInput ? searchInput.value : '');
+            }
+        }
+
+        function updateSelectedLanguageUI() {
+            const hiddenInput = document.getElementById('language');
+            if (hiddenInput) {
+                hiddenInput.value = selectedLanguages.join(', ');
+            }
+
+            const tagsContainer = document.getElementById('selectedLanguageTags');
+            const placeholder = document.getElementById('languagePlaceholder');
+
+            if (!tagsContainer || !placeholder) return;
+
+            if (selectedLanguages.length === 0) {
+                tagsContainer.innerHTML = '';
+                placeholder.style.display = 'inline';
+            } else {
+                placeholder.style.display = 'none';
+                tagsContainer.innerHTML = selectedLanguages.map(l => `
+                    <span class="selected-tag-chip">
+                        ${l} <i class="fas fa-times remove-tag" onclick="removeLanguageTag('${l}', event)"></i>
+                    </span>
+                `).join('');
+            }
+
+            const previewLang = document.getElementById('previewLanguage');
+            if (previewLang) {
+                previewLang.textContent = selectedLanguages.length > 0 ? selectedLanguages.join(', ') : 'English';
+            }
+        }
+
+        function toggleLanguageDropdown(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('languageSelectMenu');
+            const trigger = document.getElementById('languageSelectTrigger');
+            if (!menu || !trigger) return;
+            const isOpen = menu.classList.contains('open');
+
+            if (isOpen) {
+                menu.classList.remove('open');
+                trigger.classList.remove('active');
+            } else {
+                menu.classList.add('open');
+                trigger.classList.add('active');
+                const searchInput = document.getElementById('languageSearchInput');
+                if (searchInput) {
+                    searchInput.value = '';
+                    renderLanguageOptions('');
+                    setTimeout(() => searchInput.focus(), 50);
+                }
+            }
+        }
+
+        function filterLanguages(val) {
+            renderLanguageOptions(val);
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('languageMultiSelect');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const menu = document.getElementById('languageSelectMenu');
+                const trigger = document.getElementById('languageSelectTrigger');
+                if (menu) menu.classList.remove('open');
+                if (trigger) trigger.classList.remove('active');
+            }
+        });
+
+        // ── INITIALIZATION ──
+        document.addEventListener('DOMContentLoaded', function() {
+            initObjectives();
+            initLanguageMultiSelect();
+
+            // Set pricing mode initial state
+            const currentPrice = parseFloat(document.getElementById('price').value);
+            if (isNaN(currentPrice) || currentPrice === 0) {
+                selectPricingMode(true);
+            } else {
+                selectPricingMode(false);
+            }
+
+            // Category initialization
+            const catSelect = document.getElementById('category');
+            if (catSelect && catSelect.value) {
+                onCategoryChanged();
+            }
+
+            // Initial section if brand new course, or count existing sections
+            const sectionsContainer = document.getElementById('sectionsContainer');
+            const existingCards = sectionsContainer.querySelectorAll('.section-card');
+            if (existingCards.length === 0) {
+                const s0 = addSection('Foundations & Course Roadmap');
+                addLecture(s0, 'Welcome to the Course & Architecture Overview', 300);
+            } else {
+                reindexCurriculum();
+            }
+
+            // Sync step 1
+            switchStep('basic');
+        });
     </script>
 </body>
-
 </html>

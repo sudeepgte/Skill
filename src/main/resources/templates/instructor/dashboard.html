@@ -256,6 +256,28 @@
             </header>
 
             <!-- Alerts -->
+            <!-- Celebratory Popup Modal for Course Actions -->
+            <div th:if="${success}" id="successCelebrationModal" class="modal-overlay" style="display: flex; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
+                <div style="background: white; border-radius: 20px; max-width: 500px; width: 90%; padding: 2.5rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative;">
+                    <button type="button" onclick="document.getElementById('successCelebrationModal').style.display='none'" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; font-size: 1.1rem; transition: all 0.2s;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div style="width: 76px; height: 76px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin: 0 auto 1.5rem; box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.3);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h2 style="font-size: 1.7rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem;">Success!</h2>
+                    <p style="font-size: 1.05rem; color: #475569; line-height: 1.6; margin-bottom: 2rem;" th:text="${success}">Action completed successfully!</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button type="button" onclick="document.getElementById('successCelebrationModal').style.display='none'" style="background: #2563eb; color: white; border: none; padding: 0.85rem 1.8rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-layer-group" style="margin-right: 8px;"></i> View Courses
+                        </button>
+                        <a href="/vendor/courses/create" style="background: #f1f5f9; color: #334155; text-decoration: none; padding: 0.85rem 1.6rem; border-radius: 12px; font-weight: 600; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-plus"></i> Create Another
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div th:if="${success}" style="background:#d1fae5; border-left:4px solid #10b981; color:#065f46; padding:1.2rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500; font-size:1.1rem;">
                 <i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> <span th:text="${success}">Success message</span>
             </div>
