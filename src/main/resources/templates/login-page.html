@@ -4,19 +4,26 @@
 <head>
     <title>Login | SkillHub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- FontAwesome 6 CDN + Local Fallback -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/font-awesome-fallback.css}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --brand-purple: #A78BFA;
-            --brand-pink: #8B5CF6;
-            --brand-primary: linear-gradient(135deg, #A78BFA, #a29bfe);
+            --brand-purple: #8B5CF6;
+            --brand-purple-light: #A78BFA;
+            --brand-pink: #ec4899;
+            --brand-primary: linear-gradient(135deg, #8B5CF6, #6366F1);
             --form-bg: #f8faff;
-            --text-dark: #1c1d1f;
-            --text-muted: #6a6f73;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --color-warning: #f59e0b;
         }
 
         * {
@@ -25,8 +32,12 @@
             padding: 0;
         }
 
+        html {
+            font-size: 15px; /* Proportional for standard 100% zoom */
+        }
+
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: url('/images/auth-page-bg.png');
             background-size: cover;
             background-position: center;
@@ -35,30 +46,32 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 1.25rem;
+            color: var(--text-dark);
         }
 
-        /* ─── AUTH CARD ─── */
+        /* ─── CARD CONTAINER (Tailored for 100% Zoom) ─── */
         .auth-card {
             background: #fff;
             width: 100%;
-            max-width: 1000px;
-            min-height: 600px;
+            max-width: 960px;
+            min-height: 540px;
+            max-height: 94vh;
             display: flex;
-            border-radius: 30px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.18);
             position: relative;
         }
 
-        /* ─── LEFT SIDE (BRAND) ─── */
+        /* ─── BRAND PANEL (LEFT) ─── */
         .auth-brand-side {
-            flex: 1.2;
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/welcome-bg.png');
+            flex: 1;
+            background: linear-gradient(rgba(17, 24, 39, 0.65), rgba(17, 24, 39, 0.65)), url('/images/welcome-bg.png');
             background-size: cover;
             background-position: center;
             position: relative;
-            padding: 60px;
+            padding: 40px 35px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -66,106 +79,214 @@
             overflow: hidden;
         }
 
-        /* Decorative Ornaments */
         .ornament {
             position: absolute;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             pointer-events: none;
         }
-        .o-1 { width: 300px; height: 300px; top: -100px; left: -100px; }
-        .o-2 { width: 200px; height: 200px; bottom: -50px; right: -50px; background: rgba(255, 255, 255, 0.05); }
-        .o-3 { 
-            width: 150px; height: 40px; 
-            top: 20%; right: 10%; 
-            background: rgba(255, 255, 255, 0.15); 
-            border-radius: 20px; 
-            transform: rotate(-35deg); 
+        .o-1 { width: 340px; height: 340px; top: -120px; left: -120px; }
+        .o-2 { width: 240px; height: 240px; bottom: -50px; right: -50px; opacity: 0.5; }
+        .o-3 {
+            width: 140px; height: 36px;
+            top: 22%; right: 8%;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            transform: rotate(-35deg);
         }
 
         .auth-brand-side h1 {
-            font-family: 'Playfair Display', sans-serif;
-            font-size: 4.8rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
             font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 2rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
             position: relative;
             z-index: 2;
         }
 
         .auth-brand-side p {
-            font-size: 1.8rem;
+            font-size: 1rem;
             line-height: 1.6;
-            opacity: 0.9;
-            max-width: 400px;
+            opacity: 0.92;
+            max-width: 360px;
             position: relative;
             z-index: 2;
         }
 
-        /* ─── RIGHT SIDE (FORM) ─── */
+        /* ─── FORM PANEL (RIGHT) ─── */
         .auth-form-side {
-            flex: 1;
-            padding: 40px;
+            flex: 1.15;
+            padding: 35px 40px;
+            background: #fff;
+            overflow-y: auto;
+            max-height: 94vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: #fff;
-        }
-
-        .form-header {
-            margin-bottom: 2.5rem;
-            text-align: center;
+            scrollbar-width: thin;
         }
 
         .form-header h2 {
-            font-family: 'Playfair Display', sans-serif;
-            font-size: 2.2rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.85rem;
             font-weight: 700;
-            color: #4a4a4a;
+            color: #1e293b;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
 
+        /* ─── ALERT BANNERS ─── */
+        .auth-alert {
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in-out;
+            font-weight: 500;
+        }
+
+        .auth-alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .auth-alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .auth-alert-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── INPUT FIELDS & ICONS (GUARANTEED VISIBILITY) ─── */
         .input-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             position: relative;
         }
 
-        .input-group i {
+        .input-group > i.input-icon {
             position: absolute;
             left: 16px;
-            top: 50%;
+            top: 23px;
             transform: translateY(-50%);
             color: var(--brand-purple);
-            font-size: 1.1rem;
+            font-size: 16px;
+            width: 20px;
+            height: 20px;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
 
         .form-control {
             width: 100%;
-            height: 44px;
-            padding: 0 16px 0 45px;
-            background: #f0f3ff;
-            border: 2px solid transparent;
+            height: 46px;
+            padding: 0 44px 0 46px;
+            background: #f1f5f9;
+            border: 1.5px solid transparent;
             border-radius: 12px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: inherit;
+            transition: all 0.2s ease;
             color: var(--text-dark);
-            transition: all 0.3s ease;
         }
 
         .form-control:focus {
             background: #fff;
-            border-color: #d1d9ff;
-            box-shadow: 0 6px 15px rgba(108, 92, 231, 0.08);
+            border-color: var(--brand-purple);
             outline: none;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
         }
 
+        .form-control.is-invalid {
+            border-color: var(--color-error) !important;
+            background: #fff5f5 !important;
+        }
+
+        .form-control.is-valid {
+            border-color: var(--color-success) !important;
+            background: #f0fdf4 !important;
+        }
+
+        /* ─── EYE TOGGLE BUTTON ─── */
+        .toggle-password-btn {
+            position: absolute;
+            right: 14px;
+            top: 23px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 16px;
+            width: 22px;
+            height: 22px;
+            z-index: 6;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password-btn:hover {
+            color: var(--brand-purple);
+        }
+
+        .toggle-password-btn i {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* ─── INLINE ERROR FEEDBACK ─── */
+        .field-feedback {
+            font-size: 0.8rem;
+            margin-top: 3px;
+            padding-left: 6px;
+            display: none;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .field-feedback.error {
+            color: var(--color-error);
+            display: block;
+        }
+
+        .field-feedback.success {
+            color: var(--color-success);
+            display: block;
+        }
+
+        /* ─── FORM OPTIONS (REMEMBER & FORGOT) ─── */
         .form-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
+            margin: 1.1rem 0 1.5rem 0;
+            font-size: 0.85rem;
         }
 
         .remember-me {
@@ -176,39 +297,68 @@
             cursor: pointer;
         }
 
-        .forgot-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s;
+        .remember-me input {
+            accent-color: var(--brand-purple);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
-        .forgot-link:hover { color: var(--brand-purple); }
 
+        .forgot-link {
+            color: var(--brand-purple);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-link:hover {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+
+        /* ─── SUBMIT BUTTON ─── */
         .btn-login {
             width: 100%;
-            height: 44px;
-            background: linear-gradient(135deg, #cc66ff, #A78BFA);
+            height: 48px;
+            background: linear-gradient(135deg, #a855f7, #8b5cf6);
             color: #fff;
             border: none;
-            border-radius: 22px;
-            font-size: 1.1rem;
+            border-radius: 24px;
+            font-size: 0.95rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            box-shadow: 0 6px 15px rgba(108, 92, 231, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-login i {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .auth-footer {
-            margin-top: 2rem;
+            margin-top: 1.4rem;
             text-align: center;
-            font-size: 1rem;
             color: var(--text-muted);
+            font-size: 0.88rem;
         }
 
         .auth-footer a {
@@ -217,19 +367,14 @@
             text-decoration: none;
         }
 
-        .alert {
-            padding: 0.8rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            text-align: center;
-            font-weight: 600;
+        .auth-footer a:hover {
+            text-decoration: underline;
         }
 
-        /* ─── RESPONSIVE ─── */
         @media (max-width: 900px) {
             .auth-brand-side { display: none; }
-            .auth-card { max-width: 500px; border-radius: 25px; }
+            .auth-card { max-width: 480px; }
+            .auth-form-side { padding: 35px 24px; }
         }
     </style>
 </head>
@@ -237,13 +382,13 @@
 <body>
 
     <div class="auth-card">
-        <!-- Decoration from screenshot 2 -->
         <div class="ornament o-1"></div>
 
         <div class="auth-brand-side" style="text-align: center; align-items: center;">
             <div class="ornament o-2"></div>
             <div class="ornament o-3"></div>
-            <h1 style="margin-bottom: 0;">Welcome to SkillHub</h1>
+            <h1>Welcome to SkillHub</h1>
+            <p>Access your enrolled courses, hands-on learning labs, live proctored certifications, and placement resources.</p>
         </div>
 
         <div class="auth-form-side">
@@ -251,51 +396,173 @@
                 <h2>User Login</h2>
             </div>
 
-            <!-- Alerts -->
-            <div th:if="${error}" class="alert" style="color:#b32d2e; background:#fff2f2;" th:text="${error}">
-                Invalid password reset token.
+            <!-- Server Error & Status Alerts -->
+            <div th:if="${error}" class="auth-alert auth-alert-error" role="alert">
+                <i class="fas fa-exclamation-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span th:text="${error}">Invalid credentials.</span>
             </div>
-            <div th:if="${param.error != null and (param.error[0] == 'invalid_token' or #strings.equals(param.error, 'invalid_token'))}" class="alert" style="color:#b32d2e; background:#fff2f2;">
-                Invalid or expired password reset token.
+            <div th:if="${param.error != null and (param.error[0] == 'invalid_token' or #strings.equals(param.error, 'invalid_token'))}" class="auth-alert auth-alert-error" role="alert">
+                <i class="fas fa-exclamation-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span>Invalid or expired password reset token.</span>
             </div>
-            <div th:if="${param.error != null and param.error[0] != 'invalid_token' and !#strings.equals(param.error, 'invalid_token')}" class="alert" style="color:#b32d2e; background:#fff2f2;">
-                Invalid email or password.
+            <div th:if="${param.error != null and param.error[0] != 'invalid_token' and !#strings.equals(param.error, 'invalid_token')}" class="auth-alert auth-alert-error" role="alert">
+                <i class="fas fa-exclamation-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span>Invalid email or password. Please try again.</span>
             </div>
-            <div th:if="${param.resetSuccess}" class="alert" style="color:#0f3e0f; background:#e9f7ef;">
-                Password reset successfully! Please login with your new password.
+            <div th:if="${param.resetSuccess}" class="auth-alert auth-alert-success" role="alert">
+                <i class="fas fa-check-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span>Password reset successfully! Please log in with your new password.</span>
             </div>
-            <div th:if="${param.logout}" class="alert" style="color:#0f3e0f; background:#e9f7ef;">
-                Successfully logged out.
+            <div th:if="${param.logout}" class="auth-alert auth-alert-info" role="alert">
+                <i class="fas fa-info-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span>You have been successfully logged out.</span>
             </div>
-            <div th:if="${param.success}" class="alert" style="color:#0f3e0f; background:#e9f7ef;">
-                Registration successful! Welcome aboard.
+            <div th:if="${param.success}" class="auth-alert auth-alert-success" role="alert">
+                <i class="fas fa-check-circle" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span>Registration successful! Welcome aboard.</span>
             </div>
 
-            <form th:action="@{/login}" method="post">
+            <form th:action="@{/login}" method="post" id="loginForm" novalidate>
+                
+                <!-- EMAIL ADDRESS -->
                 <div class="input-group">
-                    <i class="far fa-user"></i>
-                    <input type="email" name="username" class="form-control" placeholder="Email Address" required>
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="emailInput" name="username" class="form-control" placeholder="Email Address" autocomplete="email" required>
+                    <div id="emailFeedback" class="field-feedback"></div>
                 </div>
+
+                <!-- PASSWORD -->
                 <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="passwordInput" name="password" class="form-control" placeholder="Password" autocomplete="current-password" required>
+                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('passwordInput', 'togglePasswordIcon')" title="Show or hide password" aria-label="Toggle password visibility">
+                        <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                    </button>
+                    <div id="passwordFeedback" class="field-feedback"></div>
                 </div>
 
                 <div class="form-options">
                     <label class="remember-me">
-                        <input type="checkbox" style="accent-color: var(--brand-purple);"> Remember
+                        <input type="checkbox" name="remember-me"> Remember me
                     </label>
-                    <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+                    <a th:href="@{/forgot-password}" class="forgot-link">Forgot password?</a>
                 </div>
 
-                <button type="submit" class="btn-login">Login</button>
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" id="submitBtn" class="btn-login">
+                    <span id="btnText">Sign In</span>
+                    <i class="fas fa-arrow-right" id="btnArrow"></i>
+                    <i id="btnSpinner" class="fas fa-circle-notch fa-spin" style="display: none;"></i>
+                </button>
 
                 <div class="auth-footer">
-                    Don't have an account? <a href="/register">Sign up</a>
+                    Don't have an account? <a th:href="@{/register}">Sign up</a>
                 </div>
             </form>
         </div>
     </div>
 
+    <script>
+        // TOGGLE PASSWORD VISIBILITY
+        function togglePasswordVisibility(fieldId, iconId) {
+            const input = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // VALIDATION HELPERS
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginForm = document.getElementById('loginForm');
+
+        function setFeedback(element, feedbackElement, isValid, message) {
+            if (!feedbackElement) return;
+            if (isValid) {
+                element.classList.remove('is-invalid');
+                element.classList.add('is-valid');
+                feedbackElement.className = 'field-feedback success';
+                feedbackElement.innerText = message || '';
+            } else {
+                element.classList.remove('is-valid');
+                element.classList.add('is-invalid');
+                feedbackElement.className = 'field-feedback error';
+                feedbackElement.innerText = message || '';
+            }
+        }
+
+        // EMAIL VALIDATION
+        function validateEmail() {
+            const feedback = document.getElementById('emailFeedback');
+            const val = emailInput.value.trim();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$/;
+
+            if (val.length === 0) {
+                setFeedback(emailInput, feedback, false, 'Please enter your registered email address.');
+                return false;
+            }
+            if (!emailPattern.test(val)) {
+                setFeedback(emailInput, feedback, false, 'Please enter a valid email format (e.g., name@example.com).');
+                return false;
+            }
+            setFeedback(emailInput, feedback, true, '✓ Valid email format');
+            return true;
+        }
+
+        // PASSWORD VALIDATION
+        function validatePassword() {
+            const feedback = document.getElementById('passwordFeedback');
+            const val = passwordInput.value;
+
+            if (val.length === 0) {
+                setFeedback(passwordInput, feedback, false, 'Password is required.');
+                return false;
+            }
+            setFeedback(passwordInput, feedback, true, '');
+            return true;
+        }
+
+        // REAL-TIME EVENT LISTENERS
+        emailInput.addEventListener('input', validateEmail);
+        emailInput.addEventListener('blur', validateEmail);
+
+        passwordInput.addEventListener('input', validatePassword);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        // FORM SUBMISSION HANDLER
+        loginForm.addEventListener('submit', function (e) {
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isEmailValid || !isPasswordValid) {
+                e.preventDefault();
+                if (!isEmailValid) emailInput.focus();
+                else if (!isPasswordValid) passwordInput.focus();
+                return false;
+            }
+
+            // Real-time button loading state (prevent duplicate submissions)
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnArrow = document.getElementById('btnArrow');
+            const btnSpinner = document.getElementById('btnSpinner');
+
+            submitBtn.disabled = true;
+            btnText.innerText = 'Signing In...';
+            if (btnArrow) btnArrow.style.display = 'none';
+            if (btnSpinner) btnSpinner.style.display = 'inline-block';
+
+            // Natural form submission proceeds to /login (Spring Security)
+        });
+    </script>
 </body>
 </html>
