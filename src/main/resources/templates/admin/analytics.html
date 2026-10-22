@@ -1,274 +1,414 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Premium Insights | SkillHub</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>Analytics & Intelligence | SkillHub Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-dark: #1a1a2e;
-            --card-bg: #16213e;
-            --accent-primary: #a435f0;
-            --accent-secondary: #0f3460;
-            --text-main: #e1e3e5;
-            --text-dim: #94a3b8;
-            --neon-purple: #bb86fc;
-            --neon-blue: #03dac6;
+        .stat-card.purple::before {
+            background: var(--secondary);
         }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'DM Sans', -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .dashboard-container {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header-section {
+        .activity-summary-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 2.5rem;
+            justify-content: space-between;
+            padding: 1.4rem 1.6rem;
+            background: var(--bg);
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            border-radius: 1rem;
+            margin-bottom: 1.2rem;
         }
 
-        .header-title h1 {
-            font-size: 2.5rem;
+        .activity-summary-info h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-muted);
             margin: 0;
-            background: linear-gradient(45deg, #fff, var(--neon-purple));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 2rem;
-        }
-
-        .metric-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-primary);
-        }
-
-        .metric-label {
-            color: var(--text-dim);
-            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
         }
 
-        .metric-value {
-            font-size: 2rem;
+        .activity-summary-info p {
+            font-size: 2.2rem;
             font-weight: 800;
-            color: white;
+            color: var(--text);
+            margin: 0.4rem 0 0 0;
+            line-height: 1;
         }
 
-        .metric-trend {
-            font-size: 0.8rem;
-            margin-top: 10px;
-        }
-
-        .trend-up { color: #00ff88; }
-        .trend-down { color: #ff4d4d; }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 25px;
-            margin-bottom: 2rem;
-        }
-
-        .chart-box {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .chart-header {
-            margin-bottom: 1.5rem;
+        .activity-icon-pill {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
         }
 
-        .chart-title {
-            font-weight: 700;
-            font-size: 1.25rem;
+        .progress-track {
+            width: 100%;
+            height: 1.2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10rem;
+            overflow: hidden;
+            margin: 1.6rem 0;
         }
 
-        .user-activity-box {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--highlight));
+            border-radius: 10rem;
+            transition: width 0.6s ease;
         }
 
-        .activity-stat {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.03);
-            padding: 1rem;
-            border-radius: 12px;
-        }
-
-        .activity-info h4 { margin: 0; font-size: 0.9rem; color: var(--text-dim); }
-        .activity-info p { margin: 5px 0 0 0; font-weight: 700; font-size: 1.2rem; }
-
-        .btn-premium {
-            background: var(--accent-primary);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-        }
-
-        .btn-premium:hover {
-            box-shadow: 0 0 20px rgba(164, 53, 240, 0.4);
-            filter: brightness(1.1);
+        @media print {
+            .admin-sidebar, .admin-topbar, .btn-primary-admin, .topbar-actions {
+                display: none !important;
+            }
+            .admin-body {
+                margin-left: 0 !important;
+            }
+            body {
+                background: #fff !important;
+            }
+            .panel, .stat-card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="dashboard-container">
-        
-        <div class="header-section">
-            <div class="header-title">
-                <a th:href="@{/admin/dashboard}" style="text-decoration: none; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px; display: block;">&larr; Back to Dashboard</a>
-                <h1>Admin Intelligence</h1>
-                <p style="color: var(--text-dim); margin-top: 10px;">Platform pulse & operational performance metrics.</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn-premium" onclick="window.print()">
-                    <i class="fas fa-download"></i> Generate PDF Report
-                </button>
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
             </div>
         </div>
 
-        <!-- Metric Summary -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-label">Total Users</div>
-                <div class="metric-value" th:text="${totalUsers}">0</div>
-                <div class="metric-trend trend-up"><i class="fas fa-arrow-up"></i> 12.4% vs prev month</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Total Enrollments</div>
-                <div class="metric-value" th:text="${totalEnrollments}">0</div>
-                <div class="metric-trend trend-up"><i class="fas fa-arrow-up"></i> 8.1% organic growth</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Active Courses</div>
-                <div class="metric-value" th:text="${totalCourses}">0</div>
-                <div class="metric-trend" style="color: var(--neon-blue);">All systems operational</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Instructors</div>
-                <div class="metric-value" th:text="${totalInstructors}">0</div>
-                <div class="metric-trend">Certified global reach</div>
-            </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i> Users
+            </a>
+
+            <a href="/admin/vendors" class="nav-item">
+                <i class="fas fa-store"></i> Vendors
+            </a>
+
+            <a href="/admin/courses" class="nav-item">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <a href="/admin/analytics" class="nav-item active">
+                <i class="fas fa-chart-line"></i> Analytics
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Certifications</div>
+
+            <a href="/admin/professional-exams" class="nav-item">
+                <i class="fas fa-award"></i> Professional Exams
+            </a>
+
+            <a href="/admin/professional-exams/applications" class="nav-item">
+                <i class="fas fa-id-card"></i> Exam Applications
+            </a>
+
+            <a href="/admin/professional-exams/question-bank" class="nav-item">
+                <i class="fas fa-database"></i> Question Bank
+            </a>
+
+            <a href="/admin/professional-exams/results" class="nav-item">
+                <i class="fas fa-certificate"></i> Results & Certs
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+
+            <a href="/admin/broadcast" class="nav-item">
+                <i class="fas fa-envelope"></i> Broadcast Email
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}" class="logout-btn" style="text-decoration: none; display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 500;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
 
-        <!-- Main Charts Section -->
-        <div class="charts-grid">
-            <!-- Enrollment Trajectory -->
-            <div class="chart-box">
-                <div class="chart-header">
-                    <div class="chart-title">Enrollment Trajectory</div>
-                    <select style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 5px;">
-                        <option>Last 7 Days</option>
-                        <option>Last 30 Days</option>
-                    </select>
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="topbar-title">Analytics & Intelligence</div>
+
+            <form class="topbar-search" action="/home" method="get">
+                <i class="fas fa-search"></i>
+                <input type="text" name="query" placeholder="Search analytics, courses, users...">
+            </form>
+
+            <div class="topbar-actions" style="display: flex; align-items: center; gap: 1.5rem;">
+                <a href="/notifications" style="position: relative; color: #a78bfa; font-size: 1.4rem; text-decoration: none; display: flex; align-items: center;" title="Notifications">
+                    <i class="far fa-bell"></i>
+                    <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}" 
+                          th:text="${unreadNotificationCount}" 
+                          style="position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; font-size: 0.75rem; font-weight: bold; border-radius: 50%; padding: 2px 6px; border: 2px solid white;">0</span>
+                </a>
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${#strings.substring(user.name,0,1)}" th:if="${user != null}">A</span>
+                    <span th:unless="${user != null}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Admin Intelligence</h1>
+                    <p>Platform pulse, user engagement, and operational performance metrics.</p>
                 </div>
-                <canvas id="enrollmentChart" height="120"></canvas>
+                <div class="page-header-actions">
+                    <button class="btn-primary-admin" onclick="window.print()">
+                        <i class="fas fa-file-pdf"></i> Generate PDF Report
+                    </button>
+                </div>
             </div>
 
-            <!-- User Segmentation / Activity -->
-            <div class="chart-box">
-                <div class="chart-title" style="margin-bottom: 2rem;">Member Engagement</div>
-                <div class="user-activity-box">
-                    <div class="activity-stat">
-                        <div class="activity-info">
-                            <h4>Active Members</h4>
-                            <p th:text="${activeUsers}">0</p>
+            <!-- Stat Cards -->
+            <div class="stats-grid">
+
+                <!-- Total Users -->
+                <div class="stat-card blue">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Total Users</span>
+                        <div class="stat-icon-wrap bg-blue"><i class="fas fa-users"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${totalUsers}">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>12.4% vs prev month</span>
+                    </div>
+                    <a href="/admin/users" class="stat-link">Manage Users <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Total Enrollments -->
+                <div class="stat-card purple">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Total Enrollments</span>
+                        <div class="stat-icon-wrap" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;"><i class="fas fa-user-graduate"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${totalEnrollments}">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>8.1% organic growth</span>
+                    </div>
+                    <a href="/admin/courses" class="stat-link">View Courses <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Active Courses -->
+                <div class="stat-card green">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Active Courses</span>
+                        <div class="stat-icon-wrap bg-green"><i class="fas fa-graduation-cap"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${totalCourses}">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-check-circle"></i>
+                        <span>All systems operational</span>
+                    </div>
+                    <a href="/admin/courses" class="stat-link">Manage Courses <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Instructors -->
+                <div class="stat-card orange">
+                    <div class="stat-card-header">
+                        <span class="stat-label">Instructors</span>
+                        <div class="stat-icon-wrap bg-orange"><i class="fas fa-chalkboard-user"></i></div>
+                    </div>
+                    <div class="stat-value" th:text="${totalInstructors}">0</div>
+                    <div class="stat-change up">
+                        <i class="fas fa-certificate"></i>
+                        <span>Certified global reach</span>
+                    </div>
+                    <a href="/admin/vendors" class="stat-link">Manage Vendors <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+            </div>
+
+            <!-- Content Grid 1: Enrollment Trajectory & Member Engagement -->
+            <div class="content-grid">
+
+                <!-- Enrollment Trajectory Chart -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-chart-line" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                            Enrollment Trajectory
                         </div>
-                        <i class="fas fa-user-check" style="color: #00ff88; font-size: 1.5rem;"></i>
+                        <span style="font-size: 1.2rem; font-weight: 600; color: var(--text-muted); background: var(--bg); padding: 0.4rem 1rem; border-radius: 0.6rem; border: 1px solid var(--border);">
+                            Last 7 Days
+                        </span>
                     </div>
-                    <div class="activity-stat">
-                        <div class="activity-info">
-                            <h4>Inactive Members</h4>
-                            <p th:text="${inactiveUsers}">0</p>
+                    <div class="panel-body">
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="enrollmentChart"></canvas>
                         </div>
-                        <i class="fas fa-user-clock" style="color: #6a6f73; font-size: 1.5rem;"></i>
-                    </div>
-                    <div style="height: 180px;">
-                        <canvas id="activityChart"></canvas>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="charts-grid" style="grid-template-columns: 1fr 1fr;">
-            <!-- Category Popularity -->
-            <div class="chart-box">
-                <div class="chart-title" style="margin-bottom: 1.5rem;">Popular Categories</div>
-                <canvas id="categoryChart" height="150"></canvas>
-            </div>
-
-            <!-- Transactions / Recent Stats -->
-            <div class="chart-box">
-                <div class="chart-title" style="margin-bottom: 1.5rem;">Growth Momentum</div>
-                <div style="padding: 2rem; text-align: center; background: rgba(255,255,255,0.02); border-radius: 12px;">
-                    <i class="fas fa-rocket" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 1rem;"></i>
-                    <h3 style="margin:0;">Target: 10k Enrollments</h3>
-                    <div style="width: 100%; height: 10px; background: #333; border-radius: 5px; margin: 1.5rem 0;">
-                        <div th:style="'width: ' + (${totalEnrollments} * 100 / 10000) + '%; height: 100%; background: var(--accent-primary); border-radius: 5px;'"></div>
+                <!-- Member Engagement Doughnut -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-users" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                            Member Engagement
+                        </div>
                     </div>
-                    <p style="color: var(--text-dim);">You are performing 23% better than similar platforms this week.</p>
-                </div>
-            </div>
-        </div>
+                    <div class="panel-body">
+                        <div class="activity-summary-row">
+                            <div class="activity-summary-info">
+                                <h4>Active Members</h4>
+                                <p th:text="${activeUsers}">0</p>
+                            </div>
+                            <div class="activity-icon-pill" style="background: rgba(39, 174, 96, 0.12); color: var(--success);">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
 
+                        <div class="activity-summary-row">
+                            <div class="activity-summary-info">
+                                <h4>Inactive Members</h4>
+                                <p th:text="${inactiveUsers}">0</p>
+                            </div>
+                            <div class="activity-icon-pill" style="background: rgba(139, 92, 246, 0.12); color: var(--text-muted);">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                        </div>
+
+                        <div style="position: relative; height: 180px; width: 100%; margin-top: 1.6rem;">
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Content Grid 2: Popular Categories & Growth Momentum -->
+            <div class="content-grid">
+
+                <!-- Popular Categories Bar Chart -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-layer-group" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                            Popular Categories
+                        </div>
+                        <span style="font-size: 1.2rem; color: var(--text-muted);">By Student Enrollments</span>
+                    </div>
+                    <div class="panel-body">
+                        <div style="position: relative; height: 260px; width: 100%;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Growth Momentum Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-bullseye" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                            Growth Momentum
+                        </div>
+                    </div>
+                    <div class="panel-body" style="text-align: center; padding: 3rem 2.4rem;">
+                        <div style="width: 6.4rem; height: 6.4rem; border-radius: 50%; background: var(--bg); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.6rem; border: 1.5px solid var(--border);">
+                            <i class="fas fa-rocket" style="font-size: 2.8rem; color: var(--secondary);"></i>
+                        </div>
+                        <h3 style="font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 0.6rem;">Milestone: 10,000 Enrollments</h3>
+                        <p style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 1.6rem;">
+                            Current Progress: <strong style="color: var(--secondary);" th:text="${totalEnrollments}">0</strong> / 10,000
+                        </p>
+
+                        <div class="progress-track">
+                            <div class="progress-fill" th:style="'width: ' + (${totalEnrollments} * 100 / 10000) + '%;'"></div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.8rem; font-size: 1.2rem; color: var(--success); font-weight: 600; margin-top: 1.2rem;">
+                            <i class="fas fa-arrow-trend-up"></i>
+                            <span>Platform enrollment pace is exceeding weekly baseline targets.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
     </div>
 
-    <!-- Chart Scripts -->
+    <!-- ══ MOBILE SIDEBAR TOGGLE & CHARTS ENGINE ══ -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        
+
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Global Chart.js Font & Theme Defaults
+        Chart.defaults.font.family = "'Poppins', sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#2E1065';
+
         // 1. Enrollment Line Chart
         const enrollCtx = document.getElementById('enrollmentChart').getContext('2d');
         const enrollLabels = /*[[${enrollmentLabels}]]*/ [];
         const enrollValues = /*[[${enrollmentValues}]]*/ [];
+
+        const enrollGradient = enrollCtx.createLinearGradient(0, 0, 0, 260);
+        enrollGradient.addColorStop(0, 'rgba(139, 92, 246, 0.35)');
+        enrollGradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
 
         new Chart(enrollCtx, {
             type: 'line',
@@ -277,25 +417,54 @@
                 datasets: [{
                     label: 'New Enrollments',
                     data: enrollValues,
-                    borderColor: '#bb86fc',
-                    backgroundColor: 'rgba(187, 134, 252, 0.1)',
+                    borderColor: '#8B5CF6',
+                    backgroundColor: enrollGradient,
                     fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#bb86fc',
-                    pointRadius: 4
+                    tension: 0.38,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: false } },
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#2E1065',
+                        titleColor: '#EDE9FE',
+                        bodyColor: '#ffffff',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
                 scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            color: '#8B5CF6'
+                        },
+                        grid: {
+                            color: 'rgba(167, 139, 250, 0.18)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#8B5CF6'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
             }
         });
 
-        // 2. User Activity Doughnut
+        // 2. User Activity Doughnut Chart
         const activeCtx = document.getElementById('activityChart').getContext('2d');
         const activeCount = /*[[${activeUsers}]]*/ 0;
         const inactiveCount = /*[[${inactiveUsers}]]*/ 0;
@@ -303,18 +472,29 @@
         new Chart(activeCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Active', 'Inactive'],
+                labels: ['Active Members', 'Inactive Members'],
                 datasets: [{
                     data: [activeCount, inactiveCount],
-                    backgroundColor: ['#03dac6', '#2d2f31'],
-                    borderWidth: 0,
-                    hoverOffset: 10
+                    backgroundColor: ['#27ae60', '#C4B5FD'],
+                    borderWidth: 2,
+                    borderColor: '#EDE9FE',
+                    hoverOffset: 6
                 }]
             },
             options: {
-                cutout: '80%',
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 20 } }
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#2E1065',
+                            padding: 14,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    }
                 }
             }
         });
@@ -331,24 +511,50 @@
                 datasets: [{
                     label: 'Enrollments',
                     data: catValues,
-                    backgroundColor: 'rgba(164, 53, 240, 0.6)',
+                    backgroundColor: '#8B5CF6',
                     borderRadius: 8,
-                    maxBarThickness: 40
+                    maxBarThickness: 36
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: false } },
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#2E1065',
+                        titleColor: '#EDE9FE',
+                        bodyColor: '#ffffff',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
                 scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            color: '#8B5CF6'
+                        },
+                        grid: {
+                            color: 'rgba(167, 139, 250, 0.18)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#8B5CF6'
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
             }
         });
 
         /*]]>*/
     </script>
+
 </body>
 
 </html>
-

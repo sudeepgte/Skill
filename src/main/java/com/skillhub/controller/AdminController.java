@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Controller
@@ -297,8 +300,24 @@ public class AdminController {
     }
 
     @PostMapping("/courses/delete")
-    public String deleteCourse(@RequestParam("id") Long id) {
-        courseService.deleteCourse(id);
+    public String deleteCourse(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            courseService.deleteCourse(id);
+            redirectAttributes.addFlashAttribute("success", "Course deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("warning", "Error deleting course: " + e.getMessage());
+        }
+        return "redirect:/admin/courses";
+    }
+
+    @GetMapping("/courses/{id}/delete")
+    public String deleteCourseGet(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            courseService.deleteCourse(id);
+            redirectAttributes.addFlashAttribute("success", "Course deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("warning", "Error deleting course: " + e.getMessage());
+        }
         return "redirect:/admin/courses";
     }
 
@@ -308,82 +327,326 @@ public class AdminController {
         return "redirect:/admin/courses";
     }
 
-
     @GetMapping("/courses/create")
-    public String createDraftAndRedirect(Principal principal) {
-        User instructor = userService.findByEmail(principal.getName());
-
+    public String showCreateCourseForm(Model model, Principal principal) {
         Course course = new Course();
-        course.setTitle("Untitled Course");
-        course.setInstructor(instructor);
-        course.setPublished(true);
-        course.setViewCount(0L);
-        course.setPrice(0.0); // Default to avoid null errors
-
-        courseService.saveCourse(course);
-
-        return "redirect:/admin/courses/edit?id=" + course.getId();
-    }
-
-    @GetMapping("/courses/edit")
-    public String editCourse(@RequestParam("id") Long id, Model model) {
-        Course course = courseService.getCourseById(id);
+        course.setLevel("All Levels");
+        course.setLanguage("English");
+        course.setFormat("Video Course");
+        course.setTeachingMethod("Self-paced");
+        course.setAccessDuration("LIFETIME");
+        course.setPrice(0.0);
+        course.setSections(new ArrayList<>());
         model.addAttribute("course", course);
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("subcategoriesMap", categoryService.getCategorySubcategoriesMap());
+        model.addAttribute("categoryFieldsMap", categoryService.getAllCategoryFieldDefinitions());
+        model.addAttribute("categoryDataMap", new HashMap<String, String>());
+        model.addAttribute("isEdit", false);
+        model.addAttribute("isAdmin", true);
+        return "admin/course_form";
+    }
+
+    @GetMapping({"/courses/edit", "/courses/{id}/edit"})
+    public String editCourse(
+            @RequestParam(value = "id", required = false) Long paramId,
+            @PathVariable(value = "id", required = false) Long pathId,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        Long id = paramId != null ? paramId : pathId;
+        if (id == null) {
+            return "redirect:/admin/courses/create";
+        }
+        Course course = courseService.getCourseById(id);
+        if (course == null) {
+            redirectAttributes.addFlashAttribute("warning", "Course not found.");
+            return "redirect:/admin/courses";
+        }
+        model.addAttribute("course", course);
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("subcategoriesMap", categoryService.getCategorySubcategoriesMap());
+        model.addAttribute("categoryFieldsMap", categoryService.getAllCategoryFieldDefinitions());
+        model.addAttribute("categoryDataMap", course.getCategoryDataMap() != null ? course.getCategoryDataMap() : new HashMap<String, String>());
+        model.addAttribute("isEdit", true);
+        model.addAttribute("isAdmin", true);
         return "admin/course_form";
     }
 
     @PostMapping("/courses/save")
     public String saveCourse(
-            @ModelAttribute("course") Course course,
-            @RequestParam(name = "videoFile", required = false) MultipartFile videoFile,
-            @RequestParam(name = "youtubeUrl", required = false) String youtubeUrl,
-            Principal principal) {
+            @ModelAttribute Course course,
+            @RequestParam(value = "action", defaultValue = "draft") String action,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+            @RequestParam(value = "promoVideo", required = false) MultipartFile promoVideo,
+            @RequestParam(value = "resourceFiles", required = false) MultipartFile[] resourceFiles,
+            @RequestParam(value = "resourceTitles", required = false) String[] resourceTitles,
+            @RequestParam(value = "resourceTypes", required = false) String[] resourceTypes,
+            @RequestParam(value = "resourceDescriptions", required = false) String[] resourceDescriptions,
+            @RequestParam Map<String, String> allParams,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
 
-        if (course.getId() != null) {
-            // Update existing course
-            Course existing = courseService.getCourseById(course.getId());
-            if (existing != null) {
-                existing.setTitle(course.getTitle());
-                existing.setSubtitle(course.getSubtitle());
-                existing.setCategory(course.getCategory());
-                existing.setSubCategory(course.getSubCategory());
-                existing.setPrice(course.getPrice());
-                existing.setLevel(course.getLevel());
-                existing.setLanguage(course.getLanguage());
-                existing.setImageUrl(course.getImageUrl());
-                existing.setLongDescription(course.getLongDescription());
-                existing.setLearningObjectives(course.getLearningObjectives());
-                existing.setRequirements(course.getRequirements());
+        String email = principal != null ? principal.getName() : null;
+        User adminUser = email != null ? userService.findByEmail(email) : null;
 
-                // Handle Video Update
-                if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
-                    existing.setVideoUrl(youtubeUrl);
-                } else if (videoFile != null && !videoFile.isEmpty()) {
-                    String path = fileStorageService.store(videoFile);
-                    existing.setVideoUrl(path);
-                }
+        Course targetCourse;
+        boolean isNew = (course.getId() == null);
 
-                // Preserve instructor, published status, view count, etc.
-                courseService.saveCourse(existing);
-            }
-        } else {
-            // Create new course
-            User instructor = userService.findByEmail(principal.getName());
-            course.setInstructor(instructor);
-            course.setPublished(true); // Always published
-
-            // Handle Video Upload
-            if (youtubeUrl != null && !youtubeUrl.trim().isEmpty()) {
-                course.setVideoUrl(youtubeUrl);
-            } else if (videoFile != null && !videoFile.isEmpty()) {
-                String path = fileStorageService.store(videoFile);
-                course.setVideoUrl(path);
-            }
-
-            courseService.saveCourse(course);
+        if (course.getPrice() != null && course.getPrice() < 0) {
+            redirectAttributes.addFlashAttribute("error", "Course price cannot be negative.");
+            return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + course.getId();
         }
-        return "redirect:/admin/courses/edit?id=" + course.getId();
+
+        // Validate file types before processing
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            String mimeType = thumbnail.getContentType();
+            if (mimeType == null || !mimeType.startsWith("image/")) {
+                redirectAttributes.addFlashAttribute("error", "Thumbnail must be an image file.");
+                return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + course.getId();
+            }
+        }
+        if (promoVideo != null && !promoVideo.isEmpty()) {
+            String mimeType = promoVideo.getContentType();
+            if (mimeType == null || !mimeType.startsWith("video/")) {
+                redirectAttributes.addFlashAttribute("error", "Promotional video must be a valid video file.");
+                return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + course.getId();
+            }
+        }
+
+        if (isNew) {
+            targetCourse = course;
+            targetCourse.setInstructor(adminUser);
+            targetCourse.setViewCount(0L);
+        } else {
+            targetCourse = courseService.getCourseById(course.getId());
+            if (targetCourse == null) {
+                redirectAttributes.addFlashAttribute("warning", "Course not found.");
+                return "redirect:/admin/courses";
+            }
+            // Copy editable fields
+            targetCourse.setTitle(course.getTitle());
+            targetCourse.setSubtitle(course.getSubtitle());
+            targetCourse.setDescription(course.getDescription());
+            targetCourse.setLongDescription(course.getLongDescription());
+            targetCourse.setCategory(course.getCategory());
+            targetCourse.setSubCategory(course.getSubCategory());
+            targetCourse.setLevel(course.getLevel());
+            targetCourse.setLanguage(course.getLanguage());
+            targetCourse.setFormat(course.getFormat());
+            targetCourse.setTeachingMethod(course.getTeachingMethod());
+            targetCourse.setTags(course.getTags());
+            targetCourse.setPrice(course.getPrice());
+            targetCourse.setSalePrice(course.getSalePrice());
+            targetCourse.setLearningObjectives(course.getLearningObjectives());
+            targetCourse.setRequirements(course.getRequirements());
+            targetCourse.setTargetAudience(course.getTargetAudience());
+            targetCourse.setRequiredExperience(course.getRequiredExperience());
+            targetCourse.setExpectedSkills(course.getExpectedSkills());
+            targetCourse.setAgeRange(course.getAgeRange());
+            targetCourse.setAccessibilityRequirements(course.getAccessibilityRequirements());
+            targetCourse.setAccessDuration(course.getAccessDuration());
+        }
+
+        // Process thumbnail
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            targetCourse.setImageUrl(fileStorageService.store(thumbnail));
+        } else if (isNew || targetCourse.getImageUrl() == null || targetCourse.getImageUrl().trim().isEmpty() || targetCourse.getImageUrl().contains("udemycdn.com")) {
+            targetCourse.setImageUrl("/images/course-placeholder.jpg");
+        }
+
+        // Process promotional video
+        if (promoVideo != null && !promoVideo.isEmpty()) {
+            targetCourse.setVideoUrl(fileStorageService.store(promoVideo));
+        }
+
+        targetCourse.setLastUpdated(LocalDateTime.now().toLocalDate().toString());
+
+        // Extract Category-Specific Fields from request
+        Map<String, String> catDataMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith("catData_")) {
+                String cleanKey = key.substring("catData_".length());
+                if (entry.getValue() != null && !entry.getValue().trim().isEmpty()) {
+                    catDataMap.put(cleanKey, entry.getValue().trim());
+                }
+            }
+        }
+        targetCourse.setCategoryDataMap(catDataMap);
+
+        // Validation rule: Must start with a letter for titles/descriptions if provided
+        Predicate<String> startsWithLetter = s -> s != null && !s.trim().isEmpty() && Character.isLetter(s.trim().charAt(0));
+
+        if (!startsWithLetter.test(targetCourse.getTitle())) {
+            redirectAttributes.addFlashAttribute("error", "Course Title must start with a letter.");
+            return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+        }
+
+        if (targetCourse.getDescription() != null && !targetCourse.getDescription().trim().isEmpty() && !startsWithLetter.test(targetCourse.getDescription())) {
+            redirectAttributes.addFlashAttribute("error", "Course Description must start with a letter.");
+            return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+        }
+
+        // Process Curriculum Videos and Validate Titles
+        if (course.getSections() != null && !course.getSections().isEmpty()) {
+            List<CourseSection> validSections = new ArrayList<>();
+            for (CourseSection section : course.getSections()) {
+                if (section.getTitle() != null && !section.getTitle().trim().isEmpty()) {
+                    if (!startsWithLetter.test(section.getTitle())) {
+                        redirectAttributes.addFlashAttribute("error", "Section titles must start with a letter.");
+                        return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+                    }
+                    section.setCourse(targetCourse);
+                    if (section.getLectures() != null) {
+                        List<Lecture> validLectures = new ArrayList<>();
+                        for (Lecture lecture : section.getLectures()) {
+                            if (lecture.getTitle() != null && !lecture.getTitle().trim().isEmpty()) {
+                                if (!startsWithLetter.test(lecture.getTitle())) {
+                                    redirectAttributes.addFlashAttribute("error", "Lecture titles must start with a letter.");
+                                    return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+                                }
+                                if (lecture.getVideoFile() != null && !lecture.getVideoFile().isEmpty()) {
+                                    String lecMimeType = lecture.getVideoFile().getContentType();
+                                    if (lecMimeType == null || !lecMimeType.startsWith("video/")) {
+                                        redirectAttributes.addFlashAttribute("error", "Lecture video must be a valid video file.");
+                                        return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+                                    }
+                                    lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
+                                }
+                                lecture.setSection(section);
+                                validLectures.add(lecture);
+                            }
+                        }
+                        section.setLectures(validLectures);
+                    }
+                    validSections.add(section);
+                }
+            }
+
+            if (isNew) {
+                targetCourse.setSections(validSections);
+            } else {
+                syncCourseCurriculum(targetCourse, validSections);
+            }
+        }
+
+        // Process Downloadable Course Resources if uploaded
+        if (resourceFiles != null && resourceFiles.length > 0) {
+            for (int i = 0; i < resourceFiles.length; i++) {
+                MultipartFile resFile = resourceFiles[i];
+                if (resFile != null && !resFile.isEmpty()) {
+                    String storedPath = fileStorageService.store(resFile);
+                    String resTitle = (resourceTitles != null && resourceTitles.length > i && resourceTitles[i] != null && !resourceTitles[i].trim().isEmpty())
+                            ? resourceTitles[i].trim() : resFile.getOriginalFilename();
+                    String resType = (resourceTypes != null && resourceTypes.length > i && resourceTypes[i] != null && !resourceTypes[i].trim().isEmpty())
+                            ? resourceTypes[i].trim() : "RESOURCE";
+                    String resDesc = (resourceDescriptions != null && resourceDescriptions.length > i && resourceDescriptions[i] != null)
+                            ? resourceDescriptions[i].trim() : "";
+
+                    CourseResource cr = new CourseResource(resTitle, resDesc, storedPath, resType, resFile.getSize(), targetCourse);
+                    targetCourse.addResource(cr);
+                }
+            }
+        }
+
+        // Action Decision: "submit" / "publish" vs "draft"
+        if ("submit".equalsIgnoreCase(action) || "publish".equalsIgnoreCase(action)) {
+            // Validate required fields for publishing
+            if (targetCourse.getDescription() == null || targetCourse.getDescription().trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Course description is required to publish.");
+                return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+            }
+            if (targetCourse.getCategory() == null || targetCourse.getCategory().getId() == null) {
+                redirectAttributes.addFlashAttribute("error", "Please select a Category before publishing.");
+                return isNew ? "redirect:/admin/courses/create" : "redirect:/admin/courses/edit?id=" + targetCourse.getId();
+            }
+
+            targetCourse.setStatus(CourseStatus.PUBLISHED);
+            targetCourse.setPublished(true);
+            targetCourse.setReviewedAt(LocalDateTime.now());
+            targetCourse.setRejectionReason(null);
+            courseService.saveCourse(targetCourse);
+            redirectAttributes.addFlashAttribute("success", "Course '" + targetCourse.getTitle() + "' published successfully!");
+        } else {
+            // Save as Draft
+            if (targetCourse.getStatus() != CourseStatus.PUBLISHED) {
+                targetCourse.setStatus(CourseStatus.DRAFT);
+                targetCourse.setPublished(false);
+            }
+            courseService.saveCourse(targetCourse);
+            redirectAttributes.addFlashAttribute("success", "Course draft saved successfully!");
+        }
+
+        return "redirect:/admin/courses";
+    }
+
+    private void syncCourseCurriculum(Course targetCourse, List<CourseSection> incomingSections) {
+        if (incomingSections == null || incomingSections.isEmpty()) {
+            targetCourse.getSections().clear();
+            return;
+        }
+
+        Map<Long, CourseSection> existingMap = new HashMap<>();
+        for (CourseSection sec : targetCourse.getSections()) {
+            if (sec.getId() != null) {
+                existingMap.put(sec.getId(), sec);
+            }
+        }
+
+        Set<Long> incomingIds = incomingSections.stream()
+                .map(CourseSection::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        targetCourse.getSections().removeIf(s -> s.getId() != null && !incomingIds.contains(s.getId()));
+
+        for (CourseSection incoming : incomingSections) {
+            if (incoming.getId() != null && existingMap.containsKey(incoming.getId())) {
+                CourseSection existing = existingMap.get(incoming.getId());
+                existing.setTitle(incoming.getTitle());
+                existing.setPosition(incoming.getPosition());
+                syncSectionLectures(existing, incoming.getLectures());
+            } else {
+                incoming.setCourse(targetCourse);
+                targetCourse.getSections().add(incoming);
+            }
+        }
+    }
+
+    private void syncSectionLectures(CourseSection existingSection, List<Lecture> incomingLectures) {
+        if (incomingLectures == null || incomingLectures.isEmpty()) {
+            existingSection.getLectures().clear();
+            return;
+        }
+
+        Map<Long, Lecture> existingMap = new HashMap<>();
+        for (Lecture lec : existingSection.getLectures()) {
+            if (lec.getId() != null) {
+                existingMap.put(lec.getId(), lec);
+            }
+        }
+
+        Set<Long> incomingIds = incomingLectures.stream()
+                .map(Lecture::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        existingSection.getLectures().removeIf(l -> l.getId() != null && !incomingIds.contains(l.getId()));
+
+        for (Lecture incoming : incomingLectures) {
+            if (incoming.getId() != null && existingMap.containsKey(incoming.getId())) {
+                Lecture existing = existingMap.get(incoming.getId());
+                existing.setTitle(incoming.getTitle());
+                existing.setPosition(incoming.getPosition());
+                existing.setDurationSeconds(incoming.getDurationSeconds());
+                if (incoming.getVideoUrl() != null && !incoming.getVideoUrl().isEmpty()) {
+                    existing.setVideoUrl(incoming.getVideoUrl());
+                }
+            } else {
+                incoming.setSection(existingSection);
+                existingSection.getLectures().add(incoming);
+            }
+        }
     }
 
     @GetMapping("/categories")
