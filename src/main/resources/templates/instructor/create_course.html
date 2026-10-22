@@ -1236,7 +1236,8 @@
     </div>
 
     <!-- ══ MAIN COURSE FORM ══ -->
-    <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data" id="courseForm">
+    <form th:action="@{/vendor/courses/save}" th:object="${course}" method="post" enctype="multipart/form-data" id="courseForm" novalidate>
+        <input type="hidden" name="action" id="courseAction" value="draft">
         <!-- Hidden identifier for edit mode -->
         <input type="hidden" th:field="*{id}" th:if="${course.id != null}">
 
@@ -1618,7 +1619,71 @@
 
                         <!-- Sections Accordion Container -->
                         <div id="sectionsContainer">
-                            <!-- Dynamic Section cards inserted by JavaScript -->
+                            <!-- Pre-populate existing sections in edit mode -->
+                            <div th:each="sec, secStat : ${course.sections}" class="section-card expanded" th:id="'section-' + ${secStat.index}">
+                                <input type="hidden" th:name="'sections[' + ${secStat.index} + '].id'" th:value="${sec.id}">
+                                <input type="hidden" th:name="'sections[' + ${secStat.index} + '].position'" th:value="${secStat.index}">
+                                <div class="section-card-header" th:onclick="'toggleSection(' + ${secStat.index} + ')'">
+                                    <div class="section-title-wrapper" onclick="event.stopPropagation()">
+                                        <span class="section-badge" th:text="'Module ' + ${secStat.count}">Module 1</span>
+                                        <input type="text" th:name="'sections[' + ${secStat.index} + '].title'" th:value="${sec.title}" class="section-title-input"
+                                               placeholder="e.g. Module title" required
+                                               oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                    </div>
+                                    <div class="section-actions" onclick="event.stopPropagation()">
+                                        <span class="status-pill status-draft" th:id="'secLectureBadge-' + ${secStat.index}" style="font-size: 0.72rem;"
+                                              th:text="${(sec.lectures != null ? sec.lectures.size() : 0) + ' Lectures'}">0 Lectures</span>
+                                        <button type="button" class="btn-icon-danger" th:onclick="'confirmRemoveSection(' + ${secStat.index} + ')'" title="Delete Module">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                        <button type="button" class="btn-secondary" style="padding: 4px 8px; border: none; font-size: 0.85rem;" th:onclick="'toggleSection(' + ${secStat.index} + ')'">
+                                            <i class="fas fa-chevron-down" th:id="'secChevron-' + ${secStat.index}"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="section-body" th:id="'secBody-' + ${secStat.index}">
+                                    <div class="lectures-list" th:id="'lectures-' + ${secStat.index}">
+                                        <div th:each="lec, lecStat : ${sec.lectures}" class="lecture-card" th:id="'lecture-' + ${secStat.index} + '-' + ${lecStat.index}">
+                                            <div class="lecture-top-row">
+                                                <span class="lecture-num-badge">
+                                                    <i class="fas fa-circle-play" style="color: var(--primary);"></i>
+                                                    <span th:text="'Lecture ' + ${secStat.count} + '.' + ${lecStat.count}">Lecture 1.1</span>
+                                                </span>
+                                                <button type="button" class="btn-icon-danger" th:onclick="'document.getElementById(\'lecture-' + ${secStat.index} + '-' + ${lecStat.index} + '\').remove(); recalculateCurriculum();'" title="Remove Lecture">
+                                                    <i class="fas fa-trash-can"></i>
+                                                </button>
+                                            </div>
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].id'" th:value="${lec.id}">
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].position'" th:value="${lecStat.index}">
+                                            <input type="hidden" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoUrl'" th:value="${lec.videoUrl}">
+                                            <div class="grid-2 form-row">
+                                                <div>
+                                                    <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
+                                                    <input type="text" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].title'" th:value="${lec.title}" class="input-text"
+                                                           placeholder="e.g. Setting up Development Environment" required
+                                                           oninput="validateAlphaStart(this); recalculateCurriculum();">
+                                                </div>
+                                                <div>
+                                                    <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
+                                                    <input type="number" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].durationSeconds'" th:value="${lec.durationSeconds}" class="input-number"
+                                                           min="0" oninput="recalculateCurriculum();">
+                                                </div>
+                                            </div>
+                                            <div class="form-row" style="margin-bottom: 0;">
+                                                <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4)</label>
+                                                <input type="file" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoFile'" accept="video/*" class="input-text" style="padding-top: 8px;">
+                                                <div th:if="${lec.videoUrl != null and !#strings.isEmpty(lec.videoUrl)}" style="font-size: 0.75rem; color: var(--success); margin-top: 4px;">
+                                                    <i class="fas fa-check-circle"></i> Video uploaded
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-dashed-add" th:onclick="'addLecture(' + ${secStat.index} + ')'" style="padding: 8px 14px; font-size: 0.82rem;">
+                                        <i class="fas fa-plus"></i> <span th:text="'Add Lecture to Module ' + ${secStat.count}">Add Lecture</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <button type="button" class="btn-dashed-add" onclick="addSection()" style="padding: 14px 20px; font-size: 0.92rem; margin-top: 1rem;">
@@ -1880,7 +1945,7 @@
                 <a href="/vendor/dashboard?tab=courses" class="btn-secondary">
                     <i class="fas fa-arrow-left"></i> Dashboard
                 </a>
-                <button type="submit" name="action" value="draft" class="btn-secondary" id="btnSaveDraftFooter">
+                <button type="button" class="btn-secondary" id="btnSaveDraftFooter" onclick="submitCourseForm('draft')">
                     <i class="fas fa-floppy-disk"></i> Save Draft
                 </button>
                 <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
@@ -1897,7 +1962,7 @@
                     Next Step <i class="fas fa-chevron-right"></i>
                 </button>
 
-                <button type="submit" name="action" value="submit" class="btn-submit-review" id="btnSubmitReview" style="display: none;">
+                <button type="button" class="btn-submit-review" id="btnSubmitReview" style="display: none;" onclick="submitCourseForm('submit')">
                     <i class="fas fa-paper-plane"></i> Submit for Review
                 </button>
             </div>
@@ -2253,36 +2318,6 @@
 
         // ── CURRICULUM ACCORDION BUILDER ──
         let sectionCount = 0;
-        function addSection() {
-            const container = document.getElementById('sectionsContainer');
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'form-group section-item';
-            sectionDiv.style = 'border: 1px solid var(--border); padding: 1.5rem; background: var(--bg-gray); margin-bottom: 2rem; position: relative;';
-            sectionDiv.id = `section-${sectionCount}`;
-            
-            sectionDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <label style="margin:0;">Section ${sectionCount + 1}</label>
-                    <button type="button" class="btn-outline" onclick="removeSection(${sectionCount})" style="padding: 5px 10px; color: red; border-color: red; font-size: 0.8rem;">Remove</button>
-                </div>
-                <input type="hidden" name="sections[${sectionCount}].position" value="${sectionCount}">
-                <input type="text" name="sections[${sectionCount}].title" placeholder="e.g. Introduction to React" required style="margin-bottom: 1.5rem;" oninput="validateAlphaStart(this)">
-                <div id="lectures-${sectionCount}" style="padding-left: 2rem;">
-                    <!-- Lectures go here -->
-                </div>
-                <button type="button" class="btn-outline" onclick="addLecture(${sectionCount})" style="margin-top: 1rem; font-size: 0.9rem; padding: 8px 15px;">
-                    <i class="fas fa-plus"></i> Add Lecture
-                </button>
-            `;
-            container.appendChild(sectionDiv);
-            sectionCount++;
-        }
-
-        function removeSection(id) {
-            const el = document.getElementById(`section-${id}`);
-            if (el) el.remove();
-        }
-
         let lectureCounts = {};
 
         function addSection(title = '') {
@@ -2293,6 +2328,7 @@
             sectionDiv.id = `section-${secIdx}`;
 
             sectionDiv.innerHTML = `
+                <input type="hidden" name="sections[${secIdx}].position" value="${secIdx}">
                 <div class="section-card-header" onclick="toggleSection(${secIdx})">
                     <div class="section-title-wrapper" onclick="event.stopPropagation()">
                         <span class="section-badge">Module ${secIdx + 1}</span>
@@ -2366,10 +2402,6 @@
                     </button>
                 </div>
                 <input type="hidden" name="sections[${secId}].lectures[${lecId}].position" value="${lecId}">
-                <div class="form-group">
-                    <label style="font-size: 0.85rem;">Title</label>
-                    <input type="text" name="sections[${secId}].lectures[${lecId}].title" placeholder="e.g. Setting up environment" required oninput="validateAlphaStart(this)">
-
                 <div class="grid-2 form-row">
                     <div>
                         <label class="field-label" style="font-size: 0.8rem;">Lecture Title <span class="field-required">*</span></label>
@@ -2663,19 +2695,64 @@
             if (e.key === 'Escape') closeLivePreviewModal();
         });
 
-        // ── FORM SUBMIT SERIALIZATION & DEBOUNCE ──
-        document.getElementById('courseForm').addEventListener('submit', function(e) {
+        // ── FORM SUBMISSION ENGINE (DRAFT & REVIEW) ──
+        function submitCourseForm(actionType) {
+            const form = document.getElementById('courseForm');
+            const actionInput = document.getElementById('courseAction');
+            if (actionInput) actionInput.value = actionType;
+
             // Aggregate learning objectives into newline-separated string
             const inputs = document.querySelectorAll('.objective-input');
             const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
-            document.getElementById('finalObjectives').value = objectives.join('\n');
+            const finalObj = document.getElementById('finalObjectives');
+            if (finalObj) finalObj.value = objectives.join('\n');
+
+            const titleEl = document.getElementById('title');
+            let titleVal = titleEl ? titleEl.value.trim() : '';
+
+            if (actionType === 'submit') {
+                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
+                    alert('Please enter a valid Course Title starting with a letter.');
+                    switchStep('basic');
+                    if (titleEl) titleEl.focus();
+                    return false;
+                }
+                const descEl = document.getElementById('description');
+                const descVal = descEl ? descEl.value.trim() : '';
+                if (!descVal || !/^[a-zA-Z]/.test(descVal)) {
+                    alert('Please enter a Course Description starting with a letter.');
+                    switchStep('basic');
+                    if (descEl) descEl.focus();
+                    return false;
+                }
+                const catEl = document.getElementById('category');
+                if (!catEl || !catEl.value) {
+                    alert('Please select a Course Category before submitting for review.');
+                    switchStep('basic');
+                    if (catEl) catEl.focus();
+                    return false;
+                }
+            } else {
+                // Draft mode: if title is empty or does not start with a letter, give a fallback title so the server accepts it
+                if (!titleVal || !/^[a-zA-Z]/.test(titleVal)) {
+                    if (titleEl) titleEl.value = 'Draft Course ' + new Date().toLocaleDateString();
+                }
+            }
 
             // Prevent duplicate clicks
-            const submitButtons = document.querySelectorAll('button[type="submit"]');
-            submitButtons.forEach(btn => {
-                btn.style.opacity = '0.7';
-                btn.style.pointerEvents = 'none';
-            });
+            const btnSave = document.getElementById('btnSaveDraftFooter');
+            const btnSub = document.getElementById('btnSubmitReview');
+            if (btnSave) { btnSave.style.opacity = '0.7'; btnSave.style.pointerEvents = 'none'; }
+            if (btnSub) { btnSub.style.opacity = '0.7'; btnSub.style.pointerEvents = 'none'; }
+
+            form.submit();
+        }
+
+        document.getElementById('courseForm').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.objective-input');
+            const objectives = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+            const finalObj = document.getElementById('finalObjectives');
+            if (finalObj) finalObj.value = objectives.join('\n');
         });
 
         // ── INITIALIZATION ──
@@ -2696,12 +2773,17 @@
                 onCategoryChanged();
             }
 
-            // Initial section if brand new course
+            // Initial section if brand new course, or count existing sections
             const sectionsContainer = document.getElementById('sectionsContainer');
-            if (sectionsContainer.children.length === 0) {
+            const existingCards = sectionsContainer.querySelectorAll('.section-card');
+            if (existingCards.length === 0) {
                 const s0 = addSection('Foundations & Course Roadmap');
                 addLecture(s0, 'Welcome to the Course & Architecture Overview', 300);
             } else {
+                sectionCount = existingCards.length;
+                existingCards.forEach((sec, idx) => {
+                    lectureCounts[idx] = sec.querySelectorAll('.lecture-card').length;
+                });
                 recalculateCurriculum();
             }
 

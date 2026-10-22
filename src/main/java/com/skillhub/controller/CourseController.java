@@ -64,6 +64,7 @@ public class CourseController {
     @Autowired
     private com.skillhub.repository.ExamAttemptRepository examAttemptRepository;
 
+    @Transactional
     @GetMapping({ "/course/{id}", "/user/course/{id}" })
     public String getCourseDetails(@PathVariable("id") Long id, Model model, Principal principal) {
         // Fetch entity
@@ -102,15 +103,36 @@ public class CourseController {
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
-        // Check Enrollment Status
+        // Check Enrollment & Access Status
         boolean isEnrolled = false;
         com.skillhub.model.User user = null;
         if (principal != null) {
             String email = principal.getName();
             user = userService.findByEmail(email);
             if (user != null) {
-                // Corrected method name: findByStudentAndCourse
-                isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
+                boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
+                boolean isAdmin = "ADMIN".equals(user.getRole());
+                boolean isFree = (course.getPrice() == null || course.getPrice() <= 0);
+
+                if (isOwner || isAdmin) {
+                    isEnrolled = true;
+                } else if (isFree) {
+                    isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
+                } else {
+                    // Paid course: Student must have completed payment successfully
+                    boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
+                    if (hasPaid) {
+                        isEnrolled = true;
+                        // Ensure enrollment record exists if paid
+                        if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
+                            enrollmentService.enrollUser(user, course.getId());
+                        }
+                    } else {
+                        // Purge any unauthorized unpaid enrollment record
+                        enrollmentRepository.deleteByStudentAndCourse(user, course);
+                        isEnrolled = false;
+                    }
+                }
             }
         }
 
@@ -192,6 +214,7 @@ public class CourseController {
         return "course-details";
     }
 
+    @Transactional
     @GetMapping({ "/course/{id}/learn", "/user/course/{id}/learn" })
     public String getLearningRoom(@PathVariable("id") Long id,
             @RequestParam(name = "lectureId", required = false) Long lectureId,
@@ -207,13 +230,32 @@ public class CourseController {
         }
 
         com.skillhub.model.User user = userService.findByEmail(principal.getName());
-        boolean isEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
         boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
         boolean isAdmin = "ADMIN".equals(user.getRole());
+        boolean isFree = (course.getPrice() == null || course.getPrice() <= 0);
 
-        // Students must be enrolled; instructors/admins can preview
-        if (!isEnrolled && !isOwner && !isAdmin) {
-            return "redirect:/course/" + id + "?error=PleaseEnroll";
+        // Security & Access Control:
+        // Instructors and Admins can preview.
+        // Paid courses strictly require verified payment via Razorpay.
+        // Free courses can be watched anytime by any student.
+        if (!isOwner && !isAdmin) {
+            if (!isFree) {
+                boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
+                if (!hasPaid) {
+                    // Purge any unauthorized enrollment and redirect unpaid student to checkout
+                    enrollmentRepository.deleteByStudentAndCourse(user, course);
+                    return "redirect:/checkout/" + id;
+                }
+                // Paid student: ensure enrollment record exists
+                if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
+                    enrollmentService.enrollUser(user, id);
+                }
+            } else {
+                // Free course: students can watch anytime; auto-enroll if not enrolled
+                if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
+                    enrollmentService.enrollUser(user, id);
+                }
+            }
         }
 
         CourseDTO courseDTO = courseMapper.toDTO(course);

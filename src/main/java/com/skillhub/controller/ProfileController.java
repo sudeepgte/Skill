@@ -64,7 +64,20 @@ public class ProfileController {
 
         // Fetch enrollments
         // Fetch enrollments
-        List<com.skillhub.model.Enrollment> enrollments = enrollmentRepository.findByStudent(user);
+        List<com.skillhub.model.Enrollment> rawEnrollments = enrollmentRepository.findByStudent(user);
+        List<com.skillhub.model.Enrollment> enrollments = new java.util.ArrayList<>();
+        for (com.skillhub.model.Enrollment e : rawEnrollments) {
+            com.skillhub.model.Course c = e.getCourse();
+            boolean isFree = (c.getPrice() == null || c.getPrice() <= 0);
+            if (!isFree) {
+                boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, c, com.skillhub.model.PaymentStatus.SUCCESS);
+                if (!hasPaid) {
+                    enrollmentRepository.delete(e);
+                    continue;
+                }
+            }
+            enrollments.add(e);
+        }
         for (com.skillhub.model.Enrollment enrollment : enrollments) {
             long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
             if (total > 0) {

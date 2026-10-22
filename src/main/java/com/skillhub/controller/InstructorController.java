@@ -436,6 +436,7 @@ public class InstructorController {
 
         // Process Curriculum Videos and Validate Titles
         if (course.getSections() != null && !course.getSections().isEmpty()) {
+            List<CourseSection> validSections = new ArrayList<>();
             for (CourseSection section : course.getSections()) {
                 if (section.getTitle() != null && !section.getTitle().trim().isEmpty()) {
                     if (!startsWithLetter.test(section.getTitle())) {
@@ -444,6 +445,7 @@ public class InstructorController {
                     }
                     section.setCourse(targetCourse);
                     if (section.getLectures() != null) {
+                        List<Lecture> validLectures = new ArrayList<>();
                         for (Lecture lecture : section.getLectures()) {
                             if (lecture.getTitle() != null && !lecture.getTitle().trim().isEmpty()) {
                                 if (!startsWithLetter.test(lecture.getTitle())) {
@@ -459,12 +461,20 @@ public class InstructorController {
                                     lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
                                 }
                                 lecture.setSection(section);
+                                validLectures.add(lecture);
                             }
                         }
+                        section.setLectures(validLectures);
                     }
+                    validSections.add(section);
                 }
             }
-            targetCourse.setSections(course.getSections());
+
+            if (isNew) {
+                targetCourse.setSections(validSections);
+            } else {
+                syncCourseCurriculum(targetCourse, validSections);
+            }
         }
 
         // Process Downloadable Course Resources if uploaded
@@ -777,5 +787,74 @@ public class InstructorController {
         course.getExamQuestions().removeIf(q -> q.getId().equals(qid));
         courseService.saveCourse(course);
         return "redirect:/vendor/courses/" + id + "/questions";
+    }
+
+    private void syncCourseCurriculum(Course targetCourse, List<CourseSection> incomingSections) {
+        if (incomingSections == null || incomingSections.isEmpty()) {
+            targetCourse.getSections().clear();
+            return;
+        }
+
+        Map<Long, CourseSection> existingMap = new HashMap<>();
+        for (CourseSection sec : targetCourse.getSections()) {
+            if (sec.getId() != null) {
+                existingMap.put(sec.getId(), sec);
+            }
+        }
+
+        Set<Long> incomingIds = incomingSections.stream()
+                .map(CourseSection::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+
+        targetCourse.getSections().removeIf(s -> s.getId() != null && !incomingIds.contains(s.getId()));
+
+        for (CourseSection incoming : incomingSections) {
+            if (incoming.getId() != null && existingMap.containsKey(incoming.getId())) {
+                CourseSection existing = existingMap.get(incoming.getId());
+                existing.setTitle(incoming.getTitle());
+                existing.setPosition(incoming.getPosition());
+                syncSectionLectures(existing, incoming.getLectures());
+            } else {
+                incoming.setCourse(targetCourse);
+                targetCourse.getSections().add(incoming);
+            }
+        }
+    }
+
+    private void syncSectionLectures(CourseSection existingSection, List<Lecture> incomingLectures) {
+        if (incomingLectures == null || incomingLectures.isEmpty()) {
+            existingSection.getLectures().clear();
+            return;
+        }
+
+        Map<Long, Lecture> existingMap = new HashMap<>();
+        for (Lecture lec : existingSection.getLectures()) {
+            if (lec.getId() != null) {
+                existingMap.put(lec.getId(), lec);
+            }
+        }
+
+        Set<Long> incomingIds = incomingLectures.stream()
+                .map(Lecture::getId)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+
+        existingSection.getLectures().removeIf(l -> l.getId() != null && !incomingIds.contains(l.getId()));
+
+        for (Lecture incoming : incomingLectures) {
+            if (incoming.getId() != null && existingMap.containsKey(incoming.getId())) {
+                Lecture existing = existingMap.get(incoming.getId());
+                existing.setTitle(incoming.getTitle());
+                existing.setPosition(incoming.getPosition());
+                existing.setDurationSeconds(incoming.getDurationSeconds());
+                if (incoming.getVideoUrl() != null && !incoming.getVideoUrl().isEmpty()) {
+                    existing.setVideoUrl(incoming.getVideoUrl());
+                }
+            } else {
+                incoming.setSection(existingSection);
+                existingSection.getLectures().add(incoming);
+            }
+        }
     }
 }

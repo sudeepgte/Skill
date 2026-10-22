@@ -74,6 +74,7 @@ public class Course {
     // Course Format & Teaching Method
     private String format; // Video Course, Text Course, Practical / Hands-on Course, Project-based Course, Instructor-led Course
     private String teachingMethod; // Self-paced, Cohort-based, Interactive Practice, Live Sessions
+    @Column(columnDefinition = "TEXT")
     private String tags; // Comma-separated tags/skills
 
     // Intended Learners Details
@@ -489,7 +490,14 @@ public class Course {
     }
 
     public void setSections(List<CourseSection> sections) {
-        this.sections = sections;
+        if (this.sections == null) {
+            this.sections = new ArrayList<>();
+        } else {
+            this.sections.clear();
+        }
+        if (sections != null) {
+            this.sections.addAll(sections);
+        }
     }
 
     public List<CourseResource> getResources() {
@@ -497,7 +505,14 @@ public class Course {
     }
 
     public void setResources(List<CourseResource> resources) {
-        this.resources = resources;
+        if (this.resources == null) {
+            this.resources = new ArrayList<>();
+        } else {
+            this.resources.clear();
+        }
+        if (resources != null) {
+            this.resources.addAll(resources);
+        }
     }
 
     public List<Enrollment> getEnrollments() {

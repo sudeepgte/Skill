@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -758,7 +758,7 @@
                     </th:block>
 
                     <!-- Buy Now Button (for Paid Courses - opens Razorpay directly) -->
-                    <th:block th:if="${course.price != null and course.price > 0}">
+                    <th:block th:if="${course.price != null and course.price > 0 and not isEnrolled}">
                         <button type="button" class="btn-buy" id="buyNowRazorpayBtn"
                             th:data-course-id="${course.id}"
                             th:data-course-title="${course.title}"
@@ -769,7 +769,7 @@
 
                     <!-- Free Course: Enroll for Free -->
                     <th:block th:if="${(course.price == null or course.price <= 0) and not isEnrolled}">
-                        <button class="btn-buy" id="enrollBtnSidebar" style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px;">Enroll for Free</button>
+                        <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy" id="enrollBtnSidebar" style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px; text-decoration:none; box-sizing: border-box;">Enroll for Free</a>
                     </th:block>
                     <!-- Wishlist Button -->
                     <button id="addToWishlistBtn" class="btn-buy" th:attr="data-course-id=${course.id}"
@@ -882,9 +882,14 @@
                             <th:block th:if="${section.lectures != null and !section.lectures.empty}">
                                 <div th:each="lecture : ${section.lectures}" class="lecture-item"
                                     th:attr="data-video-url=${lecture.videoUrl}"
-                                    onclick="playPreview(this.getAttribute('data-video-url'))">
+                                    onclick="if (this.getAttribute('data-is-enrolled') === 'true' || this.getAttribute('data-is-free') === 'true') { window.location.href = '/user/course/' + this.getAttribute('data-course-id') + '/learn?lectureId=' + this.getAttribute('data-lecture-id'); } else { alert('Please purchase this course to access this lecture.'); }"
+                                    th:data-is-enrolled="${isEnrolled}"
+                                    th:data-is-free="${course.price == null or course.price <= 0}"
+                                    th:data-course-id="${course.id}"
+                                    th:data-lecture-id="${lecture.id}">
                                     <div style="display: flex; align-items: center;">
-                                        <i class="fas fa-play-circle" style="color: #6a6f73; margin-right: 10px;"></i>
+                                        <i th:if="${isEnrolled or course.price == null or course.price <= 0}" class="fas fa-play-circle" style="color: var(--primary); margin-right: 10px;"></i>
+                                        <i th:unless="${isEnrolled or course.price == null or course.price <= 0}" class="fas fa-lock" style="color: #94a3b8; margin-right: 10px;"></i>
                                         <span th:text="${lecture.title}"
                                             style="color: #1c1d1f; font-size: 1.25rem;">Lecture Title</span>
                                     </div>

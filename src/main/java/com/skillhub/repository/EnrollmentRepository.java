@@ -12,6 +12,11 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     Optional<Enrollment> findByStudentAndCourse(User student, Course course);
 
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query("DELETE FROM Enrollment e WHERE e.student = :student AND e.course = :course")
+    void deleteByStudentAndCourse(@org.springframework.data.repository.query.Param("student") User student, @org.springframework.data.repository.query.Param("course") Course course);
+
     long countByCourse(com.skillhub.model.Course course);
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(e) FROM Enrollment e WHERE e.course.instructor.email = :email")

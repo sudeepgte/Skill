@@ -65,7 +65,14 @@ public class CourseSection {
     }
 
     public void setLectures(List<Lecture> lectures) {
-        this.lectures = lectures;
+        if (this.lectures == null) {
+            this.lectures = new ArrayList<>();
+        } else {
+            this.lectures.clear();
+        }
+        if (lectures != null) {
+            this.lectures.addAll(lectures);
+        }
     }
 
     public void addLecture(Lecture lecture) {
