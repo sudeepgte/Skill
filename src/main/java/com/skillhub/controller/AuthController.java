@@ -68,6 +68,20 @@ public class AuthController {
                            @RequestParam(value = "newCategoryName", required = false) String newCategoryName,
                            Authentication authentication) {
         try {
+            // Server-side validation & sanitization
+            if (user.getName() == null || user.getName().trim().length() < 3) {
+                return "redirect:/register?error=invalid_name";
+            }
+            if (user.getEmail() == null || !user.getEmail().trim().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$")) {
+                return "redirect:/register?error=invalid_email";
+            }
+            if (user.getPassword() == null || user.getPassword().length() < 8) {
+                return "redirect:/register?error=invalid_password";
+            }
+
+            user.setName(user.getName().trim());
+            user.setEmail(user.getEmail().trim().toLowerCase());
+
             // Check if email exists
             if (userService.findByEmail(user.getEmail()) != null) {
                 return "redirect:/register?error=exists";
@@ -86,11 +100,11 @@ public class AuthController {
             if ("INSTRUCTOR".equals(role)) {
                 user.setApproved(true); // Auto-approved for immediate access as requested
                 if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
-                    Category category = new Category(newCategoryName, "fas fa-star text-warning");
+                    Category category = new Category(newCategoryName.trim(), "fas fa-star text-warning");
                     categoryService.saveCategory(category);
-                    user.setSkills(newCategoryName);
+                    user.setSkills(newCategoryName.trim());
                 } else if (categoryName != null && !categoryName.isEmpty()) {
-                    user.setSkills(categoryName);
+                    user.setSkills(categoryName.trim());
                 }
             }
             

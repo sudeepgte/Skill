@@ -9,37 +9,145 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/font-awesome-fallback.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <!-- Footer Styles -->
     <style th:replace="~{fragments/footer :: footer-styles}"></style>
     <style>
+        html {
+            font-size: 62.5% !important; /* 1rem = 10px */
+        }
+
+        /* ─── CALIBRATE FOR STANDARD 100% BROWSER ZOOM ─── */
+        @media (min-width: 769px) {
+            .profile-container {
+                zoom: 0.85;
+                -moz-transform: scale(0.85);
+                -moz-transform-origin: top center;
+            }
+        }
+
+        /* Guaranteed Icon Visibility */
+        .nav-item i,
+        .avatar-large i,
+        .add-icon i,
+        .library-grid i,
+        .form-group i,
+        .badge-icon i,
+        .toggle-password-btn i,
+        .btn-save i:not(.fa-spin) {
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* Loading Spinners: hidden by default, visible only when active-spin class added */
+        #saveDocumentsSpinner,
+        #saveProfileSpinner,
+        #updatePasswordSpinner {
+            display: none !important;
+        }
+        #saveDocumentsSpinner.active-spin,
+        #saveProfileSpinner.active-spin,
+        #updatePasswordSpinner.active-spin {
+            display: inline-block !important;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 16px;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 5;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password-btn:hover {
+            color: var(--primary);
+        }
+
+        .field-feedback {
+            font-size: 1.25rem;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .field-feedback.error {
+            color: #ef4444;
+            display: block;
+        }
+
+        .field-feedback.success {
+            color: #10b981;
+            display: block;
+        }
+
+        .form-control.is-invalid {
+            border-color: #ef4444 !important;
+            background: #fff5f5 !important;
+        }
+
+        .form-control.is-valid {
+            border-color: #10b981 !important;
+            background: #f0fdf4 !important;
+        }
+
         :root {
-            --primary: #a435f0;
+            --primary: #5624d0;
+            --primary-hover: #431ba9;
             --dark: #1c1d1f;
             --light: #f7f9fa;
-            --primary: #5624d0;
             --text: #1c1d1f;
             --muted: #6a6f73;
-            --border: #d1d7dc;
-            --bg-light: #f7f9fa;
+            --border: #e2e8f0;
+            --bg-light: #f8fafc;
         }
 
         body {
             font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif;
-            background-color: #fff;
+            background-color: #f8fafc;
             color: var(--text);
             margin: 0;
             line-height: 1.4;
         }
 
+        /* Sleek Modern Sans-Serif Typography Across Entire Profile */
+        .profile-container,
+        .profile-container h1,
+        .profile-container h2,
+        .profile-container h3,
+        .profile-container h4,
+        .profile-container h5,
+        .profile-container p,
+        .profile-container span:not(.fas):not(.far):not(.fa),
+        .profile-container label,
+        .profile-container button,
+        .profile-container input,
+        .profile-container textarea,
+        .profile-container a {
+            font-family: 'DM Sans', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
         .profile-container {
-            max-width: 1100px;
-            margin: 4rem auto;
+            max-width: 1060px;
+            margin: 2rem auto 3.5rem;
             display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 3.2rem;
+            grid-template-columns: 240px 1fr;
+            gap: 2rem;
             padding: 0 1.6rem;
         }
 
@@ -51,86 +159,104 @@
         .sidebar {
             background: #fff;
             border: 1px solid var(--border);
-            padding: 2.4rem 0;
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            padding: 1.8rem 0;
             height: fit-content;
         }
 
         .user-info {
-            padding: 0 2.4rem 2.4rem;
+            padding: 0 1.8rem 1.8rem;
             text-align: center;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.2rem;
         }
 
         .avatar-large {
-            width: 8rem;
-            height: 8rem;
-            background: #1c1d1f;
+            width: 6.8rem;
+            height: 6.8rem;
+            background: #2E1065;
             color: #fff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.2rem;
+            font-size: 2.6rem;
             font-weight: 700;
-            margin: 0 auto 1.6rem;
+            margin: 0 auto 1.2rem;
             text-decoration: none;
             position: relative;
+            box-shadow: 0 4px 12px rgba(46, 16, 101, 0.15);
         }
 
         .avatar-large .add-icon {
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 2.4rem;
-            height: 2.4rem;
+            width: 2.2rem;
+            height: 2.2rem;
             background: var(--primary);
             border: 2px solid #fff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             color: #fff;
         }
 
         .user-info h3 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
+            font-weight: 700;
             color: var(--text);
         }
 
         .user-info p {
-            margin: 0.4rem 0 0;
+            margin: 0.3rem 0 0;
             color: var(--muted);
-            font-size: 1.4rem;
+            font-size: 1.25rem;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
-            padding: 0 2.4rem;
-            margin-bottom: 2.4rem;
-        }
-
-        .stat-item {
-            background: var(--bg-light);
-            padding: 1.2rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 1.8rem;
+        .xp-level {
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--primary);
+            background: #EDE9FE;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+            display: inline-block;
         }
 
-        .stat-label {
-            font-size: 1.1rem;
-            color: var(--muted);
-            text-transform: uppercase;
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-top: 1rem;
+            padding: 0 1rem;
+        }
+
+        .badge-icon {
+            width: 2.8rem;
+            height: 2.8rem;
+            background: #fff8e1;
+            border: 1.5px solid #ffc107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffc107;
+            font-size: 1.2rem;
+            cursor: help;
+            transition: transform 0.2s;
+        }
+
+        .badge-icon:hover {
+            transform: scale(1.1);
+            background: #ffc107;
+            color: #fff;
         }
 
         .nav-menu {
@@ -142,79 +268,44 @@
             display: flex;
             align-items: center;
             gap: 1.2rem;
-            padding: 1.2rem 2.4rem;
+            padding: 0.95rem 1.8rem;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
             cursor: pointer;
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 500;
-            color: var(--text);
-            transition: background 0.15s;
+            color: #475569;
+            transition: all 0.15s ease;
         }
 
         .nav-item:hover {
-            background: var(--bg-light);
+            background: #f8fafc;
+            color: #1e293b;
         }
 
         .nav-item.active {
-            background: var(--bg-light);
+            background: #f5f3ff;
             color: var(--primary);
             font-weight: 700;
+            border-left: 3px solid var(--primary);
         }
 
-        /* Gamification & Badges */
-        .badges-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            justify-content: center;
-            margin-top: 1.2rem;
-            padding: 0 1.2rem;
-        }
-
-        .badge-icon {
-            width: 3.2rem;
-            height: 3.2rem;
-            background: #fff8e1;
-            border: 1.5px solid #ffc107;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffc107;
+        .nav-item i {
+            width: 1.8rem;
+            text-align: center;
             font-size: 1.4rem;
-            cursor: help;
-            transition: transform 0.2s;
-        }
-
-        .badge-icon:hover {
-            transform: scale(1.1);
-            background: #ffc107;
-            color: #fff;
-        }
-
-        .xp-level {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            background: #f3e5f5;
-            padding: 0.2rem 0.8rem;
-            border-radius: 1rem;
-            margin-top: 0.4rem;
-            display: inline-block;
-        }
-
-        .streak-fire {
-            color: #ff5722;
-            margin-right: 0.4rem;
         }
 
         /* Content Area */
         .content-card {
             background: #fff;
-            min-height: 50rem;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            padding: 2.4rem 2.8rem;
+            min-height: 48rem;
         }
 
         .tab-content {
@@ -227,107 +318,182 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-            to {
-                opacity: 1;
-            }
+        .welcome-header {
+            padding-bottom: 1.4rem;
+            margin-bottom: 2.2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .welcome-header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0 0 0.4rem;
+        }
+
+        .welcome-header p {
+            font-size: 1.35rem;
+            color: var(--muted);
+            margin: 0;
         }
 
         h2 {
-            font-size: 2.4rem;
-            margin: 0 0 2.4rem;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 1.8rem;
+            color: #1e293b;
         }
 
         /* Form Styling */
         .form-group {
-            margin-bottom: 2.4rem;
+            margin-bottom: 1.6rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.8rem;
-            font-size: 1.4rem;
-            font-weight: 700;
+            margin-bottom: 0.6rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #334155;
         }
 
         .form-control {
             width: 100%;
-            padding: 1.2rem;
-            border: 1px solid #1c1d1f;
-            border-radius: 4px;
-            font-size: 1.5rem;
+            padding: 0.9rem 1.2rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1.35rem;
             background: #fff;
             box-sizing: border-box;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(86, 36, 208, 0.12);
         }
 
         .btn-save {
-            background: #1c1d1f;
+            background: var(--primary);
             color: #fff;
             border: none;
-            padding: 1.6rem 2.4rem;
-            font-size: 1.6rem;
-            font-weight: 700;
-            border-radius: 4px;
+            padding: 1rem 2.2rem;
+            font-size: 1.35rem;
+            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
             width: fit-content;
+            transition: background 0.15s ease, transform 0.15s ease;
         }
 
         .btn-save:hover {
-            background: #000;
+            background: var(--primary-hover);
+        }
+
+        /* Modern Document Upload Cards */
+        .documents-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+            gap: 1.4rem !important;
+        }
+
+        .doc-upload-item {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 1.2rem 1.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .doc-upload-item:hover {
+            border-color: var(--primary);
+            background: #fbf9ff;
+        }
+
+        .doc-upload-item label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.8rem;
+        }
+
+        .doc-file-input {
+            width: 100%;
+            font-size: 1.2rem;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0.5rem 0.8rem;
+            background: #fff;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .doc-file-input::file-selector-button {
+            background: #EDE9FE;
+            color: #5624d0;
+            border: 1px solid #A78BFA;
+            padding: 0.4rem 0.9rem;
+            border-radius: 4px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.8rem;
+            transition: all 0.15s ease;
+        }
+
+        .doc-file-input::file-selector-button:hover {
+            background: #5624d0;
+            color: #fff;
         }
 
         /* Grid */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
-            gap: 2.4rem;
+            grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+            gap: 1.8rem;
         }
 
         .card {
             border: 1px solid var(--border);
+            border-radius: 10px;
             overflow: hidden;
-            transition: background 0.2s;
+            transition: all 0.2s;
             cursor: pointer;
+            background: #fff;
         }
 
         .card:hover {
-            background: var(--bg-light);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
         }
 
         .alert {
-            padding: 1.6rem;
-            border-radius: 4px;
-            margin-bottom: 2.4rem;
+            padding: 1.2rem 1.6rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
             font-weight: 600;
+            font-size: 1.3rem;
         }
 
         .alert-success {
-            background: #acd2cc;
-            color: #1c1d1f;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
         }
 
         .alert-error {
-            background: #f5c2c7;
-            color: #842029;
-        }
-
-        .welcome-section {
-            border: 1px solid var(--border);
-            padding: 4rem;
-            text-align: center;
-        }
-
-        .radar-container {
-            max-width: 500px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: #fdfdfd;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
 
         /* Portfolio / Creations */
@@ -346,22 +512,22 @@
 
         .creation-img {
             width: 100%;
-            height: 200px;
+            height: 180px;
             object-fit: cover;
         }
 
         .creation-info {
-            padding: 1.5rem;
+            padding: 1.4rem;
         }
 
         .creation-title {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
 
         .creation-desc {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             color: var(--muted);
             line-height: 1.5;
         }
@@ -381,10 +547,10 @@
 
         .modal-content {
             background: #fff;
-            padding: 3rem;
+            padding: 2.5rem;
             border-radius: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
         }
 
         /* Responsive Design */
@@ -392,87 +558,55 @@
             .profile-container {
                 grid-template-columns: 1fr;
                 margin: 0rem auto;
-                gap: 2rem;
+                gap: 1.5rem;
                 padding: 0;
             }
 
             .sidebar {
-                border: none;
-                border-bottom: 1px solid var(--border);
-                width: 100%;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
                 padding: 1.5rem 0;
-            }
-
-            .user-info {
-                padding: 0 1.5rem 1.5rem;
             }
 
             .nav-menu {
                 flex-direction: row;
                 overflow-x: auto;
                 padding: 0 1rem;
-                scrollbar-width: none; /* Hide scrollbar Firefox */
+                scrollbar-width: none;
             }
 
             .nav-menu::-webkit-scrollbar {
-                display: none; /* Hide scrollbar Chrome/Safari */
+                display: none;
             }
 
             .nav-item {
-                padding: 1rem 1.5rem;
+                padding: 0.8rem 1.4rem;
                 white-space: nowrap;
-                font-size: 1.4rem;
+                font-size: 1.3rem;
+                border-left: none;
                 border-bottom: 3px solid transparent;
             }
 
             .nav-item.active {
+                border-left: none;
                 border-bottom: 3px solid var(--primary);
                 background: none;
             }
 
             .content-card {
-                padding: 1.5rem;
-            }
-
-            .welcome-header h1 {
-                font-size: 2.2rem !important;
-            }
-
-            .welcome-header p {
-                font-size: 1.3rem !important;
-            }
-
-            /* Document form and library */
-            .documents-form-grid, 
-            .library-grid {
-                grid-template-columns: 1fr !important;
-            }
-
-            .form-group {
-                margin-bottom: 1.5rem;
-            }
-
-            .btn-save {
-                width: 100%;
-                text-align: center;
-            }
-
-            /* Fix My Courses tab specifically for mobile */
-            .profile-container.full-width {
-                padding: 0 1.5rem;
+                padding: 1.6rem;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
             }
         }
 
         @media (max-width: 412px) {
-            /* Pixel 7 Specific Adjustments */
-            body {
-                font-size: 14px;
-            }
-            .content-card {
-                padding: 1rem;
-            }
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.8rem; }
+            body { font-size: 14px; }
+            .content-card { padding: 1rem; }
+            h1 { font-size: 1.9rem; }
+            h2 { font-size: 1.7rem; }
         }
 
         /* QR Scanner Styles */
@@ -480,8 +614,8 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            width: 6rem;
-            height: 6rem;
+            width: 5.5rem;
+            height: 5.5rem;
             background: var(--primary);
             color: white;
             border-radius: 50%;
@@ -594,73 +728,75 @@
         </aside>
 
         <main class="content-card">
-            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success != null and activeTab != 'security'}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error != null and activeTab != 'security'}" class="alert alert-error" th:text="${error}"></div>
 
             <!-- My Documents Tab -->
             <div id="documents" class="tab-content active">
                 <div class="welcome-header" style="padding-bottom: 2rem; margin-bottom: 3rem; border-bottom: 1px solid var(--border);">
-                    <h1 style="font-size: 2.8rem; font-weight: 800; color: #1c1d1f; margin-bottom: 0.8rem;">My Documents</h1>
-                    <p style="font-size: 1.5rem; color: var(--muted);">Manage and upload your educational and professional documents.</p>
+                    <h1 style="font-size: 2.2rem; font-weight: 800; color: #1c1d1f; margin-bottom: 0.4rem;">My Documents</h1>
+                    <p style="font-size: 1.35rem; color: var(--muted); margin: 0;">Manage and upload your educational and professional documents.</p>
                 </div>
 
                 <div th:if="${info}" class="alert alert-info" style="background:#e3f2fd; color:#0d47a1; padding: 1rem; border-radius: 4px; margin-bottom: 2rem;" th:text="${info}"></div>
 
-                <div style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 3rem;">
-                    <form th:action="@{/profile/upload-documents}" method="post" enctype="multipart/form-data">
+                <div style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2rem;">
+                    <form th:action="@{/profile/upload-documents}" method="post" enctype="multipart/form-data" id="documentsForm">
                         <div class="documents-form-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
                             <!-- Resume -->
-                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                            <div class="doc-upload-item">
                                 <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
                                     <i class="fas fa-file-pdf" style="color: #e74c3c;"></i> Resume / CV
                                 </label>
-                                <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx">
+                                <input type="file" name="resume" class="doc-file-input" accept=".pdf,.doc,.docx">
                             </div>
 
                             <!-- 10th Certificate -->
-                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                            <div class="doc-upload-item">
                                 <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
                                     <i class="fas fa-certificate" style="color: #f1c40f;"></i> 10th Certificate
                                 </label>
-                                <input type="file" name="tenthCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" name="tenthCert" class="doc-file-input" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
 
                             <!-- PU Certificate -->
-                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                            <div class="doc-upload-item">
                                 <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
                                     <i class="fas fa-certificate" style="color: #2ecc71;"></i> PU Certificate (12th)
                                 </label>
-                                <input type="file" name="puCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" name="puCert" class="doc-file-input" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
 
                             <!-- UG Certificate -->
-                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                            <div class="doc-upload-item">
                                 <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
                                     <i class="fas fa-user-graduate" style="color: #3498db;"></i> UG Course Certificate
                                 </label>
-                                <input type="file" name="ugCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" name="ugCert" class="doc-file-input" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
 
                             <!-- PG Certificate -->
-                            <div class="form-group" style="border: 1px solid #eee; padding: 1.5rem; border-radius: 8px;">
+                            <div class="doc-upload-item">
                                 <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
                                     <i class="fas fa-user-graduate" style="color: #9b59b6;"></i> PG Course Certificate
                                 </label>
-                                <input type="file" name="pgCert" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" name="pgCert" class="doc-file-input" accept=".pdf,.jpg,.jpeg,.png">
                             </div>
                         </div>
 
-                        <div style="margin-top: 3rem;">
-                            <button type="submit" class="btn-save" style="padding: 1.4rem 3rem;">
-                                <i class="fas fa-cloud-upload-alt" style="margin-right: 0.8rem;"></i> Save Documents
+                        <div style="margin-top: 2rem;">
+                            <button type="submit" id="saveDocumentsBtn" class="btn-save" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-cloud-upload-alt" id="saveDocumentsIcon"></i>
+                                <span id="saveDocumentsText">Save Documents</span>
+                                <i id="saveDocumentsSpinner" class="fas fa-circle-notch fa-spin" style="display: none;"></i>
                             </button>
                         </div>
                     </form>
 
                     <!-- Document Library Section -->
                     <div th:if="${user.resumeUrl != null || user.tenthCertUrl != null || user.puCertUrl != null || user.ugCertUrl != null || user.pgCertUrl != null}" 
-                         style="margin-top: 4rem; padding-top: 3rem; border-top: 2px dashed #eee;">
-                        <h3 style="font-size: 2rem; font-weight: 700; color: #1c1d1f; margin-bottom: 2rem;">Your Document Library</h3>
+                         style="margin-top: 3rem; padding-top: 2rem; border-top: 1.5px dashed var(--border);">
+                        <h3 style="font-size: 1.8rem; font-weight: 700; color: #1c1d1f; margin-bottom: 1.4rem;">Your Document Library</h3>
                         <div class="library-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
                             
                             <!-- Resume Card -->
@@ -747,8 +883,8 @@
                 </div>
 
                 <!-- Course Receipts / Invoices Section -->
-                <div style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 3rem; margin-top: 2rem;">
-                    <h3 style="font-size: 2rem; font-weight: 700; color: #1c1d1f; margin-top: 0; margin-bottom: 0.8rem;">Course Receipts & Invoices</h3>
+                <div style="background: #fff; border: 1px solid var(--border); border-radius: 1.2rem; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="font-size: 1.8rem; font-weight: 700; color: #1c1d1f; margin-top: 0; margin-bottom: 0.6rem;">Course Receipts & Invoices</h3>
                     <p style="font-size: 1.4rem; color: var(--muted); margin-bottom: 2rem;">Download or view receipts for your enrolled courses.</p>
                     
                     <div th:if="${#lists.isEmpty(payments)}" style="text-align: center; padding: 2rem; border: 1px dashed var(--border); border-radius: 8px;">
@@ -782,7 +918,7 @@
             <!-- Edit Profile Tab -->
             <div id="profile" class="tab-content">
                 <h2 style="border-bottom: 1px solid var(--border); padding-bottom: 1.6rem;">Profile Information</h2>
-                <form th:action="@{/profile}" method="post" enctype="multipart/form-data">
+                <form th:action="@{/profile}" method="post" enctype="multipart/form-data" id="profileForm" novalidate>
                     <div class="form-group" style="display: none;">
                         <input type="file" name="profilePicture">
                     </div>
@@ -832,7 +968,10 @@
                         <input type="text" th:value="${#temporals.format(user.lastLoginDate, 'dd MMM yyyy, HH:mm')}"
                             class="form-control" readonly style="background:#f0f2f5;">
                     </div>
-                    <button type="submit" class="btn-save">Save Changes</button>
+                    <button type="submit" id="saveProfileBtn" class="btn-save" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <span id="saveProfileText">Save Changes</span>
+                        <i id="saveProfileSpinner" class="fas fa-circle-notch fa-spin" style="display: none;"></i>
+                    </button>
                 </form>
                 <script>
                     function validateAlphaField(input, errorId) {
@@ -1138,20 +1277,77 @@
             <!-- Security Tab -->
             <div id="security" class="tab-content">
                 <h2 style="margin-top: 0;">Password & Security</h2>
-                <form th:action="@{/change-password}" method="post">
-                    <div class="form-group">
-                        <label>Current Password</label>
-                        <input type="password" name="currentPassword" class="form-control" required>
+                
+                <!-- Dedicated Security Alert Messages -->
+                <div th:if="${passwordError != null or (error != null and activeTab == 'security')}" class="alert alert-error" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2rem;">
+                    <i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 1.6rem;"></i>
+                    <span th:text="${passwordError != null ? passwordError : error}">Incorrect current password.</span>
+                </div>
+                <div th:if="${passwordSuccess != null or (success != null and activeTab == 'security')}" class="alert alert-success" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2rem;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 1.6rem;"></i>
+                    <span th:text="${passwordSuccess != null ? passwordSuccess : success}">Password changed successfully.</span>
+                </div>
+
+                <form th:action="@{/change-password}" method="post" id="securityForm" novalidate>
+                    <div class="form-group" style="position: relative;">
+                        <label>Current Password <span style="color:#ef4444;">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" id="currentPasswordInput" name="currentPassword" class="form-control"
+                                   th:classappend="${passwordError != null ? 'is-invalid' : ''}"
+                                   placeholder="Enter current password" required style="padding-right: 4rem;">
+                            <button type="button" class="toggle-password-btn" onclick="toggleSecPassword('currentPasswordInput', 'toggleCurrentIcon')" title="Show or hide password" aria-label="Toggle current password">
+                                <i id="toggleCurrentIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="currentPasswordFeedback" class="field-feedback"
+                             th:classappend="${passwordError != null ? 'error' : ''}"
+                             th:style="${passwordError != null ? 'display:block;' : ''}"
+                             th:text="${passwordError}"></div>
                     </div>
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password" name="newPassword" class="form-control" required>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>New Password <span style="color:#ef4444;">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" id="newPasswordInput" name="newPassword" class="form-control" placeholder="Enter new password (min. 8 characters)" required style="padding-right: 4rem;">
+                            <button type="button" class="toggle-password-btn" onclick="toggleSecPassword('newPasswordInput', 'toggleNewIcon')" title="Show or hide password" aria-label="Toggle new password">
+                                <i id="toggleNewIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="newPasswordFeedback" class="field-feedback"></div>
+                        
+                        <!-- Password Strength Box -->
+                        <div id="secPasswordCheckerBox" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 1.25rem; display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-weight: 600; color: #475569;">
+                                <span>Password Strength:</span>
+                                <span id="secStrengthText" style="color: #ef4444; font-weight: 700;">Weak</span>
+                            </div>
+                            <div style="height: 5px; background: #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+                                <div id="secStrengthBarFill" style="height: 100%; width: 0%; transition: width 0.3s ease, background-color 0.3s ease; border-radius: 6px;"></div>
+                            </div>
+                            <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; padding: 0; margin: 0;">
+                                <li id="secCritLength" style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 1.2rem;"><i class="far fa-circle"></i> 8+ characters</li>
+                                <li id="secCritUpper" style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 1.2rem;"><i class="far fa-circle"></i> Uppercase (A-Z)</li>
+                                <li id="secCritLower" style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 1.2rem;"><i class="far fa-circle"></i> Lowercase (a-z)</li>
+                                <li id="secCritNumber" style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 1.2rem;"><i class="far fa-circle"></i> Number (0-9)</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Confirm New Password</label>
-                        <input type="password" name="confirmPassword" class="form-control" required>
+
+                    <div class="form-group" style="position: relative;">
+                        <label>Confirm New Password <span style="color:#ef4444;">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" id="confirmPasswordInput" name="confirmPassword" class="form-control" placeholder="Re-enter new password" required style="padding-right: 4rem;">
+                            <button type="button" class="toggle-password-btn" onclick="toggleSecPassword('confirmPasswordInput', 'toggleConfirmIcon')" title="Show or hide confirm password" aria-label="Toggle confirm password">
+                                <i id="toggleConfirmIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="confirmPasswordFeedback" class="field-feedback"></div>
                     </div>
-                    <button type="submit" class="btn-save">Update Password</button>
+
+                    <button type="submit" id="updatePasswordBtn" class="btn-save" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span id="updatePasswordText">Update Password</span>
+                        <i id="updatePasswordSpinner" class="fas fa-circle-notch fa-spin" style="display: none;"></i>
+                    </button>
                 </form>
             </div>
         </main>
@@ -1389,6 +1585,248 @@
     </script>
     <!-- Shared QR Scanner Fragment -->
     <div th:replace="~{fragments/qr-scanner :: qr-scanner}"></div>
+
+    <script>
+        // PASSWORD VISIBILITY TOGGLE (Security Tab)
+        function toggleSecPassword(fieldId, iconId) {
+            const input = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // SECURITY FORM REAL-TIME VALIDATION
+        const secCurrentPass = document.getElementById('currentPasswordInput');
+        const secNewPass = document.getElementById('newPasswordInput');
+        const secConfirmPass = document.getElementById('confirmPasswordInput');
+        const secForm = document.getElementById('securityForm');
+        const secCheckerBox = document.getElementById('secPasswordCheckerBox');
+
+        function setSecFeedback(input, feedbackId, isValid, msg) {
+            const fb = document.getElementById(feedbackId);
+            if (!input || !fb) return;
+            if (isValid) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                fb.className = 'field-feedback success';
+                fb.innerText = msg || '';
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                fb.className = 'field-feedback error';
+                fb.innerText = msg || '';
+            }
+        }
+
+        function validateSecNewPassword() {
+            if (!secNewPass) return true;
+            const val = secNewPass.value;
+            const hasLength = val.length >= 8;
+            const hasUpper = /[A-Z]/.test(val);
+            const hasLower = /[a-z]/.test(val);
+            const hasNumber = /[0-9]/.test(val);
+
+            function updateCrit(id, met) {
+                const item = document.getElementById(id);
+                if (!item) return;
+                const icon = item.querySelector('i');
+                if (met) {
+                    item.style.color = '#10b981';
+                    item.style.fontWeight = '600';
+                    if (icon) { icon.className = 'fas fa-check-circle'; icon.style.color = '#10b981'; }
+                } else {
+                    item.style.color = '#94a3b8';
+                    item.style.fontWeight = 'normal';
+                    if (icon) { icon.className = 'far fa-circle'; icon.style.color = '#94a3b8'; }
+                }
+            }
+
+            updateCrit('secCritLength', hasLength);
+            updateCrit('secCritUpper', hasUpper);
+            updateCrit('secCritLower', hasLower);
+            updateCrit('secCritNumber', hasNumber);
+
+            let score = (hasLength ? 1 : 0) + (hasUpper ? 1 : 0) + (hasLower ? 1 : 0) + (hasNumber ? 1 : 0);
+            const barFill = document.getElementById('secStrengthBarFill');
+            const txt = document.getElementById('secStrengthText');
+
+            if (val.length === 0) {
+                if (barFill) barFill.style.width = '0%';
+                if (txt) { txt.innerText = 'Weak'; txt.style.color = '#ef4444'; }
+                setSecFeedback(secNewPass, 'newPasswordFeedback', false, 'Password is required.');
+                return false;
+            } else if (score <= 2) {
+                if (barFill) { barFill.style.width = '33%'; barFill.style.backgroundColor = '#ef4444'; }
+                if (txt) { txt.innerText = 'Weak'; txt.style.color = '#ef4444'; }
+                setSecFeedback(secNewPass, 'newPasswordFeedback', false, 'Password is too weak.');
+                return false;
+            } else if (score === 3) {
+                if (barFill) { barFill.style.width = '66%'; barFill.style.backgroundColor = '#f59e0b'; }
+                if (txt) { txt.innerText = 'Moderate'; txt.style.color = '#f59e0b'; }
+                setSecFeedback(secNewPass, 'newPasswordFeedback', false, 'Please satisfy all 4 criteria.');
+                return false;
+            } else {
+                if (barFill) { barFill.style.width = '100%'; barFill.style.backgroundColor = '#10b981'; }
+                if (txt) { txt.innerText = 'Strong'; txt.style.color = '#10b981'; }
+                setSecFeedback(secNewPass, 'newPasswordFeedback', true, '✓ Strong password');
+                return true;
+            }
+        }
+
+        function validateSecConfirmPassword() {
+            if (!secConfirmPass || !secNewPass) return true;
+            const newP = secNewPass.value;
+            const confP = secConfirmPass.value;
+            if (confP.length === 0) {
+                setSecFeedback(secConfirmPass, 'confirmPasswordFeedback', false, 'Please confirm your new password.');
+                return false;
+            }
+            if (newP !== confP) {
+                setSecFeedback(secConfirmPass, 'confirmPasswordFeedback', false, 'Passwords do not match.');
+                return false;
+            }
+            setSecFeedback(secConfirmPass, 'confirmPasswordFeedback', true, '✓ Passwords match');
+            return true;
+        }
+
+        if (secNewPass) {
+            secNewPass.addEventListener('focus', () => { if (secCheckerBox) secCheckerBox.style.display = 'block'; });
+            secNewPass.addEventListener('input', () => {
+                validateSecNewPassword();
+                if (secConfirmPass && secConfirmPass.value.length > 0) validateSecConfirmPassword();
+            });
+        }
+
+        if (secConfirmPass) {
+            secConfirmPass.addEventListener('input', validateSecConfirmPassword);
+        }
+
+        if (secForm) {
+            secForm.addEventListener('submit', function(e) {
+                let valid = true;
+                if (!secCurrentPass || secCurrentPass.value.trim().length === 0) {
+                    setSecFeedback(secCurrentPass, 'currentPasswordFeedback', false, 'Current password is required.');
+                    valid = false;
+                }
+                if (!validateSecNewPassword()) valid = false;
+                if (!validateSecConfirmPassword()) valid = false;
+
+                if (!valid) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                const btn = document.getElementById('updatePasswordBtn');
+                const txt = document.getElementById('updatePasswordText');
+                const spinner = document.getElementById('updatePasswordSpinner');
+                if (btn) btn.disabled = true;
+                if (txt) txt.innerText = 'Updating Password...';
+                if (spinner) { spinner.classList.add('active-spin'); spinner.style.display = 'inline-block'; }
+            });
+        }
+
+        
+        // DOCUMENTS FORM SUBMIT SPINNER
+        const docForm = document.getElementById('documentsForm');
+        if (docForm) {
+            docForm.addEventListener('submit', function() {
+                const btn = document.getElementById('saveDocumentsBtn');
+                const txt = document.getElementById('saveDocumentsText');
+                const spinner = document.getElementById('saveDocumentsSpinner');
+                if (btn) btn.disabled = true;
+                if (txt) txt.innerText = 'Saving Documents...';
+                if (spinner) {
+                    spinner.classList.add('active-spin');
+                    spinner.style.display = 'inline-block';
+                }
+            });
+        }
+
+        // EDIT PROFILE FORM REAL-TIME VALIDATION
+        const profForm = document.getElementById('profileForm');
+        const profName = document.getElementById('profileName');
+        const profPhone = document.querySelector('input[name="phone"]');
+
+        if (profForm) {
+            profForm.addEventListener('submit', function(e) {
+                let valid = true;
+                if (profName) {
+                    const nameVal = profName.value.trim();
+                    if (nameVal.length < 3 || !/^[A-Za-z\s.'-]+$/.test(nameVal)) {
+                        alert('Full Name must be at least 3 characters and contain only letters.');
+                        profName.focus();
+                        valid = false;
+                    }
+                }
+                if (valid && profPhone) {
+                    const phoneVal = profPhone.value.trim();
+                    if (phoneVal.length > 0 && !/^[0-9]{10}$/.test(phoneVal)) {
+                        alert('Phone number must be exactly 10 digits.');
+                        profPhone.focus();
+                        valid = false;
+                    }
+                }
+
+                if (!valid) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                const btn = document.getElementById('saveProfileBtn');
+                const txt = document.getElementById('saveProfileText');
+                const spinner = document.getElementById('saveProfileSpinner');
+                if (btn) btn.disabled = true;
+                if (txt) txt.innerText = 'Saving Changes...';
+                if (spinner) { spinner.classList.add('active-spin'); spinner.style.display = 'inline-block'; }
+            });
+        }
+
+        // REAL-TIME FILE SIZE & EXTENSION VALIDATION
+        document.querySelectorAll('#documentsForm input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const maxBytes = 10 * 1024 * 1024; // 10MB
+                    if (file.size > maxBytes) {
+                        alert('File "' + file.name + '" is too large (' + (file.size / (1024*1024)).toFixed(1) + 'MB). Maximum allowed size is 10MB.');
+                        this.value = '';
+                        return;
+                    }
+                }
+            });
+        });
+
+        // QUICK AVATAR PHOTO VALIDATION
+        const quickPicInput = document.getElementById('quickProfilePictureInput');
+        if (quickPicInput) {
+            quickPicInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please choose a valid image file (PNG, JPG, JPEG, WEBP).');
+                        this.value = '';
+                        return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Profile image must be less than 5MB.');
+                        this.value = '';
+                        return;
+                    }
+                    document.getElementById('photoUploadForm').submit();
+                }
+            });
+        }
+    </script>
 </body>
+
 
 </html>

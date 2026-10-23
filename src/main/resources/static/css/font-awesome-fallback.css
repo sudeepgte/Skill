@@ -16,7 +16,8 @@
 .fa-lock::before { content: "\1F512"; }
 .fa-envelope::before { content: "\2709"; }
 .fa-check::before { content: "\2713"; }
-.fa-check-circle::before { content: "\2705"; }
+.fa-check-circle::before, .fa-circle-check::before { content: "\2705"; }
+.fa-circle::before { content: "\25CB"; }
 .fa-times::before, .fa-times-circle::before { content: "\2715"; }
 .fa-trash::before, .fa-trash-alt::before, .fa-trash-can::before { content: "\1F5D1"; }
 .fa-heart::before { content: "\2764"; }
@@ -24,7 +25,24 @@
 .fa-play::before, .fa-circle-play::before { content: "\25B6"; }
 .fa-camera::before { content: "\1F4F7"; }
 .fa-user::before, .fa-user-circle::before, .fa-user-graduate::before { content: "\1F464"; }
+.fa-chalkboard-user::before, .fa-chalkboard-teacher::before { content: "\1F3EB"; }
 .fa-arrow-right::before { content: "\2192"; }
 .fa-arrow-left::before { content: "\2190"; }
 .fa-clock::before { content: "\23F0"; }
 .fa-certificate::before, .fa-award::before, .fa-trophy::before { content: "\1F3C6"; }
+.fa-eye::before { content: "\1F441"; }
+.fa-eye-slash::before { content: "\1F576"; }
+.fa-shield::before, .fa-shield-halved::before, .fa-shield-alt::before { content: "\1F6E1"; }
+.fa-circle-notch::before { content: "\27F3"; }
+.fa-exclamation-circle::before { content: "\26A0"; }
+.fa-file-alt::before, .fa-file-lines::before, .fa-file::before, .fa-file-pdf::before { content: "\1F4C4"; }
+.fa-book-reader::before, .fa-book-open-reader::before, .fa-book::before { content: "\1F4D6"; }
+.fa-images::before, .fa-image::before { content: "\1F5BC"; }
+.fa-sticky-note::before, .fa-note-sticky::before { content: "\1F4DD"; }
+.fa-key::before { content: "\1F511"; }
+.fa-sign-out-alt::before, .fa-right-from-bracket::before { content: "\27AA"; }
+.fa-cloud-upload-alt::before, .fa-cloud-arrow-up::before { content: "\2601"; }
+.fa-file-invoice::before, .fa-file-invoice-dollar::before { content: "\1F9FE"; }
+.fa-qrcode::before { content: "\229E"; }
+.fa-plus::before { content: "\002B"; }
+.fa-bars::before { content: "\2630"; }

@@ -248,11 +248,10 @@ public class ProfileController {
     }
 
     @GetMapping("/change-password")
-    public String showChangePassword(Model model, Principal principal) {
+    public String showChangePassword(Principal principal) {
         if (principal == null)
             return "redirect:/login";
-        model.addAttribute("user", userService.findByEmail(principal.getName()));
-        return "change_password";
+        return "redirect:/profile?tab=security";
     }
 
     @PostMapping("/change-password")
@@ -267,21 +266,30 @@ public class ProfileController {
 
         User user = userService.findByEmail(principal.getName());
 
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            redirectAttributes.addFlashAttribute("error", "Incorrect current password.");
-            return "redirect:/change-password";
+        if (currentPassword == null || currentPassword.isBlank() || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Incorrect current password. Please try again.");
+            redirectAttributes.addFlashAttribute("passwordError", "Incorrect current password. Please try again.");
+            return "redirect:/profile?tab=security";
+        }
+
+        if (newPassword == null || newPassword.length() < 8) {
+            redirectAttributes.addFlashAttribute("error", "New password must be at least 8 characters.");
+            redirectAttributes.addFlashAttribute("passwordError", "New password must be at least 8 characters.");
+            return "redirect:/profile?tab=security";
         }
 
         if (!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("error", "New passwords do not match.");
-            return "redirect:/change-password";
+            redirectAttributes.addFlashAttribute("passwordError", "New passwords do not match.");
+            return "redirect:/profile?tab=security";
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userService.updateUser(user);
 
-        redirectAttributes.addFlashAttribute("success", "Password changed successfully.");
-        return "redirect:/profile";
+        redirectAttributes.addFlashAttribute("success", "Password updated successfully!");
+        redirectAttributes.addFlashAttribute("passwordSuccess", "Password updated successfully!");
+        return "redirect:/profile?tab=security";
     }
 
     @PostMapping("/profile/upload-documents")
