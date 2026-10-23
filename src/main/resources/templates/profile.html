@@ -1363,9 +1363,10 @@
         let progressInterval;
         
         function startProgressPolling() {
+            fetchLatestProgress();
             if (progressInterval) return;
             console.log('Starting progress polling...');
-            progressInterval = setInterval(fetchLatestProgress, 10000); // 10 seconds
+            progressInterval = setInterval(fetchLatestProgress, 3000); // 3 seconds real-time polling
         }
 
         function stopProgressPolling() {

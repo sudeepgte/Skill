@@ -2,1696 +2,2912 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title th:text="${course.title} + ' | SkillHub'">Course Title | SkillHub</title>
+    <title th:text="${course.title} + ' | SkillHub Classroom'">Course Title | SkillHub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- CSRF Token -->
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    
     <!-- PWA & Offline -->
     <link rel="manifest" th:href="@{/manifest.json}">
     <script th:src="@{/js/offline-manager.js}"></script>
+
     <style>
-        *,
-        *::before,
-        *::after {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         :root {
-            --bg-primary: #0f0f10;
-            --bg-secondary: #18191b;
-            --bg-tertiary: #222426;
-            --bg-hover: #2a2c2f;
-            --border: #2e3033;
-            --text-primary: #f0f0f0;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
-            --accent: #7c3aed;
-            --accent-light: #8b5cf6;
-            --accent-glow: rgba(124, 58, 237, 0.35);
+            /* Clean Modern White Palette */
+            --bg-page: #f8fafc;
+            --bg-white: #ffffff;
+            --bg-muted: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --border-focus: #cbd5e1;
+            
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: #e0e7ff;
+            --primary-soft: #f5f3ff;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            
             --success: #10b981;
-            --sidebar-width: 400px;
-            --header-height: 58px;
+            --success-light: #d1fae5;
+            --success-soft: #ecfdf5;
+            
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            --sidebar-width: 380px;
+            --header-height: 64px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-body);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ─── HEADER ─── */
+        /* ─── CLEAN WHITE HEADER ─── */
         .learning-header {
             height: var(--header-height);
-            background: var(--bg-secondary);
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            padding: 0 1.5rem;
-            border-bottom: 1px solid var(--border);
-            gap: 1rem;
+            justify-content: space-between;
+            padding: 0 1.75rem;
             flex-shrink: 0;
             z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            min-width: 0;
+            flex: 1;
         }
 
         .header-back {
-            color: var(--text-secondary);
+            color: var(--text-body);
             text-decoration: none;
             font-size: 0.85rem;
-            font-weight: 500;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            background: var(--bg-muted);
             border: 1px solid var(--border);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
         }
 
         .header-back:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+            background: var(--bg-white);
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px var(--primary-glow);
+            transform: translateX(-2px);
         }
 
         .header-divider {
             width: 1px;
-            height: 20px;
+            height: 24px;
             background: var(--border);
         }
 
+        .header-course-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
         .header-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            flex: 1;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.01em;
+        }
+
+        .header-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .header-progress {
+        .header-right {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Progress Card in Header */
+        .header-progress-box {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            background: var(--bg-muted);
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+        }
+
+        .header-progress-bar-wrap {
+            width: 110px;
+            height: 7px;
+            background: #cbd5e1;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .header-progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 999px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-progress-text {
             font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-left: auto;
+            font-weight: 700;
+            color: var(--text-heading);
+            font-variant-numeric: tabular-nums;
         }
 
         .header-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-white);
             border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            color: var(--text-body);
+            padding: 0.5rem 1.1rem;
+            border-radius: 10px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
         }
 
         .header-btn:hover {
-            background: var(--bg-hover);
-            border-color: var(--accent);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 2px 10px var(--primary-glow);
         }
 
         .header-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        .progress-bar-wrap {
-            width: 140px;
-            height: 5px;
-            background: var(--bg-hover);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-light));
-            border-radius: 999px;
-            transition: width 0.5s ease;
-        }
-
-        /* ─── LAYOUT ─── */
+        /* ─── MAIN CONTAINER ─── */
         .learning-container {
             display: flex;
             flex: 1;
+            height: calc(100vh - var(--header-height));
             overflow: hidden;
             position: relative;
-            /* For absolute sidebar */
+            background: var(--bg-page);
         }
 
-        /* ─── VIDEO AREA ─── */
+        /* ─── LEFT: VIDEO & CONTENT AREA ─── */
         .video-area {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #000;
+            background: var(--bg-page);
             overflow-y: auto;
-            /* Allow scrolling content below video */
             height: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .video-wrapper {
-            flex: 1;
+        .video-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .video-area::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        /* Cinematic Video Canvas */
+        .video-player-container {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            max-height: 65vh;
+            min-height: 420px;
+            flex-shrink: 0 !important;
+            background: #000000;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #000;
-            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
         }
 
-        .video-wrapper video,
-        .video-wrapper iframe {
+        /* ─── INTERACTIVE SCRUBBER TIMELINE BAR ─── */
+        .video-scrubber-bar {
+            position: relative;
+            width: 100%;
+            height: 5px;
+            background: #e2e8f0;
+            cursor: pointer;
+            transition: height 0.15s ease;
+            z-index: 15;
+            flex-shrink: 0;
+        }
+
+        .video-scrubber-bar:hover {
+            height: 9px;
+        }
+
+        .video-scrubber-buffered {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            background: #cbd5e1;
+            pointer-events: none;
+        }
+
+        .video-scrubber-fill {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            background: var(--brand-purple);
+            pointer-events: none;
+            transition: width 0.05s linear;
+        }
+
+        .video-scrubber-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--brand-purple);
+            box-shadow: 0 0 6px rgba(99, 102, 241, 0.6);
+            pointer-events: none;
+            transition: transform 0.15s ease;
+        }
+
+        .video-scrubber-bar:hover .video-scrubber-handle {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .video-player-container video,
+        .video-player-container iframe {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            background: #000000;
         }
 
-        .video-placeholder {
+        /* Autoplay Countdown Overlay */
+        .autoplay-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
-            color: var(--text-muted);
-            padding: 3rem;
+            z-index: 30;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .autoplay-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 2.25rem 2.5rem;
+            border-radius: 18px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 440px;
+            width: 100%;
             text-align: center;
         }
 
-        .video-placeholder .play-icon {
-            width: 90px;
-            height: 90px;
+        .autoplay-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .autoplay-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
+        }
+
+        .autoplay-timer-circle {
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border);
+            border: 3px solid var(--primary-light);
+            border-top-color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            color: var(--text-secondary);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            animation: spin 1s linear infinite;
         }
 
-        .video-placeholder h2 {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            font-weight: 500;
+        .autoplay-actions {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
         }
 
-        .video-placeholder p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+        .btn-autoplay-now {
+            flex: 1;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .video-info {
-            padding: 1.25rem 2rem;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
+        .btn-autoplay-now:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-autoplay-cancel {
+            background: var(--bg-muted);
+            color: var(--text-body);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-autoplay-cancel:hover {
+            background: var(--bg-hover);
+        }
+
+        /* ─── REALTIME CUSTOM PLAYER CONTROLS STRIP (Clean White Style) ─── */
+        .player-controls-strip {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.75rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            gap: 1.5rem;
             flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
         }
 
-        .video-info h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
+        .controls-group-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        .video-info p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 0.2rem;
-        }
-
-        .btn-complete {
-            flex-shrink: 0;
-            padding: 0.55rem 1.2rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
+        .ctrl-btn {
+            background: var(--bg-muted);
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            font-size: 0.95rem;
             cursor: pointer;
-            border: 1.5px solid var(--accent);
-            color: var(--accent-light);
+            padding: 0.45rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+        }
+
+        .ctrl-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .ctrl-btn.play-btn {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            justify-content: center;
+            padding: 0;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .ctrl-btn.play-btn:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 0.25rem;
+        }
+
+        .volume-slider {
+            width: 75px;
+            height: 5px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .time-counter {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            font-variant-numeric: tabular-nums;
+            margin-left: 0.5rem;
+            background: var(--bg-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .controls-group-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        /* Playback Speed Dropdown */
+        .speed-dropdown {
+            position: relative;
+        }
+
+        .speed-btn {
+            background: var(--bg-muted);
+            border: 1px solid var(--border);
+            color: var(--text-heading);
+            padding: 0.45rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.15s;
+        }
+
+        .speed-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .speed-menu {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            display: none;
+            flex-direction: column;
+            min-width: 130px;
+            overflow: hidden;
+            z-index: 50;
+            padding: 0.35rem 0;
+        }
+
+        .speed-menu.show {
+            display: flex;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .speed-option {
             background: transparent;
+            border: none;
+            color: var(--text-body);
+            padding: 0.55rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .speed-option:hover, .speed-option.active {
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* ─── REALTIME LECTURE NAVIGATION STRIP ─── */
+        .lecture-nav-strip {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 1.15rem 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .lecture-current-details {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .lecture-active-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.01em;
+        }
+
+        .lecture-meta-tags {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .section-pill {
+            background: var(--primary-light);
+            color: var(--primary-hover);
+            padding: 0.2rem 0.65rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .lecture-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            color: var(--text-heading);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--bg-muted);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 2px 8px var(--primary-glow);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .btn-mark-done {
+            background: var(--bg-white);
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-mark-done:hover, .btn-mark-done.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Autoplay Switch */
+        .autoplay-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-body);
+            margin-right: 0.5rem;
+            background: var(--bg-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        /* ─── TABS HEADER & BODY (White Theme) ─── */
+        .tabs-header {
+            display: flex;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.75rem;
+            gap: 2rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            font-weight: 700;
+            padding: 1.1rem 0.25rem;
+            cursor: pointer;
+            position: relative;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .btn-complete:hover,
-        .btn-complete.done {
-            background: var(--accent);
-            color: #fff;
+        .tab-btn:hover {
+            color: var(--text-heading);
         }
 
-        .btn-complete.done {
-            border-color: var(--success);
-            background: var(--success);
+        .tab-btn.active {
+            color: var(--primary);
         }
 
-        .btn-complete:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            border-color: var(--border);
-            color: var(--text-muted);
-            background: transparent !important;
-            pointer-events: none;
-        }
-
-        /* ─── SIDEBAR (Slide-out Overlay) ─── */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100%;
-            background: white;
-            /* Clean light background for the content list */
-            color: black;
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
+        .tab-btn.active::after {
+            content: '';
             position: absolute;
-            right: calc(-1 * var(--sidebar-width));
-            top: 0;
-            z-index: 2000;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .sidebar.show {
+            bottom: -1px;
+            left: 0;
             right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
         }
 
-        .sidebar-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #eee;
+        .tab-body {
+            padding: 2.25rem 2.5rem;
+            background: var(--bg-page);
+            flex: 1;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Article Tab */
+        .article-card {
+            max-width: 920px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .article-top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #fdfdfd;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .sidebar-header span {
-            font-size: 0.9rem;
+        .article-heading {
+            color: var(--text-heading);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-audio-reader {
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-light);
+            color: var(--primary);
+            padding: 0.55rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: black !important;
-            letter-spacing: 0.01em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-audio-reader:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-audio-reader.playing {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .article-text-content {
+            line-height: 1.85;
+            font-size: 1.05rem;
+            color: var(--text-body);
+        }
+
+        /* Notes Tab */
+        .notes-card {
+            max-width: 920px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notes-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .notes-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .btn-timestamp {
+            background: var(--primary-soft);
+            border: 1px solid var(--primary-light);
+            color: var(--primary);
+            padding: 0.45rem 0.95rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.15s;
+        }
+
+        .btn-timestamp:hover {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .note-textarea {
+            width: 100%;
+            height: 250px;
+            background: var(--bg-page);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-heading);
+            padding: 1.25rem;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.65;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .note-textarea:focus {
+            border-color: var(--primary);
+            background: var(--bg-white);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+        }
+
+        .notes-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+        }
+
+        .save-status-indicator {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-save-note {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1.4rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .btn-save-note:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 14px var(--primary-glow);
+            transform: translateY(-1px);
+        }
+
+        /* ─── RIGHT: DOCKED CURRICULUM SIDEBAR (Clean White Theme) ─── */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100%;
+            background: var(--bg-white);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 50;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .sidebar.collapsed {
+            margin-right: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-white);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+
+        .sidebar-stats {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 0.15rem;
+        }
+
+        .sidebar-close-btn {
+            background: var(--bg-muted);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .sidebar-close-btn:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: #fef2f2;
         }
 
         .sidebar-body {
             flex: 1;
             overflow-y: auto;
+            background: var(--bg-white);
         }
 
         .sidebar-body::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sidebar-body::-webkit-scrollbar-track {
-            background: transparent;
+            width: 6px;
         }
 
         .sidebar-body::-webkit-scrollbar-thumb {
-            background: var(--border);
+            background: #cbd5e1;
             border-radius: 99px;
         }
 
-        /* ─── SECTION ─── */
-        .section-item {
+        /* Section Blocks in Sidebar */
+        .section-block {
             border-bottom: 1px solid var(--border);
         }
 
-        .section-title {
-            padding: 0.85rem 1.5rem;
-            background: var(--bg-tertiary);
+        .section-head {
+            padding: 1rem 1.5rem;
+            background: var(--bg-muted);
             cursor: pointer;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
-            user-select: none;
+            justify-content: space-between;
             transition: background 0.15s;
         }
 
-        .section-title:hover {
+        .section-head:hover {
             background: var(--bg-hover);
         }
 
-        .section-title-text {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            flex: 1;
+        .section-head-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 0.2rem;
         }
 
-        .section-meta {
+        .section-head-meta {
             font-size: 0.75rem;
             color: var(--text-muted);
-            font-weight: 400;
+            font-weight: 600;
         }
 
         .section-chevron {
             color: var(--text-muted);
-            font-size: 0.75rem;
-            transition: transform 0.25s;
+            font-size: 0.8rem;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .section-item.collapsed .section-chevron {
+        .section-block.collapsed .section-chevron {
             transform: rotate(-90deg);
         }
 
-        /* ─── LESSON ITEM ─── */
-        .lesson-list {
-            overflow: hidden;
-        }
-
-        .section-item.collapsed .lesson-list {
+        .section-block.collapsed .lecture-list {
             display: none;
         }
 
-        .lesson-item {
-            padding: 0.75rem 1.5rem;
+        .lecture-list {
+            list-style: none;
+            background: var(--bg-white);
+        }
+
+        .lecture-row {
             display: flex;
-            align-items: flex-start;
-            gap: 0.85rem;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.95rem 1.5rem;
             cursor: pointer;
-            text-decoration: none;
-            color: var(--text-secondary);
-            transition: background 0.15s;
             border-left: 3px solid transparent;
+            text-decoration: none;
+            color: var(--text-body);
+            transition: all 0.15s;
             position: relative;
+            border-bottom: 1px solid var(--border-light);
         }
 
-        .lesson-item:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+        .lecture-row:hover {
+            background: var(--bg-muted);
+            color: var(--primary);
         }
 
-        .lesson-item.active {
-            background: rgba(124, 58, 237, 0.08);
-            border-left-color: var(--accent-light);
-            color: var(--text-primary);
+        .lecture-row.active {
+            background: var(--primary-soft);
+            border-left-color: var(--primary);
+            color: var(--primary);
         }
 
-        /* Radio-style completion indicator */
-        .lesson-radio {
-            width: 20px;
-            height: 20px;
+        .lecture-dot {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            border: 2px solid var(--border);
-            flex-shrink: 0;
-            margin-top: 1px;
+            border: 2px solid #cbd5e1;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.25s;
-            background: transparent;
-            cursor: pointer;
-            position: relative;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+            color: transparent;
+            background: #ffffff;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .lesson-radio::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+        .lecture-row.active .lecture-dot {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .lecture-row.completed .lecture-dot {
             background: var(--success);
-            transform: scale(0);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .lesson-item:hover .lesson-radio {
-            border-color: var(--text-secondary);
-        }
-
-        .lesson-radio.watched {
             border-color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
+            color: #ffffff;
+            box-shadow: 0 0 0 2px var(--success-light);
         }
 
-        .lesson-radio.watched::after {
-            transform: scale(1);
-        }
-
-        /* Currently playing indicator */
-        .lesson-radio.playing {
-            border-color: var(--accent-light);
-            background: rgba(124, 58, 237, 0.15);
-        }
-
-        .lesson-radio.playing::after {
-            background: var(--accent-light);
-            transform: scale(1);
-            animation: pulse-dot 1.5s infinite;
-        }
-
-        @keyframes pulse-dot {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.6;
-                transform: scale(0.75);
-            }
-        }
-
-        .lesson-text {
-            flex: 1;
+        .lecture-text-wrap {
             min-width: 0;
+            flex: 1;
         }
 
-        .lesson-text .lesson-title {
-            font-size: 0.875rem;
-            line-height: 1.4;
-            font-weight: 500;
+        .lecture-row-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-heading);
         }
 
-        .lesson-item.active .lesson-title {
-            font-weight: 600;
-            color: var(--text-primary);
+        .lecture-row.active .lecture-row-title {
+            color: var(--primary);
         }
 
-        .lesson-meta {
+        .lecture-row-meta {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-top: 0.3rem;
+            margin-top: 0.2rem;
             font-size: 0.75rem;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
-        /* Resume badge */
-        .resume-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 0.15rem 0.45rem;
+        .lecture-preview-badge {
+            background: var(--success-soft);
+            color: var(--success);
+            padding: 0.1rem 0.45rem;
             border-radius: 4px;
-            background: rgba(124, 58, 237, 0.18);
-            color: var(--accent-light);
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            font-size: 0.68rem;
+            font-weight: 800;
+            border: 1px solid var(--success-light);
         }
 
-        /* Toast notification */
-        .toast {
+        .lecture-download-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .lecture-download-btn:hover {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        /* ─── REALTIME TOAST NOTIFICATION ─── */
+        .rt-toast {
             position: fixed;
             bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast .toast-icon {
-            color: var(--success);
-        }
-
-        /* ─── AUDIO MODE & ARTICLE ─── */
-        .article-content {
-            padding: 2rem;
-            line-height: 1.8;
-            font-size: 1rem;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border);
-            background: var(--bg-secondary);
-        }
-
-        .btn-audio {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .btn-audio:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .btn-audio.playing {
-            border-color: var(--accent);
-            color: var(--accent-light);
-            background: rgba(124, 58, 237, 0.1);
-        }
-
-        .highlight-text {
-            background: var(--accent-glow);
-            border-radius: 3px;
-        }
-
-        /* CUSTOM VIDEO CONTROLS */
-        .video-controls-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            background: #1a1a1a;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-
-        .control-btn {
-            background: none;
-            border: none;
-            color: #eee;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .control-btn:hover {
-            color: var(--accent-light);
-            transform: scale(1.1);
-        }
-
-        .control-btn i {
-            font-size: 1.4rem;
-        }
-
-        .notes-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
+            right: 2rem;
+            background: var(--text-heading);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0.9rem 1.5rem;
             border-radius: 12px;
-            padding: 1.5rem;
-            margin: 2rem;
-            margin-top: 0;
-        }
-
-        .notes-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .notes-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        #noteArea {
-            width: 100%;
-            min-height: 151px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            padding: 1rem;
-            font-family: inherit;
+            color: #ffffff;
             font-size: 0.9rem;
-            line-height: 1.5;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        #noteArea:focus {
-            border-color: var(--accent);
-        }
-
-        .save-indicator {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: none;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .save-indicator.show {
+            font-weight: 700;
+            box-shadow: var(--shadow-xl);
             display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
         }
 
-        .sidebar-close-btn {
-            background: none;
-            border: none;
+        .rt-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .rt-toast-icon {
             font-size: 1.2rem;
-            color: #1c1d1f;
-            cursor: pointer;
-            padding: 0.2rem 0.5rem;
-            transition: all 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Mobile Drawer */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        /* ─── HOTSTAR STYLE PREVIEW PILL ─── */
+        .preview-timer-pill {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 25;
+            background: rgba(15, 23, 42, 0.88);
+            color: #ffffff;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            animation: fadeIn 0.3s ease;
+            pointer-events: none;
+        }
+
+        .preview-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            animation: pulseDot 1.2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.25); }
+        }
+
+        /* ─── HOTSTAR STYLE PAYWALL OVERLAY ─── */
+        .hotstar-paywall-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            background: rgba(10, 15, 29, 0.94);
+            backdrop-filter: blur(14px);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
+            padding: 1.5rem;
+            animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .sidebar-close-btn:hover {
-            color: var(--accent);
-            background: #f3f4f6;
+        .paywall-card {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            text-align: center;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75);
+            color: #ffffff;
         }
+
+        .paywall-crown-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.65rem;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+        }
+
+        .paywall-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.45rem;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        .paywall-desc {
+            font-size: 0.84rem;
+            color: #94a3b8;
+            line-height: 1.45;
+            margin-bottom: 0.85rem;
+        }
+
+        .paywall-pricing-tag {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 0.5rem 0.85rem;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .paywall-currency {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .paywall-amount {
+            font-size: 1.85rem;
+            font-weight: 900;
+            color: #ffffff;
+        }
+
+        .paywall-tenure {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-left: 6px;
+        }
+
+        .paywall-perks-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.45rem;
+            text-align: left;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+        }
+
+        .paywall-perk-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .paywall-perk-item i {
+            color: #10b981;
+            font-size: 0.85rem;
+        }
+
+        .paywall-cta-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .btn-paywall-unlock {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-paywall-unlock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+
+        .btn-paywall-replay {
+            width: 100%;
+            padding: 0.55rem 1rem;
+            background: transparent;
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-paywall-replay:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .paywall-alt-checkout {
+            margin-top: 1rem;
+        }
+
+        .paywall-link {
+            color: #a5b4fc;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .paywall-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .locked-lecture {
+            opacity: 0.75;
+            background: #fafafa !important;
+            cursor: pointer;
+        }
+
+        .locked-dot {
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
+        }
+
+        .lecture-locked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+
     </style>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <div id="offlineBanner" style="display:none; background:#ef4444; color:white; text-align:center; padding:5px; font-size:12px; font-weight:bold;">
-        <i class="fas fa-wifi-slash"></i> Offline Mode: Accessing Downloaded Lessons Only
+    <!-- Offline Notification Banner -->
+    <div id="offlineBanner" style="display:none; background: var(--danger); color:white; text-align:center; padding: 6px; font-size: 12px; font-weight:700;">
+        <i class="fas fa-wifi-slash"></i> Offline Mode: Accessing Cached Lessons
     </div>
-    <div class="learning-header">
-        <a href="/user/home" class="header-back">
-            <i class="fas fa-chevron-left"></i> Dashboard
-        </a>
-        <div class="header-divider"></div>
-        <span class="header-title" th:text="${course.title}">Course Title</span>
 
-        <div class="header-progress">
-            <button class="header-btn" id="sidebarToggle" onclick="toggleSidebar()">
-                <i class="fas fa-list-ul"></i>
+    <!-- CLEAN WHITE HEADER -->
+    <header class="learning-header">
+        <div class="header-left">
+            <a href="/user/home" class="header-back">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <div class="header-divider"></div>
+            <div class="header-course-info">
+                <span class="header-title" th:text="${course.title}">Course Title</span>
+                <span class="header-subtitle" th:text="${course.categoryDataMap != null ? course.categoryDataMap.get('musicInstrumentDiscipline') : 'Student Classroom'}">Classroom</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Granular Course Progress Card -->
+            <div class="header-progress-box">
+                <div class="header-progress-bar-wrap">
+                    <div class="header-progress-bar-fill" id="headerProgressFill" style="width: 0%;"></div>
+                </div>
+                <span class="header-progress-text" id="headerProgressText">0% Complete</span>
+            </div>
+
+            <!-- Course Content Sidebar Toggle (Theater Mode) -->
+            <button class="header-btn active" id="toggleCurriculumBtn" onclick="toggleSidebar()" title="Toggle Course Content (Theater Mode)">
+                <i class="fas fa-bars-staggered"></i>
                 <span>Course Content</span>
             </button>
-            <button class="header-btn" id="notesToggle" onclick="toggleNotes()">
-                <i class="fas fa-sticky-note"></i>
-                <span>My Notes</span>
-            </button>
         </div>
-    </div>
+    </header>
 
-    <!-- MAIN -->
-    <div class="learning-container" id="learningContainer">
+    <!-- MAIN LEARNING CONTAINER -->
+    <main class="learning-container" id="learningContainer">
 
-        <!-- VIDEO AREA -->
-        <div class="video-area">
-            <div class="video-wrapper">
+        <!-- LEFT: VIDEO & CONTENT AREA -->
+        <section class="video-area" id="videoArea">
 
-                <!-- No lesson selected -->
-                <div class="video-placeholder" th:if="${currentLesson == null}">
-                    <div class="play-icon"><i class="fas fa-play"></i></div>
-                    <h2>Select a lecture to begin</h2>
-                    <p>Choose any lesson from the curriculum on the right.</p>
+            <!-- 1. CINEMATIC VIDEO CANVAS -->
+            <div class="video-player-container" id="videoWrapper">
+
+                                <!-- Floating Free Preview Pill -->
+                <div th:if="${isPaidCourse and not hasPaid}" class="preview-timer-pill" id="previewTimerPill">
+                    <span class="preview-dot"></span>
+                    <span>Free Preview (15%): <strong id="previewTimerCount">--</strong> <span id="previewTotalText" style="opacity: 0.88; font-size: 0.78rem; font-weight: 500; margin-left: 4px;"></span></span>
                 </div>
 
-                <!-- Lesson selected - non-YouTube video -->
-                <video
-                    th:if="${currentLesson != null && currentLesson.videoUrl != null && !(#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
-                    th:src="@{${currentLesson.videoUrl}}" controls autoplay playsinline id="mainVideo"
-                    style="width:100%;height:100%;" allowfullscreen>
+                <!-- HOTSTAR CINEMATIC PAYWALL OVERLAY -->
+                <div th:if="${isPaidCourse and not hasPaid}" class="hotstar-paywall-overlay" id="hotstarPaywallOverlay" style="display:none;">
+                    <div class="paywall-card">
+                        <div class="paywall-crown-badge">
+                            <i class="fas fa-crown"></i>
+                            <span>SKILLHUB PREMIUM &bull; 15% PREVIEW ENDED</span>
+                        </div>
+
+                        <h2 class="paywall-title">Enjoying this lesson? Subscribe to continue watching</h2>
+                        <p class="paywall-desc">
+                            Your 15% free preview has ended. Pay <strong style="color:#ffffff;">&#8377;<span th:text="${coursePrice != null ? #numbers.formatDecimal(coursePrice, 1, 0) : '200'}">200</span></strong> to unlock this full lesson and all remaining modules in <strong style="color:#ffffff;" th:text="${course.title}">Course</strong>.
+                        </p>
+
+                        <div class="paywall-pricing-tag">
+                            <span class="paywall-currency">&#8377;</span>
+                            <span class="paywall-amount" th:text="${coursePrice != null ? #numbers.formatDecimal(coursePrice, 1, 0) : '200'}">200</span>
+                            <span class="paywall-tenure">one-time payment &bull; lifetime access</span>
+                        </div>
+
+                        <div class="paywall-perks-list">
+                            <div class="paywall-perk-item"><i class="fas fa-circle-check"></i> Full access to all lectures & videos</div>
+                            <div class="paywall-perk-item"><i class="fas fa-circle-check"></i> Official Certificate of Completion</div>
+                            <div class="paywall-perk-item"><i class="fas fa-circle-check"></i> Downloadable notes & practice exercises</div>
+                            <div class="paywall-perk-item"><i class="fas fa-circle-check"></i> 30-Day Money-Back Guarantee</div>
+                        </div>
+
+                        <div class="paywall-cta-group">
+                            <button type="button" class="btn-paywall-unlock" id="paywallBuyBtn" onclick="initiateCoursePayment()">
+                                <i class="fas fa-bolt"></i> Unlock Full Course (&#8377;<span th:text="${coursePrice != null ? #numbers.formatDecimal(coursePrice, 1, 0) : '200'}">200</span>)
+                            </button>
+                            <button type="button" class="btn-paywall-replay" onclick="replayPreview()">
+                                <i class="fas fa-rotate-left"></i> Replay 15% Preview
+                            </button>
+                        </div>
+
+                        <div class="paywall-alt-checkout">
+                            <a th:href="@{/checkout/{id}(id=${course.id})}" class="paywall-link">
+                                Or pay via NetBanking, UPI, or Cards on Checkout Page &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Native Video Player (MP4 / WebM) -->
+                <video id="mainVideo" onclick="togglePlayPause()" autoplay playsinline preload="metadata"
+                       th:src="@{${currentLesson != null ? currentLesson.videoUrl : ''}}"
+                       th:style="${currentLesson != null && currentLesson.videoUrl != null && !(#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be')) ? 'display:block; width:100%; height:100%;' : 'display:none; width:100%; height:100%;'}">
                     Your browser does not support the video tag.
                 </video>
 
-                <!-- Lesson selected - YouTube video -->
+                <!-- YouTube Player Container -->
                 <div id="ytPlayerContainer"
-                    th:if="${currentLesson != null && currentLesson.videoUrl != null and (#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be'))}"
-                    style="width:100%;height:100%;">
+                     th:style="${currentLesson != null && currentLesson.videoUrl != null and (#strings.contains(currentLesson.videoUrl, 'youtube.com') or #strings.contains(currentLesson.videoUrl, 'youtu.be')) ? 'display:block; width:100%; height:100%;' : 'display:none; width:100%; height:100%;'}">
                     <div id="youtubePlayer"></div>
                 </div>
 
-                <!-- No video URL -->
-                <div class="video-placeholder" th:if="${currentLesson != null && currentLesson.videoUrl == null}">
-                    <div class="play-icon"><i class="fas fa-file-alt"></i></div>
-                    <h2>No video for this lecture</h2>
-                    <p>This lecture has no video content attached.</p>
+                <!-- Empty Video Placeholder -->
+                <div id="emptyVideoPlaceholder" class="video-placeholder"
+                     th:style="${currentLesson == null or currentLesson.videoUrl == null or currentLesson.videoUrl == '' ? 'display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem; color:var(--text-muted);' : 'display:none;'}">
+                    <div style="font-size:3rem; margin-bottom:1rem; opacity:0.6;"><i class="fas fa-file-video"></i></div>
+                    <h3 style="color:#fff; margin-bottom:0.5rem;">No Video Attached</h3>
+                    <p style="font-size:0.85rem;">This lecture consists of reading material, notes, and exercises.</p>
+                </div>
+
+                <!-- Autoplay Countdown Overlay -->
+                <div class="autoplay-overlay" id="autoplayOverlay" style="display:none;">
+                    <div class="autoplay-card">
+                        <span class="autoplay-badge">Up Next</span>
+                        <h4 class="autoplay-title" id="nextUpLectureTitle">Next Lecture Title</h4>
+                        <div class="autoplay-timer-circle" id="countdownCircle">5</div>
+                        <div class="autoplay-actions">
+                            <button class="btn-autoplay-cancel" onclick="cancelAutoplayCountdown()">Cancel</button>
+                            <button class="btn-autoplay-now" onclick="triggerNextLectureNow()">
+                                <i class="fas fa-forward-step"></i> Play Now
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Custom Controls Bar -->
-            <div class="video-controls-bar" th:if="${currentLesson != null && currentLesson.videoUrl != null}">
-                <button class="control-btn" onclick="rewindVideo()">
-                    <i class="fas fa-backward"></i> <span>-10s</span>
-                </button>
-                <button class="control-btn" id="masterPlayPauseBtn" onclick="togglePlayPause()">
-                    <i class="fas fa-pause"></i> <span>Pause</span>
-                </button>
-                <button class="control-btn" onclick="forwardVideo()">
-                    <i class="fas fa-forward"></i> <span>+10s</span>
-                </button>
+            <!-- Interactive Video Scrubber Timeline Bar -->
+            <div class="video-scrubber-bar" id="videoScrubberBar" onclick="seekVideoScrubber(event)">
+                <div class="video-scrubber-buffered" id="videoScrubberBuffered" style="width: 0%;"></div>
+                <div class="video-scrubber-fill" id="videoScrubberFill" style="width: 0%;"></div>
+                <div class="video-scrubber-handle" id="videoScrubberHandle"></div>
+                <!-- 15% Free Preview Threshold Marker (Hotstar Style) -->
+                <div th:if="${isPaidCourse and not hasPaid}" 
+                     style="position: absolute; left: 15%; top: 0; bottom: 0; width: 3px; background: #f59e0b; z-index: 4; border-radius: 1px; box-shadow: 0 0 6px rgba(245, 158, 11, 0.8); pointer-events: none;" 
+                     title="15% Free Preview Cutoff"></div>
             </div>
 
-            <!-- Video Info Bar -->
-            <div class="video-info" th:if="${currentLesson != null}">
-                <div>
-                    <h2 th:text="${currentLesson.title}">Lecture Title</h2>
-                    <p
-                        th:text="'Section · ' + ${(currentLesson.durationSeconds != null ? currentLesson.durationSeconds / 60 : 0)} + ' min'">
-                        Section · 5 min</p>
+            <!-- 2. REALTIME CUSTOM PLAYER CONTROLS STRIP (White Bar) -->
+            <div class="player-controls-strip">
+                <div class="controls-group-left">
+                    <button class="ctrl-btn play-btn" id="ctrlPlayPauseBtn" onclick="togglePlayPause()" title="Play / Pause (Space)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="ctrl-btn" onclick="seekRelative(-10)" title="Rewind 10s (Left Arrow / j)">
+                        <i class="fas fa-rotate-left"></i> <span>10s</span>
+                    </button>
+                    <button class="ctrl-btn" onclick="seekRelative(10)" title="Fast Forward 10s (Right Arrow / l)">
+                        <i class="fas fa-rotate-right"></i> <span>10s</span>
+                    </button>
+                    
+                    <div class="volume-container">
+                        <button class="ctrl-btn" id="ctrlMuteBtn" onclick="toggleMute()" title="Mute / Unmute (m)" style="padding:0.45rem 0.6rem;">
+                            <i class="fas fa-volume-high"></i>
+                        </button>
+                        <input type="range" class="volume-slider" id="ctrlVolumeSlider" min="0" max="1" step="0.05" value="1" oninput="changeVolume(this.value)">
+                    </div>
+
+                    <span class="time-counter" id="ctrlTimeDisplay">00:00 / 00:00</span>
                 </div>
-                <button class="btn-complete" id="markCompleteBtn" th:attr="data-lecture-id=${currentLesson.id}"
-                    th:disabled="${currentLesson.videoUrl != null && !completedLectureIds.contains(currentLesson.id)}"
-                    onclick="toggleComplete(this)">
-                    <i class="fas fa-check"></i>
-                    <span>Mark Complete</span>
-                </button>
-            </div>
 
-            <!-- Article / Transcription Section -->
-            <div class="article-content" th:if="${currentLesson != null}">
-                <div
-                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
-                    <h3 style="font-size: 1.1rem; color: var(--text-primary);">Lesson Article</h3>
-                    <button class="btn-audio" id="audioModeBtn" onclick="toggleAudioMode()">
-                        <i class="fas fa-headphones"></i>
-                        <span>Listen to Lesson</span>
+                <div class="controls-group-right">
+                    <!-- Playback Speed Menu -->
+                    <div class="speed-dropdown">
+                        <button class="speed-btn" id="speedBtn" onclick="toggleSpeedMenu()">
+                            <span id="speedLabel">1.0x</span> <i class="fas fa-chevron-up" style="font-size:0.65rem;"></i>
+                        </button>
+                        <div class="speed-menu" id="speedMenu">
+                            <button class="speed-option" onclick="setPlaybackSpeed(0.5)">0.5x</button>
+                            <button class="speed-option" onclick="setPlaybackSpeed(0.75)">0.75x</button>
+                            <button class="speed-option active" onclick="setPlaybackSpeed(1.0)">1.0x (Normal)</button>
+                            <button class="speed-option" onclick="setPlaybackSpeed(1.25)">1.25x</button>
+                            <button class="speed-option" onclick="setPlaybackSpeed(1.5)">1.5x</button>
+                            <button class="speed-option" onclick="setPlaybackSpeed(1.75)">1.75x</button>
+                            <button class="speed-option" onclick="setPlaybackSpeed(2.0)">2.0x</button>
+                        </div>
+                    </div>
+
+                    <!-- Theater Mode Toggle -->
+                    <button class="ctrl-btn" onclick="toggleSidebar()" title="Theater Mode (Expand Video)">
+                        <i class="fas fa-table-columns"></i>
+                    </button>
+
+                    <!-- Fullscreen Toggle -->
+                    <button class="ctrl-btn" onclick="toggleFullscreen()" title="Fullscreen (f)">
+                        <i class="fas fa-expand"></i>
                     </button>
                 </div>
-                <div id="lessonText"
-                    th:utext="${currentLesson.content ?: 'This lesson contains practical steps for ' + currentLesson.title + '. (Transcription coming soon...)'}">
-                    Lesson content goes here.
-                </div>
             </div>
 
-        </div>
-    </div>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="learningSidebar">
-        <div class="sidebar-header">
-            <span style="color: black;">Course Content</span>
-            <div style="display: flex; align-items: center; gap: 0.8rem;">
-                <span id="lectureCountLabel" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;"></span>
-                <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Close Sidebar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="sidebar-body">
-            <!-- Empty State for Curriculum -->
-            <div th:if="${#lists.isEmpty(course.sections)}"
-                style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-                <i class="fas fa-layer-group" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">This course curriculum is currently empty.</p>
-                <a th:href="@{/user/course/{id}/generate-sample(id=${course.id})}" class="btn-audio"
-                    style="width: 100%; justify-content: center; background: var(--accent); color: white; border: none; text-decoration: none;">
-                    <i class="fas fa-magic"></i>
-                    <span>Generate Sample Content</span>
-                </a>
-            </div>
-
-            <div th:each="section : ${course.sections}" class="section-item">
-                <div class="section-title" onclick="toggleSection(this)">
-                    <div>
-                        <div class="section-title-text" th:text="${section.title}">Section</div>
-                        <div class="section-meta" th:text="${#lists.size(section.lectures)} + ' lectures'">0
-                            lectures</div>
+            <!-- 3. REALTIME LECTURE NAVIGATION & INFO STRIP -->
+            <div class="lecture-nav-strip">
+                <div class="lecture-current-details">
+                    <h2 class="lecture-active-title" id="lectureHeading">Loading Lecture...</h2>
+                    <div class="lecture-meta-tags">
+                        <span class="section-pill" id="lectureSectionBadge">Module</span>
+                        <span id="lectureDurationLabel"><i class="far fa-clock"></i> 0 min</span>
                     </div>
-                    <i class="fas fa-chevron-down section-chevron"></i>
                 </div>
-                <div class="lesson-list">
-                    <a th:each="lesson : ${section.lectures}"
-                        th:href="@{/user/course/{id}/learn(id=${course.id}, lectureId=${lesson.id})}"
-                        class="lesson-item"
-                        th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' active'"
-                        th:attr="data-lecture-id=${lesson.id}">
 
-                        <div class="lesson-radio"
-                            th:classappend="${currentLesson != null && currentLesson.id == lesson.id} ? ' playing'"
-                            th:attr="data-radio-id=${lesson.id}"
-                            onclick="event.preventDefault(); event.stopPropagation(); handleRadioClick(this, /*[[${lesson.id}]]*/ 0)">
-                        </div>
+                <div class="lecture-nav-actions">
+                    <!-- Autoplay Switch -->
+                    <div class="autoplay-toggle-wrapper" title="Automatically advance to the next lecture">
+                        <span>Autoplay Next</span>
+                        <label class="switch">
+                            <input type="checkbox" id="autoplayCheck" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
 
-                        <div class="lesson-text">
-                            <div class="lesson-title" th:text="${lesson.title}">Lesson Title</div>
-                            <div class="lesson-meta">
-                                <i class="far fa-play-circle"></i>
-                                <span th:text="${lesson.durationSeconds / 60} + ' min'">5 min</span>
-                                <span class="resume-badge" th:attr="data-resume-badge=${lesson.id}"
-                                    style="display:none;">
-                                    <i class="fas fa-history" style="font-size:0.6rem;"></i> Resume
-                                </span>
-                            </div>
-                        </div>
+                    <!-- Previous Lecture -->
+                    <button class="nav-btn" id="btnPrevLecture" onclick="stepLecture(-1)" title="Previous Lecture (p)">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
 
-                        <!-- Offline Download Button -->
-                        <div class="download-btn-wrap" style="margin-left: auto;">
-                           <button class="download-btn" th:attr="onclick='handleDownload(event, ' + ${lesson.id} + ', `' + ${#strings.escapeJavaScript(lesson.title)} + '`, \'' + ${lesson.videoUrl} + '\', ' + ${course.id} + ')'" 
-                                   style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:5px;">
-                                <i class="fas fa-cloud-arrow-down" th:id="'dn-icon-' + ${lesson.id}"></i>
-                           </button>
-                        </div>
-                    </a>
+                    <!-- Next Lecture -->
+                    <button class="nav-btn" id="btnNextLecture" onclick="stepLecture(1)" title="Next Lecture (n)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <!-- Mark Complete -->
+                    <button class="btn-mark-done" id="btnMarkComplete" onclick="toggleCurrentLectureComplete()">
+                        <i class="fas fa-check"></i> <span>Mark Complete</span>
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- NOTES SIDEBAR -->
-    <div class="sidebar" id="notesSidebar">
-        <div class="sidebar-header">
-            <span style="color: black;">My Lesson Notes</span>
-            <div style="display: flex; align-items: center; gap: 0.8rem;">
-                <div class="save-indicator" id="saveIndicator">
-                    <i class="fas fa-check-circle"></i> Saved
-                </div>
-                <button class="sidebar-close-btn" onclick="toggleNotes()" title="Close Notes">
-                    <i class="fas fa-times"></i>
+            <!-- 4. TAB NAVIGATION BELOW PLAYER -->
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-article')">
+                    <i class="fas fa-book-open"></i> Overview & Transcript
+                </button>
+                <button class="tab-btn" onclick="switchTab('tab-notes')">
+                    <i class="fas fa-pen-to-square"></i> Personal Notes
+                </button>
+                <button class="tab-btn" onclick="switchTab('tab-resources')">
+                    <i class="fas fa-cloud-arrow-down"></i> Downloads & Offline
                 </button>
             </div>
-        </div>
-        <div class="sidebar-body" style="padding: 1.5rem;">
-            <div style="margin-bottom: 1rem;">
-                <h4 th:text="${currentLesson != null && currentLesson.id > 0 ? currentLesson.title : 'Course Overview & General Notes'}"
-                    style="font-size: 1rem; font-weight: 600; color: black; margin-bottom: 0.3rem;">Notes</h4>
-                <p style="font-size: 0.75rem; color: var(--text-muted);"
-                    th:text="${currentLesson != null && currentLesson.id > 0 ? 'Important points for this lecture' : 'General notes for this whole course'}">
-                    Important points
-                </p>
-            </div>
-            <textarea id="noteArea" placeholder="Write down important points..." th:text="${lectureNote}"
-                oninput="debouncedAutoSave()"
-                style="width: 100%; height: 50vh; padding: 1.2rem; border-radius: 8px; border: 1px solid #ddd; resize: none; background: #fff; color: #1c1d1f; font-size: 1.4rem; line-height: 1.6; margin-bottom: 1.5rem;"></textarea>
-            
-            <button id="manualSaveBtn" class="btn-audio" onclick="manualSaveNote()" 
-                style="width: 100%; justify-content: center; background: var(--accent); color: #fff; border: none; padding: 1.4rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px var(--accent-glow);">
-                <i class="fas fa-save" style="margin-right: 0.8rem;"></i> Save Learning Notes
-            </button>
-            <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
-                <i class="fas fa-info-circle"></i> Your notes are automatically saved and associated with
-                <span
-                    th:text="${currentLesson != null && currentLesson.id > 0 ? 'this specific lecture' : 'the entire course overview'}">this
-                    lecture</span>.
-            </div>
-        </div>
-    </div>
-    </div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
-        <span id="toastMsg">Lecture marked as complete!</span>
+            <!-- 5. TABS BODY -->
+            <div class="tab-body">
+
+                <!-- Tab 1: Overview & Article -->
+                <div class="tab-pane active" id="tab-article">
+                    <div class="article-card">
+                        <div class="article-top-bar">
+                            <h3 class="article-heading">Lecture Walkthrough & Notes</h3>
+                            <button class="btn-audio-reader" id="ttsAudioBtn" onclick="toggleTTSAudio()">
+                                <i class="fas fa-headphones"></i> <span>Listen to Lesson</span>
+                            </button>
+                        </div>
+                        <div id="lectureArticleText" class="article-text-content">
+                            Loading lesson text and transcript...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Personal Notes -->
+                <div class="tab-pane" id="tab-notes">
+                    <div class="notes-card">
+                        <div class="notes-top-bar">
+                            <span class="notes-title">Personal Learning Notes</span>
+                            <button class="btn-timestamp" onclick="insertCurrentTimestamp()" title="Insert current video timestamp">
+                                <i class="far fa-clock"></i> + Insert Timestamp
+                            </button>
+                        </div>
+
+                        <textarea class="note-textarea" id="lectureNoteArea"
+                                  placeholder="Take your personal notes here... Automatically synced to your profile."
+                                  oninput="handleNoteTyping()"></textarea>
+
+                        <div class="notes-footer">
+                            <span class="save-status-indicator" id="noteSaveStatus">
+                                <i class="fas fa-circle-check" style="color:var(--success);"></i> All changes saved
+                            </span>
+                            <button class="btn-save-note" onclick="forceSaveNote()">Save Notes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Downloads & Offline -->
+                <div class="tab-pane" id="tab-resources">
+                    <div class="article-card">
+                        <h3 class="article-heading" style="margin-bottom:0.75rem;">Offline Learning Resources</h3>
+                        <p style="color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">
+                            Save this lecture to your offline cache or download the source video for uninterrupted learning without internet.
+                        </p>
+                        <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                            <button class="btn-audio-reader" id="btnDownloadOffline" onclick="downloadCurrentLectureOffline()">
+                                <i class="fas fa-cloud-arrow-down"></i> <span>Save to Offline Library</span>
+                            </button>
+                            <a id="btnDirectDownloadVideo" href="#" download class="btn-audio-reader" style="text-decoration:none;">
+                                <i class="fas fa-download"></i> <span>Download MP4 Video</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- RIGHT: DOCKED CURRICULUM SIDEBAR (Clean White Theme) -->
+        <aside class="sidebar" id="learningSidebar">
+            <div class="sidebar-header">
+                <div>
+                    <span class="sidebar-header-title">Course Content</span>
+                    <div class="sidebar-stats" id="sidebarProgressRatio">0 / 0 Completed</div>
+                </div>
+                <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Collapse Sidebar">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-body" id="curriculumSidebarBody">
+                <div th:each="section, sStat : ${course.sections}" class="section-block" th:id="'section-block-' + ${section.id}">
+                    <div class="section-head" onclick="toggleSectionCollapse(this)">
+                        <div>
+                            <div class="section-head-title" th:text="${section.title}">Section 1</div>
+                            <div class="section-head-meta" th:text="${#lists.size(section.lectures)} + ' lectures'">1 lectures</div>
+                        </div>
+                        <i class="fas fa-chevron-down section-chevron"></i>
+                    </div>
+
+                    <ul class="lecture-list">
+                        <li th:each="lesson, lStat : ${section.lectures}"
+                            class="lecture-row"
+                            th:id="'lecture-item-' + ${lesson.id}"
+                            th:classappend="${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)} ? ' locked-lecture' : ''"
+                            th:attr="data-id=${lesson.id}, 
+                                     data-video-url=${lesson.videoUrl}, 
+                                     data-title=${lesson.title}, 
+                                     data-duration=${lesson.durationSeconds}, 
+                                     data-section=${section.title}, 
+                                     data-content=${lesson.content},
+                                     data-is-locked=${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)}"
+                            onclick="handleLectureRowClick(this)">
+                            
+                            <div class="lecture-dot" th:classappend="${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)} ? ' locked-dot' : ''">
+                                <i th:if="${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)}" class="fas fa-lock"></i>
+                                <i th:unless="${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)}" class="fas fa-check"></i>
+                            </div>
+
+                            <div class="lecture-text-wrap">
+                                <div class="lecture-row-title" th:text="${lesson.title}">Lecture Title</div>
+                                <div class="lecture-row-meta">
+                                    <span th:text="${lesson.durationSeconds != null ? (lesson.durationSeconds < 60 ? lesson.durationSeconds + ' sec' : (lesson.durationSeconds / 60) + ' min') : '0 min'}">0 min</span>
+                                    <span th:if="${isPaidCourse and not hasPaid and sStat.first and lStat.first}" class="lecture-preview-badge">Free Preview (15%)</span>
+                                    <span th:if="${isPaidCourse and not hasPaid and !(sStat.first and lStat.first)}" class="lecture-locked-badge"><i class="fas fa-lock"></i> Locked</span>
+                                </div>
+                            </div>
+
+                            <button class="lecture-download-btn" 
+                                    th:data-id="${lesson.id}"
+                                    th:data-title="${lesson.title}"
+                                    th:data-url="${lesson.videoUrl}"
+                                    th:data-course="${course.id}"
+                                    onclick="handleLectureDownload(event, this)"
+                                    title="Download for offline">
+                                <i class="fas fa-cloud-arrow-down" th:id="'dn-icon-' + ${lesson.id}"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- FLOATING REALTIME TOAST -->
+    <div class="rt-toast" id="rtToast">
+        <i class="fas fa-circle-check rt-toast-icon" id="rtToastIcon" style="color:var(--success);"></i>
+        <span id="rtToastText">Notification message</span>
     </div>
 
     <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
+    <!-- REALTIME CLASSROOM ENGINE JAVASCRIPT -->
     <script th:inline="javascript">
-        /*<![CDATA[*/
-        const COURSE_ID = /*[[${course.id}]]*/ 0;
-        const CURRENT_LECTURE_ID = /*[[${currentLesson != null ? currentLesson.id : null}]]*/ null;
-        const COMPLETED_LECTURE_IDS = /*[[${completedLectureIds}]]*/[];
-        const STORAGE_PREFIX = 'skillhub_';
 
-        // ─── INITIALIZE COMPLETION FROM BACKEND ───
-        if (COMPLETED_LECTURE_IDS && Array.isArray(COMPLETED_LECTURE_IDS)) {
-            COMPLETED_LECTURE_IDS.forEach(id => {
-                localStorage.setItem(`${STORAGE_PREFIX}completed_${id}`, 'true');
-            });
-        }
+        // ─── HOTSTAR STYLE 15% DURATION PREVIEW & PAYWALL LOGIC ───
+        const isPaidCourse = /*[[${isPaidCourse}]]*/ false;
+        const hasPaid = /*[[${hasPaid}]]*/ true;
+        const previewPercentage = /*[[${previewPercentage != null ? previewPercentage : 15}]]*/ 15;
+        const previewLimit = /*[[${previewLimitSeconds != null ? previewLimitSeconds : 15}]]*/ 15;
 
-        // CSRF Token
-        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        // ─── STORAGE HELPERS ───
-        function getProgress(lectureId) {
-            return parseFloat(localStorage.getItem(`${STORAGE_PREFIX}progress_${lectureId}`) || '0');
-        }
-        function setProgress(lectureId, time) {
-            localStorage.setItem(`${STORAGE_PREFIX}progress_${lectureId}`, time);
-        }
-        function isCompleted(lectureId) {
-            return localStorage.getItem(`${STORAGE_PREFIX}completed_${lectureId}`) === 'true';
-        }
-        function setCompleted(lectureId, val) {
-            localStorage.setItem(`${STORAGE_PREFIX}completed_${lectureId}`, val);
-        }
-
-        // ─── SECTION TOGGLE ───
-        function toggleSection(titleEl) {
-            const section = titleEl.closest('.section-item');
-            section.classList.toggle('collapsed');
-        }
-
-        // ─── TOAST ───
-        function showToast(msg, isSuccess = true) {
-            const toast = document.getElementById('toast');
-            const icon = toast.querySelector('.toast-icon i');
-            document.getElementById('toastMsg').textContent = msg;
-            icon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-info-circle';
-            toast.querySelector('.toast-icon').style.color = isSuccess ? 'var(--success)' : 'var(--accent-light)';
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // ─── RADIO / COMPLETION UI ───
-        function setRadioState(lectureId, state) {
-            // state: 'watched' | 'playing' | ''
-            const radio = document.querySelector(`[data-radio-id="${lectureId}"]`);
-            if (!radio) return;
-            radio.classList.remove('watched', 'playing');
-            if (state) radio.classList.add(state);
-        }
-
-        function handleRadioClick(radioEl, lectureId) {
-            if (isCompleted(lectureId)) {
-                // Unmark
-                setCompleted(lectureId, false);
-                radioEl.classList.remove('watched');
-                updateProgressBar();
-                if (!navigator.onLine) {
-                    offlineManager.queueProgressSync(lectureId, false);
-                } else {
-                    fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
-                        method: 'POST',
-                        headers: {
-                            [csrfHeader]: csrfToken
-                        }
-                    }).catch(() => { });
-                }
-            } else {
-                markLectureComplete(lectureId);
+        function getPreviewLimitSeconds() {
+            let dur = 0;
+            if (isYouTubeVideo && ytPlayer && ytPlayer.getDuration) {
+                dur = ytPlayer.getDuration();
+            } else if (video && video.duration && !isNaN(video.duration) && video.duration > 0) {
+                dur = video.duration;
+            } else if (activeLecture && activeLecture.duration && activeLecture.duration > 0) {
+                dur = activeLecture.duration;
             }
+            if (dur > 0) {
+                return dur * (previewPercentage / 100.0);
+            }
+            return previewLimit;
         }
 
-        function markLectureComplete(lectureId) {
-            if (isCompleted(lectureId)) return;
-            setCompleted(lectureId, true);
-            setRadioState(lectureId, lectureId == CURRENT_LECTURE_ID ? 'playing' : 'watched');
-            // If it's the current one, update button state to Completed
-            if (lectureId == CURRENT_LECTURE_ID) {
-                const btn = document.getElementById('markCompleteBtn');
-                if (btn) {
-                    btn.classList.add('done');
-                    const span = btn.querySelector('span');
-                    if (span) span.textContent = 'Completed';
-                }
-            }
-            updateProgressBar();
-            showToast('Lecture marked as complete!');
-            if (!navigator.onLine) {
-                offlineManager.queueProgressSync(lectureId, true);
-            } else {
-                fetch(`/api/enrollments/progress/${lectureId}/complete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [csrfHeader]: csrfToken
-                    }
-                }).catch(() => { });
-            }
+        function formatDurationLabel(seconds) {
+            if (!seconds || seconds <= 0) return '0 min';
+            if (seconds < 60) return seconds + ' sec';
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return s > 0 ? (m + 'm ' + s + 's') : (m + ' min');
         }
 
-        function toggleComplete(btn) {
-            const lectureId = btn.dataset.lectureId;
-            if (isCompleted(lectureId)) {
-                setCompleted(lectureId, false);
-                btn.classList.remove('done');
-                btn.querySelector('span').textContent = 'Mark Complete';
-                setRadioState(lectureId, 'playing');
-                updateProgressBar();
-                if (!navigator.onLine) {
-                    offlineManager.queueProgressSync(lectureId, false);
-                } else {
-                    fetch(`/api/enrollments/progress/${lectureId}/incomplete`, {
-                        method: 'POST',
-                        headers: {
-                            [csrfHeader]: csrfToken
-                        }
-                    }).catch(() => { });
-                }
-            } else {
-                markLectureComplete(lectureId);
-            }
-        }
-
-        // ─── PROGRESS BAR ───
-        function updateProgressBar() {
-            const allItems = document.querySelectorAll('.lesson-item[data-lecture-id]');
-            let total = 0, done = 0;
-            allItems.forEach(item => {
-                if (!item.dataset.lectureId) return;
-                total++;
-                if (isCompleted(item.dataset.lectureId)) done++;
-            });
-
-            // Weighted calculation logic (matches backend)
-            // Base percentage from fully completed lectures
-            let basePct = total > 0 ? (done / total) * 100 : 0;
+        function updatePreviewPill() {
+            if (!isPaidCourse || hasPaid) return;
+            const dur = (video && !isNaN(video.duration) && video.duration > 0) ? video.duration : (activeLecture && activeLecture.duration ? activeLecture.duration : 0);
+            const limit = getPreviewLimitSeconds();
+            const curTime = (video && !isNaN(video.currentTime)) ? video.currentTime : 0;
+            const remaining = Math.max(0, limit - curTime);
             
-            // Add granular current video progress
-            let extraPct = 0;
-            if (total > 0 && CURRENT_LECTURE_ID && !isCompleted(CURRENT_LECTURE_ID)) {
-                const currentVideoPct = parseInt(localStorage.getItem('skillhub_course_video_pct_' + COURSE_ID) || '0');
-                if (currentVideoPct > 0) {
-                    // This video's contribution = (Video % / 100) * (100 / Total Lectures)
-                    extraPct = (currentVideoPct / 100.0) * (100.0 / total);
-                }
-            }
-
-            let displayPct = basePct + extraPct;
+            const timerCountEl = document.getElementById('previewTimerCount');
+            const totalTextEl = document.getElementById('previewTotalText');
             
-            // Cap at 99% for granular to ensure 100% only comes from Marks/Sync
-            if (displayPct >= 99 && done < total) displayPct = 99;
-            if (done >= total) displayPct = 100;
-
-            const finalPct = Math.floor(displayPct);
-
-            const fill = document.getElementById('progressFill');
-            if (fill) fill.style.width = finalPct + '%';
-            const text = document.getElementById('progressText');
-            if (text) text.textContent = finalPct + '% complete';
-            document.getElementById('lectureCountLabel').textContent = `${done}/${total} done`;
-
-            // Sync Mark Complete button's state to current completion status
-            const markBtn = document.getElementById('markCompleteBtn');
-            if (markBtn && CURRENT_LECTURE_ID) {
-                if (isCompleted(CURRENT_LECTURE_ID)) {
-                    markBtn.classList.add('done');
-                    const span = markBtn.querySelector('span');
-                    if (span) span.textContent = 'Completed';
-                } else {
-                    markBtn.classList.remove('done');
-                    const span = markBtn.querySelector('span');
-                    if (span) span.textContent = 'Mark Complete';
-                }
+            if (timerCountEl) {
+                const remFormatted = remaining >= 60 ? formatTime(remaining) : (Math.ceil(remaining) + 's');
+                timerCountEl.textContent = remFormatted + ' left';
             }
-
-            // Auto-sync with backend if exactly 100%
-            if (finalPct >= 100 && total > 0) {
-                const csrfHeaderEl = document.querySelector('meta[name="_csrf_header"]');
-                const csrfTokenEl = document.querySelector('meta[name="_csrf"]');
-                if (csrfHeaderEl && csrfTokenEl) {
-                    fetch(`/api/enrollments/sync/${COURSE_ID}`, {
-                        method: 'POST',
-                        headers: {
-                            [csrfHeaderEl.getAttribute('content')]: csrfTokenEl.getAttribute('content')
-                        }
-                    }).catch(() => { });
-                }
+            if (totalTextEl) {
+                const limitFormatted = limit >= 60 ? formatTime(limit) : (Math.round(limit * 10) / 10 + 's');
+                const durFormatted = dur >= 60 ? formatTime(dur) : (Math.round(dur) + 's');
+                totalTextEl.textContent = '(Preview: ' + limitFormatted + ' of ' + durFormatted + ')';
             }
         }
 
-        // ─── VIDEO PROGRESS (Resume from where left off) ───
-        function initVideoResume() {
-            const video = document.getElementById('mainVideo');
-            if (!video || !CURRENT_LECTURE_ID) return;
-
-            const saved = getProgress(CURRENT_LECTURE_ID);
-            if (saved > 5) {
-                video.currentTime = saved;
-                showToast(`Resuming from ${Math.floor(saved / 60)}:${String(Math.floor(saved % 60)).padStart(2, '0')}`, false);
-            }
-
-            // Save every 5 seconds
-            let lastSyncTime = 0;
-            video.addEventListener('timeupdate', () => {
-                if (video.currentTime > 3) {
-                    setProgress(CURRENT_LECTURE_ID, video.currentTime);
-                    if (video.duration) {
-                        const pct = Math.round((video.currentTime / video.duration) * 100);
-                        localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
-                        
-                        // Recalculate course-wide progress instead of overwriting with video-local pct
-                        updateProgressBar();
-                        
-                        // Enable button if progress is >= 95%
-                        if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
-                            const btn = document.getElementById('markCompleteBtn');
-                            if (btn) btn.disabled = false;
-                        }
-
-                        // Sync pct to server every 10 seconds
-                        const now = Date.now();
-                        if (now - lastSyncTime > 10000) {
-                            lastSyncTime = now;
-                            fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${pct}`, {
-                                method: 'POST',
-                                headers: { [csrfHeader]: csrfToken }
-                            }).catch(() => {});
-                        }
-                    }
-                }
-                // Auto-mark complete when 95% watched
-                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration >= 0.95)) {
-                    markLectureComplete(CURRENT_LECTURE_ID);
-                }
-            });
-
-            // Check if saved progress is already >= 95% once metadata is loaded
-            video.addEventListener('loadedmetadata', () => {
-                if (video.duration) {
-                    const pct = (video.currentTime / video.duration) * 100;
-                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
-                        const btn = document.getElementById('markCompleteBtn');
-                        if (btn) btn.disabled = false;
-                    }
-                }
-            });
-
-            // Handle when a user skips near the end
-            video.addEventListener('seeked', () => {
-                if (video.duration) {
-                    const pct = (video.currentTime / video.duration) * 100;
-                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
-                        const btn = document.getElementById('markCompleteBtn');
-                        if (btn) btn.disabled = false;
-                    }
-                }
-                if (!isCompleted(CURRENT_LECTURE_ID) && video.duration && (video.currentTime / video.duration >= 0.95)) {
-                    markLectureComplete(CURRENT_LECTURE_ID);
-                }
-            });
-
-            video.addEventListener('ended', () => {
-                setProgress(CURRENT_LECTURE_ID, 0); // Reset to beginning on complete
-                markLectureComplete(CURRENT_LECTURE_ID);
-            });
-
-            // Pause save
-            video.addEventListener('pause', () => {
-                setProgress(CURRENT_LECTURE_ID, video.currentTime);
-                updateControlBtnUI(true);
-            });
-            video.addEventListener('play', () => {
-                updateControlBtnUI(false);
-            });
-        }
-
-        // ─── MASTER VIDEO CONTROLS (Unified for YT and Local) ───
-        let ytPlayer = null;
-        const YT_EMBED_URL = /*[[${currentLesson != null ? currentLesson.embedUrl : ''}]]*/ '';
-
-        function onYouTubeIframeAPIReady() {
-            if (!CURRENT_LECTURE_ID || !YT_EMBED_URL) return;
-            const videoWrapper = document.getElementById('youtubePlayer');
-            if (!videoWrapper) return;
-
-            const videoId = YT_EMBED_URL.split('/').pop().split('?')[0];
-            const saved = getProgress(CURRENT_LECTURE_ID);
-
-            ytPlayer = new YT.Player('youtubePlayer', {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 1, // Keep native controls but add our own too
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'enablejsapi': 1,
-                    'start': saved > 5 ? Math.floor(saved) : 0
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        let ytProgressInterval;
-
-        function onPlayerReady(event) {
-            const saved = getProgress(CURRENT_LECTURE_ID);
-            if (saved > 5) {
-                showToast(`Resuming from ${Math.floor(saved / 60)}:${String(Math.floor(saved % 60)).padStart(2, '0')}`, false);
-            }
-            if (ytPlayer && ytPlayer.getDuration) {
-                const duration = ytPlayer.getDuration();
-                if (duration) {
-                    const pct = (saved / duration) * 100;
-                    if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
-                        const btn = document.getElementById('markCompleteBtn');
-                        if (btn) btn.disabled = false;
-                    }
-                }
+        function updatePlayerTimeDisplay() {
+            const cur = (video && !isNaN(video.currentTime)) ? video.currentTime : 0;
+            const dur = (video && !isNaN(video.duration) && video.duration > 0) ? video.duration : (activeLecture && activeLecture.duration ? activeLecture.duration : 0);
+            const displayEl = document.getElementById('ctrlTimeDisplay');
+            if (displayEl) {
+                displayEl.textContent = formatTime(cur) + ' / ' + formatTime(dur);
             }
         }
 
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                updateControlBtnUI(false);
-                if (!ytProgressInterval) {
-                    ytProgressInterval = setInterval(() => {
-                        if (ytPlayer && ytPlayer.getCurrentTime) {
-                            const time = ytPlayer.getCurrentTime();
-                            if (time > 3) setProgress(CURRENT_LECTURE_ID, time);
-                            
-                            const duration = ytPlayer.getDuration();
-                            if (duration) {
-                                const pct = Math.round((time / duration) * 100);
-                                localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
-                                if (pct < 100 && document.getElementById('progressText').textContent.indexOf('100%') === -1) {
-                                    document.getElementById('progressFill').style.width = pct + '%';
-                                    document.getElementById('progressText').textContent = pct + '% complete';
-                                }
-                                // Enable button if progress is >= 95%
-                                if (pct >= 95 || isCompleted(CURRENT_LECTURE_ID)) {
-                                    const btn = document.getElementById('markCompleteBtn');
-                                    if (btn) btn.disabled = false;
-                                }
-                                // Sync pct to server
-                                fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${pct}`, {
-                                    method: 'POST',
-                                    headers: { [csrfHeader]: csrfToken }
-                                }).catch(() => {});
-                                if (!isCompleted(CURRENT_LECTURE_ID) && (time / duration >= 0.95)) {
-                                    markLectureComplete(CURRENT_LECTURE_ID);
-                                }
-                            }
-                        }
-                    }, 5000);
-                }
-            } else {
-                if (event.data === YT.PlayerState.PAUSED) {
-                    updateControlBtnUI(true);
-                }
-                if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-                    if (ytPlayer && ytPlayer.getCurrentTime) {
-                        const time = ytPlayer.getCurrentTime();
-                        setProgress(CURRENT_LECTURE_ID, event.data === YT.PlayerState.ENDED ? 0 : time);
-                        if (event.data === YT.PlayerState.ENDED) {
-                            markLectureComplete(CURRENT_LECTURE_ID);
-                        }
-                    }
-                }
-                if (ytProgressInterval && event.data !== YT.PlayerState.BUFFERING) {
-                    clearInterval(ytProgressInterval);
-                    ytProgressInterval = null;
-                }
+        const coursePrice = /*[[${coursePrice != null ? coursePrice : 200}]]*/ 200;
+        const currentCourseId = /*[[${course.id}]]*/ 8;
+        const currentCourseTitle = /*[[${course.title}]]*/ "Course";
+
+        function showHotstarPaywall() {
+            if (video) video.pause();
+            if (isYouTubeVideo && ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+            const overlay = document.getElementById('hotstarPaywallOverlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function replayPreview() {
+            const overlay = document.getElementById('hotstarPaywallOverlay');
+            if (overlay) overlay.style.display = 'none';
+            if (isYouTubeVideo && ytPlayer && ytPlayer.seekTo) {
+                ytPlayer.seekTo(0, true);
+                ytPlayer.playVideo();
+            } else if (video) {
+                video.currentTime = 0;
+                video.play();
             }
         }
 
-        function updateControlBtnUI(isPaused) {
-            const btn = document.getElementById('masterPlayPauseBtn');
-            if (!btn) return;
-            if (isPaused) {
-                btn.querySelector('i').className = 'fas fa-play';
-                btn.querySelector('span').textContent = 'Play';
-            } else {
-                btn.querySelector('i').className = 'fas fa-pause';
-                btn.querySelector('span').textContent = 'Pause';
-            }
-        }
-
-        function togglePlayPause() {
-            const video = document.getElementById('mainVideo');
-            if (video) {
-                if (video.paused) video.play();
-                else video.pause();
+        function handleLectureRowClick(row) {
+            const id = parseInt(row.getAttribute('data-id'));
+            const idx = allLectures.findIndex(l => l.id === id);
+            if (isPaidCourse && !hasPaid && idx > 0) {
+                showHotstarPaywall();
                 return;
             }
-            if (ytPlayer && ytPlayer.getPlayerState) {
+            const isLocked = row.getAttribute('data-is-locked') === 'true';
+            if (isLocked) {
+                showHotstarPaywall();
+                return;
+            }
+            selectLectureFromSidebar(row);
+        }
+
+        async function initiateCoursePayment() {
+            const payBtn = document.getElementById('paywallBuyBtn');
+            const origText = payBtn ? payBtn.innerHTML : '';
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Payment...';
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+                const response = await fetch('/payment/create-order?courseId=' + currentCourseId, {
+                    method: 'POST',
+                    headers: headers
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Failed to create payment order');
+                }
+
+                const options = {
+                    key: data.keyId,
+                    amount: data.amount,
+                    currency: 'INR',
+                    name: 'SkillHub',
+                    description: 'Unlock Course: ' + currentCourseTitle,
+                    image: '/images/logo.png',
+                    order_id: data.orderId,
+                    prefill: {
+                        name: data.userName || 'Student',
+                        email: data.userEmail || '',
+                        contact: data.userPhone || '9876543210'
+                    },
+                    theme: { color: '#6366f1' },
+                    modal: {
+                        ondismiss: function () {
+                            if (payBtn) {
+                                payBtn.disabled = false;
+                                payBtn.innerHTML = origText;
+                            }
+                        }
+                    },
+                    handler: function (rzpResponse) {
+                        if (payBtn) {
+                            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying Payment...';
+                        }
+
+                        const verifyHeaders = { 'Content-Type': 'application/json' };
+                        if (csrfToken && csrfHeader) verifyHeaders[csrfHeader] = csrfToken;
+
+                        fetch('/payment/verify', {
+                            method: 'POST',
+                            headers: verifyHeaders,
+                            body: JSON.stringify({
+                                razorpay_order_id: rzpResponse.razorpay_order_id,
+                                razorpay_payment_id: rzpResponse.razorpay_payment_id,
+                                razorpay_signature: rzpResponse.razorpay_signature
+                            })
+                        })
+                        .then(r => r.json())
+                        .then(verifyData => {
+                            if (verifyData.status === 'success') {
+                                showToast('Payment Successful! Course Unlocked! 🎉', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
+                                if (payBtn) {
+                                    payBtn.disabled = false;
+                                    payBtn.innerHTML = origText;
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            alert('Error verifying payment: ' + err.message);
+                            if (payBtn) {
+                                payBtn.disabled = false;
+                                payBtn.innerHTML = origText;
+                            }
+                        });
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (failResp) {
+                    alert('Payment failed: ' + (failResp.error ? failResp.error.description : 'Cancelled'));
+                    if (payBtn) {
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = origText;
+                    }
+                });
+                rzp.open();
+
+            } catch (err) {
+                console.error('Error starting payment:', err);
+                alert(err.message || 'Could not initiate Razorpay payment.');
+                if (payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = origText;
+                }
+            }
+        }
+
+        /*<![CDATA[*/
+        const COURSE_ID = /*[[${course.id}]]*/ 3;
+        const INITIAL_TARGET_ID = /*[[${currentLesson != null ? currentLesson.id : null}]]*/ null;
+        const COMPLETED_BACKEND_IDS = /*[[${completedLectureIds}]]*/ [];
+        const CSRF_TOKEN = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+        const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+        // State Machine
+        let allLectures = [];
+        let currentLectureIndex = -1;
+        let activeLecture = null;
+        let isVideoPlaying = false;
+        let completedSet = new Set(COMPLETED_BACKEND_IDS || []);
+        let autoplayCountdownInterval = null;
+        let noteDebounceTimer = null;
+        let ytPlayer = null;
+        let isYouTubeVideo = false;
+
+        // 1. INITIALIZE CURRICULUM
+        function initCurriculumData() {
+            allLectures = [];
+            const rows = document.querySelectorAll('.lecture-row');
+            rows.forEach((row, idx) => {
+                const id = parseInt(row.getAttribute('data-id'));
+                const videoUrl = row.getAttribute('data-video-url') || '';
+                const title = row.getAttribute('data-title') || 'Untitled Lesson';
+                const duration = parseInt(row.getAttribute('data-duration') || '0');
+                const section = row.getAttribute('data-section') || 'Section';
+                const content = row.getAttribute('data-content') || '';
+                
+                const item = { id, videoUrl, title, duration, section, content, domElement: row };
+                allLectures.push(item);
+
+                if (completedSet.has(id)) {
+                    row.classList.add('completed');
+                }
+            });
+
+            // Target lecture from URL param or default to first
+            const urlLectureId = new URLSearchParams(window.location.search).get('lectureId');
+            const targetId = urlLectureId ? parseInt(urlLectureId) : INITIAL_TARGET_ID;
+
+            if (targetId) {
+                currentLectureIndex = allLectures.findIndex(l => l.id === targetId);
+            }
+            if (currentLectureIndex === -1 && allLectures.length > 0) {
+                currentLectureIndex = 0;
+            }
+
+            updateCurriculumStats();
+        }
+
+        // 2. SWITCH LECTURE IN REALTIME (ZERO PAGE RELOAD)
+        function loadLectureByIndex(index, autoPlay = true) {
+            if (index < 0 || index >= allLectures.length) return;
+            if (isPaidCourse && !hasPaid && index > 0) {
+                showHotstarPaywall();
+                return;
+            }
+            currentLectureIndex = index;
+            activeLecture = allLectures[index];
+
+            cancelAutoplayCountdown();
+
+            // Highlight sidebar active
+            document.querySelectorAll('.lecture-row').forEach(r => r.classList.remove('active'));
+            if (activeLecture.domElement) {
+                activeLecture.domElement.classList.add('active');
+                activeLecture.domElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Update details
+            document.getElementById('lectureHeading').textContent = activeLecture.title;
+            document.getElementById('lectureSectionBadge').textContent = activeLecture.section;
+            document.getElementById('lectureDurationLabel').innerHTML = `<i class="far fa-clock"></i> ${formatDurationLabel(activeLecture.duration)}`;
+
+            updatePlayerTimeDisplay();
+            updatePreviewPill();
+            
+            // Update Article Text
+            const articleEl = document.getElementById('lectureArticleText');
+            if (activeLecture.content && activeLecture.content.trim().length > 0) {
+                articleEl.innerHTML = activeLecture.content;
+            } else {
+                articleEl.innerHTML = `<p style="line-height:1.85;">Welcome to <strong>${activeLecture.title}</strong> in the ${activeLecture.section} module. Follow along with the video instruction above, use the personal notes tab to record timestamps, and practice the techniques hands-on.</p>`;
+            }
+
+            // Direct download link update
+            const directDn = document.getElementById('btnDirectDownloadVideo');
+            if (activeLecture.videoUrl && activeLecture.videoUrl.startsWith('/uploads/')) {
+                directDn.href = activeLecture.videoUrl;
+                directDn.style.display = 'inline-flex';
+            } else {
+                directDn.style.display = 'none';
+            }
+
+            // Update Prev/Next Buttons
+            document.getElementById('btnPrevLecture').disabled = (index === 0);
+            const nextBtn = document.getElementById('btnNextLecture');
+            if (index === allLectures.length - 1) {
+                nextBtn.innerHTML = `Finished <i class="fas fa-check"></i>`;
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerHTML = `Next <i class="fas fa-chevron-right"></i>`;
+                nextBtn.disabled = false;
+            }
+
+            updateMarkCompleteBtnState();
+
+            // Update Browser URL cleanly
+            const newUrl = `/user/course/${COURSE_ID}/learn?lectureId=${activeLecture.id}`;
+            window.history.pushState({ lectureId: activeLecture.id }, '', newUrl);
+
+            // Fetch Note
+            fetchLectureNote(activeLecture.id);
+
+            // Setup Video
+            setupVideoPlayback(activeLecture.videoUrl, autoPlay);
+
+            showToast(`Now Playing: ${activeLecture.title}`, 'info');
+        }
+
+        // 3. VIDEO ENGINE
+        function setupVideoPlayback(videoUrl, autoPlay) {
+            const videoEl = document.getElementById('mainVideo');
+            const ytContainer = document.getElementById('ytPlayerContainer');
+            const placeholder = document.getElementById('emptyVideoPlaceholder');
+
+            if (!videoUrl || videoUrl.trim() === '') {
+                videoEl.style.display = 'none';
+                videoEl.pause();
+                ytContainer.style.display = 'none';
+                placeholder.style.display = 'flex';
+                return;
+            }
+
+            placeholder.style.display = 'none';
+
+            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                isYouTubeVideo = true;
+                videoEl.style.display = 'none';
+                videoEl.pause();
+                ytContainer.style.display = 'block';
+                loadYouTubeVideo(videoUrl, autoPlay);
+            } else {
+                isYouTubeVideo = false;
+                ytContainer.style.display = 'none';
+                if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+
+                videoEl.style.display = 'block';
+                if (videoEl.src !== window.location.origin + videoUrl && videoEl.src !== videoUrl) {
+                    videoEl.src = videoUrl;
+                    videoEl.load();
+                }
+
+                // Restore saved playback position
+                const savedTime = parseFloat(localStorage.getItem(`skillhub_pos_${activeLecture.id}`) || '0');
+                if (savedTime > 2) {
+                    videoEl.currentTime = savedTime;
+                }
+
+                if (autoPlay) {
+                    const playPromise = videoEl.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(err => {
+                            console.log('Autoplay deferred:', err);
+                            updatePlayPauseUI(false);
+                        });
+                    }
+                }
+            }
+        }
+
+        function loadYouTubeVideo(url, autoPlay) {
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.includes('watch?v=')) {
+                videoId = url.split('watch?v=')[1].split('&')[0];
+            } else if (url.includes('embed/')) {
+                videoId = url.split('embed/')[1].split('?')[0];
+            }
+
+            if (!ytPlayer) {
+                ytPlayer = new YT.Player('youtubePlayer', {
+                    videoId: videoId,
+                    playerVars: { 'autoplay': autoPlay ? 1 : 0, 'controls': 1 },
+                    events: {
+                        'onStateChange': onYTStateChange
+                    }
+                });
+            } else {
+                ytPlayer.loadVideoById(videoId);
+                if (autoPlay) ytPlayer.playVideo();
+            }
+        }
+
+        let ytPreviewCheckInterval = null;
+
+        function onYTStateChange(event) {
+            if (event.data === YT.PlayerState.PLAYING) {
+                updatePlayPauseUI(true);
+                if (isPaidCourse && !hasPaid) {
+                    clearInterval(ytPreviewCheckInterval);
+                    ytPreviewCheckInterval = setInterval(checkYouTubePreview, 250);
+                }
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                updatePlayPauseUI(false);
+                clearInterval(ytPreviewCheckInterval);
+            } else if (event.data === YT.PlayerState.ENDED) {
+                clearInterval(ytPreviewCheckInterval);
+                handleVideoEnded();
+            }
+        }
+
+        function checkYouTubePreview() {
+            if (!isPaidCourse || hasPaid || !isYouTubeVideo || !ytPlayer || !ytPlayer.getCurrentTime) return;
+            const cur = ytPlayer.getCurrentTime();
+            const limit = getPreviewLimitSeconds();
+            const remaining = Math.max(0, Math.ceil(limit - cur));
+            const timerCountEl = document.getElementById('previewTimerCount');
+            if (timerCountEl) {
+                timerCountEl.textContent = (remaining >= 60 ? formatTime(remaining) : remaining + 's');
+            }
+            if (cur >= limit) {
+                clearInterval(ytPreviewCheckInterval);
+                ytPlayer.pauseVideo();
+                ytPlayer.seekTo(limit, true);
+                showHotstarPaywall();
+            }
+        }
+
+        // 4. CONTROLS & LISTENERS
+        const video = document.getElementById('mainVideo');
+
+        video.addEventListener('play', () => updatePlayPauseUI(true));
+        video.addEventListener('pause', () => updatePlayPauseUI(false));
+        video.addEventListener('ended', handleVideoEnded);
+
+        function handleVideoReady() {
+            updatePlayerTimeDisplay();
+            updatePreviewPill();
+            if (video.duration && !isNaN(video.duration) && video.duration > 0) {
+                document.getElementById('lectureDurationLabel').innerHTML = `<i class="far fa-clock"></i> ${formatDurationLabel(Math.round(video.duration))}`;
+            }
+        }
+
+        video.addEventListener('loadedmetadata', handleVideoReady);
+        video.addEventListener('durationchange', handleVideoReady);
+        video.addEventListener('canplay', handleVideoReady);
+
+        let lastProgressSyncTime = 0;
+
+        video.addEventListener('timeupdate', () => {
+            updatePlayerTimeDisplay();
+
+            // Hotstar preview 15% duration check
+            if (isPaidCourse && !hasPaid) {
+                updatePreviewPill();
+                const currentPreviewLimit = getPreviewLimitSeconds();
+
+                if (video.currentTime >= currentPreviewLimit) {
+                    video.pause();
+                    video.currentTime = currentPreviewLimit;
+                    showHotstarPaywall();
+                    return;
+                }
+            }
+
+            if (!video.duration) return;
+            if (video.duration) {
+                const pct = (video.currentTime / video.duration) * 100;
+                const fill = document.getElementById('videoScrubberFill');
+                const handle = document.getElementById('videoScrubberHandle');
+                if (fill) fill.style.width = pct + '%';
+                if (handle) handle.style.left = pct + '%';
+            }
+
+            if (activeLecture && video.currentTime > 2) {
+                localStorage.setItem(`skillhub_pos_${activeLecture.id}`, video.currentTime);
+                
+                // Calculate and sync real-time video watch percentage every 5 seconds
+                const now = Date.now();
+                if (now - lastProgressSyncTime > 5000) {
+                    lastProgressSyncTime = now;
+                    const videoPct = Math.round((video.currentTime / video.duration) * 100);
+                    localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, videoPct);
+                    
+                    fetch(`/api/enrollments/video-progress/${COURSE_ID}?pct=${videoPct}`, {
+                        method: 'POST',
+                        headers: { [CSRF_HEADER]: CSRF_TOKEN }
+                    }).catch(() => {});
+                }
+            }
+
+            // Auto-complete at 90%
+            if (activeLecture && (video.currentTime / video.duration >= 0.9)) {
+                if (!completedSet.has(activeLecture.id)) {
+                    markLectureComplete(activeLecture.id, true);
+                }
+            }
+        });
+
+        function updatePlayPauseUI(playing) {
+            isVideoPlaying = playing;
+            const btn = document.getElementById('ctrlPlayPauseBtn');
+            if (playing) {
+                btn.innerHTML = `<i class="fas fa-pause"></i>`;
+            } else {
+                btn.innerHTML = `<i class="fas fa-play"></i>`;
+            }
+        }
+
+        
+        function seekVideoScrubber(event) {
+            const bar = document.getElementById('videoScrubberBar');
+            if (!bar) return;
+            const rect = bar.getBoundingClientRect();
+            const clickPos = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+            
+            if (isPaidCourse && !hasPaid) {
+                const currentPreviewLimit = getPreviewLimitSeconds();
+                const totalDur = (video && video.duration) ? video.duration : (isYouTubeVideo && ytPlayer && ytPlayer.getDuration ? ytPlayer.getDuration() : 100);
+                const targetTime = clickPos * totalDur;
+                if (clickPos > (previewPercentage / 100.0) || targetTime >= currentPreviewLimit) {
+                    if (video) video.currentTime = currentPreviewLimit;
+                    if (isYouTubeVideo && ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(currentPreviewLimit, true);
+                    showHotstarPaywall();
+                    return;
+                }
+            }
+
+            if (isYouTubeVideo && ytPlayer && ytPlayer.getDuration) {
+                ytPlayer.seekTo(clickPos * ytPlayer.getDuration(), true);
+            } else if (video && video.duration) {
+                video.currentTime = clickPos * video.duration;
+            }
+        }
+        function togglePlayPause() {
+            if (isYouTubeVideo && ytPlayer) {
                 const state = ytPlayer.getPlayerState();
                 if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
                 else ytPlayer.playVideo();
-            }
-        }
-
-        function rewindVideo() {
-            const video = document.getElementById('mainVideo');
-            if (video) {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-                return;
-            }
-            if (ytPlayer && ytPlayer.getCurrentTime) {
-                const time = ytPlayer.getCurrentTime();
-                ytPlayer.seekTo(Math.max(0, time - 10), true);
-            }
-        }
-
-        function forwardVideo() {
-            const video = document.getElementById('mainVideo');
-            if (video) {
-                video.currentTime = Math.min(video.duration, video.currentTime + 10);
-                return;
-            }
-            if (ytPlayer && ytPlayer.getCurrentTime) {
-                const time = ytPlayer.getCurrentTime();
-                ytPlayer.seekTo(time + 10, true);
-            }
-        }
-
-        // ─── AUDIO MODE (TEXT TO SPEECH) ───
-        let speechSynth = window.speechSynthesis;
-        let speechUtterance = null;
-        let isSpeaking = false;
-
-        function toggleAudioMode() {
-            const btn = document.getElementById('audioModeBtn');
-            const textArea = document.getElementById('lessonText');
-            if (!textArea) return;
-            const text = textArea.innerText;
-
-            if (isSpeaking) {
-                speechSynth.cancel();
-                isSpeaking = false;
-                btn.classList.remove('playing');
-                btn.querySelector('span').textContent = 'Listen to Lesson';
-                showToast('Audio mode paused', false);
             } else {
-                speechSynth.cancel();
-                speechUtterance = new SpeechSynthesisUtterance(text);
-
-                // Voice config
-                const voices = speechSynth.getVoices();
-                if (voices.length > 0) {
-                    speechUtterance.voice = voices.find(v => v.lang.includes('en')) || voices[0];
-                }
-                speechUtterance.rate = 1.0;
-                speechUtterance.pitch = 1.0;
-
-                speechUtterance.onend = () => {
-                    isSpeaking = false;
-                    btn.classList.remove('playing');
-                    btn.querySelector('span').textContent = 'Listen to Lesson';
-                };
-
-                speechSynth.speak(speechUtterance);
-                isSpeaking = true;
-                btn.classList.add('playing');
-                btn.querySelector('span').textContent = 'Now Reading...';
-                showToast('Playing audio transcription');
+                if (video.paused) video.play();
+                else video.pause();
             }
         }
 
-        // Stop speech if navigating
-        window.onbeforeunload = () => { if (speechSynth) speechSynth.cancel(); };
-
-        // ─── ON LOAD ───
-        document.addEventListener('DOMContentLoaded', () => {
-            // Sync last played lecture to DB
-            if (CURRENT_LECTURE_ID && COURSE_ID) {
-                fetch(`/api/enrollments/last-played/${COURSE_ID}/${CURRENT_LECTURE_ID}`, {
-                    method: 'POST',
-                    headers: { [csrfHeader]: csrfToken }
-                }).catch(() => {});
-            }
-
-            // Show resume notification if this was an automatic redirect
-            const resumedId = /*[[${resumedFrom}]]*/ null;
-            if (resumedId && resumedId == CURRENT_LECTURE_ID) {
-                 showToast('Resuming from your last session', false);
-            }
-
-            // Apply saved completion states
-            document.querySelectorAll('[data-radio-id]').forEach(radio => {
-                const id = radio.dataset.radioId;
-                if (id == CURRENT_LECTURE_ID) {
-                    if (isCompleted(id)) {
-                        radio.classList.add('watched');
-                    } else {
-                        radio.classList.add('playing');
-                    }
-                } else if (isCompleted(id)) {
-                    radio.classList.add('watched');
+        function seekRelative(sec) {
+            const limitSec = (isPaidCourse && !hasPaid) ? getPreviewLimitSeconds() : Infinity;
+            if (isYouTubeVideo && ytPlayer) {
+                const cur = ytPlayer.getCurrentTime();
+                const nextTime = Math.max(0, Math.min(ytPlayer.getDuration(), cur + sec));
+                if (isPaidCourse && !hasPaid && nextTime >= limitSec) {
+                    ytPlayer.seekTo(limitSec, true);
+                    showHotstarPaywall();
+                } else {
+                    ytPlayer.seekTo(nextTime, true);
                 }
+            } else if (video) {
+                const nextTime = Math.max(0, Math.min(video.duration, video.currentTime + sec));
+                if (isPaidCourse && !hasPaid && nextTime >= limitSec) {
+                    video.currentTime = limitSec;
+                    showHotstarPaywall();
+                } else {
+                    video.currentTime = nextTime;
+                }
+            }
+            showToast((sec > 0 ? '+' : '') + sec + 's');
+        }
+
+        function changeVolume(val) {
+            const v = parseFloat(val);
+            video.volume = v;
+            const icon = document.querySelector('#ctrlMuteBtn i');
+            if (v === 0) icon.className = 'fas fa-volume-xmark';
+            else if (v < 0.5) icon.className = 'fas fa-volume-low';
+            else icon.className = 'fas fa-volume-high';
+        }
+
+        function toggleMute() {
+            video.muted = !video.muted;
+            const slider = document.getElementById('ctrlVolumeSlider');
+            const icon = document.querySelector('#ctrlMuteBtn i');
+            if (video.muted) {
+                slider.value = 0;
+                icon.className = 'fas fa-volume-xmark';
+            } else {
+                slider.value = video.volume;
+                icon.className = 'fas fa-volume-high';
+            }
+        }
+
+        function toggleSpeedMenu() {
+            document.getElementById('speedMenu').classList.toggle('show');
+        }
+
+        function setPlaybackSpeed(speed) {
+            video.playbackRate = speed;
+            document.getElementById('speedLabel').textContent = `${speed}x`;
+            document.querySelectorAll('.speed-option').forEach(o => {
+                o.classList.toggle('active', parseFloat(o.textContent) === speed);
             });
+            document.getElementById('speedMenu').classList.remove('show');
+            showToast(`Speed: ${speed}x`);
+        }
 
-            // Initialize Mark Complete button state
-            if (CURRENT_LECTURE_ID) {
-                const btn = document.getElementById('markCompleteBtn');
-                if (btn) {
-                    if (isCompleted(CURRENT_LECTURE_ID)) {
-                        btn.classList.add('done');
-                        const span = btn.querySelector('span');
-                        if (span) span.textContent = 'Completed';
-                        btn.disabled = false;
-                    } else {
-                        btn.classList.remove('done');
-                        const span = btn.querySelector('span');
-                        if (span) span.textContent = 'Mark Complete';
-                        
-                        // Disable if video exists and we haven't reached 95%
-                        const hasVideo = document.getElementById('mainVideo') || (typeof YT_EMBED_URL !== 'undefined' && YT_EMBED_URL);
-                        if (hasVideo) {
-                            btn.disabled = true;
-                            // Check if already has saved progress >= 95%
-                            const saved = getProgress(CURRENT_LECTURE_ID);
-                            const video = document.getElementById('mainVideo');
-                            if (video && video.duration) {
-                                const pct = (saved / video.duration) * 100;
-                                if (pct >= 95) btn.disabled = false;
-                            }
-                        } else {
-                            btn.disabled = false;
-                        }
-                    }
-                }
+        function toggleFullscreen() {
+            const wrapper = document.getElementById('videoWrapper');
+            if (!document.fullscreenElement) {
+                wrapper.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
             }
-
-            updateProgressBar();
-            initVideoResume();
-
-            // Auto-collapse sections
-            document.querySelectorAll('.section-item').forEach(sec => {
-                if (!sec.querySelector('.lesson-item.active')) {
-                    sec.classList.add('collapsed');
-                }
-            });
-        });
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('learningSidebar');
-            const notesSidebar = document.getElementById('notesSidebar');
-            const btn = document.getElementById('sidebarToggle');
-            const notesBtn = document.getElementById('notesToggle');
-
-            if (notesSidebar.classList.contains('show')) {
-                notesSidebar.classList.remove('show');
-                notesBtn.classList.remove('active');
-            }
-
-            sidebar.classList.toggle('show');
-            btn.classList.toggle('active');
+            const btn = document.getElementById('toggleCurriculumBtn');
+            sidebar.classList.toggle('collapsed');
+            btn.classList.toggle('active', !sidebar.classList.contains('collapsed'));
         }
 
-        function toggleNotes() {
-            const sidebar = document.getElementById('learningSidebar');
-            const notesSidebar = document.getElementById('notesSidebar');
-            const btn = document.getElementById('sidebarToggle');
-            const notesBtn = document.getElementById('notesToggle');
-
-            if (sidebar.classList.contains('show')) {
-                sidebar.classList.remove('show');
-                btn.classList.remove('active');
-            }
-
-            notesSidebar.classList.toggle('show');
-            notesBtn.classList.toggle('active');
+        function toggleSectionCollapse(head) {
+            head.closest('.section-block').classList.toggle('collapsed');
         }
 
-        let autoSaveTimeout;
-        function debouncedAutoSave() {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(manualSaveNote, 2000);
+        // 5. STEPPING & AUTOPLAY NEXT
+        function stepLecture(direction) {
+            if (isPaidCourse && !hasPaid && (currentLectureIndex + direction) > 0) {
+                showHotstarPaywall();
+                return;
+            }
+            const targetIndex = currentLectureIndex + direction;
+            if (targetIndex >= 0 && targetIndex < allLectures.length) {
+                loadLectureByIndex(targetIndex, true);
+            }
         }
 
-        function manualSaveNote() {
-            const indicator = document.getElementById('saveIndicator');
-            const noteEl = document.getElementById('noteArea');
-            const saveBtn = document.getElementById('manualSaveBtn');
-            if (!indicator || !noteEl) return;
+        function selectLectureFromSidebar(el) {
+            const id = parseInt(el.getAttribute('data-id'));
+            const idx = allLectures.findIndex(l => l.id === id);
+            if (isPaidCourse && !hasPaid && idx > 0) {
+                showHotstarPaywall();
+                return;
+            }
+            if (idx !== -1) {
+                loadLectureByIndex(idx, true);
+            }
+        }
 
-            const originalBtnHtml = saveBtn ? saveBtn.innerHTML : '';
-            if (saveBtn) {
-                saveBtn.disabled = true;
-                saveBtn.style.opacity = '0.7';
-                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        function handleVideoEnded() {
+            if (isPaidCourse && !hasPaid) {
+                showHotstarPaywall();
+                return;
+            }
+            if (activeLecture) {
+                markLectureComplete(activeLecture.id, true);
             }
 
-            indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            indicator.classList.add('show');
-            indicator.style.color = 'var(--accent-light)';
+            const autoplayEnabled = document.getElementById('autoplayCheck').checked;
+            if (autoplayEnabled && currentLectureIndex < allLectures.length - 1) {
+                startAutoplayCountdown();
+            } else {
+                showToast("Lecture finished!", "success");
+            }
+        }
 
-            const lectureId = /*[[${ currentLesson != null ? currentLesson.id : 0 }]]*/ 0;
-            const content = noteEl.value;
+        function startAutoplayCountdown() {
+            if (isPaidCourse && !hasPaid) {
+                showHotstarPaywall();
+                return;
+            }
+            const nextLecture = allLectures[currentLectureIndex + 1];
+            if (!nextLecture) return;
 
-            fetch(`/user/lecture/${lectureId}/save-note`, {
+            document.getElementById('nextUpLectureTitle').textContent = nextLecture.title;
+            const overlay = document.getElementById('autoplayOverlay');
+            overlay.style.display = 'flex';
+
+            let count = 5;
+            document.getElementById('countdownCircle').textContent = count;
+
+            clearInterval(autoplayCountdownInterval);
+            autoplayCountdownInterval = setInterval(() => {
+                count--;
+                document.getElementById('countdownCircle').textContent = count;
+                if (count <= 0) {
+                    clearInterval(autoplayCountdownInterval);
+                    overlay.style.display = 'none';
+                    stepLecture(1);
+                }
+            }, 1000);
+        }
+
+        function cancelAutoplayCountdown() {
+            clearInterval(autoplayCountdownInterval);
+            document.getElementById('autoplayOverlay').style.display = 'none';
+        }
+
+        function triggerNextLectureNow() {
+            cancelAutoplayCountdown();
+            stepLecture(1);
+        }
+
+        // 6. PROGRESS TRACKING & COMPLETION
+        function toggleCurrentLectureComplete() {
+            if (!activeLecture) return;
+            const id = activeLecture.id;
+            if (completedSet.has(id)) {
+                completedSet.delete(id);
+                activeLecture.domElement?.classList.remove('completed');
+                syncCompletionWithBackend(id, false);
+                showToast("Unmarked lecture");
+            } else {
+                markLectureComplete(id, false);
+            }
+            updateMarkCompleteBtnState();
+            updateCurriculumStats();
+        }
+
+        function markLectureComplete(id, isAuto) {
+            completedSet.add(id);
+            const row = document.getElementById('lecture-item-' + id);
+            if (row) row.classList.add('completed');
+            syncCompletionWithBackend(id, true);
+            updateMarkCompleteBtnState();
+            updateCurriculumStats();
+            if (isAuto) showToast("Lecture completed!", "success");
+        }
+
+        function updateMarkCompleteBtnState() {
+            const btn = document.getElementById('btnMarkComplete');
+            if (activeLecture && completedSet.has(activeLecture.id)) {
+                btn.classList.add('done');
+                btn.innerHTML = `<i class="fas fa-check-double"></i> <span>Completed</span>`;
+            } else {
+                btn.classList.remove('done');
+                btn.innerHTML = `<i class="fas fa-check"></i> <span>Mark Complete</span>`;
+            }
+        }
+
+        function updateCurriculumStats() {
+            const total = allLectures.length;
+            const done = completedSet.size;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('headerProgressFill').style.width = pct + '%';
+            document.getElementById('headerProgressText').textContent = `${pct}% Complete`;
+            document.getElementById('sidebarProgressRatio').textContent = `${done} / ${total} Completed`;
+            
+            // Keep localStorage updated for profile page instant reflection
+            localStorage.setItem('skillhub_course_video_pct_' + COURSE_ID, pct);
+        }
+
+        function syncCompletionWithBackend(lectureId, isComplete) {
+            const endpoint = isComplete ? `/api/enrollments/progress/${lectureId}/complete` 
+                                        : `/api/enrollments/progress/${lectureId}/incomplete`;
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    [CSRF_HEADER]: CSRF_TOKEN
+                }
+            }).then(() => {
+                // Trigger course progress re-sync
+                fetch('/api/enrollments/progress/pokes').catch(()=>{});
+            }).catch(e => console.log('Sync deferred:', e));
+        }
+
+        // 7. REALTIME NOTES
+        function fetchLectureNote(lectureId) {
+            const noteEl = document.getElementById('lectureNoteArea');
+            noteEl.value = 'Loading notes...';
+            fetch(`/user/lecture/${lectureId}/note?courseId=${COURSE_ID}`)
+                .then(r => r.json())
+                .then(data => {
+                    noteEl.value = data.content || '';
+                })
+                .catch(() => {
+                    noteEl.value = '';
+                });
+        }
+
+        function handleNoteTyping() {
+            const status = document.getElementById('noteSaveStatus');
+            status.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:var(--warning);"></i> Saving...`;
+            clearTimeout(noteDebounceTimer);
+            noteDebounceTimer = setTimeout(forceSaveNote, 1500);
+        }
+
+        function forceSaveNote() {
+            if (!activeLecture) return;
+            clearTimeout(noteDebounceTimer);
+            const content = document.getElementById('lectureNoteArea').value;
+            const status = document.getElementById('noteSaveStatus');
+
+            fetch(`/user/lecture/${activeLecture.id}/save-note`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [CSRF_HEADER]: CSRF_TOKEN
                 },
                 body: JSON.stringify({
                     content: content,
                     courseId: COURSE_ID
                 })
             })
-            .then(async response => {
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`Server error: ${response.status} - ${text}`);
-                }
-                return response.json();
-            })
+            .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    indicator.innerHTML = '<i class="fas fa-check-circle"></i> Saved Successfully';
-                    indicator.style.color = 'var(--success)';
-                    showToast('Note saved successfully!');
-                    setTimeout(() => indicator.classList.remove('show'), 2000);
+                    status.innerHTML = `<i class="fas fa-circle-check" style="color:var(--success);"></i> Saved to cloud`;
                 } else {
-                    throw new Error(data.message || 'Server returned failure');
+                    status.innerHTML = `<i class="fas fa-circle-exclamation" style="color:var(--danger);"></i> Save error`;
                 }
             })
-            .catch(err => {
-                console.error('Note save error:', err);
-                indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i> Save Failed';
-                indicator.style.color = '#ff6b6b';
-                showToast('Error: ' + err.message, false);
-            })
-            .finally(() => {
-                if (saveBtn) {
-                    saveBtn.disabled = false;
-                    saveBtn.style.opacity = '1';
-                    saveBtn.innerHTML = originalBtnHtml;
-                }
+            .catch(() => {
+                status.innerHTML = `<i class="fas fa-circle-exclamation" style="color:var(--danger);"></i> Network error`;
             });
         }
-        function showToast(message, isSuccess = true) {
-            let toast = document.getElementById('noteToast');
-            if (!toast) {
-                toast = document.createElement('div');
-                toast.id = 'noteToast';
-                toast.style.cssText = `
-                    position: fixed;
-                    bottom: 2rem;
-                    right: 2rem;
-                    padding: 1.2rem 2.4rem;
-                    border-radius: 8px;
-                    color: white;
-                    font-weight: 600;
-                    z-index: 9999;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    transition: all 0.3s ease;
-                    opacity: 0;
-                    transform: translateY(20px);
-                `;
-                document.body.appendChild(toast);
-            }
-            toast.textContent = message;
-            toast.style.background = isSuccess ? 'var(--success)' : '#ef4444';
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateY(0)';
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-            }, 3000);
+
+        function insertCurrentTimestamp() {
+            const time = Math.floor(video.currentTime || 0);
+            const tag = `[${formatTime(time)}] `;
+            const noteArea = document.getElementById('lectureNoteArea');
+            noteArea.value += (noteArea.value.length > 0 && !noteArea.value.endsWith('\n') ? '\n' : '') + tag;
+            noteArea.focus();
+            handleNoteTyping();
+            showToast(`Timestamp added: ${formatTime(time)}`);
         }
 
-        /* --- Offline & PWA Logic --- */
-        async function handleDownload(event, lectureId, title, videoUrl, courseId) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            const icon = document.getElementById('dn-icon-' + lectureId);
-            const originalClass = icon.className;
-            icon.className = 'fas fa-spinner fa-spin';
-            
-            try {
-                // Ensure offline manager is initialized
-                if (!window.offlineManager.db) await window.offlineManager.init();
-                
-                const lessonBody = document.getElementById('lessonText');
-                const lesson = { 
-                    id: lectureId, 
-                    title, 
-                    videoUrl, 
-                    courseId, 
-                    content: lessonBody ? lessonBody.innerHTML : "" 
-                };
-                
-                await offlineManager.downloadLecture(lesson);
-                
-                icon.className = 'fas fa-cloud-check';
-                icon.style.color = 'var(--success)';
-                showToast("Lesson ready for offline use!");
-            } catch (err) {
-                console.error("Download failed:", err);
-                icon.className = originalClass;
-                
-                let errorMsg = "Download failed. Check your connection.";
-                if (err.name === 'QuotaExceededError' || err.message.includes('quota')) {
-                    errorMsg = "Storage full! Please clear some space in your browser.";
-                } else if (err.name === 'NotFoundError') {
-                    errorMsg = "Storage initialization error. Please refresh the page.";
-                }
-                
-                showToast(errorMsg, false);
-            }
+        // 8. TABS SWITCHER
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
         }
 
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('SW Registered', reg))
-                .catch(err => console.log('SW Registration failed', err));
-        }
+        // 9. TEXT-TO-SPEECH
+        let ttsSynth = window.speechSynthesis;
+        let ttsUtterance = null;
+        let isTTSPlaying = false;
 
-        // Handle Connectivity Change
-        function updateOnlineStatus() {
-            const banner = document.getElementById('offlineBanner');
-            if (navigator.onLine) {
-                banner.style.display = 'none';
-                offlineManager.syncNow();
+        function toggleTTSAudio() {
+            const btn = document.getElementById('ttsAudioBtn');
+            const text = document.getElementById('lectureArticleText').innerText;
+
+            if (isTTSPlaying) {
+                ttsSynth.cancel();
+                isTTSPlaying = false;
+                btn.classList.remove('playing');
+                btn.innerHTML = `<i class="fas fa-headphones"></i> <span>Listen to Lesson</span>`;
+                showToast('Audio paused');
             } else {
-                banner.style.display = 'block';
-                showToast("You are offline. Accessing cached content.", false);
+                ttsSynth.cancel();
+                ttsUtterance = new SpeechSynthesisUtterance(text);
+                ttsUtterance.rate = 1.0;
+                ttsUtterance.onend = () => {
+                    isTTSPlaying = false;
+                    btn.classList.remove('playing');
+                    btn.innerHTML = `<i class="fas fa-headphones"></i> <span>Listen to Lesson</span>`;
+                };
+                ttsSynth.speak(ttsUtterance);
+                isTTSPlaying = true;
+                btn.classList.add('playing');
+                btn.innerHTML = `<i class="fas fa-pause"></i> <span>Playing Audio...</span>`;
+                showToast('Reading lesson audio');
             }
         }
 
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
+        // 10. OFFLINE DOWNLOAD
+        async function downloadCurrentLectureOffline() {
+            if (!activeLecture) return;
+            const icon = document.getElementById('dn-icon-' + activeLecture.id);
+            if (icon) icon.className = 'fas fa-spinner fa-spin';
 
-        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await offlineManager.init();
-                updateOnlineStatus();
-                
-                // Check which lessons are already downloaded and update icons
-                const allDns = document.querySelectorAll('.download-btn i');
-                for(let icon of allDns) {
-                    const id = icon.id.replace('dn-icon-', '');
-                    if (id && await offlineManager.isDownloaded(parseInt(id))) {
-                        icon.className = 'fas fa-cloud-check';
+                if (window.offlineManager) {
+                    if (!window.offlineManager.db) await window.offlineManager.init();
+                    await offlineManager.downloadLecture({
+                        id: activeLecture.id,
+                        title: activeLecture.title,
+                        videoUrl: activeLecture.videoUrl,
+                        courseId: COURSE_ID,
+                        content: activeLecture.content
+                    });
+                    if (icon) {
+                        icon.className = 'fas fa-circle-check';
                         icon.style.color = 'var(--success)';
                     }
+                    showToast('Lesson cached offline!', 'success');
                 }
-            } catch (initErr) {
-                console.warn("Offline initialization deferred:", initErr);
+            } catch (e) {
+                if (icon) icon.className = 'fas fa-cloud-arrow-down';
+                showToast('Download error', 'danger');
+            }
+        }
+
+        function handleLectureDownload(event, btn) {
+            event.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            const title = btn.getAttribute('data-title');
+            const videoUrl = btn.getAttribute('data-url');
+            const courseId = btn.getAttribute('data-course');
+            downloadSpecificLecture(event, id, title, videoUrl, courseId);
+        }
+
+        async function downloadSpecificLecture(event, id, title, videoUrl, courseId) {
+            event.stopPropagation();
+            const icon = document.getElementById('dn-icon-' + id);
+            if (icon) icon.className = 'fas fa-spinner fa-spin';
+            try {
+                if (window.offlineManager) {
+                    if (!window.offlineManager.db) await window.offlineManager.init();
+                    await offlineManager.downloadLecture({ id, title, videoUrl, courseId, content: '' });
+                    if (icon) {
+                        icon.className = 'fas fa-circle-check';
+                        icon.style.color = 'var(--success)';
+                    }
+                    showToast(`Cached: ${title}`, 'success');
+                }
+            } catch (err) {
+                if (icon) icon.className = 'fas fa-cloud-arrow-down';
+                showToast('Download error', 'danger');
+            }
+        }
+
+        // 11. KEYBOARD SHORTCUTS
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+
+            switch (e.key.toLowerCase()) {
+                case ' ':
+                case 'k':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'arrowleft':
+                    e.preventDefault();
+                    seekRelative(-5);
+                    break;
+                case 'arrowright':
+                    e.preventDefault();
+                    seekRelative(5);
+                    break;
+                case 'j':
+                    seekRelative(-10);
+                    break;
+                case 'l':
+                    seekRelative(10);
+                    break;
+                case 'm':
+                    toggleMute();
+                    break;
+                case 'f':
+                    toggleFullscreen();
+                    break;
+                case 'n':
+                    stepLecture(1);
+                    break;
+                case 'p':
+                    stepLecture(-1);
+                    break;
+            }
+        });
+
+        // 12. UTILITIES
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function showToast(text, type = 'info') {
+            const toast = document.getElementById('rtToast');
+            const icon = document.getElementById('rtToastIcon');
+            document.getElementById('rtToastText').textContent = text;
+
+            if (type === 'success') {
+                icon.className = 'fas fa-circle-check rt-toast-icon';
+                icon.style.color = 'var(--success)';
+            } else if (type === 'danger') {
+                icon.className = 'fas fa-circle-exclamation rt-toast-icon';
+                icon.style.color = 'var(--danger)';
+            } else {
+                icon.className = 'fas fa-circle-info rt-toast-icon';
+                icon.style.color = 'var(--primary)';
+            }
+
+            toast.classList.add('show');
+            clearTimeout(toast.timeout);
+            toast.timeout = setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.speed-dropdown')) {
+                document.getElementById('speedMenu')?.classList.remove('show');
+            }
+        });
+
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.lectureId) {
+                const idx = allLectures.findIndex(l => l.id === e.state.lectureId);
+                if (idx !== -1) loadLectureByIndex(idx, true);
+            }
+        });
+
+        // 13. DOM READY INITIALIZATION
+        document.addEventListener('DOMContentLoaded', () => {
+            initCurriculumData();
+            if (currentLectureIndex !== -1) {
+                loadLectureByIndex(currentLectureIndex, true);
             }
         });
         /*]]>*/

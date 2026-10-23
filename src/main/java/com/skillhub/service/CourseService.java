@@ -87,7 +87,22 @@ public class CourseService {
 
     public List<Course> getCoursesByCategory(Category category) {
         if (category == null) return List.of();
-        return getCoursesByCategory(category.getName());
+        List<Course> courses = courseRepository.findPublishedByCategory(CourseStatus.PUBLISHED, category);
+        if (courses == null || courses.isEmpty()) {
+            courses = courseRepository.findPublishedByCategoryName(CourseStatus.PUBLISHED, category.getName());
+        }
+        if (courses == null || courses.isEmpty()) {
+            courses = courseRepository.findByCategory(category);
+            if (courses != null) {
+                courses = courses.stream()
+                        .sorted((a, b) -> Long.compare(b.getId() != null ? b.getId() : 0, a.getId() != null ? a.getId() : 0))
+                        .collect(java.util.stream.Collectors.toList());
+            }
+        }
+        if (courses != null) {
+            courses.forEach(this::populateCourseRatings);
+        }
+        return courses != null ? courses : List.of();
     }
 
     public Course getCourseById(Long id) {
