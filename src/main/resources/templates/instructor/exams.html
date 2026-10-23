@@ -5,9 +5,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Exams | SkillHub Vendor</title>
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ══ BOOTSTRAP OVERRIDES & COMPATIBILITY ══ */
+        a {
+            text-decoration: none;
+        }
+
+        /* ══ MOBILE RESPONSIVE SIDEBAR & TOPBAR ══ */
+        /* Hide fat scrollbar on sidebar and navigation */
+        .vendor-sidebar,
+        .vendor-nav {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+
+        .vendor-sidebar::-webkit-scrollbar,
+        .vendor-nav::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .vendor-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 7, 34, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .vendor-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .vendor-mobile-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            box-shadow: 0 4px 16px rgba(46, 16, 101, 0.05);
+        }
+
+        .btn-sidebar-toggle {
+            background: #F5F3FF;
+            color: #7C3AED;
+            border: 1px solid #DDD6FE;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background: #EDE9FE;
+            color: #5B21B6;
+            transform: scale(1.03);
+        }
+
+        .mobile-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+            text-transform: uppercase;
+        }
+
+        .vendor-sidebar-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .btn-sidebar-close {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-close:hover {
+            background: rgba(239, 68, 68, 0.7);
+            border-color: #EF4444;
+            color: #ffffff;
+        }
+
+        @media (max-width: 991.98px) {
+            .vendor-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                width: 280px !important;
+                max-width: 85vw !important;
+                height: 100vh !important;
+                z-index: 1050 !important;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 0 24px 24px 0 !important;
+                border-right: 1px solid rgba(167, 139, 250, 0.25) !important;
+                box-shadow: 12px 0 45px rgba(15, 7, 34, 0.55) !important;
+                overflow-y: auto !important;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
+
+            .vendor-sidebar::-webkit-scrollbar,
+            .vendor-nav::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+
+            .vendor-sidebar.mobile-open {
+                transform: translateX(0) !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1.25rem !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: hidden;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0.85rem !important;
+            }
+
+            header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .welcome-text h1 {
+                font-size: 1.5rem !important;
+            }
+
+            .welcome-text p {
+                font-size: 0.88rem !important;
+            }
+
+            .btn.btn-primary {
+                width: 100% !important;
+                justify-content: center !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+
+            .exams-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.25rem !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .exam-card {
+                padding: 1.25rem !important;
+                border-radius: 16px !important;
+            }
+            .exam-meta-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+            }
+            .stat-box {
+                padding: 0.75rem !important;
+            }
+        }
+
         :root {
             --primary: #8B5CF6;
             --primary-hover: #7C3AED;
@@ -467,17 +673,25 @@
 </head>
 
 <body>
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="vendor-sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="toggleVendorMobileSidebar(false)"></div>
+
     <!-- ══ SIDEBAR ══ -->
-    <aside class="vendor-sidebar">
-        <a th:href="@{/}" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.5rem 2.5rem 1.5rem;">
-            <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
-            <div style="display: flex; flex-direction: column; line-height: 1.1;">
-                <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
-                    <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+    <aside class="vendor-sidebar" id="vendorSidebar">
+        <div class="vendor-sidebar-top-row">
+            <a th:href="@{/}" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.25rem 2rem 1.25rem; flex: 1;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
+                        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
                 </div>
-                <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
-            </div>
-        </a>
+            </a>
+            <button type="button" class="btn-sidebar-close d-lg-none" onclick="toggleVendorMobileSidebar(false)" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
         <nav class="vendor-nav">
             <a th:href="@{/vendor/dashboard(tab='courses')}" class="vendor-nav-item" th:classappend="${activeTab == 'courses'} ? 'active'">
@@ -498,8 +712,8 @@
             <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item" th:classappend="${activeTab == 'questions'} ? 'active'">
                 <i class="fas fa-question-circle"></i> Student Questions
             </a>
-            <a th:href="@{/vendor/dashboard(tab='communications')}" class="vendor-nav-item" th:classappend="${activeTab == 'communications'} ? 'active'">
-                <i class="fas fa-comments"></i> Communications
+            <a th:href="@{/vendor/dashboard(tab='messages')}" class="vendor-nav-item" th:classappend="${activeTab == 'messages' or activeTab == 'communications'} ? 'active'">
+                <i class="fas fa-comment-dots"></i> Messages
             </a>
             <a th:href="@{/vendor/exams}" class="vendor-nav-item" th:classappend="${activeTab == 'exams' or activeTab == null} ? 'active'">
                 <i class="fas fa-file-signature"></i> Manage Exams
@@ -518,6 +732,22 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Mobile Topbar (< 992px) -->
+        <div class="vendor-mobile-topbar d-lg-none">
+            <button type="button" class="btn-sidebar-toggle" onclick="toggleVendorMobileSidebar(true)" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a th:href="@{/}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub" style="height: 28px; width: auto;">
+                <div style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 900; letter-spacing: -0.5px;">
+                    <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                </div>
+            </a>
+            <div class="mobile-user-avatar">
+                <span><i class="fas fa-file-signature"></i></span>
+            </div>
+        </div>
+
         <header>
             <div class="welcome-text">
                 <h1>Assessment Exams</h1>
@@ -696,6 +926,34 @@
         setInterval(updateExamStats, 15000);
         // Initial run
         updateExamStats();
+    </script>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleVendorMobileSidebar(open) {
+            const sidebar = document.getElementById('vendorSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (!sidebar) return;
+            if (open) {
+                sidebar.classList.add('mobile-open');
+                if (backdrop) backdrop.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.remove('mobile-open');
+                if (backdrop) backdrop.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#vendorSidebar .vendor-nav-item').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        toggleVendorMobileSidebar(false);
+                    }
+                });
+            });
+        });
     </script>
 </body>
 
