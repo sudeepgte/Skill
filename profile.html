@@ -1,0 +1,2466 @@
+HTTP/1.1 200 
+X-Request-ID: 3e5479b1-cab3-4924-a584-46a5b82840a2
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss: https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Type: text/html;charset=UTF-8
+Content-Language: en-US
+Transfer-Encoding: chunked
+Date: Fri, 23 Oct 2026 09:56:14 GMT
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vendor Dashboard | SkillHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/vendor_dashboard.css">
+    <!-- Include Chat Styles directly if not in CSS -->
+    <style>
+        .chat-widget-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .chat-fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(86, 36, 208, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .chat-fab:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-header {
+            padding: 1rem 1.25rem;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chat-header-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        .chat-header-btn:hover {
+            background: rgba(255, 255, 255, 0.32);
+            transform: scale(1.08);
+        }
+
+        .chat-header-btn:active {
+            transform: scale(0.94);
+        }
+
+        .connection-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: inline-block;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .status-online { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-offline { background: #ef4444; }
+
+        .chat-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: #f8fafc;
+        }
+
+        .contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .contact-item:hover {
+            background: rgba(86, 36, 208, 0.05);
+        }
+
+        .contact-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #5624d0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-sent {
+            align-self: flex-end;
+            background: #5624d0;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message-received {
+            align-self: flex-start;
+            background: white;
+            color: #1c1d1f;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-attachment-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .chat-attachment-preview:hover {
+            opacity: 0.9;
+        }
+
+        .file-bubble {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .message-sent .file-bubble {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+            display: block;
+            text-align: right;
+        }
+
+        .message-sent .message-time {
+            color: #e0e7ff;
+        }
+
+        .message-received .message-time {
+            color: #64748b;
+        }
+
+        .chat-footer {
+            padding: 0.85rem 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+            background: #ffffff;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            outline: none;
+            font-size: 14px;
+            font-family: inherit;
+            background: #ffffff;
+            color: #1e293b;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-footer input:focus {
+            border-color: #5624d0;
+            box-shadow: 0 0 0 2px rgba(86, 36, 208, 0.15);
+        }
+
+        .chat-photo-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        .chat-photo-btn:hover {
+            background: #ede9fe;
+            color: #5624d0;
+            border-color: #c4b5fd;
+            transform: scale(1.08);
+        }
+
+        .chat-photo-btn:active {
+            transform: scale(0.94);
+        }
+
+        .send-btn, .chat-send-btn {
+            background: #5624d0;
+            color: white;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            padding: 0;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(86, 36, 208, 0.35);
+        }
+
+        .send-btn:hover, .chat-send-btn:hover {
+            background: #431ba6;
+            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(86, 36, 208, 0.45);
+        }
+
+        .send-btn:active, .chat-send-btn:active {
+            transform: scale(0.94);
+        }
+
+        @keyframes chatSpin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .chat-spin {
+            animation: chatSpin 0.8s linear infinite;
+        }
+    </style>
+    
+    <style>
+        /* ── Responsive stats grid ── */
+        @media (max-width: 768px) {
+            .vendor-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.8rem !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .vendor-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* ── Profile management styles ── */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .profile-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .profile-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px dashed var(--vendor-card-border);
+            padding: 2.5rem 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .avatar-preview-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--vendor-sidebar-active);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+            margin-bottom: 1.5rem;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .upload-btn-label {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--vendor-sidebar-active);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s;
+        }
+        .upload-btn-label:hover {
+            background: var(--vendor-sidebar-bg);
+            transform: scale(1.1);
+        }
+        .photo-hint {
+            font-size: 0.8rem;
+            color: var(--vendor-text-muted);
+        }
+        .form-section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(167, 139, 250, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+        .section-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 1.5rem 0;
+            color: var(--vendor-sidebar-bg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid #EDE9FE;
+            padding-bottom: 0.75rem;
+        }
+        .section-card-subtitle {
+            font-size: 0.85rem;
+            color: var(--vendor-text-muted);
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+        .input-group label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--vendor-text-main);
+        }
+        .input-group input, .input-group textarea {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #EDE9FE;
+            background: #F9FAF5;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--vendor-text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: var(--vendor-sidebar-active);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        @media (max-width: 576px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .required-star {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+        .profile-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .btn-save-profile {
+            background-color: var(--vendor-sidebar-active);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+            transition: all 0.2s;
+        }
+                /* â”â” PASSWORD EYE BUTTON & WRAPPER â”â” */
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .password-input-wrapper input {
+            width: 100%;
+            padding-right: 48px !important;
+        }
+        .btn-toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8B5CF6;
+            cursor: pointer;
+            padding: 8px 10px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            outline: none;
+            z-index: 2;
+        }
+        .btn-toggle-password:hover {
+            color: #2E1065;
+            background-color: #EDE9FE;
+        }
+
+        /* â”â” VALIDATION STYLES â”â” */
+        .input-error {
+            border-color: #EF4444 !important;
+            background-color: #FEF2F2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+        }
+        .field-error-text {
+            color: #DC2626;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.35rem;
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .field-error-text.show {
+            display: flex;
+        }
+        .char-counter-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .char-count {
+            font-size: 0.75rem;
+            color: #8B5CF6;
+            font-weight: 600;
+        }
+
+        /* Password Strength Bar */
+        .password-strength-wrap {
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .strength-track {
+            flex: 1;
+            height: 5px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+        }
+        .strength-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 60px;
+        }
+        .strength-weak { width: 33%; background: #EF4444; }
+        .strength-medium { width: 66%; background: #F59E0B; }
+        .strength-strong { width: 100%; background: #10B981; }
+
+        /* Password Match Badge */
+        .password-match-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .match-success {
+            color: #059669;
+        }
+        .match-fail {
+            color: #DC2626;
+        }
+        .btn-save-profile:hover {
+            background-color: var(--vendor-sidebar-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(46, 16, 101, 0.35);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ── Course Status Filter Buttons ── */
+        .course-filter-group {
+            display: inline-flex;
+            align-items: center;
+            background: #F8FAFC;
+            padding: 4px 6px;
+            border-radius: 9999px;
+            border: 1px solid #E2E8F0;
+            gap: 6px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .course-filter-btn {
+            text-decoration: none !important;
+            font-size: 0.86rem;
+            font-weight: 600;
+            padding: 7px 18px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #64748B;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        .course-filter-btn:hover {
+            color: #1E293B;
+            background: #F1F5F9;
+            border-color: #CBD5E1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+        .course-filter-btn.active-all {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-published {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-pending {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-draft {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(107, 114, 128, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-rejected {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+            transform: translateY(-1px);
+        }
+
+        /* ── Neat Popup Modal & Toast System ── */
+        .neat-popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: neatFadeIn 0.25s ease-out;
+        }
+
+        .neat-popup-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 460px;
+            width: 100%;
+            padding: 2.2rem 2rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            animation: neatPopupScale 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes neatFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes neatPopupScale {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .neat-popup-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: #F1F5F9;
+            color: #64748B;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .neat-popup-close-btn:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            transform: scale(1.08);
+        }
+
+        .neat-popup-icon-wrap {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.25rem;
+        }
+
+        .neat-popup-icon-wrap.success-gradient {
+            background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+            color: #16A34A;
+            box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.3);
+        }
+
+        .neat-popup-icon-wrap.error-gradient {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            color: #DC2626;
+            box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.3);
+        }
+
+        .neat-popup-icon-wrap.warning-gradient {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #D97706;
+            box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.3);
+        }
+
+        .neat-popup-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0 0 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .neat-popup-message {
+            font-size: 0.98rem;
+            color: #475569;
+            line-height: 1.55;
+            margin: 0 0 1.75rem;
+        }
+
+        .neat-popup-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .neat-popup-btn {
+            border: none;
+            padding: 0.75rem 1.6rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .neat-popup-btn-primary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+        }
+        .neat-popup-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+        }
+
+        .neat-popup-btn-secondary {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+        }
+        .neat-popup-btn-secondary:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            transform: translateY(-1px);
+        }
+
+        .neat-popup-btn-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .neat-popup-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
+        }
+
+        .neat-popup-btn-error {
+            background: #0F172A;
+            color: #FFFFFF;
+        }
+        .neat-popup-btn-error:hover {
+            background: #1E293B;
+            transform: translateY(-1px);
+        }
+
+        /* ── Floating Toast System ── */
+        .neat-toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10050;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .neat-toast {
+            pointer-events: auto;
+            background: #FFFFFF;
+            border-radius: 14px;
+            padding: 14px 20px;
+            min-width: 300px;
+            max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: neatToastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s ease;
+        }
+
+        @keyframes neatToastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .neat-toast.toast-hide {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+
+        .neat-toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .neat-toast.success .neat-toast-icon { color: #10B981; }
+        .neat-toast.error .neat-toast-icon { color: #EF4444; }
+        .neat-toast.warning .neat-toast-icon { color: #F59E0B; }
+        .neat-toast.info .neat-toast-icon { color: #8B5CF6; }
+
+        .neat-toast-text {
+            flex-grow: 1;
+            font-size: 0.92rem;
+            color: #1E293B;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .neat-toast-close {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .neat-toast-close:hover {
+            color: #0F172A;
+        }
+
+        /* ── Modern Status Badges in Table ── */
+        .status-cell {
+            white-space: nowrap;
+        }
+
+        .course-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 13px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .course-status-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .course-status-pill .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        /* Published - Emerald */
+        .course-status-pill.status-published {
+            background-color: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+        .course-status-pill.status-published .status-dot {
+            background-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Pending Review - Amber */
+        .course-status-pill.status-pending {
+            background-color: #FFFBEB;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+        .course-status-pill.status-pending .status-dot {
+            background-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+        }
+
+        /* Draft - Cool Slate */
+        .course-status-pill.status-draft {
+            background-color: #F8FAFC;
+            color: #475569;
+            border: 1px solid #CBD5E1;
+        }
+        .course-status-pill.status-draft .status-dot {
+            background-color: #64748B;
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
+        }
+
+        /* Changes Requested - Rose Red */
+        .course-status-pill.status-rejected {
+            background-color: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        .course-status-pill.status-rejected .status-dot {
+            background-color: #EF4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="vendor-dashboard-container">
+
+        <!-- ══ SIDEBAR ══ -->
+        <aside class="vendor-sidebar">
+            <a href="/" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.5rem 2.5rem 1.5rem;">
+                <img src="/images/icon.png?v=2.2" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
+                        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
+                </div>
+            </a>
+
+            <nav class="vendor-nav">
+                <a href="/vendor/dashboard?tab=courses" class="vendor-nav-item">
+                    <i class="fas fa-th-large"></i> My Courses
+                </a>
+                <a href="/vendor/courses/create" class="vendor-nav-item">
+                    <i class="fas fa-plus-circle"></i> Create New Course
+                </a>
+                <a href="/vendor/dashboard?tab=students" class="vendor-nav-item">
+                    <i class="fas fa-users"></i> Students
+                </a>
+                <a href="/vendor/dashboard?tab=analytics" class="vendor-nav-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+                <a href="/vendor/dashboard?tab=reviews" class="vendor-nav-item">
+                    <i class="fas fa-star"></i> Student Reviews
+                </a>
+                <a href="/vendor/dashboard?tab=questions" class="vendor-nav-item">
+                    <i class="fas fa-question-circle"></i> Student Questions
+                </a>
+                <a href="/vendor/dashboard?tab=communications" class="vendor-nav-item">
+                    <i class="fas fa-comments"></i> Communications
+                </a>
+                <a href="/vendor/exams" class="vendor-nav-item">
+                    <i class="fas fa-file-signature"></i> Manage Exams
+                </a>
+                <a href="/vendor/dashboard?tab=profile" class="vendor-nav-item active">
+                    <i class="fas fa-user-circle"></i> Profile Management
+                </a>
+            </nav>
+
+            <div class="vendor-sidebar-footer">
+                <a href="/logout" class="vendor-nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ══ MAIN CONTENT ══ -->
+        <main class="vendor-main">
+
+            <!-- Header -->
+            <header class="vendor-header">
+                <div class="vendor-welcome">
+                    <h1>Welcome back, Admin User</h1>
+                    <p>Track your performance and manage your content.</p>
+                </div>
+                <a href="/vendor/courses/create" class="btn-new-course">
+                    <i class="fas fa-plus"></i> New Course
+                </a>
+            </header>
+
+            <!-- ══ NEAT POPUP MESSAGES (Success, Error, Delete Confirmation) ══ -->
+            <!-- 1. Success Popup Modal -->
+            
+
+            <!-- 2. Error Popup Modal -->
+            
+
+            <!-- 3. Delete Course Confirmation Popup Modal (Replaces browser confirm alert) -->
+            <div id="deleteCourseConfirmModal" class="neat-popup-backdrop" style="display: none;" onclick="closeDeleteCourseModal(event)">
+                <div class="neat-popup-card" onclick="event.stopPropagation()">
+                    <button type="button" class="neat-popup-close-btn" onclick="closeDeleteCourseModal()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="neat-popup-icon-wrap warning-gradient">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3 class="neat-popup-title">Delete Course?</h3>
+                    <p class="neat-popup-message">
+                        Are you sure you want to delete <strong id="deleteCourseNameDisplay" style="color: #0F172A; font-weight: 700;">this course</strong>?
+                        This action cannot be undone.
+                    </p>
+                    <div class="neat-popup-actions">
+                        <button type="button" class="neat-popup-btn neat-popup-btn-secondary" onclick="closeDeleteCourseModal()">
+                            Cancel
+                        </button>
+                        <button type="button" class="neat-popup-btn neat-popup-btn-danger" onclick="submitDeleteCourse()">
+                            <i class="fas fa-trash-alt"></i> Yes, Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Floating Toast Container for dynamic alerts -->
+            <div id="neatToastContainer" class="neat-toast-container"></div>
+
+            <!-- Stats Grid - Only show on main dashboard tab -->
+            
+
+            <!-- Manage Courses Panel -->
+            
+
+            <!-- Manage Students Panel -->
+            
+
+            <!-- Analytics Panel -->
+            
+
+            <!-- Profile Tab (if selected) -->
+            
+
+            
+
+            <!-- Profile Tab (if selected) -->
+            <div class="vendor-panel">
+                 <div class="panel-header" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; font-weight: 800; color: #2E1065;">Profile Management</h2>
+                    <p style="color: var(--vendor-text-muted); font-size: 0.95rem; margin-top: 0.25rem;">Update your personal details, specialization, social networks, and password credentials.</p>
+                </div>
+                
+                <form action="/vendor/profile/update" method="post" enctype="multipart/form-data" class="profile-edit-form" id="profileForm" novalidate><input type="hidden" name="_csrf" value="1MzVMEPvZAd14g7z4ib65bOLIiulRcCgjCM0zdMW-flo_rMJ4v-xA3XXAjNY0DzK1QvO1IC9DxKcJKaN7UAC9LFwzcFfzII_"/>
+                    <!-- CRITICAL: CSRF Token -->
+                    <input type="hidden" name="_csrf" value="1MzVMEPvZAd14g7z4ib65bOLIiulRcCgjCM0zdMW-flo_rMJ4v-xA3XXAjNY0DzK1QvO1IC9DxKcJKaN7UAC9LFwzcFfzII_" />
+                    
+                    <div class="profile-grid">
+                        
+                        <!-- Left Column: Photo & Socials -->
+                        <div class="profile-left-col">
+                            <div class="photo-upload-container">
+                                <div class="avatar-preview-wrapper">
+                                    <img id="avatarPreview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&amp;q=80" alt="Avatar" class="avatar-img" />
+                                    <label for="profilePicture" class="upload-btn-label" title="Upload Photo">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                    <input type="file" id="profilePicture" name="profilePicture" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none;" onchange="previewImage(event)" />
+                                </div>
+                                <span class="photo-hint" style="font-size:1.1rem; font-weight:600; color:#5B21B6; margin-bottom: 0.5rem; display:block;">Click camera icon to change photo</span>
+                                <span class="photo-hint">Allowed formats: JPG, PNG, GIF, WEBP. Max 5MB.</span>
+                                <span class="field-error-text" id="photoError" style="margin-top: 0.5rem;"></span>
+                            </div>
+
+                            <!-- Social Links -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-share-nodes" style="color: #8B5CF6;"></i> Social Networks</h3>
+                                <div class="input-group">
+                                    <label for="linkedinUrl"><i class="fab fa-linkedin" style="color: #0077b5;"></i> LinkedIn URL</label>
+                                    <input type="url" id="linkedinUrl" name="linkedinUrl" value="" placeholder="https://linkedin.com/in/username" />
+                                    <span class="field-error-text" id="linkedinUrlError"><i class="fas fa-exclamation-circle"></i> Please enter a valid URL (e.g. https://linkedin.com/in/username).</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="youtubeUrl"><i class="fab fa-youtube" style="color: #ff0000;"></i> YouTube URL</label>
+                                    <input type="url" id="youtubeUrl" name="youtubeUrl" value="" placeholder="https://youtube.com/@channel" />
+                                    <span class="field-error-text" id="youtubeUrlError"><i class="fas fa-exclamation-circle"></i> Please enter a valid URL (e.g. https://youtube.com/@channel).</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="instagramUrl"><i class="fab fa-instagram" style="color: #e1306c;"></i> Instagram URL</label>
+                                    <input type="url" id="instagramUrl" name="instagramUrl" value="" placeholder="https://instagram.com/username" />
+                                    <span class="field-error-text" id="instagramUrlError"><i class="fas fa-exclamation-circle"></i> Please enter a valid URL (e.g. https://instagram.com/username).</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Personal Info & Password Security -->
+                        <div class="profile-right-col">
+                            
+                            <!-- Personal Info -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-user-edit" style="color: #8B5CF6;"></i> Personal Information</h3>
+                                <div class="input-group">
+                                    <label for="name">Full Name <span class="required-star">*</span></label>
+                                    <input type="text" id="name" name="name" value="Admin User" required placeholder="Your full name" maxlength="60" />
+                                    <span class="field-error-text" id="nameError"><i class="fas fa-exclamation-circle"></i> Full Name is required (minimum 2 characters).</span>
+                                </div>
+                                <div class="input-grid">
+                                    <div class="input-group">
+                                        <label>Email Address (Read-only)</label>
+                                        <input type="email" value="admin@skillhub.com" disabled style="background-color: rgba(0, 0, 0, 0.05); color: #666; cursor: not-allowed;" />
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="phone">Phone Number</label>
+                                        <input type="tel" id="phone" name="phone" value="" placeholder="e.g. +91 9876543210" maxlength="20" />
+                                        <span class="field-error-text" id="phoneError"><i class="fas fa-exclamation-circle"></i> Please enter a valid phone number.</span>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <div class="char-counter-label">
+                                        <label for="expertise">Specialization / Headline</label>
+                                        <span class="char-count" id="expertiseCount">0 / 100</span>
+                                    </div>
+                                    <input type="text" id="expertise" name="expertise" value="" placeholder="e.g. Lead Software Architect | Cloud Expert" maxlength="100" />
+                                </div>
+                                <div class="input-group">
+                                    <div class="char-counter-label">
+                                        <label for="skills">Skills (Comma-separated)</label>
+                                        <span class="char-count" id="skillsCount">0 / 250</span>
+                                    </div>
+                                    <input type="text" id="skills" name="skills" value="" placeholder="e.g. Java, Spring Boot, AWS, Docker" maxlength="250" />
+                                </div>
+                                <div class="input-group">
+                                    <div class="char-counter-label">
+                                        <label for="bio">Biography / Professional Summary</label>
+                                        <span class="char-count" id="bioCount">0 / 1500</span>
+                                    </div>
+                                    <textarea id="bio" name="bio" rows="5" placeholder="Write a short bio detailing your professional achievements and teaching passion..." maxlength="1500"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Security / Change Password -->
+                            <div class="form-section-card">
+                                <h3 class="section-card-title"><i class="fas fa-key" style="color: #8B5CF6;"></i> Security & Password</h3>
+                                <p class="section-card-subtitle" style="font-size: 0.95rem; margin-top: -0.5rem; margin-bottom: 1.5rem; color: var(--vendor-text-muted);">
+                                    Leave these password fields blank if you do not wish to update your login password.
+                                </p>
+                                
+                                <div class="input-group">
+                                    <label for="currentPassword">Current Password</label>
+                                    <div class="password-input-wrapper">
+                                        <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password to verify" autocomplete="current-password" />
+                                        <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('currentPassword', this)" title="Show password" tabindex="-1">
+                                            <i class="far fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <span class="field-error-text" id="currentPasswordError"><i class="fas fa-exclamation-circle"></i> Current password is required to change password.</span>
+                                </div>
+
+                                <div class="input-grid">
+                                    <div class="input-group">
+                                        <label for="newPassword">New Password</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="newPassword" name="newPassword" placeholder="Minimum 6 characters" autocomplete="new-password" />
+                                            <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('newPassword', this)" title="Show password" tabindex="-1">
+                                                <i class="far fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="passwordStrengthBar" class="password-strength-wrap" style="display: none;">
+                                            <div class="strength-track"><div id="strengthFill" class="strength-fill"></div></div>
+                                            <span id="strengthText" class="strength-text"></span>
+                                        </div>
+                                        <span class="field-error-text" id="newPasswordError"><i class="fas fa-exclamation-circle"></i> New password must be at least 6 characters.</span>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="confirmPassword">Confirm New Password</label>
+                                        <div class="password-input-wrapper">
+                                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-type new password" autocomplete="new-password" />
+                                            <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('confirmPassword', this)" title="Show password" tabindex="-1">
+                                                <i class="far fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="passwordMatchBadge" class="password-match-badge" style="display: none;"></div>
+                                        <span class="field-error-text" id="confirmPasswordError"><i class="fas fa-exclamation-circle"></i> Confirm password does not match new password.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action button -->
+                            <div class="profile-action-bar">
+                                <button type="submit" id="btnSaveProfile" class="btn-save-profile">
+                                    <i class="fas fa-save"></i> Save Profile Changes
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                
+                <script>
+                    // â”â” TOGGLE PASSWORD VISIBILITY (EYE ICON) â”â”
+                    function togglePasswordVisibility(inputId, btn) {
+                        const input = document.getElementById(inputId);
+                        if (!input) return;
+                        const icon = btn.querySelector('i');
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.className = 'far fa-eye-slash';
+                            btn.setAttribute('title', 'Hide password');
+                        } else {
+                            input.type = 'password';
+                            icon.className = 'far fa-eye';
+                            btn.setAttribute('title', 'Show password');
+                        }
+                    }
+
+                    // â”â” PREVIEW & VALIDATE PROFILE PICTURE â”â”
+                    function previewImage(event) {
+                        const file = event.target.files[0];
+                        const photoError = document.getElementById('photoError');
+                        if (photoError) photoError.classList.remove('show');
+
+                        if (!file) return;
+
+                        // Check file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            if (photoError) {
+                                photoError.innerHTML = '<i class="fas fa-exclamation-circle"></i> File exceeds 5MB limit. Please choose a smaller image.';
+                                photoError.classList.add('show');
+                            }
+                            event.target.value = '';
+                            return;
+                        }
+
+                        // Check file type
+                        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                        if (!validTypes.includes(file.type)) {
+                            if (photoError) {
+                                photoError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Allowed formats: JPG, PNG, GIF, WEBP.';
+                                photoError.classList.add('show');
+                            }
+                            event.target.value = '';
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function(){
+                            const output = document.getElementById('avatarPreview');
+                            output.src = reader.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+
+                    // â”â” REAL-TIME CHAR COUNTER HELPER â”â”
+                    function setupCharCounter(inputId, counterId, maxLen) {
+                        const el = document.getElementById(inputId);
+                        const counter = document.getElementById(counterId);
+                        if (!el || !counter) return;
+
+                        function update() {
+                            const len = el.value.length;
+                            counter.textContent = len + ' / ' + maxLen;
+                            if (len >= maxLen) {
+                                counter.style.color = '#EF4444';
+                            } else if (len >= maxLen * 0.85) {
+                                counter.style.color = '#F59E0B';
+                            } else {
+                                counter.style.color = '#8B5CF6';
+                            }
+                        }
+                        el.addEventListener('input', update);
+                        update();
+                    }
+
+                    // â”â” INITIALIZE CHAR COUNTERS â”â”
+                    setupCharCounter('expertise', 'expertiseCount', 100);
+                    setupCharCounter('skills', 'skillsCount', 250);
+                    setupCharCounter('bio', 'bioCount', 1500);
+
+                    // â”â” PASSWORD REAL-TIME MATCH & STRENGTH â”â”
+                    const newPassInput = document.getElementById('newPassword');
+                    const confirmPassInput = document.getElementById('confirmPassword');
+                    const currentPassInput = document.getElementById('currentPassword');
+                    const strengthBar = document.getElementById('passwordStrengthBar');
+                    const strengthFill = document.getElementById('strengthFill');
+                    const strengthText = document.getElementById('strengthText');
+                    const matchBadge = document.getElementById('passwordMatchBadge');
+
+                    function checkMatch() {
+                        if (!confirmPassInput || !newPassInput) return;
+                        const newP = newPassInput.value;
+                        const confP = confirmPassInput.value;
+                        const err = document.getElementById('confirmPasswordError');
+
+                        if (!confP) {
+                            matchBadge.style.display = 'none';
+                            confirmPassInput.classList.remove('input-error');
+                            if (err) err.classList.remove('show');
+                            return;
+                        }
+
+                        matchBadge.style.display = 'flex';
+                        if (newP === confP) {
+                            matchBadge.className = 'password-match-badge match-success';
+                            matchBadge.innerHTML = '<i class="fas fa-check-circle"></i> Passwords match';
+                            confirmPassInput.classList.remove('input-error');
+                            if (err) err.classList.remove('show');
+                        } else {
+                            matchBadge.className = 'password-match-badge match-fail';
+                            matchBadge.innerHTML = '<i class="fas fa-times-circle"></i> Passwords do not match';
+                        }
+                    }
+
+                    if (newPassInput) {
+                        newPassInput.addEventListener('input', function() {
+                            const val = this.value;
+                            const err = document.getElementById('newPasswordError');
+                            if (!val) {
+                                strengthBar.style.display = 'none';
+                                newPassInput.classList.remove('input-error');
+                                if (err) err.classList.remove('show');
+                                checkMatch();
+                                return;
+                            }
+                            strengthBar.style.display = 'flex';
+                            let score = 0;
+                            if (val.length >= 6) score++;
+                            if (val.length >= 8 && /[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+                            if (/[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) score++;
+
+                            strengthFill.className = 'strength-fill';
+                            if (score <= 1) {
+                                strengthFill.classList.add('strength-weak');
+                                strengthText.textContent = 'Weak';
+                                strengthText.style.color = '#EF4444';
+                            } else if (score === 2) {
+                                strengthFill.classList.add('strength-medium');
+                                strengthText.textContent = 'Medium';
+                                strengthText.style.color = '#F59E0B';
+                            } else {
+                                strengthFill.classList.add('strength-strong');
+                                strengthText.textContent = 'Strong';
+                                strengthText.style.color = '#10B981';
+                            }
+
+                            if (val.length >= 6) {
+                                newPassInput.classList.remove('input-error');
+                                if (err) err.classList.remove('show');
+                            }
+                            checkMatch();
+                        });
+                    }
+
+                    if (confirmPassInput) {
+                        confirmPassInput.addEventListener('input', checkMatch);
+                    }
+
+                    // â”â” URL VALIDATION HELPER â”â”
+                    function isValidUrl(str) {
+                        if (!str || !str.trim()) return true;
+                        try {
+                            const url = new URL(str.trim());
+                            return url.protocol === 'http:' || url.protocol === 'https:';
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+
+                    // â”â” FORM SUBMISSION COMPREHENSIVE VALIDATION â”â”
+                    const profileForm = document.getElementById('profileForm');
+                    if (profileForm) {
+                        profileForm.addEventListener('submit', function(e) {
+                            let isValid = true;
+                            let firstErrorElement = null;
+
+                            function markError(inputId, errorId, message) {
+                                const input = document.getElementById(inputId);
+                                const errEl = document.getElementById(errorId);
+                                if (input) input.classList.add('input-error');
+                                if (errEl) {
+                                    if (message) errEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+                                    errEl.classList.add('show');
+                                }
+                                isValid = false;
+                                if (!firstErrorElement && input) firstErrorElement = input;
+                            }
+
+                            function clearError(inputId, errorId) {
+                                const input = document.getElementById(inputId);
+                                const errEl = document.getElementById(errorId);
+                                if (input) input.classList.remove('input-error');
+                                if (errEl) errEl.classList.remove('show');
+                            }
+
+                            // 1. Full Name Validation
+                            const nameVal = document.getElementById('name').value.trim();
+                            if (!nameVal || nameVal.length < 2) {
+                                markError('name', 'nameError', 'Full name is required and must be at least 2 characters.');
+                            } else {
+                                clearError('name', 'nameError');
+                            }
+
+                            // 2. Phone Validation (Optional, but if given must look valid)
+                            const phoneVal = (document.getElementById('phone')?.value || '').trim();
+                            if (phoneVal) {
+                                const phoneRegex = new RegExp('^\\+?[0-9\\s\\-\\(\\)]{7,20}$');
+                                if (!phoneRegex.test(phoneVal)) {
+                                    markError('phone', 'phoneError', 'Please enter a valid phone number format.');
+                                } else {
+                                    clearError('phone', 'phoneError');
+                                }
+                            } else {
+                                clearError('phone', 'phoneError');
+                            }
+
+                            // 3. Social URLs Validation
+                            ['linkedinUrl', 'youtubeUrl', 'instagramUrl'].forEach(function(urlId) {
+                                const urlVal = (document.getElementById(urlId)?.value || '').trim();
+                                if (urlVal && !isValidUrl(urlVal)) {
+                                    markError(urlId, urlId + 'Error', 'Please enter a valid web URL starting with https://');
+                                } else {
+                                    clearError(urlId, urlId + 'Error');
+                                }
+                            });
+
+                            // 4. Security & Password Validation
+                            const curPass = (currentPassInput?.value || '').trim();
+                            const newPass = (newPassInput?.value || '').trim();
+                            const confPass = (confirmPassInput?.value || '').trim();
+
+                            const isChangingPassword = curPass.length > 0 || newPass.length > 0 || confPass.length > 0;
+
+                            if (isChangingPassword) {
+                                if (!curPass) {
+                                    markError('currentPassword', 'currentPasswordError', 'Current password is required to change password.');
+                                } else {
+                                    clearError('currentPassword', 'currentPasswordError');
+                                }
+
+                                if (!newPass) {
+                                    markError('newPassword', 'newPasswordError', 'New password is required.');
+                                } else if (newPass.length < 6) {
+                                    markError('newPassword', 'newPasswordError', 'New password must be at least 6 characters long.');
+                                } else if (curPass && newPass === curPass) {
+                                    markError('newPassword', 'newPasswordError', 'New password cannot be the same as your current password.');
+                                } else {
+                                    clearError('newPassword', 'newPasswordError');
+                                }
+
+                                if (!confPass) {
+                                    markError('confirmPassword', 'confirmPasswordError', 'Please confirm your new password.');
+                                } else if (newPass !== confPass) {
+                                    markError('confirmPassword', 'confirmPasswordError', 'Confirm password does not match new password.');
+                                } else {
+                                    clearError('confirmPassword', 'confirmPasswordError');
+                                }
+                            } else {
+                                clearError('currentPassword', 'currentPasswordError');
+                                clearError('newPassword', 'newPasswordError');
+                                clearError('confirmPassword', 'confirmPasswordError');
+                            }
+
+                            if (!isValid) {
+                                e.preventDefault();
+                                if (firstErrorElement) {
+                                    firstErrorElement.focus();
+                                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                                return false;
+                            }
+
+                            // Show loading on save button
+                            const btnSave = document.getElementById('btnSaveProfile');
+                            if (btnSave) {
+                                btnSave.disabled = true;
+                                btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving Profile...';
+                            }
+                        });
+                    }
+                </script>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ══ CHAT WIDGET ══ -->
+    <div class="chat-widget-container" id="chatWidgetContainer">
+        <!-- FAB -->
+        <div class="chat-fab" id="chatFab" title="SkillHub Chat">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <button class="chat-header-btn" id="backToContacts" title="Back to contacts" type="button" style="display:none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <div id="statusDot" class="connection-status"></div>
+                    <h3 id="chatHeaderTitle" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">SkillHub Chat</h3>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                    <button class="chat-header-btn" id="closeChat" title="Close chat" type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body - Switches between Contacts and Messages -->
+            <div class="chat-body" id="chatBody">
+                <div id="contactList" class="contact-list">
+                    <!-- Contacts will be loaded here -->
+                </div>
+                <div id="messageList" class="message-list" style="display:none; flex-direction: column; gap: 8px; flex: 1;">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div id="chatLoading" style="display:none; text-align:center; padding: 2rem; color: #64748b;">
+                    <svg class="chat-spin" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5624d0" stroke-width="2.5" style="display: inline-block; margin-bottom: 8px;">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
+                    <br><small style="font-weight: 500;">Loading history...</small>
+                </div>
+            </div>
+
+            <div class="chat-footer" id="chatFooter" style="display:none; flex-direction: column; gap: 8px;">
+                <div id="typingIndicator" style="display:none; font-size: 11px; color: #6366f1; font-style: italic; margin-left: 0.5rem;">
+                    User is typing...
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="file" id="chatFileInput" style="display:none;" accept="image/*,.pdf,.doc,.docx,.zip">
+                    <button class="chat-photo-btn" id="attachBtn" type="button" title="Choose photo or file">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                    </button>
+                    <input type="text" id="chatInput" placeholder="Type a message...">
+                    <button class="send-btn chat-send-btn" id="sendBtn" type="button" title="Send message">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="/js/sockjs.min.js"></script>
+        <script src="/js/stomp.min.js"></script>
+        <script>
+            if (typeof SockJS === 'undefined') {
+                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"><\/script>');
+            }
+            if (typeof Stomp === 'undefined') {
+                document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"><\/script>');
+            }
+        </script>
+        <script>
+            let stompClient = null;
+            let currentRecipientEmail = null;
+            const currentUserEmail = "admin@skillhub.com";
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (!currentUserEmail) return;
+
+                const chatFab = document.getElementById('chatFab');
+                const chatWindow = document.getElementById('chatWindow');
+                const closeChat = document.getElementById('closeChat');
+                const backToContacts = document.getElementById('backToContacts');
+                const chatBody = document.getElementById('chatBody');
+                const contactList = document.getElementById('contactList');
+                const messageList = document.getElementById('messageList');
+                const chatFooter = document.getElementById('chatFooter');
+                const chatInput = document.getElementById('chatInput');
+                const sendBtn = document.getElementById('sendBtn');
+                const headerTitle = document.getElementById('chatHeaderTitle');
+                const statusDot = document.getElementById('statusDot');
+
+                chatFab.onclick = () => {
+                    chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+                    if (chatWindow.style.display === 'flex') loadContacts();
+                };
+
+                closeChat.onclick = () => chatWindow.style.display = 'none';
+
+                backToContacts.onclick = () => {
+                    messageList.style.setProperty('display', 'none', 'important');
+                    chatFooter.style.setProperty('display', 'none', 'important');
+                    contactList.style.setProperty('display', 'flex', 'important');
+                    backToContacts.style.setProperty('display', 'none', 'important');
+                    headerTitle.innerText = 'SkillHub Chat';
+                    currentRecipientEmail = null;
+                    loadContacts();
+                };
+
+                function connect() {
+                    if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+                        console.warn("SockJS or Stomp not yet loaded. Retrying in 1s...");
+                        setTimeout(connect, 1000);
+                        return;
+                    }
+                    try {
+                        const socket = new SockJS('/ws');
+                        stompClient = Stomp.over(socket);
+                        stompClient.debug = () => {}; // Cleaner console output
+                        stompClient.connect({}, function (frame) {
+                            statusDot.classList.add('status-online');
+                            statusDot.classList.remove('status-offline');
+                            console.log("WebSocket Connected successfully");
+                        
+                        stompClient.subscribe('/user/queue/messages', function (message) {
+                            const chatMessage = JSON.parse(message.body);
+                            
+                            // If this is our own message echoed back, skip it — we already appended it optimistically
+                            if (chatMessage.senderEmail === currentUserEmail) {
+                                return;
+                            }
+
+                            // Verify if it belongs to current open chat
+                            if (currentRecipientEmail && 
+                                chatMessage.senderEmail === currentRecipientEmail) {
+                                appendMessage(chatMessage);
+                            } else if (!currentRecipientEmail) {
+                                // Logic for notifications when chat window is closed or on contact list
+                                chatFab.style.background = '#22c55e'; // Green notification
+                            }
+                        });
+
+                        // Presence Listener
+                        stompClient.subscribe('/topic/presence', function (message) {
+                            const status = JSON.parse(message.body);
+                            const dot = document.querySelector(`.contact-item[data-email="${status.email}"] .status-dot`);
+                            if (dot) {
+                                dot.className = `status-dot ${status.online ? 'status-online' : ''}`;
+                            }
+                        });
+
+                        // Typing Listener
+                        stompClient.subscribe('/user/queue/typing', function (message) {
+                            const status = JSON.parse(message.body);
+                            if (currentRecipientEmail === status.senderEmail) {
+                                document.getElementById('typingIndicator').style.display = status.isTyping ? 'block' : 'none';
+                            }
+                        });
+                    }, function(error) {
+                        statusDot.classList.add('status-offline');
+                        statusDot.classList.remove('status-online');
+                        setTimeout(connect, 5000); // Reconnect
+                    });
+                    } catch (e) {
+                        console.error("Error connecting WebSocket:", e);
+                        statusDot.classList.add('status-offline');
+                        statusDot.classList.remove('status-online');
+                        setTimeout(connect, 5000);
+                    }
+                }
+
+                function loadContacts() {
+                    fetch('/api/chat/contacts')
+                        .then(r => r.json())
+                        .then(contacts => {
+                            contactList.innerHTML = '';
+                            contacts.forEach(contact => {
+                                const el = document.createElement('div');
+                                el.className = 'contact-item';
+                                el.setAttribute('data-email', contact.email);
+                                el.innerHTML = `
+                                    <div class="contact-avatar">
+                                        ${contact.name.charAt(0)}
+                                        <div class="status-dot ${contact.online ? 'status-online' : ''}" style="position:absolute; bottom:0; right:0; width:10px; height:10px; border-radius:50%; background:#cbd5e1; border:2px solid white;"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 14px;">${contact.name}</div>
+                                        <div style="font-size: 11px; color: #64748b;">${contact.role}</div>
+                                    </div>
+                                `;
+                                if (contact.online) {
+                                    el.querySelector('.status-dot').classList.add('status-online');
+                                }
+                                el.onclick = () => openChat(contact);
+                                contactList.appendChild(el);
+                            });
+                        });
+                }
+
+                function openChat(contact) {
+                    if (!contact || !contact.email) return;
+                    currentRecipientEmail = contact.email;
+                    headerTitle.innerText = contact.name;
+                    
+                    // Toggle UI visibility strictly
+                    contactList.style.setProperty('display', 'none', 'important');
+                    messageList.style.setProperty('display', 'flex', 'important');
+                    chatFooter.style.setProperty('display', 'flex', 'important');
+                    backToContacts.style.setProperty('display', 'inline-flex', 'important');
+                    
+                    const chatLoading = document.getElementById('chatLoading');
+                    chatLoading.style.display = 'block';
+                    messageList.innerHTML = '';
+                    
+                    fetch(`/api/chat/history?otherUserEmail=${encodeURIComponent(contact.email)}`)
+                        .then(r => r.json())
+                        .then(messages => {
+                            chatLoading.style.display = 'none';
+                            messages.forEach(appendMessage);
+                            setTimeout(() => chatInput.focus(), 100);
+                        })
+                        .catch(err => {
+                            console.error("Failed to load history:", err);
+                            chatLoading.style.display = 'none';
+                            messageList.innerHTML = '<div style="color:red; font-size:12px; text-align:center; padding:10px;">Failed to load history. You can still send messages.</div>';
+                            setTimeout(() => chatInput.focus(), 100);
+                        });
+                }
+
+                // EXPOSE GLOBALLY for direct message buttons
+                window.openDirectChat = function(email, name, role) {
+                    const contact = { email, name, role };
+                    chatWindow.style.display = 'flex';
+                    openChat(contact);
+                };
+
+                function isValidAttachmentUrl(url) {
+                    if (!url || typeof url !== 'string') return false;
+                    const u = url.trim();
+                    if (u === '' || u.startsWith('${') || u.includes('${msg.') || u === 'null' || u === 'undefined') return false;
+                    return u.startsWith('/') || u.startsWith('http://') || u.startsWith('https://') || u.startsWith('data:image/');
+                }
+
+                function appendMessage(msg) {
+                    const el = document.createElement('div');
+                    const isSent = msg.senderEmail === currentUserEmail;
+                    el.className = `message-bubble ${isSent ? 'message-sent' : 'message-received'}`;
+                    
+                    // Handle File Content only if valid URL
+                    if (isValidAttachmentUrl(msg.fileUrl)) {
+                        const fileUrl = msg.fileUrl.trim();
+                        const isImage = msg.fileType && msg.fileType.startsWith('image/');
+                        if (isImage) {
+                            const img = document.createElement('img');
+                            img.className = 'chat-attachment-preview';
+                            img.src = fileUrl;
+                            img.alt = msg.fileName || 'Attachment';
+                            img.onclick = function() { window.open(fileUrl, '_blank'); };
+                            el.appendChild(img);
+                        } else {
+                            const iconMap = {
+                                'application/pdf': 'fa-file-pdf',
+                                'application/zip': 'fa-file-archive',
+                                'application/x-zip-compressed': 'fa-file-archive',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fa-file-word'
+                            };
+                            const icon = iconMap[msg.fileType] || 'fa-file-alt';
+                            const link = document.createElement('a');
+                            link.href = fileUrl;
+                            link.target = '_blank';
+                            link.className = 'file-bubble';
+                            link.innerHTML = `
+                                <i class="fas ${icon}" style="font-size: 1.2rem;"></i>
+                                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">
+                                    <div style="font-weight:600; font-size:12px;">${msg.fileName || 'Attachment'}</div>
+                                    <div style="font-size:10px; opacity:0.8;">Click to download</div>
+                                </div>
+                            contentHtml = `
+                            el.appendChild(link);
+                        }
+                    }
+
+                    if (msg.content) {
+                        const contentDiv = document.createElement('div');
+                        contentDiv.textContent = msg.content;
+                        el.appendChild(contentDiv);
+                    }
+                    
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'message-time';
+                    timeSpan.textContent = msg.timestamp || '';
+                    el.appendChild(timeSpan);
+                    
+                    messageList.appendChild(el);
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
+
+                function sendMessage(fileData = null) {
+                    const content = chatInput.value.trim();
+                    if (!content && !fileData) return;
+                    
+                    if (!currentRecipientEmail) {
+                        alert("Please select a student contact first to send a message.");
+                        return;
+                    }
+
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+                    
+                    const msgObj = {
+                        senderEmail: currentUserEmail,
+                        recipientEmail: currentRecipientEmail,
+                        content: content
+                    };
+
+                    if (fileData) {
+                        msgObj.fileUrl = fileData.url;
+                        msgObj.fileType = fileData.type;
+                        msgObj.fileName = fileData.name;
+                    }
+
+                    // Clear input immediately so user sees responsiveness
+                    chatInput.value = '';
+
+                    // Optimistic append to UI
+                    appendMessage({
+                        senderEmail: currentUserEmail,
+                        content: content,
+                        timestamp: timeStr,
+                        fileUrl: msgObj.fileUrl,
+                        fileType: msgObj.fileType,
+                        fileName: msgObj.fileName
+                    });
+
+                    // 1. Try WebSocket send first if connected
+                    let sentViaSocket = false;
+                    if (stompClient && stompClient.connected) {
+                        try {
+                            stompClient.send("/app/chat.send", {}, JSON.stringify(msgObj));
+                            sentViaSocket = true;
+                            console.log("Chat: Message sent via WebSocket");
+                        } catch (err) {
+                            console.warn("Chat: WebSocket send failed, falling back to HTTP REST", err);
+                        }
+                    }
+
+                    // 2. Fallback to HTTP REST API if WebSocket is not connected or failed
+                    if (!sentViaSocket) {
+                        console.log("Chat: Sending message via HTTP REST endpoint");
+                        fetch('/api/chat/send', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(msgObj)
+                        })
+                        .then(r => {
+                            if (!r.ok) {
+                                console.error("Chat: HTTP send returned status " + r.status);
+                            } else {
+                                console.log("Chat: Message delivered successfully via HTTP REST API");
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Chat: HTTP send error:", err);
+                        });
+                    }
+                }
+
+                // File Upload Logic
+                const chatFileInput = document.getElementById('chatFileInput');
+                const attachBtn = document.getElementById('attachBtn');
+
+                const photoIconSvg = `
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>`;
+
+                const spinnerSvg = `
+                    <svg class="chat-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>`;
+
+                attachBtn.onclick = () => chatFileInput.click();
+
+                chatFileInput.onchange = () => {
+                    const file = chatFileInput.files[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    attachBtn.innerHTML = spinnerSvg;
+                    attachBtn.disabled = true;
+
+                    fetch('/api/chat/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        attachBtn.innerHTML = photoIconSvg;
+                        attachBtn.disabled = false;
+                        sendMessage(data);
+                        chatFileInput.value = '';
+                    })
+                    .catch(err => {
+                        console.error("Upload failed", err);
+                        attachBtn.innerHTML = photoIconSvg;
+                        attachBtn.disabled = false;
+                        alert("Upload failed. Please try again.");
+                    });
+                };
+
+                sendBtn.onclick = () => sendMessage();
+                chatInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+
+                // Typing Logic SENDER
+                let typingTimeout = null;
+                chatInput.oninput = () => {
+                    if (!currentRecipientEmail || !stompClient) return;
+                    
+                    if (typingTimeout) clearTimeout(typingTimeout);
+                    else {
+                        stompClient.send("/app/chat.typing", {}, JSON.stringify({
+                            recipientEmail: currentRecipientEmail,
+                            isTyping: true
+                        }));
+                    }
+
+                    typingTimeout = setTimeout(() => {
+                        stompClient.send("/app/chat.typing", {}, JSON.stringify({
+                            recipientEmail: currentRecipientEmail,
+                            isTyping: false
+                        }));
+                        typingTimeout = null;
+                    }, 2000);
+                };
+
+                connect();
+            });
+        </script>
+    </div>
+
+    <!-- ══ ANALYTICS SCRIPTS ══ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Function to refresh dashboard stats dynamically
+            async function refreshDashboardStats() {
+                try {
+                    const res = await fetch('/vendor/api/dashboard-overview');
+                    if (res.ok) {
+                        const stats = await res.json();
+                        const elEnrolled = document.getElementById('stat-total-enrolled');
+                        const elViews = document.getElementById('stat-course-views');
+                        const elRating = document.getElementById('stat-avg-rating');
+                        const elQuestions = document.getElementById('stat-student-questions');
+                        const elReviews = document.getElementById('stat-total-reviews');
+                        const elExams = document.getElementById('stat-exams-passed');
+
+                        if (elEnrolled) elEnrolled.innerText = stats.totalEnrolled;
+                        if (elViews) elViews.innerText = stats.totalViews;
+                        if (elRating) elRating.innerText = stats.averageRating;
+                        if (elQuestions) elQuestions.innerText = stats.totalQuestions;
+                        if (elReviews) elReviews.innerText = stats.totalReviews;
+                        if (elExams) elExams.innerText = stats.totalExamsPassed;
+                    }
+                } catch (err) {
+                    console.error("Failed to refresh real-time dashboard stats", err);
+                }
+            }
+
+            const tab = new URLSearchParams(window.location.search).get('tab');
+            if (tab === 'analytics') {
+                try {
+                    const response = await fetch('/api/analytics/vendor');
+                    const data = await response.json();
+                    renderCharts(data);
+                } catch (e) {
+                    console.error("Failed to load vendor analytics", e);
+                }
+            } else if (tab === 'communications') {
+                // If communications tab is selected, open the chat widget automatically
+                if (typeof window.openDirectChat === 'function') {
+                    document.getElementById('chatFab').click();
+                }
+            } else if (!tab || tab === 'courses') {
+                // Poll every 3 seconds for real-time updates when on the courses/dashboard tab
+                refreshDashboardStats();
+                setInterval(refreshDashboardStats, 3000);
+            }
+        });
+
+        function renderCharts(data) {
+            const primaryColors = ['#A78BFA', '#8B5CF6', '#2E1065', '#C4B5FD', '#F472B6', '#EDE9FE'];
+            
+            // 1. Course Popularity (Pie)
+            new Chart(document.getElementById('coursePopularityChart'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(data.coursePopularity),
+                    datasets: [{
+                        data: Object.values(data.coursePopularity),
+                        backgroundColor: primaryColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // 2. Exam Performance (Doughnut)
+            new Chart(document.getElementById('examPerformanceChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.examPerformance),
+                    datasets: [{
+                        data: Object.values(data.examPerformance),
+                        backgroundColor: ['#8B5CF6', '#A78BFA'],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // 3. Enrollment Timeline (Line)
+            new Chart(document.getElementById('enrollmentTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: Object.keys(data.enrollmentTimeline),
+                    datasets: [{
+                        label: 'Enrollments',
+                        data: Object.values(data.enrollmentTimeline),
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Avg Scores (Bar)
+            new Chart(document.getElementById('avgScoresChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(data.avgScores),
+                    datasets: [{
+                        label: 'Average Score',
+                        data: Object.values(data.avgScores),
+                        backgroundColor: '#F472B6',
+                        borderRadius: 8
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true, max: 100 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+
+    <!-- Course Filter Script -->
+    <script>
+        function filterCourses() {
+            var filter = document.getElementById('courseFilter').value;
+            var rows = document.querySelectorAll('.course-row');
+            rows.forEach(function(row) {
+                var status = row.getAttribute('data-status');
+                if (filter === 'all' || status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+    <!-- Exam Submission Details Modal -->
+    <div id="examDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: #fff; padding: 2.5rem; border-radius: 12px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.15); position: relative;">
+            <button onclick="closeExamDetailsModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #6a6f73;"><i class="fas fa-times"></i></button>
+            <h3 style="font-size: 2rem; font-weight: 800; color: #2E1065; margin-bottom: 0.5rem; text-align: left;" id="modalStudentName">Student Name</h3>
+            <p style="font-size: 1.4rem; color: #6a6f73; margin-bottom: 2rem; text-align: left;" id="modalCourseTitle">Course: Course Title</p>
+            
+            <div style="display: flex; gap: 2rem; margin-bottom: 2.5rem; background: #F5F3FF; padding: 1.5rem; border-radius: 8px; text-align: left;">
+                <div>
+                    <span style="font-size: 1.2rem; color: #6a6f73; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Score Achieved</span>
+                    <span style="font-size: 2.4rem; font-weight: 800; color: #8B5CF6;" id="modalScore">85/100</span>
+                </div>
+                <div style="border-left: 1px solid #ddd; padding-left: 2rem;">
+                    <span style="font-size: 1.2rem; color: #6a6f73; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Status</span>
+                    <span id="modalStatusBadge" class="status-badge published">PASSED</span>
+                </div>
+            </div>
+
+            <div id="modalQuestionsContainer" style="display: flex; flex-direction: column; gap: 2rem; text-align: left;">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Details Modal Script -->
+    <script>
+        function showExamDetails(studentName, courseTitle, score, isPassed, submissionDetailsJson) {
+            document.getElementById('modalStudentName').innerText = studentName;
+            document.getElementById('modalCourseTitle').innerText = "Course: " + courseTitle;
+            document.getElementById('modalScore').innerText = score + "/100";
+            
+            const badge = document.getElementById('modalStatusBadge');
+            if (isPassed) {
+                badge.innerText = "PASSED";
+                badge.style.background = "#d1fae5";
+                badge.style.color = "#065f46";
+            } else {
+                badge.innerText = "FAILED";
+                badge.style.background = "#fee2e2";
+                badge.style.color = "#991b1b";
+            }
+
+            const container = document.getElementById('modalQuestionsContainer');
+            container.innerHTML = '';
+
+            try {
+                const questions = JSON.parse(submissionDetailsJson || '[]');
+                if (questions.length === 0) {
+                    container.innerHTML = '<p style="color:#6a6f73; font-style:italic; font-size: 1.4rem;">No question details available for this attempt.</p>';
+                } else {
+                    questions.forEach((q, idx) => {
+                        const card = document.createElement('div');
+                        card.style.border = '1px solid #e5e7eb';
+                        card.style.borderRadius = '8px';
+                        card.style.padding = '1.5rem';
+                        card.style.background = '#f9fafb';
+                        card.style.display = 'flex';
+                        card.style.flexDirection = 'column';
+                        card.style.gap = '1rem';
+
+                        const title = document.createElement('h4');
+                        title.style.fontSize = '1.4rem';
+                        title.style.fontWeight = '700';
+                        title.style.margin = '0';
+                        title.style.color = '#111827';
+                        title.style.lineHeight = '1.4';
+                        title.innerText = (idx + 1) + ". " + q.question;
+                        card.appendChild(title);
+
+                        const optsDiv = document.createElement('div');
+                        optsDiv.style.display = 'flex';
+                        optsDiv.style.flexDirection = 'column';
+                        optsDiv.style.gap = '0.6rem';
+
+                        const optionKeys = ['a', 'b', 'c', 'd'];
+                        optionKeys.forEach(optKey => {
+                            const optVal = q.options[optKey];
+                            if (!optVal) return;
+
+                            const optLabel = document.createElement('div');
+                            optLabel.style.padding = '0.8rem 1.2rem';
+                            optLabel.style.borderRadius = '6px';
+                            optLabel.style.fontSize = '1.3rem';
+                            optLabel.style.display = 'flex';
+                            optLabel.style.alignItems = 'center';
+                            optLabel.style.gap = '0.8rem';
+                            optLabel.style.lineHeight = '1.3';
+                            
+                            const isSelected = q.selectedAnswer === optKey;
+                            const isCorrect = q.correctAnswer === optKey;
+
+                            optLabel.innerText = optKey.toUpperCase() + ": " + optVal;
+
+                            if (isCorrect) {
+                                optLabel.style.background = '#d1fae5';
+                                optLabel.style.color = '#065f46';
+                                optLabel.style.fontWeight = '600';
+                                optLabel.innerHTML += ' <i class="fas fa-check-circle" style="margin-left:auto; color:#10b981; font-size:1.4rem;"></i>';
+                            } else if (isSelected) {
+                                optLabel.style.background = '#fee2e2';
+                                optLabel.style.color = '#991b1b';
+                                optLabel.innerHTML += ' <i class="fas fa-times-circle" style="margin-left:auto; color:#ef4444; font-size:1.4rem;"></i>';
+                            } else {
+                                optLabel.style.background = '#fff';
+                                optLabel.style.border = '1px solid #e5e7eb';
+                                optLabel.style.color = '#374151';
+                            }
+                            optsDiv.appendChild(optLabel);
+                        });
+
+                        card.appendChild(optsDiv);
+                        container.appendChild(card);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:#dc2626; font-size:1.4rem;">Error parsing question details.</p>';
+            }
+
+            document.getElementById('examDetailsModal').style.display = 'flex';
+        }
+
+        function closeExamDetailsModal() {
+            document.getElementById('examDetailsModal').style.display = 'none';
+        }
+
+        // Instant In-Place Filter without page reload and without scrolling
+        function filterCourses(event, status) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // 1. Update button active classes
+            const buttons = document.querySelectorAll('.course-filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active-all', 'active-published', 'active-pending', 'active-draft', 'active-rejected');
+            });
+
+            const activeClassMap = {
+                'ALL': 'active-all',
+                'PUBLISHED': 'active-published',
+                'PENDING_REVIEW': 'active-pending',
+                'DRAFT': 'active-draft',
+                'REJECTED': 'active-rejected'
+            };
+
+            const targetBtn = document.querySelector(`.course-filter-btn[data-filter="${status}"]`);
+            if (targetBtn && activeClassMap[status]) {
+                targetBtn.classList.add(activeClassMap[status]);
+            }
+
+            // 2. Filter rows in-place (no scroll up or down)
+            const rows = document.querySelectorAll('.vendor-table tbody tr.course-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                if (status === 'ALL' || rowStatus === status) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // 3. Toggle empty state message
+            const emptyRow = document.getElementById('noCoursesFilterRow');
+            if (emptyRow) {
+                emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+            }
+
+            // 4. Update browser URL without reload or scroll jump
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', 'courses');
+                url.searchParams.set('status', status);
+                url.hash = '';
+                window.history.replaceState({ status: status }, '', url.toString());
+            } catch (e) {
+                window.history.replaceState({ status: status }, '', '/vendor/dashboard?tab=courses&status=' + encodeURIComponent(status));
+            }
+        }
+
+        // ── Neat Popup & Delete Modal Handlers ──
+        function closeNeatPopup(modalId, event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.transition = 'opacity 0.2s ease';
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 200);
+            }
+        }
+
+        let pendingDeleteCourseId = null;
+
+        function openDeleteCourseModal(courseId, courseTitle) {
+            pendingDeleteCourseId = courseId;
+            const nameEl = document.getElementById('deleteCourseNameDisplay');
+            if (nameEl) {
+                nameEl.textContent = courseTitle ? ('"' + courseTitle + '"') : 'this course';
+            }
+            const modal = document.getElementById('deleteCourseConfirmModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+            }
+        }
+
+        function closeDeleteCourseModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('deleteCourseConfirmModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            pendingDeleteCourseId = null;
+        }
+
+        function submitDeleteCourse() {
+            if (pendingDeleteCourseId) {
+                const form = document.getElementById('deleteCourseForm_' + pendingDeleteCourseId);
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+
+        // Floating Toast Function (Replaces browser alert)
+        function showNeatToast(message, type = 'info') {
+            const container = document.getElementById('neatToastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'neat-toast ' + type;
+
+            let iconHtml = '<i class="fas fa-info-circle"></i>';
+            if (type === 'success') iconHtml = '<i class="fas fa-check-circle"></i>';
+            if (type === 'error') iconHtml = '<i class="fas fa-exclamation-circle"></i>';
+            if (type === 'warning') iconHtml = '<i class="fas fa-exclamation-triangle"></i>';
+
+            toast.innerHTML = `
+                <div class="neat-toast-icon">${iconHtml}</div>
+                <div class="neat-toast-text">${message}</div>
+                <button type="button" class="neat-toast-close" onclick="this.parentElement.remove()" title="Dismiss">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast-hide');
+                setTimeout(() => toast.remove(), 250);
+            }, 4000);
+        }
+
+        // Intercept native browser alert with neat toast
+        window.alert = function (msg) {
+            showNeatToast(msg, 'info');
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove any anchor hash without jumping
+            if (window.location.hash === '#coursesTableSection') {
+                try {
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                } catch (e) {}
+            }
+
+            // Verify initial visible rows count
+            const rows = document.querySelectorAll('.vendor-table tbody tr.course-row');
+            if (rows.length > 0) {
+                let visibleCount = 0;
+                rows.forEach(r => {
+                    if (r.style.display !== 'none') visibleCount++;
+                });
+                const emptyRow = document.getElementById('noCoursesFilterRow');
+                if (emptyRow) {
+                    emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -96,9 +96,9 @@ public class CourseController {
             course.setVideoUrl("https://video.wixstatic.com/video/11062b_77a941a31b99484ba3ee77a28469d4d4/1080p/mp4/file.mp4");
         }
 
-        // Increment and Save View Count
-        course.setViewCount((course.getViewCount() == null ? 0 : course.getViewCount()) + 1);
-        courseService.saveCourse(course);
+
+
+
 
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
@@ -109,6 +109,9 @@ public class CourseController {
         if (principal != null) {
             String email = principal.getName();
             user = userService.findByEmail(email);
+            if (user != null && course.recordUserView(user.getId())) {
+                courseService.saveCourse(course);
+            }
             if (user != null) {
                 boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
                 boolean isAdmin = "ADMIN".equals(user.getRole());

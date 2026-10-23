@@ -7,6 +7,280 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        /* Mobile responsive overrides */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .admin-body {
+            min-width: 0;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        /* Base Modal & Tab Styles */
+        .v-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 2500;
+            justify-content: center;
+            align-items: center;
+            padding: 1.6rem;
+            box-sizing: border-box;
+        }
+        .v-modal-card {
+            background: #fff;
+            border-radius: 1.4rem;
+            width: 100%;
+            max-width: 920px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: modalPop 0.25s ease-out;
+        }
+        .v-modal-header {
+            padding: 1.8rem 2.4rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.2rem;
+            flex-shrink: 0;
+        }
+        .v-modal-avatar {
+            width: 5.6rem;
+            height: 5.6rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+        .v-header-meta {
+            display: flex;
+            gap: 1.6rem;
+            margin-top: 0.6rem;
+            font-size: 1.25rem;
+            color: #475569;
+            flex-wrap: wrap;
+        }
+        .v-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+            padding: 1.6rem 2.4rem;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        .v-card-metric {
+            padding: 1.2rem 1.4rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            text-align: center;
+        }
+        .v-card-metric .metric-title {
+            font-size: 1.15rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .v-card-metric .metric-num {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 0.3rem;
+        }
+        .v-tabs-header {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0 2.4rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+        .v-tab-btn {
+            padding: 1.1rem 1.8rem;
+            border: none;
+            background: none;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            white-space: nowrap;
+        }
+        .v-tab-btn:hover {
+            color: #6366f1;
+        }
+        .v-tab-btn.active {
+            color: #6366f1;
+            border-bottom-color: #6366f1;
+        }
+        .v-modal-body {
+            padding: 2rem 2.4rem;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            background: #ffffff;
+        }
+        .v-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .v-modal-footer {
+            padding: 1.4rem 2.4rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        .doc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.8rem;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            text-decoration: none;
+            color: #334155;
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .doc-badge:hover {
+            background: #eef2ff;
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.96); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ══ Mobile Responsive Breakpoint (<= 768px, Samsung Galaxy A55 / iPhones) ══ */
+        @media (max-width: 768px) {
+            .v-modal-overlay {
+                padding: 0.8rem !important;
+            }
+            .v-modal-card {
+                max-height: 96vh !important;
+                border-radius: 1rem !important;
+            }
+            .v-modal-header {
+                padding: 1.2rem 1.4rem !important;
+            }
+            .v-modal-avatar {
+                width: 4rem !important;
+                height: 4rem !important;
+                font-size: 1.6rem !important;
+            }
+            #mName {
+                font-size: 1.55rem !important;
+            }
+            #mHeadline {
+                font-size: 1.2rem !important;
+            }
+            .v-header-meta {
+                flex-direction: column !important;
+                gap: 0.3rem !important;
+                font-size: 1.15rem !important;
+                margin-top: 0.4rem !important;
+            }
+            /* 2x2 Grid for 4 KPI Cards - takes only ~90px vertical height! */
+            .v-metrics-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.8rem !important;
+                padding: 1rem 1.2rem !important;
+            }
+            .v-card-metric {
+                padding: 0.8rem 0.6rem !important;
+                border-radius: 0.8rem !important;
+            }
+            .v-card-metric .metric-title {
+                font-size: 1.05rem !important;
+                letter-spacing: 0;
+            }
+            .v-card-metric .metric-num {
+                font-size: 1.65rem !important;
+                margin-top: 0.2rem !important;
+            }
+            /* Clean scrollable tabs with no text wrapping */
+            .v-tabs-header {
+                padding: 0 1rem !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                scrollbar-width: none !important;
+                -webkit-overflow-scrolling: touch !important;
+                flex-wrap: nowrap !important;
+                gap: 0.2rem !important;
+            }
+            .v-tabs-header::-webkit-scrollbar {
+                display: none;
+            }
+            .v-tab-btn {
+                padding: 0.8rem 1rem !important;
+                font-size: 1.15rem !important;
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+            }
+            .v-modal-body {
+                padding: 1.2rem 1.2rem !important;
+            }
+            .v-table-scroll table {
+                min-width: 580px;
+            }
+            .v-modal-footer {
+                padding: 1rem 1.2rem !important;
+            }
+            .v-footer-text {
+                display: none !important;
+            }
+            .v-footer-btn {
+                width: 100% !important;
+                text-align: center;
+                padding: 0.8rem !important;
+                font-size: 1.3rem !important;
+            }
+            .page-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1.2rem !important;
+            }
+            .page-header-right {
+                width: 100% !important;
+            }
+            .page-header-right button {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -73,8 +347,6 @@
                 <i class="fas fa-envelope"></i> Broadcast Email
             </a>
 
-
-
         </nav>
 
         <div class="sidebar-footer">
@@ -118,7 +390,7 @@
             <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="page-header-left">
                     <h1>Vendors</h1>
-                    <p>Manage vendor registrations and approval statuses.</p>
+                    <p>Manage vendor registrations, courses, exams, reviews, and audience views.</p>
                 </div>
                 <div class="page-header-right">
                     <button class="btn-primary-admin" onclick="document.getElementById('addVendorModal').style.display='flex'" style="font-size: 1.4rem; padding: 1rem 1.8rem; font-weight: 600;">
@@ -146,9 +418,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="user : ${users}">
+                            <tr th:each="user : ${users}"
+                                th:with="vCourses=${@courseService.getCoursesByInstructor(user.email)},
+                                         vReviews=${@reviewRepository.findByInstructorEmail(user.email)},
+                                         vViewsRaw=${@courseService.sumViewsByInstructorEmail(user.email)}">
                                 <td th:text="${user.id}">1</td>
-                                <td style="font-weight: 500;" th:text="${user.name}">John Doe</td>
+                                <td style="font-weight: 600; color: var(--text);" th:text="${user.name}">John Doe</td>
                                 <td th:text="${user.email}">john@example.com</td>
                                 <td>
                                     <span class="pill pill-blue" th:if="${user.role == 'STUDENT'}">Student</span>
@@ -163,7 +438,33 @@
                                         th:text="'Last login: ' + ${#temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm')}"></div>
                                 </td>
                                 <td>
-                                    <div style="display: flex; gap: 1rem;">
+                                    <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                                        
+                                        <!-- ══ VIEW VENDOR BUTTON ══ -->
+                                        <button type="button" class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: #6366f1; color: #fff; border: none; border-radius: 0.6rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;"
+                                                th:data-vendor-id="${user.id}"
+                                                th:data-vendor-name="${user.name}"
+                                                th:data-vendor-email="${user.email}"
+                                                th:data-vendor-phone="${user.phone != null and !#strings.isEmpty(user.phone) ? user.phone : 'Not Provided'}"
+                                                th:data-vendor-headline="${user.headline != null and !#strings.isEmpty(user.headline) ? user.headline : 'Registered Instructor'}"
+                                                th:data-vendor-bio="${user.bio != null and !#strings.isEmpty(user.bio) ? user.bio : 'No biography added yet.'}"
+                                                th:data-vendor-skills="${user.skills != null ? user.skills : ''}"
+                                                th:data-vendor-expertise="${user.expertise != null ? user.expertise : 'General Instruction'}"
+                                                th:data-vendor-status="${!user.approved ? 'PENDING' : (user.blocked ? 'BLOCKED' : 'Active')}"
+                                                th:data-vendor-last-login="${user.lastLoginDate != null ? #temporals.format(user.lastLoginDate, 'yyyy-MM-dd HH:mm') : 'Never'}"
+                                                th:data-vendor-linkedin="${user.linkedinUrl != null ? user.linkedinUrl : ''}"
+                                                th:data-vendor-youtube="${user.youtubeUrl != null ? user.youtubeUrl : ''}"
+                                                th:data-vendor-instagram="${user.instagramUrl != null ? user.instagramUrl : ''}"
+                                                th:data-vendor-resume="${user.resumeUrl != null ? user.resumeUrl : ''}"
+                                                th:data-vendor-tenth="${user.tenthCertUrl != null ? user.tenthCertUrl : ''}"
+                                                th:data-vendor-pu="${user.puCertUrl != null ? user.puCertUrl : ''}"
+                                                th:data-vendor-ug="${user.ugCertUrl != null ? user.ugCertUrl : ''}"
+                                                th:data-vendor-pg="${user.pgCertUrl != null ? user.pgCertUrl : ''}"
+                                                th:data-views-count="${vViewsRaw != null ? vViewsRaw : 0}"
+                                                onclick="openVendorDetails(this)">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+
                                         <form th:if="${!user.approved}" th:action="@{/admin/users/approve}" method="post" style="display:inline;">
                                             <input type="hidden" name="id" th:value="${user.id}">
                                             <button class="btn-primary-admin" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: var(--success);">
@@ -192,6 +493,90 @@
                                             </button>
                                         </form>
                                     </div>
+
+                                    <!-- ══ REAL DYNAMIC COURSES DATA FOR THIS VENDOR ══ -->
+                                    <div th:id="'vendor-courses-data-' + ${user.id}" style="display:none;">
+                                        <div th:if="${vCourses == null or #lists.isEmpty(vCourses)}" style="text-align:center; padding:3rem; color:#64748b;">
+                                            <i class="fas fa-graduation-cap" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem; display:block;"></i>
+                                            <strong>No courses created by this vendor yet.</strong>
+                                        </div>
+                                        <div th:unless="${vCourses == null or #lists.isEmpty(vCourses)}" class="v-table-scroll">
+                                            <table class="admin-table" style="margin:0;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Course Title</th>
+                                                        <th>Category</th>
+                                                        <th>Status</th>
+                                                        <th>Price</th>
+                                                        <th>Views</th>
+                                                        <th>Students</th>
+                                                        <th>Exams / Questions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="c : ${vCourses}"
+                                                        class="v-course-row"
+                                                        th:data-has-exam="${c.examQuestions != null and !#lists.isEmpty(c.examQuestions) ? '1' : '0'}"
+                                                        th:data-views="${c.viewCount != null ? c.viewCount : 0}">
+                                                        <td><strong style="color:#0f172a;" th:text="${c.title}">Course Title</strong></td>
+                                                        <td><span class="pill pill-blue" th:text="${c.category != null ? c.category.name : 'General'}">Category</span></td>
+                                                        <td>
+                                                            <span th:class="'pill ' + (${(c.status != null and c.status.name() == 'PUBLISHED') or c.isPublished} ? 'pill-green' : 'pill-orange')"
+                                                                  th:text="${c.status != null ? c.status.name() : (c.isPublished ? 'PUBLISHED' : 'DRAFT')}">PUBLISHED</span>
+                                                        </td>
+                                                        <td>
+                                                            <span th:if="${c.price != null and c.price > 0}" th:text="'₹' + ${c.price}">₹499</span>
+                                                            <span th:unless="${c.price != null and c.price > 0}" style="color:#10b981; font-weight:600;">FREE</span>
+                                                        </td>
+                                                        <td><strong><i class="fas fa-eye" style="color:#0ea5e9;"></i> <span th:text="${c.viewCount != null ? c.viewCount : 0}">0</span></strong></td>
+                                                        <td><strong><i class="fas fa-user-graduate" style="color:#6366f1;"></i> <span th:text="${c.enrollments != null ? #lists.size(c.enrollments) : 0}">0</span></strong></td>
+                                                        <td>
+                                                            <span th:if="${c.examQuestions != null and !#lists.isEmpty(c.examQuestions)}" class="pill pill-green">
+                                                                <i class="fas fa-check-circle"></i> <span th:text="${#lists.size(c.examQuestions)} + ' Questions'"></span>
+                                                            </span>
+                                                            <span th:unless="${c.examQuestions != null and !#lists.isEmpty(c.examQuestions)}" class="pill pill-orange">
+                                                                No Exam
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- ══ REAL DYNAMIC REVIEWS DATA FOR THIS VENDOR ══ -->
+                                    <div th:id="'vendor-reviews-data-' + ${user.id}" style="display:none;">
+                                        <div th:if="${vReviews == null or #lists.isEmpty(vReviews)}" style="text-align:center; padding:3rem; color:#64748b;">
+                                            <i class="fas fa-star" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem; display:block;"></i>
+                                            <strong>No student reviews submitted for this vendor yet.</strong>
+                                        </div>
+                                        <div th:unless="${vReviews == null or #lists.isEmpty(vReviews)}" style="display:flex; flex-direction:column; gap:1.2rem;">
+                                            <div th:each="r : ${vReviews}"
+                                                 class="v-review-row"
+                                                 th:data-rating="${r.rating != null ? r.rating : 5}"
+                                                 style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:1rem; padding:1.4rem;">
+                                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                                                    <div style="display:flex; align-items:center; gap:0.8rem;">
+                                                        <strong style="color:#0f172a; font-size:1.35rem;" th:text="${r.user != null ? r.user.name : 'Student'}">Student Name</strong>
+                                                        <div>
+                                                            <i th:each="star : ${#numbers.sequence(1, 5)}"
+                                                               class="fas fa-star"
+                                                               th:style="'font-size:1.2rem; color:' + (${star <= (r.rating != null ? r.rating : 5)} ? '#f59e0b;' : '#cbd5e1;')"></i>
+                                                        </div>
+                                                    </div>
+                                                    <span style="font-size:1.2rem; color:#64748b;" th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'yyyy-MM-dd') : ''}">2026-10-23</span>
+                                                </div>
+                                                <p style="margin:0 0 0.6rem 0; color:#334155; font-size:1.3rem; line-height:1.5;" th:text="'&quot;' + ${r.comment} + '&quot;'">"Great instructor!"</p>
+                                                <div style="font-size:1.15rem; color:#6366f1;">
+                                                    <i class="fas fa-book"></i> Course: <strong th:text="${r.course != null ? r.course.title : 'Course'}">Course Title</strong>
+                                                </div>
+                                                <div th:if="${r.reply != null and !#strings.isEmpty(r.reply)}"
+                                                     style="margin-top:0.6rem; padding:0.6rem 1rem; background:#fff; border-left:3px solid #10b981; border-radius:0 0.4rem 0.4rem 0; font-size:1.2rem; color:#065f46;">
+                                                    <strong>Instructor Reply:</strong> <span th:text="${r.reply}">Thank you!</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -201,33 +586,426 @@
 
             <!-- Add Vendor Modal -->
             <div id="addVendorModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
-                <div style="background:white; padding:2rem; border-radius:8px; width:400px; max-width:90%;">
-                    <h2 style="margin-top:0;">Add New Vendor</h2>
+                <div style="background:white; padding:2.4rem; border-radius:1.2rem; width:440px; max-width:90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                    <h2 style="margin-top:0; font-size: 1.8rem; color: #1e293b;"><i class="fas fa-store" style="color:#6366f1; margin-right:0.6rem;"></i> Add New Vendor</h2>
                     <form th:action="@{/admin/vendors/add}" method="post">
-                        <div style="margin-bottom:1rem;">
-                            <label style="display:block; margin-bottom:0.5rem;">Name</label>
-                            <input type="text" name="name" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        <div style="margin-bottom:1.4rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:1.3rem;">Name</label>
+                            <input type="text" name="name" required style="width:100%; padding:0.8rem 1.2rem; border:1px solid #ccc; border-radius:6px; font-size:1.35rem;">
                         </div>
-                        <div style="margin-bottom:1rem;">
-                            <label style="display:block; margin-bottom:0.5rem;">Email</label>
-                            <input type="email" name="email" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        <div style="margin-bottom:1.4rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:1.3rem;">Email</label>
+                            <input type="email" name="email" required style="width:100%; padding:0.8rem 1.2rem; border:1px solid #ccc; border-radius:6px; font-size:1.35rem;">
                         </div>
-                        <div style="margin-bottom:1rem;">
-                            <label style="display:block; margin-bottom:0.5rem;">Password</label>
-                            <input type="password" name="password" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                        <div style="margin-bottom:1.4rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:1.3rem;">Password</label>
+                            <input type="password" name="password" required style="width:100%; padding:0.8rem 1.2rem; border:1px solid #ccc; border-radius:6px; font-size:1.35rem;">
                         </div>
-                        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
-                            <button type="button" onclick="document.getElementById('addVendorModal').style.display='none'" style="padding:0.5rem 1rem; border:none; background:#eee; cursor:pointer; border-radius:4px;">Cancel</button>
-                            <button type="submit" class="btn-primary-admin" style="padding:0.5rem 1rem;">Add Vendor</button>
+                        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+                            <button type="button" onclick="document.getElementById('addVendorModal').style.display='none'" style="padding:0.8rem 1.6rem; border:none; background:#e2e8f0; color:#475569; cursor:pointer; border-radius:6px; font-weight:600;">Cancel</button>
+                            <button type="submit" class="btn-primary-admin" style="padding:0.8rem 1.8rem; background:#6366f1; color:#fff; border-radius:6px; font-weight:600;">Add Vendor</button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- ══ VENDOR FULL PROFILE & ANALYTICS MODAL ══ -->
+            <div id="vendorViewModal" class="v-modal-overlay">
+                <div class="v-modal-card">
+                    
+                    <!-- Modal Header -->
+                    <div class="v-modal-header">
+                        <div style="display:flex; gap:1.4rem; align-items:center; flex:1; min-width:0;">
+                            <div id="mAvatar" class="v-modal-avatar">
+                                V
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                                    <h2 id="mName" style="margin:0; font-size:1.85rem; font-weight:700; color:#0f172a;">Vendor Name</h2>
+                                    <span id="mStatusBadge" class="pill pill-green">Active</span>
+                                    <span class="pill pill-orange">Instructor</span>
+                                </div>
+                                <p id="mHeadline" style="margin:0.3rem 0 0 0; color:#64748b; font-size:1.3rem; font-weight:500;">Senior Instructor</p>
+                                <div class="v-header-meta">
+                                    <span><i class="fas fa-envelope" style="color:#6366f1; margin-right:0.4rem;"></i> <span id="mEmail">email@example.com</span></span>
+                                    <span><i class="fas fa-phone" style="color:#10b981; margin-right:0.4rem;"></i> <span id="mPhone">Not Provided</span></span>
+                                    <span><i class="fas fa-history" style="color:#f59e0b; margin-right:0.4rem;"></i> Last Login: <span id="mLastLogin">Never</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeVendorModal()" style="background:none; border:none; font-size:2.4rem; line-height:1; cursor:pointer; color:#64748b; padding:0.4rem; flex-shrink:0;">&times;</button>
+                    </div>
+
+                    <!-- 4 KPI Metrics -->
+                    <div class="v-metrics-grid">
+                        <div class="v-card-metric">
+                            <div class="metric-title"><i class="fas fa-graduation-cap" style="color:#6366f1;"></i> Created Courses</div>
+                            <div id="mTotalCourses" class="metric-num" style="color:#6366f1;">0</div>
+                        </div>
+                        <div class="v-card-metric">
+                            <div class="metric-title"><i class="fas fa-file-alt" style="color:#8b5cf6;"></i> Exams Created</div>
+                            <div id="mTotalExams" class="metric-num" style="color:#8b5cf6;">0</div>
+                        </div>
+                        <div class="v-card-metric">
+                            <div class="metric-title"><i class="fas fa-eye" style="color:#0ea5e9;"></i> Users Seen (Views)</div>
+                            <div id="mTotalViews" class="metric-num" style="color:#0ea5e9;">0</div>
+                        </div>
+                        <div class="v-card-metric">
+                            <div class="metric-title"><i class="fas fa-star" style="color:#f59e0b;"></i> Student Reviews</div>
+                            <div id="mReviewsSummary" class="metric-num" style="color:#f59e0b;">0 (⭐ 0.0)</div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Header -->
+                    <div class="v-tabs-header">
+                        <button type="button" class="v-tab-btn active" onclick="switchVendorTab('courses', this)">
+                            <i class="fas fa-graduation-cap"></i> Created Courses & Exams
+                        </button>
+                        <button type="button" class="v-tab-btn" onclick="switchVendorTab('reviews', this)">
+                            <i class="fas fa-star"></i> Student Reviews
+                        </button>
+                        <button type="button" class="v-tab-btn" onclick="switchVendorTab('profile', this)">
+                            <i class="fas fa-id-card"></i> Bio, Skills & Documents
+                        </button>
+                    </div>
+
+                    <!-- Tabs Body (Scrollable) -->
+                    <div class="v-modal-body">
+                        
+                        <!-- TAB 1: COURSES & EXAMS -->
+                        <div id="tabCourses" class="v-tab-content">
+                            <div id="mCoursesList">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: REVIEWS -->
+                        <div id="tabReviews" class="v-tab-content" style="display:none;">
+                            <div id="mReviewsList">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: FULL PROFILE & DOCUMENTS -->
+                        <div id="tabProfile" class="v-tab-content" style="display:none;">
+                            <div style="margin-bottom:1.8rem;">
+                                <h4 style="margin:0 0 0.6rem 0; color:#1e293b; font-size:1.4rem;"><i class="fas fa-align-left" style="color:#6366f1; margin-right:0.4rem;"></i> Biography</h4>
+                                <p id="mBio" style="margin:0; color:#475569; font-size:1.35rem; line-height:1.6; background:#f8fafc; padding:1.2rem; border-radius:0.8rem; border:1px solid #e2e8f0;">No bio provided.</p>
+                            </div>
+                            
+                            <div style="margin-bottom:1.8rem;">
+                                <h4 style="margin:0 0 0.6rem 0; color:#1e293b; font-size:1.4rem;"><i class="fas fa-tag" style="color:#6366f1; margin-right:0.4rem;"></i> Skills & Expertise</h4>
+                                <div id="mSkills" style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+                                    <!-- Skills pills -->
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:1.8rem;">
+                                <h4 style="margin:0 0 0.6rem 0; color:#1e293b; font-size:1.4rem;"><i class="fas fa-share-alt" style="color:#6366f1; margin-right:0.4rem;"></i> Social Profiles</h4>
+                                <div id="mSocialLinks" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                                    <!-- Social links -->
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 style="margin:0 0 0.6rem 0; color:#1e293b; font-size:1.4rem;"><i class="fas fa-folder-open" style="color:#6366f1; margin-right:0.4rem;"></i> Verification Documents</h4>
+                                <div id="mDocsList" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(20rem, 1fr)); gap:1rem;">
+                                    <!-- Document badges -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="v-modal-footer">
+                        <div class="v-footer-text" style="color:#64748b; font-size:1.25rem;">
+                            <i class="fas fa-shield-alt" style="color:#10b981;"></i> SkillHub Verified Instructor Console
+                        </div>
+                        <button type="button" onclick="closeVendorModal()" class="btn-primary-admin v-footer-btn" style="background:#64748b; color:#fff; padding:0.8rem 1.8rem; border-radius:0.8rem; border:none; cursor:pointer; font-weight:600;">
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <script>
+    <!-- ══ JAVASCRIPT LOGIC ══ -->
+    <script th:inline="javascript">
+        const vendorDetailsMap = /*[[${vendorDetails}]]*/ {};
+
+        function openVendorDetails(btn) {
+            const d = btn.dataset;
+            const vendorId = d.vendorId;
+
+            // Set Header & Basic Profile Info
+            document.getElementById('mAvatar').textContent = d.vendorName ? d.vendorName.charAt(0).toUpperCase() : 'V';
+            document.getElementById('mName').textContent = d.vendorName || 'Vendor';
+            document.getElementById('mHeadline').textContent = d.vendorHeadline || 'Registered Instructor';
+            document.getElementById('mEmail').textContent = d.vendorEmail || '-';
+            document.getElementById('mPhone').textContent = d.vendorPhone || 'Not Provided';
+            document.getElementById('mLastLogin').textContent = d.vendorLastLogin || 'Never';
+
+            const statusBadge = document.getElementById('mStatusBadge');
+            if (d.vendorStatus === 'Active') {
+                statusBadge.className = 'pill pill-green';
+                statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Active';
+            } else if (d.vendorStatus === 'BLOCKED') {
+                statusBadge.className = 'pill pill-red';
+                statusBadge.innerHTML = '<i class="fas fa-ban"></i> Blocked';
+            } else {
+                statusBadge.className = 'pill pill-orange';
+                statusBadge.innerHTML = '<i class="fas fa-clock"></i> Pending';
+            }
+
+            // Bio & Skills
+            document.getElementById('mBio').textContent = d.vendorBio && d.vendorBio !== 'null' ? d.vendorBio : 'No biography added yet.';
+
+            const skillsContainer = document.getElementById('mSkills');
+            skillsContainer.innerHTML = '';
+            if (d.vendorSkills && d.vendorSkills.trim()) {
+                d.vendorSkills.split(',').forEach(s => {
+                    const pill = document.createElement('span');
+                    pill.className = 'pill pill-blue';
+                    pill.style.fontSize = '1.2rem';
+                    pill.textContent = s.trim();
+                    skillsContainer.appendChild(pill);
+                });
+            } else {
+                skillsContainer.innerHTML = '<span style="color:#94a3b8; font-size:1.3rem;">No specific skills listed.</span>';
+            }
+
+            // Social Links
+            const socialContainer = document.getElementById('mSocialLinks');
+            socialContainer.innerHTML = '';
+            let hasSocial = false;
+            if (d.vendorLinkedin) {
+                hasSocial = true;
+                socialContainer.innerHTML += `<a href="${escapeHtml(d.vendorLinkedin)}" target="_blank" class="doc-badge" style="color:#0a66c2;"><i class="fab fa-linkedin"></i> LinkedIn Profile</a>`;
+            }
+            if (d.vendorYoutube) {
+                hasSocial = true;
+                socialContainer.innerHTML += `<a href="${escapeHtml(d.vendorYoutube)}" target="_blank" class="doc-badge" style="color:#ff0000;"><i class="fab fa-youtube"></i> YouTube Channel</a>`;
+            }
+            if (d.vendorInstagram) {
+                hasSocial = true;
+                socialContainer.innerHTML += `<a href="${escapeHtml(d.vendorInstagram)}" target="_blank" class="doc-badge" style="color:#e4405f;"><i class="fab fa-instagram"></i> Instagram</a>`;
+            }
+            if (!hasSocial) {
+                socialContainer.innerHTML = '<span style="color:#94a3b8; font-size:1.3rem;">No social profiles linked.</span>';
+            }
+
+            // Verification Documents
+            const docsContainer = document.getElementById('mDocsList');
+            docsContainer.innerHTML = '';
+            let hasDocs = false;
+            const docs = [
+                { name: 'Resume / CV', url: d.vendorResume, icon: 'fa-file-pdf', color: '#ef4444' },
+                { name: '10th Certificate', url: d.vendorTenth, icon: 'fa-certificate', color: '#6366f1' },
+                { name: 'PU / 12th Certificate', url: d.vendorPu, icon: 'fa-certificate', color: '#8b5cf6' },
+                { name: 'UG Degree Certificate', url: d.vendorUg, icon: 'fa-graduation-cap', color: '#10b981' },
+                { name: 'PG Degree Certificate', url: d.vendorPg, icon: 'fa-user-graduate', color: '#0ea5e9' }
+            ];
+            docs.forEach(doc => {
+                if (doc.url && doc.url.trim() && doc.url !== 'null') {
+                    hasDocs = true;
+                    docsContainer.innerHTML += `
+                        <a href="${escapeHtml(doc.url)}" target="_blank" class="doc-badge">
+                            <i class="fas ${doc.icon}" style="color:${doc.color}; font-size:1.4rem;"></i>
+                            <span>${doc.name}</span>
+                            <i class="fas fa-external-link-alt" style="margin-left:auto; font-size:1rem; color:#94a3b8;"></i>
+                        </a>`;
+                }
+            });
+            if (!hasDocs) {
+                docsContainer.innerHTML = '<span style="color:#94a3b8; font-size:1.3rem;">No verification documents uploaded.</span>';
+            }
+
+            // 3. Dynamic Courses & Reviews Ingestion
+            const coursesSource = document.getElementById('vendor-courses-data-' + vendorId);
+            const reviewsSource = document.getElementById('vendor-reviews-data-' + vendorId);
+            const coursesTarget = document.getElementById('mCoursesList');
+            const reviewsTarget = document.getElementById('mReviewsList');
+
+            if (coursesSource && reviewsSource) {
+                coursesTarget.innerHTML = coursesSource.innerHTML;
+                reviewsTarget.innerHTML = reviewsSource.innerHTML;
+
+                let courseCount = 0;
+                let examCount = 0;
+                let totalViews = 0;
+                const rows = coursesSource.querySelectorAll('.v-course-row');
+                courseCount = rows.length;
+                rows.forEach(r => {
+                    if (r.dataset.hasExam === '1') examCount++;
+                    const v = parseInt(r.dataset.views || '0', 10);
+                    if (!isNaN(v)) totalViews += v;
+                });
+                if (d.viewsCount && parseInt(d.viewsCount, 10) > totalViews) {
+                    totalViews = parseInt(d.viewsCount, 10);
+                }
+
+                let reviewCount = 0;
+                let totalRating = 0;
+                const revRows = reviewsSource.querySelectorAll('.v-review-row');
+                reviewCount = revRows.length;
+                revRows.forEach(r => {
+                    const rate = parseFloat(r.dataset.rating || '5');
+                    if (!isNaN(rate)) totalRating += rate;
+                });
+                const avgRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : '0';
+
+                // Set KPI Cards
+                document.getElementById('mTotalCourses').textContent = courseCount;
+                document.getElementById('mTotalExams').textContent = examCount;
+                document.getElementById('mTotalViews').textContent = totalViews.toLocaleString();
+                document.getElementById('mReviewsSummary').textContent = `${reviewCount} (⭐ ${avgRating})`;
+            } else {
+                // Fallback to async or map
+                loadVendorAnalytics(vendorId);
+            }
+
+            // Switch to default Tab 1
+            switchVendorTab('courses', document.querySelector('.v-tab-btn'));
+
+            document.getElementById('vendorViewModal').style.display = 'flex';
+        }
+
+        function closeVendorModal() {
+            document.getElementById('vendorViewModal').style.display = 'none';
+        }
+
+        function switchVendorTab(tabName, btn) {
+            document.querySelectorAll('.v-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            document.querySelectorAll('.v-tab-content').forEach(c => c.style.display = 'none');
+            if (tabName === 'courses') document.getElementById('tabCourses').style.display = 'block';
+            if (tabName === 'reviews') document.getElementById('tabReviews').style.display = 'block';
+            if (tabName === 'profile') document.getElementById('tabProfile').style.display = 'block';
+        }
+
+        function loadVendorAnalytics(vendorId) {
+            const data = (vendorDetailsMap && vendorDetailsMap[vendorId]) ? vendorDetailsMap[vendorId] : null;
+
+            if (data) {
+                renderAnalyticsData(data);
+            } else {
+                // Fallback fetch from REST endpoint
+                fetch(`/admin/vendors/${vendorId}/data`)
+                    .then(res => res.json())
+                    .then(fetchedData => {
+                        renderAnalyticsData(fetchedData);
+                    })
+                    .catch(err => {
+                        console.warn("Could not fetch vendor stats:", err);
+                        renderAnalyticsData({ courseCount: 0, totalViews: 0, totalExams: 0, reviewCount: 0, courses: [], reviews: [] });
+                    });
+            }
+        }
+
+        function renderAnalyticsData(data) {
+            document.getElementById('mTotalCourses').textContent = data.courseCount || (data.courses ? data.courses.length : 0);
+            document.getElementById('mTotalExams').textContent = data.totalExams || 0;
+            document.getElementById('mTotalViews').textContent = (data.totalViews || 0).toLocaleString();
+            
+            const rCount = data.reviewCount || (data.reviews ? data.reviews.length : 0);
+            const avg = data.avgRating || 0.0;
+            document.getElementById('mReviewsSummary').textContent = `${rCount} (⭐ ${avg})`;
+
+            // Render Courses Table
+            const coursesContainer = document.getElementById('mCoursesList');
+            const courses = data.courses || [];
+            if (courses.length === 0) {
+                coursesContainer.innerHTML = `
+                    <div style="text-align:center; padding:3rem; color:#64748b;">
+                        <i class="fas fa-graduation-cap" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem; display:block;"></i>
+                        <strong>No courses created by this vendor yet.</strong>
+                    </div>`;
+            } else {
+                let cHtml = `
+                    <div class="v-table-scroll">
+                    <table class="admin-table" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>Course Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                                <th>Views</th>
+                                <th>Students</th>
+                                <th>Exams / Questions</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                courses.forEach(c => {
+                    const priceFormatted = (c.price && c.price > 0) ? `₹${c.price}` : '<span style="color:#10b981; font-weight:600;">FREE</span>';
+                    const hasExam = (c.examQuestions && c.examQuestions > 0);
+                    cHtml += `
+                        <tr>
+                            <td><strong style="color:#0f172a;">${escapeHtml(c.title)}</strong></td>
+                            <td><span class="pill pill-blue">${escapeHtml(c.category)}</span></td>
+                            <td><span class="pill ${c.status === 'PUBLISHED' ? 'pill-green' : 'pill-orange'}">${escapeHtml(c.status)}</span></td>
+                            <td>${priceFormatted}</td>
+                            <td><strong><i class="fas fa-eye" style="color:#0ea5e9;"></i> ${c.views || 0}</strong></td>
+                            <td><strong><i class="fas fa-user-graduate" style="color:#6366f1;"></i> ${c.students || 0}</strong></td>
+                            <td>
+                                ${hasExam ? `<span class="pill pill-green"><i class="fas fa-check-circle"></i> ${c.examQuestions} Questions</span>` : `<span class="pill pill-orange">No Exam</span>`}
+                            </td>
+                        </tr>`;
+                });
+                cHtml += `</tbody></table></div>`;
+                coursesContainer.innerHTML = cHtml;
+            }
+
+            // Render Reviews List
+            const reviewsContainer = document.getElementById('mReviewsList');
+            const reviews = data.reviews || [];
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = `
+                    <div style="text-align:center; padding:3rem; color:#64748b;">
+                        <i class="fas fa-star" style="font-size:3rem; color:#cbd5e1; margin-bottom:1rem; display:block;"></i>
+                        <strong>No student reviews submitted for this vendor yet.</strong>
+                    </div>`;
+            } else {
+                let rHtml = '<div style="display:flex; flex-direction:column; gap:1.2rem;">';
+                reviews.forEach(r => {
+                    let stars = '';
+                    const rating = r.rating || 5;
+                    for (let i = 1; i <= 5; i++) {
+                        stars += `<i class="fas fa-star" style="color:${i <= rating ? '#f59e0b' : '#cbd5e1'}; font-size:1.2rem;"></i>`;
+                    }
+                    rHtml += `
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:1rem; padding:1.4rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                                <div style="display:flex; align-items:center; gap:0.8rem;">
+                                    <strong style="color:#0f172a; font-size:1.35rem;">${escapeHtml(r.studentName)}</strong>
+                                    <div>${stars}</div>
+                                </div>
+                                <span style="font-size:1.2rem; color:#64748b;">${r.date ? r.date.substring(0, 10) : ''}</span>
+                            </div>
+                            <p style="margin:0 0 0.6rem 0; color:#334155; font-size:1.3rem; line-height:1.5;">"${escapeHtml(r.comment || '')}"</p>
+                            <div style="font-size:1.15rem; color:#6366f1;"><i class="fas fa-book"></i> Course: <strong>${escapeHtml(r.courseTitle)}</strong></div>
+                            ${r.reply ? `<div style="margin-top:0.6rem; padding:0.6rem 1rem; background:#fff; border-left:3px solid #10b981; border-radius:0 0.4rem 0.4rem 0; font-size:1.2rem; color:#065f46;"><strong>Instructor Reply:</strong> ${escapeHtml(r.reply)}</div>` : ''}
+                        </div>`;
+                });
+                rHtml += '</div>';
+                reviewsContainer.innerHTML = rHtml;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Mobile sidebar toggle
         const sidebar  = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');

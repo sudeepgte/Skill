@@ -64,6 +64,9 @@ public class AdminController {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private ReviewRepository reviewRepository;
+
     @GetMapping({"", "/"})
     public String adminRoot() {
         return "redirect:/admin/dashboard";
@@ -174,12 +177,128 @@ public class AdminController {
 
     @GetMapping("/vendors")
     public String listVendors(Model model) {
-        // ONLY INSTRUCTORS FOR THE VENDORS TAB
         List<User> vendors = userService.getAllUsers().stream()
                 .filter(u -> "INSTRUCTOR".equals(u.getRole()))
                 .collect(Collectors.toList());
-        model.addAttribute("users", vendors); // Keeping 'users' attribute name for easy template reuse
+        model.addAttribute("users", vendors);
+
+        Map<Long, Map<String, Object>> vendorDetails = new HashMap<>();
+        for (User v : vendors) {
+            String email = v.getEmail();
+            Map<String, Object> data = new HashMap<>();
+            List<Course> courses = courseService.getCoursesByInstructor(email);
+            Long viewsObj = courseService.sumViewsByInstructorEmail(email);
+            long totalViews = viewsObj != null ? viewsObj : 0L;
+            for (Course c : courses) {
+                if (c.getViewCount() != null) totalViews += c.getViewCount();
+            }
+            long totalStudents = enrollmentRepository.countByInstructorEmail(email);
+            List<Review> reviews = reviewRepository != null ? reviewRepository.findByInstructorEmail(email) : new ArrayList<>();
+            
+            int totalExams = 0;
+            List<Map<String, Object>> courseList = new ArrayList<>();
+            for (Course c : courses) {
+                Map<String, Object> cMap = new HashMap<>();
+                cMap.put("id", c.getId());
+                cMap.put("title", c.getTitle());
+                cMap.put("category", c.getCategory() != null ? c.getCategory().getName() : "General");
+                cMap.put("status", c.getStatus() != null ? c.getStatus().name() : (c.isPublished() ? "PUBLISHED" : "DRAFT"));
+                cMap.put("price", c.getPrice() != null ? c.getPrice() : 0.0);
+                cMap.put("views", c.getViewCount() != null ? c.getViewCount() : 0);
+                cMap.put("students", c.getEnrollments() != null ? c.getEnrollments().size() : 0);
+                int qCount = c.getExamQuestions() != null ? c.getExamQuestions().size() : 0;
+                cMap.put("examQuestions", qCount);
+                if (qCount > 0) totalExams++;
+                courseList.add(cMap);
+            }
+
+            List<Map<String, Object>> reviewList = new ArrayList<>();
+            double totalStars = 0;
+            for (Review r : reviews) {
+                Map<String, Object> rMap = new HashMap<>();
+                rMap.put("id", r.getId());
+                rMap.put("studentName", r.getUser() != null ? r.getUser().getName() : "Student");
+                rMap.put("rating", r.getRating());
+                rMap.put("comment", r.getComment());
+                rMap.put("courseTitle", r.getCourse() != null ? r.getCourse().getTitle() : "Course");
+                rMap.put("date", r.getCreatedAt() != null ? r.getCreatedAt().toString() : "");
+                rMap.put("reply", r.getReply());
+                reviewList.add(rMap);
+                totalStars += r.getRating();
+            }
+
+            data.put("courseCount", courses.size());
+            data.put("totalViews", totalViews);
+            data.put("totalStudents", totalStudents);
+            data.put("totalExams", totalExams);
+            data.put("reviewCount", reviews.size());
+            data.put("avgRating", !reviews.isEmpty() ? Math.round((totalStars / reviews.size()) * 10.0) / 10.0 : 0.0);
+            data.put("courses", courseList);
+            data.put("reviews", reviewList);
+
+            vendorDetails.put(v.getId(), data);
+        }
+        model.addAttribute("vendorDetails", vendorDetails);
         return "admin/vendors";
+    }
+
+    @GetMapping("/vendors/{id}/data")
+    @ResponseBody
+    public Map<String, Object> getVendorDataJson(@PathVariable("id") Long id) {
+        User vendor = userService.getUserById(id);
+        if (vendor == null) return new HashMap<>();
+        String email = vendor.getEmail();
+        Map<String, Object> data = new HashMap<>();
+        List<Course> courses = courseService.getCoursesByInstructor(email);
+        Long viewsObj = courseService.sumViewsByInstructorEmail(email);
+        long totalViews = viewsObj != null ? viewsObj : 0L;
+        for (Course c : courses) {
+            if (c.getViewCount() != null) totalViews += c.getViewCount();
+        }
+        long totalStudents = enrollmentRepository.countByInstructorEmail(email);
+        List<Review> reviews = reviewRepository != null ? reviewRepository.findByInstructorEmail(email) : new ArrayList<>();
+
+        int totalExams = 0;
+        List<Map<String, Object>> courseList = new ArrayList<>();
+        for (Course c : courses) {
+            Map<String, Object> cMap = new HashMap<>();
+            cMap.put("id", c.getId());
+            cMap.put("title", c.getTitle());
+            cMap.put("category", c.getCategory() != null ? c.getCategory().getName() : "General");
+            cMap.put("status", c.getStatus() != null ? c.getStatus().name() : (c.isPublished() ? "PUBLISHED" : "DRAFT"));
+            cMap.put("price", c.getPrice() != null ? c.getPrice() : 0.0);
+            cMap.put("views", c.getViewCount() != null ? c.getViewCount() : 0);
+            cMap.put("students", c.getEnrollments() != null ? c.getEnrollments().size() : 0);
+            int qCount = c.getExamQuestions() != null ? c.getExamQuestions().size() : 0;
+            cMap.put("examQuestions", qCount);
+            if (qCount > 0) totalExams++;
+            courseList.add(cMap);
+        }
+
+        List<Map<String, Object>> reviewList = new ArrayList<>();
+        double totalStars = 0;
+        for (Review r : reviews) {
+            Map<String, Object> rMap = new HashMap<>();
+            rMap.put("id", r.getId());
+            rMap.put("studentName", r.getUser() != null ? r.getUser().getName() : "Student");
+            rMap.put("rating", r.getRating());
+            rMap.put("comment", r.getComment());
+            rMap.put("courseTitle", r.getCourse() != null ? r.getCourse().getTitle() : "Course");
+            rMap.put("date", r.getCreatedAt() != null ? r.getCreatedAt().toString() : "");
+            rMap.put("reply", r.getReply());
+            reviewList.add(rMap);
+            totalStars += r.getRating();
+        }
+
+        data.put("courseCount", courses.size());
+        data.put("totalViews", totalViews);
+        data.put("totalStudents", totalStudents);
+        data.put("totalExams", totalExams);
+        data.put("reviewCount", reviews.size());
+        data.put("avgRating", !reviews.isEmpty() ? Math.round((totalStars / reviews.size()) * 10.0) / 10.0 : 0.0);
+        data.put("courses", courseList);
+        data.put("reviews", reviewList);
+        return data;
     }
 
     @PostMapping("/vendors/add")
