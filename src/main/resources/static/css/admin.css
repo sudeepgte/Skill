@@ -47,7 +47,7 @@ a { text-decoration: none; color: inherit; }
    ════════════════════════════════════ */
 .admin-sidebar {
     width: var(--sidebar-w);
-    min-height: 100vh;
+    height: 100vh;
     background: var(--primary);
     display: flex;
     flex-direction: column;
@@ -56,6 +56,7 @@ a { text-decoration: none; color: inherit; }
     left: 0;
     z-index: 200;
     transition: var(--transition);
+    overflow-x: hidden;
 }
 
 .sidebar-brand {
@@ -64,6 +65,7 @@ a { text-decoration: none; color: inherit; }
     gap: 1.2rem;
     padding: 2.4rem 2.4rem 2rem;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
 }
 
 .sidebar-brand-icon {
@@ -95,11 +97,23 @@ a { text-decoration: none; color: inherit; }
 /* Nav menu */
 .sidebar-nav {
     flex: 1;
+    min-height: 0;
     padding: 2rem 1.2rem;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
 }
 
 .nav-section-label {
@@ -145,6 +159,7 @@ a { text-decoration: none; color: inherit; }
 .sidebar-footer {
     padding: 1.6rem 1.2rem;
     border-top: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
 }
 
 /* Badge */

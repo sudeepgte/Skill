@@ -21,7 +21,7 @@ public class GeminiService {
 
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="
                     + apiKey;
 
             String prompt = "Generate exactly 20 multiple choice questions for a certification exam on the topic of '"

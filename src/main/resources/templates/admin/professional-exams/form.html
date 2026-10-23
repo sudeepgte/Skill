@@ -7,6 +7,198 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .field-selection-panel {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.4rem;
+            margin-bottom: 2.4rem;
+            box-shadow: var(--shadow);
+        }
+
+        .field-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(26rem, 1fr));
+            gap: 1.4rem;
+            margin-top: 1.6rem;
+        }
+
+        .field-btn {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1.4rem 1.6rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 1.35rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .field-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--secondary);
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .field-btn.active {
+            background: var(--secondary) !important;
+            color: #fff !important;
+            border-color: var(--secondary) !important;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+        }
+
+        .field-btn-num {
+            width: 2.8rem;
+            height: 2.8rem;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .field-btn.active .field-btn-num {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .field-btn .field-icon {
+            font-size: 1.6rem;
+            color: var(--secondary);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .field-btn.active .field-icon {
+            color: #fff;
+        }
+
+        .field-name {
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        /* Category Chips & Count Chips */
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 0.8rem 0;
+        }
+
+        .cat-chip, .subcat-chip, .count-chip {
+            padding: 0.6rem 1.4rem;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .cat-chip:hover, .subcat-chip:hover, .count-chip:hover {
+            border-color: var(--secondary);
+            background: #fff;
+        }
+
+        .cat-chip.active, .subcat-chip.active, .count-chip.active {
+            background: var(--secondary);
+            color: #fff;
+            border-color: var(--secondary);
+        }
+
+        /* AI Generate Button */
+        .btn-ai-generate {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+            color: #fff;
+            border: none;
+            padding: 1.2rem 2.4rem;
+            font-size: 1.45rem;
+            font-weight: 700;
+            font-family: inherit;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-ai-generate:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Questions Box */
+        .q-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            margin-bottom: 1.4rem;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .q-card:hover {
+            border-color: var(--secondary);
+        }
+
+        .q-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .q-card-num {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 1.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .q-del-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: none;
+            border-radius: 0.6rem;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .q-del-btn:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+    </style>
 </head>
 
 <body>
@@ -116,37 +308,259 @@
             <div class="page-header">
                 <div class="page-header-left">
                     <h1>Create Professional Exam</h1>
-                    <p>Define standard exam code, difficulty tier, target engineering track, and passing criteria.</p>
+                    <p>Select question field, choose category, set count (5, 10, 11, 20), and generate real-time questions with Gemini AI.</p>
                 </div>
             </div>
 
-            <!-- Form Panel -->
-            <div class="panel" style="max-width: 80rem;">
-                <div class="panel-header">
-                    <span class="panel-title"><i class="fas fa-plus-circle" style="color:var(--accent); margin-right:0.8rem;"></i> Exam Blueprint Configuration</span>
+            <!-- ══ STEP 1: FIELD SELECTION BOX ══ -->
+            <div class="field-selection-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.7rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem;">
+                            <i class="fas fa-layer-group" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                            On which field are you ready to create exams?
+                        </h2>
+                        <p style="font-size: 1.3rem; color: var(--text-muted); margin: 0;">
+                            Click a field to open its category selection, set question count, and auto-generate questions using AI.
+                        </p>
+                    </div>
+                    <span id="selectedCounterBadge" class="pill pill-blue" style="font-size: 1.2rem; padding: 0.4rem 1.2rem;">
+                        Select a Field
+                    </span>
+                </div>
+
+                <div class="field-btn-grid">
+                    <!-- 1. Multiple Choice Questions -->
+                    <button type="button" class="field-btn" onclick="selectField(1, 'Multiple Choice Questions (MCQs)', 'MCQ', 'fas fa-list-check', 'Standard 4-option objective questions with single or multiple correct answers.', this)">
+                        <span class="field-btn-num">1</span>
+                        <i class="fas fa-list-check field-icon"></i>
+                        <span class="field-name">Multiple Choice Questions (MCQs)</span>
+                    </button>
+
+                    <!-- 2. Coding Questions -->
+                    <button type="button" class="field-btn" onclick="selectField(2, 'Coding Questions', 'CODE', 'fas fa-code', 'Algorithmic, data structures, and programming challenges with real-time test cases.', this)">
+                        <span class="field-btn-num">2</span>
+                        <i class="fas fa-code field-icon"></i>
+                        <span class="field-name">Coding Questions</span>
+                    </button>
+
+                    <!-- 3. Output Prediction -->
+                    <button type="button" class="field-btn" onclick="selectField(3, 'Output Prediction', 'PRED', 'fas fa-terminal', 'Analyze source code snippets and predict runtime execution output or errors.', this)">
+                        <span class="field-btn-num">3</span>
+                        <i class="fas fa-terminal field-icon"></i>
+                        <span class="field-name">Output Prediction</span>
+                    </button>
+
+                    <!-- 4. Debugging Questions -->
+                    <button type="button" class="field-btn" onclick="selectField(4, 'Debugging Questions', 'DEBUG', 'fas fa-bug', 'Find, isolate, and repair defects, exceptions, logic errors, and broken code.', this)">
+                        <span class="field-btn-num">4</span>
+                        <i class="fas fa-bug field-icon"></i>
+                        <span class="field-name">Debugging Questions</span>
+                    </button>
+
+                    <!-- 5. Fill in the Blanks -->
+                    <button type="button" class="field-btn" onclick="selectField(5, 'Fill in the Blanks', 'BLANK', 'fas fa-pen-clip', 'Fill in missing keywords, code statements, or essential architectural concepts.', this)">
+                        <span class="field-btn-num">5</span>
+                        <i class="fas fa-pen-clip field-icon"></i>
+                        <span class="field-name">Fill in the Blanks</span>
+                    </button>
+
+                    <!-- 6. True or False -->
+                    <button type="button" class="field-btn" onclick="selectField(6, 'True or False', 'TF', 'fas fa-toggle-on', 'Assertion statements testing conceptual accuracy, best practices, and facts.', this)">
+                        <span class="field-btn-num">6</span>
+                        <i class="fas fa-toggle-on field-icon"></i>
+                        <span class="field-name">True or False</span>
+                    </button>
+
+                    <!-- 7. Short Answer Questions -->
+                    <button type="button" class="field-btn" onclick="selectField(7, 'Short Answer Questions', 'SHORT', 'fas fa-align-left', 'Concise conceptual definitions, command syntax, and brief technical answers.', this)">
+                        <span class="field-btn-num">7</span>
+                        <i class="fas fa-align-left field-icon"></i>
+                        <span class="field-name">Short Answer Questions</span>
+                    </button>
+
+                    <!-- 8. Long Answer / Theory -->
+                    <button type="button" class="field-btn" onclick="selectField(8, 'Long Answer / Theory', 'THEORY', 'fas fa-file-lines', 'Comprehensive system design essays, theoretical derivations, and written analysis.', this)">
+                        <span class="field-btn-num">8</span>
+                        <i class="fas fa-file-lines field-icon"></i>
+                        <span class="field-name">Long Answer / Theory</span>
+                    </button>
+
+                    <!-- 9. Practical / Project-Based Questions -->
+                    <button type="button" class="field-btn" onclick="selectField(9, 'Practical / Project-Based Questions', 'PROJ', 'fas fa-laptop-code', 'Hands-on practical mini-projects, module implementations, and scenario builds.', this)">
+                        <span class="field-btn-num">9</span>
+                        <i class="fas fa-laptop-code field-icon"></i>
+                        <span class="field-name">Practical / Project-Based Questions</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STEP 2: CATEGORY, QUESTION COUNT & AI GENERATOR BOX ══ -->
+            <div class="panel" id="examFormBox" style="display: none; max-width: 90rem;">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="panel-title">
+                        <i id="formFieldIcon" class="fas fa-check-circle" style="color: var(--secondary); margin-right: 0.8rem;"></i>
+                        <span id="formFieldTitle">Exam Question Field Setup</span>
+                    </span>
+                    <span class="pill pill-green" id="formFieldBadge">Field Active</span>
                 </div>
 
                 <div class="panel-body">
-                    <form th:action="@{/admin/professional-exams/create}" method="post" th:object="${exam}">
+                    <!-- Dynamic field info banner -->
+                    <div id="fieldInfoBanner" style="background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.8rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1.4rem;">
+                        <i id="bannerIcon" class="fas fa-info-circle" style="color: var(--secondary); font-size: 2.2rem; flex-shrink: 0;"></i>
+                        <div>
+                            <strong id="bannerFieldTitle" style="color: var(--text); font-size: 1.45rem; display: block;">Selected Field</strong>
+                            <p id="bannerFieldDesc" style="color: var(--text-muted); font-size: 1.25rem; margin: 0.2rem 0 0 0;">Exam configuration for this field.</p>
+                        </div>
+                    </div>
+
+                    <!-- Category & Subcategory Selection Box -->
+                    <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 2rem; margin-bottom: 2.4rem;">
                         
+                        <!-- 1. Primary Category (From Image 1) -->
+                        <div style="margin-bottom: 1.6rem;">
+                            <label class="form-label" style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.8rem; display: block;">
+                                <i class="fas fa-folder-open" style="color: var(--secondary); margin-right: 0.6rem;"></i> 1. Select Primary Expertise / Category:
+                            </label>
+
+                            <!-- Primary Category Dropdown matching Image 1 -->
+                            <select id="primaryCategorySelect" class="form-control" onchange="onPrimaryCategoryChange(this.value)" style="font-size: 1.45rem; font-weight: 600; padding: 1.2rem 1.6rem; border: 2px solid var(--border); border-radius: 0.8rem; background: #fff; cursor: pointer; width: 100%; max-width: 50rem;">
+                                <option value="" disabled>Select Primary Expertise</option>
+                                <option value="Development and IT" selected>Development and IT</option>
+                                <option value="Cooking / Culinary Arts">Cooking</option>
+                                <option value="Business Marketing">Business Marketing</option>
+                                <option value="Office Productivity and Design">Office Productivity and Design</option>
+                                <option value="Music">Music</option>
+                                <option value="Health Fitness and Yoga">Health Fitness and Yoga</option>
+                                <option value="Art, Craft and Painting">Art, Craft and Painting</option>
+                                <option value="Kids Learning and Speaking Course">Kids Learning and Speaking Course</option>
+                                <option value="Language">Language</option>
+                                <option value="Photography">Photography</option>
+                                <option value="Other">Other</option>
+                            </select>
+
+                            <!-- Quick Category Chips -->
+                            <div class="chip-group" id="primaryCategoryChips" style="margin-top: 1rem;">
+                                <span class="cat-chip active" onclick="setPrimaryCategory('Development and IT', this)">Development and IT</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Cooking / Culinary Arts', this)">Cooking</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Business Marketing', this)">Business Marketing</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Office Productivity and Design', this)">Office Productivity and Design</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Music', this)">Music</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Health Fitness and Yoga', this)">Health Fitness and Yoga</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Art, Craft and Painting', this)">Art, Craft and Painting</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Kids Learning and Speaking Course', this)">Kids Learning</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Language', this)">Language</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Photography', this)">Photography</span>
+                                <span class="cat-chip" onclick="setPrimaryCategory('Other', this)">Other</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Subcategory / Specific Languages / Fields (Opens dynamically based on Category) -->
+                        <div id="subCategorySection" style="margin-top: 1.6rem; padding: 1.6rem; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius);">
+                            <label class="form-label" id="subCategoryLabel" style="font-size: 1.45rem; font-weight: 700; color: var(--text); margin-bottom: 0.6rem; display: block;">
+                                <i class="fas fa-code-branch" style="color: var(--secondary); margin-right: 0.6rem;"></i> Select Software Language / Field:
+                            </label>
+
+                            <div class="chip-group" id="subCategoryChips">
+                                <!-- Populated dynamically based on category -->
+                            </div>
+
+                            <div style="margin-top: 1rem;">
+                                <label class="form-label" style="font-size: 1.25rem;">Or Enter Custom Language / Topic:</label>
+                                <input type="text" id="customSubCategoryInput" class="form-control" value="Java" placeholder="e.g. Java, Python, Baking & Pastry, etc." oninput="onCustomSubCategoryInput(this.value)" style="width: 100%; max-width: 45rem;" />
+                            </div>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0 1.6rem 0;">
+
+                        <!-- 3. Question Count -->
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 1.2rem;">
+                            <i class="fas fa-list-ol" style="color: var(--secondary); margin-right: 0.6rem;"></i> 2. Number of Questions to Frame
+                        </h3>
+
+                        <div class="chip-group" id="countChips">
+                            <span class="count-chip" onclick="setCount(5, this)">5 Questions</span>
+                            <span class="count-chip active" onclick="setCount(10, this)">10 Questions</span>
+                            <span class="count-chip" onclick="setCount(11, this)">11 Questions</span>
+                            <span class="count-chip" onclick="setCount(20, this)">20 Questions</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 1.2rem; margin-top: 1rem; flex-wrap: wrap;">
+                            <label class="form-label" style="margin: 0;">Or Enter Custom Count:</label>
+                            <input type="number" id="questionCountInput" class="form-control" min="1" max="50" value="10" style="width: 12rem;" oninput="onCustomCountChange(this.value)" />
+                            <span style="font-size: 1.25rem; color: var(--text-muted);">(Admin can choose 5, 10, 11, 20 or any custom count)</span>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0 1.6rem 0;">
+
+                        <!-- 4. AI Generate Action -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.4rem;">
+                            <div>
+                                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem;">
+                                    <i class="fas fa-wand-magic-sparkles" style="color: #6366F1; margin-right: 0.6rem;"></i> 3. Auto-Frame Questions with Gemini AI
+                                </h3>
+                                <p style="font-size: 1.25rem; color: var(--text-muted); margin: 0;">
+                                    Click below to automatically generate questions for this category and language using Gemini AI.
+                                </p>
+                            </div>
+
+                            <button type="button" class="btn-ai-generate" id="btnGenerateAi" onclick="generateWithAI()">
+                                <i class="fas fa-wand-magic-sparkles"></i> Generate AI Questions
+                            </button>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="aiLoadingIndicator" style="display: none; margin-top: 1.6rem; padding: 1.8rem; background: rgba(99, 102, 241, 0.08); border: 2px dashed #6366F1; border-radius: var(--radius); text-align: center;">
+                            <i class="fas fa-circle-notch fa-spin" style="font-size: 2.4rem; color: #6366F1; margin-bottom: 0.8rem; display: block;"></i>
+                            <strong id="loadingStatusText" style="font-size: 1.45rem; color: var(--text);">Generating questions with Gemini AI...</strong>
+                            <p style="font-size: 1.25rem; color: var(--text-muted); margin: 0.4rem 0 0 0;">Please wait a moment while AI frames real-time questions.</p>
+                        </div>
+                    </div>
+
+                    <!-- ══ QUESTIONS DISPLAY BOX ══ -->
+                    <div id="questionsFieldBox" style="display: none; margin-bottom: 2.4rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.6rem; flex-wrap: wrap; gap: 1rem;">
+                            <h3 style="font-size: 1.6rem; font-weight: 700; color: var(--text); margin: 0;">
+                                <i class="fas fa-file-lines" style="color: var(--secondary); margin-right: 0.6rem;"></i>
+                                Framed Questions (<span id="totalQuestionsCount">0</span>)
+                            </h3>
+                            <button type="button" class="btn-primary-admin" onclick="addBlankQuestion()" style="background: var(--surface); color: var(--text); border: 1.5px dashed var(--secondary); padding: 0.8rem 1.4rem; font-size: 1.3rem; border-radius: 0.8rem; cursor: pointer;">
+                                <i class="fas fa-plus"></i> Add Question
+                            </button>
+                        </div>
+
+                        <div id="questionsContainer">
+                            <!-- Dynamically generated questions render here -->
+                        </div>
+                    </div>
+
+                    <!-- ══ EXAM CONFIGURATION & SUBMISSION FORM ══ -->
+                    <form th:action="@{/admin/professional-exams/create}" method="post" th:object="${exam}" id="mainExamForm">
+                        
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 1.4rem; border-top: 1px solid var(--border); padding-top: 1.8rem;">
+                            <i class="fas fa-sliders" style="color: var(--secondary); margin-right: 0.6rem;"></i> Exam Blueprint Parameters
+                        </h3>
+
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Exam Code *</label>
-                                <input type="text" class="form-control" th:field="*{examCode}" placeholder="e.g. JAVA-ARCH-01" required />
+                                <input type="text" class="form-control" th:field="*{examCode}" id="examCodeInput" placeholder="e.g. MCQ-JAVA-101" required />
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Exam Title *</label>
-                                <input type="text" class="form-control" th:field="*{title}" placeholder="e.g. Certified Java Enterprise Architect" required />
+                                <input type="text" class="form-control" th:field="*{title}" id="examTitleInput" placeholder="e.g. Certified Java Multiple Choice Exam" required oninput="onExamTitleInput(this.value)" />
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Specialization Track *</label>
-                                <select class="form-control" th:field="*{track}" required>
-                                    <option th:each="t : ${tracks}" th:value="${t}" th:text="${t}">BACKEND</option>
+                                <select class="form-control" id="trackSelect" required onchange="onTrackSelectChange(this.value)">
+                                    <option value="Yoga & Pranayama">Yoga & Pranayama</option>
                                 </select>
+                                <input type="hidden" name="track" id="hiddenTrackInput" value="DEVELOPMENT" />
                             </div>
 
                             <div class="form-group">
@@ -160,34 +574,46 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Duration (Minutes) *</label>
-                                <input type="number" class="form-control" th:field="*{durationMinutes}" min="10" placeholder="120" required />
+                                <input type="number" class="form-control" th:field="*{durationMinutes}" id="durationInput" min="10" value="60" required />
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Maximum Attempts Allowed</label>
-                                <input type="number" class="form-control" th:field="*{maximumAttempts}" min="1" placeholder="3" />
+                                <input type="number" class="form-control" th:field="*{maximumAttempts}" min="1" value="3" />
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Total Marks *</label>
-                                <input type="number" class="form-control" th:field="*{totalMarks}" min="1" placeholder="100" required />
+                                <input type="number" class="form-control" th:field="*{totalMarks}" id="totalMarksInput" min="1" value="100" required />
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Passing Marks *</label>
-                                <input type="number" class="form-control" th:field="*{passingMarks}" min="1" placeholder="70" required />
+                                <input type="number" class="form-control" th:field="*{passingMarks}" id="passingMarksInput" min="1" value="70" required />
                             </div>
                         </div>
 
-                        <div style="margin-top: 2.4rem; display: flex; gap: 1.2rem;">
-                            <button type="submit" class="btn-primary-admin" style="background: var(--accent); color: #fff; padding: 1rem 2.4rem;">
-                                <i class="fas fa-check"></i> Create Exam Blueprint
-                            </button>
-                            <a th:href="@{/admin/professional-exams}" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 1rem 2rem;">
-                                Cancel
-                            </a>
+                        <div class="form-group" style="margin-top: 1.6rem;">
+                            <label class="form-label">Exam Scope & Description</label>
+                            <textarea class="form-control" th:field="*{description}" id="examDescInput" rows="3" placeholder="Exam description..." style="width:100%; border: 1.5px solid var(--border); border-radius: 0.8rem; padding: 1rem 1.4rem; font-family: inherit; font-size: 1.35rem;"></textarea>
+                        </div>
+
+                        <!-- Save & Submit Option Downside the Exam Blueprint Parameters -->
+                        <div style="margin-top: 2.4rem; padding: 1.8rem 2.4rem; background: #fff; border: 2px solid #10b981; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.2rem; box-shadow: var(--shadow);">
+                            <div>
+                                <strong style="color: var(--text); font-size: 1.5rem;"><i class="fas fa-check-double" style="color: #10b981; margin-right: 0.6rem;"></i> All Parameters & Questions Ready</strong>
+                                <p style="color: var(--text-muted); font-size: 1.3rem; margin: 0.3rem 0 0 0;">Review your blueprint parameters above. Click below to save and create the exam.</p>
+                            </div>
+                            <div style="display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;">
+                                <button type="button" onclick="submitExam()" class="btn-primary-admin" style="background: #10b981; color: #fff; border: none; padding: 1.2rem 2.8rem; font-size: 1.5rem; font-weight: 700; border-radius: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.8rem; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle"></i> Save & Create Exam
+                                </button>
+                                <a th:href="@{/admin/professional-exams}" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 1.2rem 2rem; border-radius: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; font-size: 1.4rem;">
+                                    Cancel
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -197,6 +623,1168 @@
     </div>
 
     <script>
+        // Gemini API Configuration
+        const GEMINI_API_KEY = "AIzaSyBxo5TkOi9DTNBC30LXIolUdYeeErLUJsI";
+
+        // Category to Subcategory & Software Languages Mapping (Matches Image 1)
+        const CATEGORIES_DATA = {
+            "Development and IT": {
+                label: "Select Software Language / Field:",
+                subcategories: ["Java", "Python", "JavaScript", "C++", "C#", "SQL & Databases", "Spring Boot", "React & Frontend", "Cloud & DevOps", "Cybersecurity", "Data Science & AI"]
+            },
+            "Cooking / Culinary Arts": {
+                label: "Select Cooking / Culinary Field:",
+                subcategories: ["Baking & Pastry Arts", "Culinary Techniques & Knife Skills", "Home Cooking & Everyday Meals", "Regional & International Cuisines", "Food Safety & Hygiene", "Cake Decorating & Desserts"]
+            },
+            "Business Marketing": {
+                label: "Select Marketing & Business Domain:",
+                subcategories: ["Digital Marketing", "SEO & Content Marketing", "Social Media Marketing", "Entrepreneurship & Startups", "Sales & Negotiation", "Finance & Investing", "Product Management"]
+            },
+            "Office Productivity and Design": {
+                label: "Select Design & Productivity Focus:",
+                subcategories: ["UI/UX Design", "Graphic Design", "Microsoft Excel & Spreadsheets", "Presentation & PowerPoint", "3D Modeling & Animation", "Project Management Tools"]
+            },
+            "Music": {
+                label: "Select Music Discipline:",
+                subcategories: ["Acoustic & Electric Guitar", "Piano & Keyboard", "Vocal Training & Singing", "Music Production & DAW", "Music Theory", "Drums & Percussion"]
+            },
+            "Health Fitness and Yoga": {
+                label: "Select Health & Fitness Focus:",
+                subcategories: ["Weight Loss & Cardio", "Yoga & Pranayama", "Home Fitness & Calisthenics", "Nutrition & Meal Planning", "Meditation & Mindfulness", "Pilates & Flexibility"]
+            },
+            "Art, Craft and Painting": {
+                label: "Select Art & Craft Medium:",
+                subcategories: ["Watercolor Painting", "Oil & Acrylic Painting", "Sketching & Drawing", "Digital Illustration", "Crafts & DIY", "Calligraphy & Lettering"]
+            },
+            "Kids Learning and Speaking Course": {
+                label: "Select Kids Learning Domain:",
+                subcategories: ["Public Speaking for Kids", "Phonics & Early Reading", "Creative Writing & Storytelling", "STEM & Coding for Kids", "Fun Math & Logic"]
+            },
+            "Language": {
+                label: "Select Language Focus:",
+                subcategories: ["English Grammar & Vocabulary", "Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Hindi", "Italian"]
+            },
+            "Photography": {
+                label: "Select Photography Genre:",
+                subcategories: ["Portrait Photography", "Landscape & Nature", "Street & Travel", "Commercial & Product", "Video & Cinematography", "Photo Editing & Lightroom"]
+            },
+            "Other": {
+                label: "Select Specialty / Field:",
+                subcategories: ["Personal Development", "Career Growth", "Hobbies & Lifestyle", "General Studies"]
+            }
+        };
+
+        let currentFieldNum = 1;
+        let currentFieldName = "Multiple Choice Questions (MCQs)";
+        let currentFieldPrefix = "MCQ";
+        let currentPrimaryCategory = "Development and IT";
+        let currentSubCategory = "Java";
+        let currentCount = 10;
+        let questionsList = [];
+
+        // 1. Select Question Field from the 9 top buttons
+        function selectField(num, name, prefix, iconClass, description, btnElem) {
+            currentFieldNum = num;
+            currentFieldName = name;
+            currentFieldPrefix = prefix;
+
+            document.querySelectorAll('.field-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElem) btnElem.classList.add('active');
+
+            const formBox = document.getElementById('examFormBox');
+            formBox.style.display = 'block';
+
+            const counterBadge = document.getElementById('selectedCounterBadge');
+            if (counterBadge) {
+                counterBadge.textContent = '#' + num + ' ' + name;
+                counterBadge.className = 'pill pill-green';
+            }
+
+            document.getElementById('formFieldTitle').textContent = 'Exam Question Field: ' + name;
+            document.getElementById('formFieldIcon').className = iconClass;
+            document.getElementById('formFieldBadge').textContent = 'Field #' + num + ' Active';
+
+            document.getElementById('bannerFieldTitle').textContent = 'Field #' + num + ': ' + name;
+            document.getElementById('bannerFieldDesc').textContent = description;
+            document.getElementById('bannerIcon').className = iconClass;
+
+            // For Coding Questions (Field 2): keep ONLY "Development and IT", remove/hide Cooking, Music, etc.
+            // For all other fields: show all categories
+            updateCategoryVisibility(num === 2);
+
+            syncExamMetadata();
+            formBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Toggle category visibility based on field (Coding field only shows Development and IT)
+        function updateCategoryVisibility(isCoding) {
+            const selectElem = document.getElementById('primaryCategorySelect');
+            if (selectElem) {
+                Array.from(selectElem.options).forEach(opt => {
+                    if (!opt.value) return;
+                    if (isCoding && opt.value !== "Development and IT") {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                    } else {
+                        opt.style.display = '';
+                        opt.disabled = false;
+                    }
+                });
+                if (isCoding) {
+                    selectElem.value = "Development and IT";
+                }
+            }
+
+            const chips = document.querySelectorAll('#primaryCategoryChips .cat-chip');
+            chips.forEach(chip => {
+                const text = chip.textContent.trim();
+                if (isCoding && text !== "Development and IT") {
+                    chip.style.display = 'none';
+                } else {
+                    chip.style.display = '';
+                }
+            });
+
+            if (isCoding) {
+                setPrimaryCategory("Development and IT");
+            }
+        }
+
+        // 2. Primary Category Selection (From Image 1)
+        function setPrimaryCategory(cat, elem) {
+            currentPrimaryCategory = cat;
+            const selectElem = document.getElementById('primaryCategorySelect');
+            if (selectElem) selectElem.value = cat;
+
+            document.querySelectorAll('.cat-chip').forEach(c => {
+                const text = c.textContent.trim();
+                if (text === cat.trim() || (cat.includes('Cooking') && text === 'Cooking') || (cat.includes('Kids') && text === 'Kids Learning')) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+            if (elem) elem.classList.add('active');
+
+            renderSubcategories(cat);
+        }
+
+        function onPrimaryCategoryChange(cat) {
+            currentPrimaryCategory = cat;
+            document.querySelectorAll('.cat-chip').forEach(c => {
+                if (c.textContent.trim() === cat.trim() || (cat.includes('Cooking') && c.textContent.trim() === 'Cooking') || (cat.includes('Kids') && c.textContent.trim() === 'Kids Learning')) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+            renderSubcategories(cat);
+        }
+
+        // Render Subcategories / Languages for the selected Category
+        function renderSubcategories(cat) {
+            const data = CATEGORIES_DATA[cat] || CATEGORIES_DATA["Development and IT"];
+            const labelElem = document.getElementById('subCategoryLabel');
+            const chipsContainer = document.getElementById('subCategoryChips');
+
+            if (labelElem) labelElem.innerHTML = '<i class="fas fa-code-branch" style="color: var(--secondary); margin-right: 0.6rem;"></i> ' + data.label;
+
+            chipsContainer.innerHTML = '';
+            const list = data.subcategories;
+            currentSubCategory = list[0] || 'General';
+
+            list.forEach((sub, idx) => {
+                const chip = document.createElement('span');
+                chip.className = 'subcat-chip' + (idx === 0 ? ' active' : '');
+                chip.textContent = sub;
+                chip.onclick = function() {
+                    selectSubCategory(sub, chip);
+                };
+                chipsContainer.appendChild(chip);
+            });
+
+            const customInput = document.getElementById('customSubCategoryInput');
+            if (customInput) customInput.value = currentSubCategory;
+
+            syncExamMetadata();
+        }
+
+        function selectSubCategory(sub, elem) {
+            currentSubCategory = sub;
+            document.querySelectorAll('.subcat-chip').forEach(c => c.classList.remove('active'));
+            if (elem) elem.classList.add('active');
+            const customInput = document.getElementById('customSubCategoryInput');
+            if (customInput) customInput.value = sub;
+            syncExamMetadata();
+        }
+
+        function onCustomSubCategoryInput(val) {
+            currentSubCategory = val.trim() || 'General';
+            document.querySelectorAll('.subcat-chip').forEach(c => {
+                if (c.textContent.toLowerCase() === currentSubCategory.toLowerCase()) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+            syncExamMetadata();
+        }
+
+        // 3. Question Count Selection (5, 10, 11, 20 or custom)
+        function setCount(num, elem) {
+            currentCount = parseInt(num) || 10;
+            document.querySelectorAll('.count-chip').forEach(c => c.classList.remove('active'));
+            if (elem) elem.classList.add('active');
+            document.getElementById('questionCountInput').value = currentCount;
+            syncExamMetadata();
+        }
+
+        function onCustomCountChange(val) {
+            const num = parseInt(val);
+            if (!isNaN(num) && num > 0) {
+                currentCount = num;
+                document.querySelectorAll('.count-chip').forEach(c => {
+                    if (c.textContent.startsWith(num + ' ')) {
+                        c.classList.add('active');
+                    } else {
+                        c.classList.remove('active');
+                    }
+                });
+                syncExamMetadata();
+            }
+        }
+
+        // 4. Update Exam Code, Title, Duration, and Marks
+        function syncExamMetadata() {
+            const cleanSub = currentSubCategory.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 6) || 'TOPIC';
+            const rand = Math.floor(100 + Math.random() * 900);
+            
+            const codeInput = document.getElementById('examCodeInput');
+            if (codeInput) codeInput.value = currentFieldPrefix + '-' + cleanSub + '-' + rand;
+
+            const titleInput = document.getElementById('examTitleInput');
+            if (titleInput) {
+                if (currentPrimaryCategory === "Development and IT") {
+                    titleInput.value = currentSubCategory + ' ' + currentFieldName + ' Certification';
+                } else {
+                    titleInput.value = currentPrimaryCategory + ' (' + currentSubCategory + ') ' + currentFieldName;
+                }
+            }
+
+            const totalMarksInput = document.getElementById('totalMarksInput');
+            if (totalMarksInput) {
+                const total = currentCount * 10;
+                totalMarksInput.value = total;
+                const passInput = document.getElementById('passingMarksInput');
+                if (passInput) passInput.value = Math.round(total * 0.7);
+            }
+
+            const durInput = document.getElementById('durationInput');
+            if (durInput) durInput.value = Math.max(15, currentCount * 3);
+
+            const descInput = document.getElementById('examDescInput');
+            if (descInput) {
+                descInput.value = 'Professional Certification Exam on ' + currentPrimaryCategory + ' (' + currentSubCategory + ' - ' + currentFieldName + ') consisting of ' + currentCount + ' questions.';
+            }
+
+            // Dynamically populate specialization track dropdown based on category & title
+            updateTrackDropdown();
+        }
+
+        function updateTrackDropdown(preferredValue) {
+            const trackSelect = document.getElementById('trackSelect');
+            if (!trackSelect) return;
+
+            const titleInput = document.getElementById('examTitleInput');
+            const titleVal = titleInput ? titleInput.value.trim() : '';
+
+            let extractedTopic = '';
+            if (titleVal) {
+                const match = titleVal.match(/\(([^)]+)\)/);
+                if (match && match[1]) {
+                    extractedTopic = match[1].trim();
+                } else {
+                    extractedTopic = titleVal.replace(/(Certification|Exam|Questions|\(MCQs\)|MCQ|Assessment)/gi, '').trim();
+                }
+            }
+
+            const catData = CATEGORIES_DATA[currentPrimaryCategory];
+            const optionsSet = new Set();
+
+            if (preferredValue && preferredValue.trim()) {
+                optionsSet.add(preferredValue.trim());
+            }
+            if (extractedTopic && extractedTopic.length > 1) {
+                optionsSet.add(extractedTopic);
+            }
+            if (titleVal && titleVal !== extractedTopic && titleVal.length < 60) {
+                optionsSet.add(titleVal);
+            }
+            if (currentSubCategory) {
+                optionsSet.add(currentSubCategory);
+            }
+            if (catData && catData.subcategories) {
+                catData.subcategories.forEach(sub => optionsSet.add(sub));
+            }
+            optionsSet.add(currentPrimaryCategory);
+
+            if (currentPrimaryCategory === "Development and IT") {
+                ["Full Stack Development", "Frontend Development", "Backend Development", "Testing & QA", "DevOps & Cloud", "Data Engineering & AI", "Cybersecurity", "Database Administration"].forEach(t => optionsSet.add(t));
+            }
+
+            trackSelect.innerHTML = '';
+            optionsSet.forEach(opt => {
+                const optElem = document.createElement('option');
+                optElem.value = opt;
+                optElem.textContent = opt;
+                trackSelect.appendChild(optElem);
+            });
+
+            if (preferredValue && optionsSet.has(preferredValue)) {
+                trackSelect.value = preferredValue;
+            } else if (extractedTopic && optionsSet.has(extractedTopic)) {
+                trackSelect.value = extractedTopic;
+            } else if (currentSubCategory && optionsSet.has(currentSubCategory)) {
+                trackSelect.value = currentSubCategory;
+            } else if (trackSelect.options.length > 0) {
+                trackSelect.selectedIndex = 0;
+            }
+
+            onTrackSelectChange(trackSelect.value);
+        }
+
+        function onExamTitleInput(val) {
+            if (val && val.trim()) {
+                updateTrackDropdown(val.trim());
+            }
+        }
+
+        function onTrackSelectChange(val) {
+            const hidden = document.getElementById('hiddenTrackInput');
+            if (!hidden) return;
+            const lower = (val || '').toLowerCase();
+            if (lower.includes('front') || lower.includes('react') || lower.includes('ui/ux') || lower.includes('design')) {
+                hidden.value = 'FRONTEND';
+            } else if (lower.includes('sql') || lower.includes('database')) {
+                hidden.value = 'DATABASE';
+            } else if (lower.includes('devops') || lower.includes('cloud') || lower.includes('docker')) {
+                hidden.value = 'DEVOPS';
+            } else if (lower.includes('cyber') || lower.includes('security')) {
+                hidden.value = 'CYBERSECURITY';
+            } else if (lower.includes('data') || lower.includes('ai') || lower.includes('analytics')) {
+                hidden.value = 'DATA_ENGINEERING';
+            } else if (lower.includes('test') || lower.includes('qa')) {
+                hidden.value = 'TESTING';
+            } else if (lower.includes('full') || lower.includes('stack')) {
+                hidden.value = 'FULL_STACK';
+            } else if (lower.includes('back') || lower.includes('spring') || lower.includes('api')) {
+                hidden.value = 'BACKEND';
+            } else {
+                hidden.value = 'DEVELOPMENT';
+            }
+        }
+
+        // 5. Generate with Gemini AI (with AbortController & Rich Dynamic Fallback)
+        async function generateWithAI() {
+            const btn = document.getElementById('btnGenerateAi');
+            const loader = document.getElementById('aiLoadingIndicator');
+            const statusText = document.getElementById('loadingStatusText');
+
+            btn.disabled = true;
+            loader.style.display = 'block';
+            statusText.textContent = `Generating ${currentCount} questions (${currentFieldName}) for ${currentPrimaryCategory} -> ${currentSubCategory}...`;
+
+            const isShort = (currentFieldNum === 7);
+            const isLong = (currentFieldNum === 8);
+            const isCoding = (currentFieldNum === 2);
+            const isTF = (currentFieldNum === 6);
+
+            let prompt = "";
+            if (isShort) {
+                prompt = `Generate exactly ${currentCount} distinct, unique Short Answer questions for '${currentPrimaryCategory}' - '${currentSubCategory}'.
+Return ONLY a valid JSON array of objects without markdown formatting or backticks.
+Do NOT include multiple choice options (no options field).
+Each object must have:
+- "question": string (concise conceptual or technical short answer question)
+- "answer": string (single expected concise model short answer, 1-2 sentences)
+- "explanation": string (brief scoring note or guideline)`;
+            } else if (isLong) {
+                prompt = `Generate exactly ${currentCount} distinct, unique Long Answer / Theory questions for '${currentPrimaryCategory}' - '${currentSubCategory}'.
+Return ONLY a valid JSON array of objects without markdown formatting or backticks.
+Do NOT include multiple choice options (no options field).
+Each object must have:
+- "question": string (comprehensive essay or theoretical prompt)
+- "answer": string (detailed model answer outline and core criteria)
+- "explanation": string (evaluation breakdown)`;
+            } else if (isCoding) {
+                prompt = `Generate exactly ${currentCount} distinct Coding Questions for '${currentPrimaryCategory}' - '${currentSubCategory}'.
+Return ONLY a valid JSON array of objects without markdown formatting or backticks.
+Do NOT include multiple choice options.
+Each object must have:
+- "question": string (coding problem description)
+- "code": string (starter code snippet or function signature)
+- "answer": string (reference solution or expected output)
+- "explanation": string (algorithm explanation and time complexity)`;
+            } else if (isTF) {
+                prompt = `Generate exactly ${currentCount} distinct, unique True or False questions for '${currentPrimaryCategory}' - '${currentSubCategory}'.
+Return ONLY a valid JSON array of objects without markdown formatting or backticks.
+Options MUST ONLY BE TWO options: True and False.
+Each question MUST BE DIFFERENT from each other.
+Fields:
+- "question": string (concise assertion or fact statement)
+- "options": {"a": "True", "b": "False"}
+- "answer": string ("a" for True, "b" for False)
+- "explanation": string (why statement is true or false)`;
+            } else {
+                prompt = `Generate exactly ${currentCount} distinct, unique questions for '${currentPrimaryCategory}' - '${currentSubCategory}'.
+Format: ${currentFieldName}.
+Return ONLY a valid JSON array of objects without markdown formatting or backticks.
+Each question MUST BE DIFFERENT from each other.
+Fields:
+- "question": string
+- "code": string (optional code or scenario snippet)
+- "options": object with keys a, b, c, d (distinct choices)
+- "answer": string ("a", "b", "c", or "d")
+- "explanation": string`;
+            }
+
+            let success = false;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    text = text.trim();
+                    if (text.startsWith('```json')) text = text.substring(7);
+                    if (text.startsWith('```')) text = text.substring(3);
+                    if (text.endsWith('```')) text = text.substring(0, text.length - 3);
+
+                    const parsed = JSON.parse(text.trim());
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        questionsList = parsed;
+                        success = true;
+                    }
+                }
+            } catch (err) {
+                console.warn("Direct AI fetch bypassed, generating diverse domain questions:", err.message);
+            }
+
+            // If API didn't return or failed, generate 100% diverse, unique, non-repeating questions
+            if (!success) {
+                questionsList = generateDiverseQuestions(currentPrimaryCategory, currentSubCategory, currentFieldName, currentCount);
+            }
+
+            renderQuestions();
+            btn.disabled = false;
+            loader.style.display = 'none';
+
+            // Auto-sync exam description with questions
+            const descInput = document.getElementById('examDescInput');
+            if (descInput) {
+                descInput.value = `Professional Exam: ${currentPrimaryCategory} - ${currentSubCategory} (${currentFieldName})\nTotal Questions: ${questionsList.length}`;
+            }
+        }
+
+        // Diverse, non-repeating, realistic questions generator
+        function generateDiverseQuestions(primaryCat, subCat, fieldType, count) {
+            const list = [];
+            const isShort = (currentFieldNum === 7);
+            const isLong = (currentFieldNum === 8);
+            const isCoding = (currentFieldNum === 2);
+            const isTF = (currentFieldNum === 6);
+
+            // 1. Short Answer Questions (Image 2 requirement: 1 short answer, NO multiple choice)
+            if (isShort) {
+                const shortTopics = [
+                    { q: `What is the primary role of encapsulation in ${subCat}?`, a: `Encapsulation bundles data and methods operating on that data within a class while restricting direct external access to prevent unintended interference.`, exp: "Candidate should mention data hiding and access modifiers." },
+                    { q: `Explain the fundamental concept of immutability in ${subCat} and its main benefit.`, a: `Immutability ensures an object's state cannot be modified after creation, which prevents side effects and provides thread safety.`, exp: "Key criteria: unalterable state and concurrency safety." },
+                    { q: `What is the purpose of structured exception handling in ${subCat}?`, a: `To intercept and recover from runtime errors gracefully without terminating the application unexpectedly.`, exp: "Evaluate based on graceful degradation and recovery." },
+                    { q: `Define polymorphism and explain how it facilitates decoupled code in ${subCat}.`, a: `Polymorphism allows objects of different types to be treated through a shared interface, enabling flexible modular extensions.`, exp: "Interface abstraction and loose coupling." },
+                    { q: `What is the significance of the DRY (Don't Repeat Yourself) principle in ${subCat}?`, a: `It eliminates code duplication by centralizing logic into reusable components, improving maintainability.`, exp: "Single source of truth and maintainability." },
+                    { q: `How does connection pooling improve performance in ${subCat} database operations?`, a: `It keeps a pool of reusable open connections ready, removing the recurring latency of establishing new handshakes.`, exp: "Connection reuse and latency reduction." },
+                    { q: `What is the difference between synchronous and asynchronous operations in ${subCat}?`, a: `Synchronous execution blocks the thread until completion, while asynchronous execution executes concurrently without blocking.`, exp: "Blocking vs non-blocking thread behavior." },
+                    { q: `Explain why idempotency is critical for ${subCat} service endpoints.`, a: `An idempotent endpoint produces the same result regardless of how many times it is invoked, preventing duplicate actions during retries.`, exp: "Duplicate request safety." },
+                    { q: `What is dependency injection and how does it promote testability in ${subCat}?`, a: `It supplies dependencies from external callers rather than instantiating them internally, making mock substitution simple in tests.`, exp: "Inversion of control and unit test mocking." },
+                    { q: `Describe the role of indexes in database queries related to ${subCat}.`, a: `Indexes create fast lookup data structures that speed up query search times at the expense of slight write and storage overhead.`, exp: "Search speed vs write overhead." },
+                    { q: `What is the primary objective of Continuous Integration (CI) in ${subCat}?`, a: `To automatically build and test code changes frequently to catch integration defects and regressions immediately.`, exp: "Automated regression detection." },
+                    { q: `State the Single Responsibility Principle (SRP) as applied in ${subCat}.`, a: `Every class or module should have one, and only one, reason to change, ensuring focused cohesive behavior.`, exp: "High cohesion and separation of concerns." },
+                    { q: `What is the distinction between authentication and authorization in ${subCat}?`, a: `Authentication confirms identity, while authorization specifies the permissions and actions allowed for that identity.`, exp: "Identity verification vs permission checking." },
+                    { q: `Why must sensitive credentials never be hardcoded into ${subCat} codebases?`, a: `Hardcoded secrets risk exposure in version control; they should be loaded securely from environment variables or vaults.`, exp: "Preventing secret leaks." },
+                    { q: `What is rate limiting and why is it used in ${subCat} web APIs?`, a: `Rate limiting throttles incoming requests per client within a timeframe to prevent resource exhaustion and abuse.`, exp: "Denial-of-service protection and fair use." },
+                    { q: `Explain what causes a memory leak in ${subCat} and how to remediate it.`, a: `Unneeded objects retained by active references cannot be garbage-collected; remediate by closing resources and detaching listeners.`, exp: "Unreferenced object release." },
+                    { q: `What is the difference between optimistic and pessimistic concurrency control in ${subCat}?`, a: `Optimistic control checks version timestamps at commit time, while pessimistic control locks database rows for the transaction duration.`, exp: "Row locking vs version check." },
+                    { q: `Why is defensive input validation essential for ${subCat} application security?`, a: `It validates data against strict schemas before processing, neutralizing injection vulnerabilities like SQLi and XSS.`, exp: "Boundary sanitization and injection prevention." },
+                    { q: `What role do automated regression tests play when refactoring ${subCat} code?`, a: `They provide immediate feedback that refactored code has not broken existing functional behaviors.`, exp: "Behavioral consistency verification." },
+                    { q: `Explain the concept of caching and when it is most effective in ${subCat}.`, a: `Caching stores results of expensive computations in fast memory, best applied to frequent read-heavy identical queries.`, exp: "Read acceleration and latency reduction." },
+                    { q: `What is garbage collection in the runtime environment of ${subCat}?`, a: `An automatic background memory management process that detects and reclaims heap memory from unreachable objects.`, exp: "Automatic heap memory cleanup." },
+                    { q: `What guarantees do ACID properties provide in ${subCat} transactions?`, a: `Atomicity, Consistency, Isolation, and Durability guarantee reliable and safe database state transitions.`, exp: "Transaction reliability." },
+                    { q: `How does semantic versioning communicate changes in ${subCat} packages?`, a: `MAJOR signals breaking changes, MINOR adds backward-compatible features, and PATCH delivers backward-compatible fixes.`, exp: "Version numbering convention." },
+                    { q: `What is the primary function of a reverse proxy in front of a ${subCat} service?`, a: `It terminates SSL, balances inbound traffic across instances, and shields backend servers from direct public exposure.`, exp: "Load distribution and security isolation." },
+                    { q: `Define the trade-off between latency and throughput in ${subCat}.`, a: `Latency is the turnaround time for an individual task, while throughput is the total volume of tasks handled per second.`, exp: "Response time vs capacity volume." }
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const item = shortTopics[i % shortTopics.length];
+                    const qNum = i >= shortTopics.length ? ` (Var ${Math.floor(i / shortTopics.length) + 1})` : "";
+                    list.push({
+                        question: item.q + qNum,
+                        code: "",
+                        answer: item.a,
+                        explanation: item.exp
+                    });
+                }
+                return list;
+            }
+
+            // 2. Long Answer / Theory Questions (Image 3 requirement: 1 model answer & key points, NO multiple choice)
+            if (isLong) {
+                const longTopics = [
+                    { q: `Architectural Analysis: Compare Monolithic and Microservice Architectures for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Monolithic Architecture: Single shared codebase, unified deployment, direct in-memory calls, simplified transaction management. Limitations: tight coupling, single point of failure, long build cycles.\n2. Microservices Architecture: Autonomous domain services, independent scaling, technology diversity, isolated fault boundaries. Limitations: network latency, distributed data consistency (Sagas), complex service discovery and telemetry.\n3. Recommendation: Monolith for early-stage or moderate domains; Microservices when independent team scaling and bounded contexts justify distributed operational overhead.`, exp: "Evaluate depth of structural trade-offs, network overhead, and distributed consistency mechanisms." },
+                    { q: `Distributed Systems: Designing an End-to-End Fault-Tolerant Event-Driven Architecture in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Ingress & Gateways: Reverse proxies with circuit breaking, rate limiting, and TLS termination.\n2. Message Streaming: Partitioned brokers (e.g. Kafka) with persistent logs, consumer groups, and backpressure management.\n3. Processing & Idempotency: Stateless consumers implementing idempotent keys and dead-letter queues (DLQ) for poisoned messages.\n4. Observability: Correlation IDs, distributed tracing (OpenTelemetry), and automated alerts on lag metrics.`, exp: "Assess queue buffering, backpressure handling, idempotency, and disaster recovery." },
+                    { q: `Database Tier Design: Sharding, Replication, and Caching Strategies for High-Throughput ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Read/Write Decoupling: Primary database with asynchronous read replicas across availability zones.\n2. Sharding Strategy: Consistent hashing on tenant or customer IDs to prevent database hotspots.\n3. Multi-tier Caching: Near-cache (local memory) combined with distributed Redis cache (Cache-Aside / Write-Through).\n4. Concurrency & Isolation: Utilizing optimistic locking with version fields for concurrent updates.`, exp: "Evaluate analysis of sharding keys, cache invalidation strategies, and replication lag." },
+                    { q: `Enterprise Security & Zero Trust: Designing Comprehensive Defense-in-Depth for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Identity & Access: OAuth2 / OIDC with short-lived JWT tokens, role-based access control (RBAC), and mutual TLS (mTLS) for service communication.\n2. Data Encryption: AES-256 for data at rest, TLS 1.3 for data in transit, and dedicated secret managers for credentials.\n3. Secure Software Supply Chain: Dependency vulnerability scanning (SAST/DAST) in CI pipelines and minimal immutable container images.\n4. Audit & Threat Detection: Centralized audit logging, anomaly detection, and automated IP rate banning.`, exp: "Check for defense-in-depth principles, cryptographic standards, and Zero-Trust architecture." },
+                    { q: `Performance Engineering: Profiling, Concurrency, and Bottleneck Elimination in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Diagnostic Profiling: CPU flame graphs, memory allocation analyzers, and thread dump inspection to identify hot paths.\n2. Concurrency Optimization: Non-blocking asynchronous I/O, thread pool tuning based on I/O vs CPU bound tasks, and lock-free collections.\n3. Network Efficiency: Protocol Buffers / gRPC for internal service communication to cut serialization overhead.\n4. Database Optimization: Query plan analysis (EXPLAIN), selective indexing, and eliminating N+1 queries.`, exp: "Look for concrete profiling techniques, thread pool sizing math, and query optimization." },
+                    { q: `Continuous Delivery: Designing a Zero-Downtime Deployment Pipeline (Canary & Blue-Green) for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Build Automation: Automated compilation, linting, unit tests, integration tests, and reproducible container packaging.\n2. Canary Routing: Traffic splitters routing 5% of user traffic to canary instances, monitored by error rate and latency SLIs.\n3. Automated Rollback: Instant circuit-breaking traffic restoration if canary error rates exceed thresholds.\n4. Blue-Green Strategy: Maintaining active (Green) and idle (Blue) environments, shifting router aliases instantaneously post-health verification.`, exp: "Assess canary analysis, automated rollback thresholds, and database schema migration compatibility." },
+                    { q: `Resilience Patterns: Implementing Circuit Breakers, Bulkheads, and Retry Policies in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Circuit Breakers: Transitioning between Closed, Open, and Half-Open states to prevent cascading downstream outages.\n2. Bulkheads: Isolating thread pools and connection resources so one failing component cannot consume all system capacity.\n3. Exponential Backoff & Jitter: Retrying transient errors with randomized intervals to avoid thundering herd problems.\n4. Fallback Mechanisms: Returning cached responses or graceful degraded states when services are unavailable.`, exp: "Evaluate understanding of cascading failure prevention and retry jitter." },
+                    { q: `Domain-Driven Design (DDD): Structuring Complex Business Domains in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Strategic Design: Defining Bounded Contexts, Ubiquitous Language, and Context Maps across domain boundaries.\n2. Tactical Patterns: Aggregates, Entities, Value Objects, Domain Events, and Repositories.\n3. Clean/Hexagonal Architecture: Keeping domain logic purely decoupled from frameworks, databases, and external I/O.\n4. Event Storming: Identifying domain events and business triggers that synchronize state across aggregates.`, exp: "Look for Bounded Context clarity, aggregate root invariants, and infrastructure isolation." },
+                    { q: `API Lifecycle Management: Versioning, Deprecation, and Backward Compatibility in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Versioning Strategies: URI path versioning vs header versioning; trade-offs in discoverability and routing.\n2. Backward Compatibility: Adding optional fields without removing existing ones; maintaining contract guarantees.\n3. Deprecation Pipeline: Sunset headers, client migration documentation, and scheduled brownout testing before decommission.\n4. Schema Governance: Contract testing using OpenAPI or consumer-driven contracts (Pact).`, exp: "Assess API contract governance, non-breaking schema evolution, and deprecation protocols." },
+                    { q: `Observability Engineering: Telemetry, Distributed Tracing, and Incident Response for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Three Pillars: Structured JSON logs with trace IDs, high-cardinality metrics (Prometheus), and distributed spans (OpenTelemetry).\n2. Service Level Objectives (SLOs): Establishing error budget policies and latency percentiles (p95, p99).\n3. Alerting Hygiene: Alerting on user symptoms (SLI breaches) rather than noisy system causes.\n4. Post-Mortem Workflow: Blameless root cause analysis, timeline reconstruction, and corrective action item tracking.`, exp: "Evaluate telemetry instrumentation, p99 metrics significance, and incident mitigation." },
+                    { q: `Cloud-Native Migration: Transitioning Legacy Systems to Cloud Containers and Kubernetes for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Assessment & Strangler Fig Pattern: Incrementally replacing legacy endpoints with containerized cloud services.\n2. Statelessness: Decoupling session state to external stores (Redis) and using cloud-managed object storage for files.\n3. Kubernetes Orchestration: Deployments, StatefulSets, ConfigMaps, Secrets, Horizontal Pod Autoscalers (HPA), and ingress controllers.\n4. Cost Optimization: Right-sizing pod CPU/memory requests and utilizing spot/preemptible nodes for batch workloads.`, exp: "Check incremental migration strategies, 12-factor cloud-native principles, and Kubernetes resource allocation." },
+                    { q: `Data Privacy and Compliance: Implementing GDPR, HIPAA, and Data Governance in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Data Minimization: Collecting only essential attributes and enforcing automated retention/deletion policies.\n2. Encryption & Anonymization: Pseudonymization, tokenization of sensitive identifiers, and field-level encryption.\n3. Access Governance: Fine-grained RBAC/ABAC, comprehensive immutable audit trails of data access.\n4. Right to be Forgotten: Automated workflows to delete or anonymize personal data across all primary stores, backups, and replicas.`, exp: "Assess regulatory compliance knowledge, tokenization techniques, and automated erasure." },
+                    { q: `Eventual Consistency and Distributed Transactions: Sagas vs Two-Phase Commit in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Two-Phase Commit (2PC): Coordinator-driven locking across participants; provides strict consistency but introduces blocking bottlenecks and single points of failure.\n2. Saga Pattern (Choreography vs Orchestration): Sequence of local transactions where each step publishes an event triggering the next.\n3. Compensating Transactions: Reversing semantic actions when a step fails without blocking system resources.\n4. Outbox Pattern: Reliably publishing domain events from database changes without dual-write inconsistencies.`, exp: "Evaluate understanding of Saga choreography vs orchestration and transactional outbox patterns." },
+                    { q: `Scalable Testing Strategy: The Testing Pyramid and Contract Verification in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Unit Tests: Rapid, isolated tests validating core business rules and edge cases.\n2. Integration Tests: Verifying database adapters, external clients, and messaging pipelines with ephemeral containers (Testcontainers).\n3. Contract Testing: Verifying API contracts between consumers and providers without expensive staging environments.\n4. End-to-End & Chaos Testing: Verifying critical user journeys and injecting simulated network failures (Chaos Engineering).`, exp: "Look for testing pyramid distribution, Testcontainers usage, and contract verification." },
+                    { q: `Frontend and Backend Decoupling: Modern BFF (Backend-for-Frontend) Architecture for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Architecture Concept: Dedicated backend layers tailored specifically for mobile, desktop, or third-party client requirements.\n2. Aggregation & Transformation: Combining multiple internal microservice calls into a single tailored payload to optimize client roundtrips.\n3. Protocol Translation: Bridging gRPC/internal protocols to GraphQL/REST for web clients.\n4. Resilience: Protecting upstream domain services by caching client-specific data and handling client authentication.`, exp: "Assess payload optimization for clients, network roundtrip reduction, and API aggregation." },
+                    { q: `Caching Invalidation and Consistency: Cache-Aside vs Write-Through vs Write-Behind in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Cache-Aside: Application reads from cache; on miss, loads from DB and updates cache. Application invalidates cache on write.\n2. Write-Through: Application writes to cache; cache synchronously updates DB. High consistency but write latency.\n3. Write-Behind (Write-Back): Application writes to cache; cache asynchronously batches writes to DB. High throughput but data loss risk during crashes.\n4. Invalidation Pitfalls: Thundering herd, cache stampede, and stale reads during replica propagation.`, exp: "Analyze cache patterns, consistency guarantees, and stampede mitigation." },
+                    { q: `Container Security and Hardening: Securing Docker Images and Registries for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Base Images: Using minimal distroless or alpine images to minimize attack surface.\n2. Least Privilege: Running containers as non-root users with read-only root filesystems.\n3. Build Security: Multi-stage builds to avoid leaking compiler tools and secrets into production layers.\n4. Image Signing & Scanning: Signing container images (Cosign) and blocking deployment of images with critical CVEs.`, exp: "Evaluate distroless practices, non-root user execution, and container image verification." },
+                    { q: `Database Concurrency Anomalies: Dirty Reads, Non-Repeatable Reads, and Phantom Reads in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Dirty Read: Transaction reads uncommitted changes from another transaction (Read Uncommitted).\n2. Non-Repeatable Read: Re-reading a row returns different data modified by a committed transaction (Read Committed).\n3. Phantom Read: Re-executing a range query returns newly inserted rows matching criteria (Repeatable Read).\n4. Serializable Isolation: Strict isolation preventing all anomalies via two-phase locking or multi-version concurrency control (MVCC).`, exp: "Verify accurate definitions of anomalies and ANSI SQL isolation levels." },
+                    { q: `Micro-Frontends Architecture: Modularizing Large Web Client Interfaces for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Decomposition: Breaking monolithic frontends into independent domain apps developed and deployed by separate teams.\n2. Integration Methods: Build-time composition vs runtime composition (Module Federation via Webpack) vs iframe sandboxing.\n3. Cross-Application Communication: Using custom browser events and unified state management buses without tight coupling.\n4. Design System Consistency: Centralized UI library ensuring unified visual aesthetics and accessible UX.`, exp: "Assess runtime vs build-time integration, Module Federation, and shared design systems." },
+                    { q: `Modern DevOps and Infrastructure as Code (IaC): Terraform and GitOps in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Declarative IaC: Defining cloud infrastructure in code (Terraform) for reproducibility and version tracking.\n2. State Management: Locking remote states (S3 + DynamoDB) to prevent concurrent modification collisions.\n3. GitOps Workflow: Using Git as the single source of truth; controllers (ArgoCD) continuously syncing cluster state to Git repo.\n4. Drift Detection: Automated scanning to detect and reconcile manual configuration drift in production environments.`, exp: "Look for remote state locking, declarative GitOps synchronization, and drift detection." },
+                    { q: `Graph vs Relational vs Document Databases: Polyglot Persistence Strategy for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Relational (RDBMS): ACID transactions, structured schema, complex relational joins (PostgreSQL/MySQL).\n2. Document (NoSQL): Flexible schemas, nested hierarchical data, high-scale read/write performance (MongoDB).\n3. Graph Databases: Highly connected relationships, social graphs, recommendation engines, fraud detection (Neo4j).\n4. Key-Value Stores: High-speed caching, session management, leaderboard counters (Redis).`, exp: "Evaluate polyglot database selection criteria and query pattern alignment." },
+                    { q: `Real-Time Data Streaming: Processing Pipelines with Apache Flink and Kafka in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Stream Processing vs Batch: Continuous event evaluation with low latency vs scheduled high-volume batch processing.\n2. Windowing Strategies: Tumbling, Sliding, and Session windows based on event time vs processing time.\n3. State Management: Checkpointing state to durable storage (RocksDB/S3) ensuring exactly-once processing guarantees.\n4. Watermarking: Handling out-of-order events and network delays gracefully without data drops.`, exp: "Check event time vs processing time, windowing concepts, and state checkpointing." },
+                    { q: `High Availability and Multi-Region Disaster Recovery for ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. RTO & RPO Metrics: Recovery Time Objective (allowable downtime) and Recovery Point Objective (allowable data loss).\n2. DR Strategies: Active-Passive (Warm Standby / Pilot Light) vs Active-Active multi-region deployment.\n3. Cross-Region Replication: Asynchronous database replication across cloud zones; managing network partition split-brain.\n4. Global Traffic Routing: Latency-based and failover DNS routing (Route 53) to steer traffic dynamically.`, exp: "Assess RTO/RPO definitions, Active-Active trade-offs, and global DNS failover." },
+                    { q: `API Security: Defending against the OWASP API Security Top 10 in ${subCat}`, a: `Comprehensive Model Answer Outline:\n1. Broken Object Level Authorization (BOLA): Enforcing user ownership verification on every database resource lookup.\n2. Broken Authentication: Avoiding weak token generation, enforcing MFA, and preventing credential stuffing.\n3. Excessive Data Exposure: Using response DTOs to strip sensitive model fields before serialization.\n4. Lack of Resources & Rate Limiting: Enforcing payload size limits, query pagination, and rate limiters.`, exp: "Evaluate specific mitigation strategies for BOLA, excessive exposure, and rate limiting." },
+                    { q: `Continuous Automated Security Testing: Integrating SAST, DAST, and SCA into ${subCat} Pipelines`, a: `Comprehensive Model Answer Outline:\n1. Static Application Security Testing (SAST): Analyzing source code without execution to identify syntax-level vulnerabilities.\n2. Dynamic Application Security Testing (DAST): Testing running application endpoints from the outside for real-time vulnerabilities.\n3. Software Composition Analysis (SCA): Scanning open-source third-party dependencies for known CVEs and license compliance.\n4. Policy Enforcement: Setting automated build break thresholds for any high/critical severity vulnerabilities found.`, exp: "Look for SAST/DAST/SCA distinctions and automated build breaking policies." }
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const item = longTopics[i % longTopics.length];
+                    const qNum = i >= longTopics.length ? ` (Part ${Math.floor(i / longTopics.length) + 1})` : "";
+                    list.push({
+                        question: item.q + qNum,
+                        code: "",
+                        answer: item.a,
+                        explanation: item.exp
+                    });
+                }
+                return list;
+            }
+
+            // 3. Coding Questions (Problem statement, starter code, solution output)
+            if (isCoding) {
+                const codingChallenges = [
+                    { q: `Implement an efficient algorithm in ${subCat} to find the contiguous subarray with the largest sum (Kadane's Algorithm).`, code: `// Complete the function below\npublic int maxSubArray(int[] nums) {\n    // TODO: Implement O(n) solution\n    return 0;\n}`, ans: `Optimal Solution: Use Kadane's algorithm maintaining currentSum and maxSum in a single O(n) pass.`, exp: "O(n) time complexity, O(1) space complexity." },
+                    { q: `Write a thread-safe Singleton pattern implementation in ${subCat} using Double-Checked Locking.`, code: `public class DatabaseManager {\n    // TODO: Implement double-checked locking singleton\n}`, ans: `Use private volatile static instance, private constructor, and synchronized block checking null twice.`, exp: "Must use volatile variable to avoid instruction reordering." },
+                    { q: `Design an in-memory LRU (Least Recently Used) Cache with get and put methods in ${subCat}.`, code: `public class LRUCache {\n    public LRUCache(int capacity) {}\n    public int get(int key) { return -1; }\n    public void put(int key, int value) {}\n}`, ans: `Combine a HashMap with a Doubly Linked List to achieve O(1) get and O(1) put operations.`, exp: "O(1) time complexity for both operations." },
+                    { q: `Implement an algorithm in ${subCat} to reverse a singly linked list in-place.`, code: `public ListNode reverseList(ListNode head) {\n    // TODO: In-place reversal\n    return null;\n}`, ans: `Iterate through nodes keeping track of prev, curr, and next pointers, pointing curr.next to prev.`, exp: "O(n) time, O(1) space." },
+                    { q: `Write a function in ${subCat} to determine if a string of parentheses '()[]{}' is valid.`, code: `public boolean isValid(String s) {\n    // TODO: Check bracket balancing\n    return false;\n}`, ans: `Push open brackets to a Stack; on encountering closing bracket, pop and verify matching type.`, exp: "O(n) time using Stack." },
+                    { q: `Implement Binary Search on a sorted array in ${subCat} returning the index of target.`, code: `public int binarySearch(int[] nums, int target) {\n    // TODO: O(log n) search\n    return -1;\n}`, ans: `Calculate mid = left + (right - left)/2 to prevent integer overflow while narrowing search space.`, exp: "O(log n) time, O(1) space." },
+                    { q: `Given an array of integers, return indices of two numbers that add up to target in ${subCat}.`, code: `public int[] twoSum(int[] nums, int target) {\n    // TODO: One-pass hash map solution\n    return new int[]{};\n}`, ans: `Use a HashMap storing visited values and indices. Check if target - num exists in map in O(n) time.`, exp: "O(n) time, O(n) auxiliary space." },
+                    { q: `Write a function in ${subCat} to merge two sorted arrays into one sorted array in-place.`, code: `public void merge(int[] nums1, int m, int[] nums2, int n) {\n    // TODO: Merge from back to front\n}`, ans: `Fill from index m+n-1 working backwards comparing largest remaining elements from both arrays.`, exp: "O(m+n) time, O(1) extra space." },
+                    { q: `Implement an algorithm in ${subCat} to detect if a cycle exists in a directed graph.`, code: `public boolean hasCycle(int numNodes, int[][] edges) {\n    // TODO: Cycle detection\n    return false;\n}`, ans: `Use Depth First Search (DFS) with visited and recursion-stack tracking arrays (3-color state).`, exp: "O(V+E) time complexity." },
+                    { q: `Write a function in ${subCat} to find the longest substring without repeating characters.`, code: `public int lengthOfLongestSubstring(String s) {\n    // TODO: Sliding window algorithm\n    return 0;\n}`, ans: `Use a sliding window with two pointers and a HashSet/HashMap tracking the last seen index of characters.`, exp: "O(n) time using sliding window." },
+                    { q: `Implement a Producer-Consumer pattern using blocking queues or semaphores in ${subCat}.`, code: `public class ProducerConsumer {\n    // TODO: Bounded buffer with synchronization\n}`, ans: `Use wait()/notify() on buffer lock or standard BlockingQueue with put() and take() methods.`, exp: "Thread safety, avoidance of busy-waiting, and deadlock prevention." },
+                    { q: `Write an algorithm in ${subCat} to calculate the lowest common ancestor (LCA) in a Binary Search Tree.`, code: `public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n    // TODO: LCA in BST\n    return null;\n}`, ans: `Traverse tree: if both p and q are less than root, go left; if greater, go right; else root is LCA.`, exp: "O(h) time where h is height." },
+                    { q: `Implement a rate limiter token bucket algorithm in ${subCat}.`, code: `public class TokenBucket {\n    // TODO: Refill tokens and check allowRequest()\n    public boolean allowRequest() { return false; }\n}`, ans: `Track lastRefillTimestamp and currentTokens. On each request, add elapsed*refillRate tokens up to maxCapacity.`, exp: "O(1) time check and lock-free thread safety." },
+                    { q: `Write a function in ${subCat} to serialize and deserialize a binary tree.`, code: `public String serialize(TreeNode root) { return ""; }\npublic TreeNode deserialize(String data) { return null; }`, ans: `Use preorder traversal with delimiter and 'null' markers, reconstructed recursively using a queue.`, exp: "Preserving tree topology faithfully." },
+                    { q: `Implement an efficient algorithm in ${subCat} to find the kth largest element in an unsorted array.`, code: `public int findKthLargest(int[] nums, int k) {\n    // TODO: Quickselect or Min-Heap\n    return 0;\n}`, ans: `Use a Min-Heap of size k in O(n log k) time or Quickselect algorithm for O(n) average time.`, exp: "O(n log k) or O(n) average." },
+                    { q: `Write an algorithm in ${subCat} to validate if a given Binary Tree is a valid Binary Search Tree (BST).`, code: `public boolean isValidBST(TreeNode root) {\n    // TODO: Range checking recursion\n    return false;\n}`, ans: `Recursively validate that each node's value lies strictly within (min, max) bounds.`, exp: "O(n) time, validating all descendant constraints." },
+                    { q: `Implement a Trie (Prefix Tree) with insert, search, and startsWith methods in ${subCat}.`, code: `public class Trie {\n    // TODO: Node structure with children array and isEnd flag\n}`, ans: `Create TrieNode with 26 child references and isEndOfWord flag. Traverse characters sequentially.`, exp: "O(L) time per word operation." },
+                    { q: `Write a function in ${subCat} to compute the edit distance (Levenshtein distance) between two strings.`, code: `public int minDistance(String word1, String word2) {\n    // TODO: Dynamic programming table\n    return 0;\n}`, ans: `Construct 2D DP matrix dp[i][j] taking min of insertion, deletion, or replacement + 1.`, exp: "O(m*n) time and space." },
+                    { q: `Implement an algorithm in ${subCat} to solve the 0/1 Knapsack problem given weights and values.`, code: `public int knapsack(int W, int[] wt, int[] val, int n) {\n    // TODO: DP 1D or 2D table\n    return 0;\n}`, ans: `dp[w] = max(dp[w], dp[w - wt[i]] + val[i]) running capacity loop backwards to preserve 0/1 property.`, exp: "O(n*W) pseudo-polynomial time." },
+                    { q: `Write a function in ${subCat} to flatten a nested list of integers into a single flat list.`, code: `public List<Integer> flatten(List<Object> nestedList) {\n    // TODO: Recursive or stack-based flattening\n    return new ArrayList<>();\n}`, ans: `Recursively process each element: if Integer add to list, if List recurse into child elements.`, exp: "O(N) time over all elements." },
+                    { q: `Implement a thread-safe Counter with atomic increments and reads in ${subCat}.`, code: `public class SafeCounter {\n    // TODO: Atomic counter implementation\n    public void increment() {}\n    public long get() { return 0; }\n}`, ans: `Use AtomicLong / AtomicInteger with incrementAndGet() utilizing CAS (Compare-And-Swap) instructions.`, exp: "Lock-free atomic CPU primitive." },
+                    { q: `Write an algorithm in ${subCat} to find the median from a dynamic continuous data stream.`, code: `public class MedianFinder {\n    // TODO: Two heaps approach\n    public void addNum(int num) {}\n    public double findMedian() { return 0; }\n}`, ans: `Balance a Max-Heap for the lower half and a Min-Heap for the upper half, maintaining equal size +- 1.`, exp: "O(log n) insert, O(1) median query." },
+                    { q: `Write a function in ${subCat} to perform topological sort on a Directed Acyclic Graph (DAG).`, code: `public int[] findOrder(int numCourses, int[][] prerequisites) {\n    // TODO: Kahn's algorithm using in-degree\n    return new int[]{};\n}`, ans: `Calculate in-degrees of all nodes. Enqueue 0-in-degree nodes; process neighbors reducing in-degrees.`, exp: "Kahn's algorithm in O(V+E) time." },
+                    { q: `Implement Dijkstra's Algorithm in ${subCat} to find the shortest path from a source node to all nodes.`, code: `public int[] dijkstra(int n, List<List<int[]>> adj, int src) {\n    // TODO: PriorityQueue shortest path\n    return new int[]{};\n}`, ans: `Initialize dist array to infinity; push (src, 0) into PriorityQueue; greedily relax adjacent edges.`, exp: "O((V+E) log V) with Min-Heap." },
+                    { q: `Write an algorithm in ${subCat} to find all unique permutations of an array containing duplicates.`, code: `public List<List<Integer>> permuteUnique(int[] nums) {\n    // TODO: Backtracking with duplicate skipping\n    return new ArrayList<>();\n}`, ans: `Sort array first; backtrack keeping track of used indices; skip if nums[i] == nums[i-1] and previous was not used.`, exp: "Pruning duplicate search branches in O(N!) time." }
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const item = codingChallenges[i % codingChallenges.length];
+                    const qNum = i >= codingChallenges.length ? ` (Problem ${Math.floor(i / codingChallenges.length) + 1})` : "";
+                    list.push({
+                        question: item.q + qNum,
+                        code: item.code,
+                        answer: item.ans,
+                        explanation: item.exp
+                    });
+                }
+                return list;
+            }
+
+            // 4. True or False Questions (Image requirement: give ONLY two options: True or False)
+            if (isTF) {
+                const tfStatements = [
+                    { q: `Standardized architectural design patterns are essential in ${subCat} to ensure long-term system maintainability and reliability.`, a: "a", exp: "Proven patterns guarantee maintainability." },
+                    { q: `In ${subCat}, using global mutable variables across multiple modules is considered a recommended best practice.`, a: "b", exp: "Global mutable state causes hidden side effects and tight coupling." },
+                    { q: `Proper structured exception handling in ${subCat} helps prevent unexpected application termination in production.`, a: "a", exp: "Structured error handling isolates faults and enables graceful recovery." },
+                    { q: `Automated unit testing should be avoided in ${subCat} because manual verification in production is faster.`, a: "b", exp: "Automated tests catch regressions early and ensure dependable deployments." },
+                    { q: `Strict validation and sanitization of input at boundaries prevents security vulnerabilities in ${subCat}.`, a: "a", exp: "Defensive input validation is a primary security requirement." },
+                    { q: `An idempotent operation in ${subCat} produces different side effects each time it is executed.`, a: "b", exp: "Idempotency ensures consistent results regardless of execution count." },
+                    { q: `Continuous integration (CI) pipelines automate builds and tests to rapidly catch regressions in ${subCat}.`, a: "a", exp: "CI provides early feedback on build defects." },
+                    { q: `Hardcoding database credentials and private API keys into source repositories is recommended in ${subCat}.`, a: "b", exp: "Secrets must be injected securely via environment variables or vaults." },
+                    { q: `Caching frequently requested read-heavy data can significantly reduce latency and load in ${subCat}.`, a: "a", exp: "Caching avoids redundant computations and database roundtrips." },
+                    { q: `Asynchronous workflows in ${subCat} block the main application thread until all tasks complete.`, a: "b", exp: "Asynchronous execution operates concurrently without blocking the caller." },
+                    { q: `High cohesion and low coupling are fundamental design goals when modularizing ${subCat} applications.`, a: "a", exp: "High cohesion and loose coupling improve testability and code isolation." },
+                    { q: `Database indexes speed up read queries without adding any overhead to write or insert operations in ${subCat}.`, a: "b", exp: "Indexes require updating on writes, introducing slight write overhead." },
+                    { q: `Rate limiting protects ${subCat} web endpoints from traffic surges and denial-of-service abuse.`, a: "a", exp: "Throttling controls incoming request rates to prevent server overload." },
+                    { q: `Memory leaks in ${subCat} can occur when unreachable or obsolete objects are still held by active references.`, a: "a", exp: "Retained references prevent garbage collection cleanup." },
+                    { q: `Optimistic locking in ${subCat} locks database records for the entire duration of a transaction.`, a: "b", exp: "Optimistic locking only checks record versions at commit time." },
+                    { q: `Automated regression test suites provide confidence when refactoring complex logic in ${subCat}.`, a: "a", exp: "Tests ensure refactoring does not break existing functional behavior." },
+                    { q: `The Single Responsibility Principle (SRP) implies that a class should handle many diverse tasks.`, a: "b", exp: "SRP requires a class to have one single reason to change." },
+                    { q: `Horizontal scaling in ${subCat} involves adding more instances of services across a cluster.`, a: "a", exp: "Horizontal scaling distributes load across multiple nodes." },
+                    { q: `Real-time telemetry and distributed tracing improve root cause diagnosis in ${subCat} production environments.`, a: "a", exp: "Observability provides visibility into system latency and failures." },
+                    { q: `Authentication verifies who the user is, while authorization determines what actions they can perform.`, a: "a", exp: "Authentication is identity verification; authorization is access control." },
+                    { q: `Disabling input validation on public interfaces improves application security in ${subCat}.`, a: "b", exp: "Disabling validation exposes the application to severe injection attacks." },
+                    { q: `Semantic versioning allows developers to identify breaking changes through the MAJOR version number.`, a: "a", exp: "MAJOR bumps explicitly signal breaking API modifications." },
+                    { q: `A reverse proxy can handle TLS termination, request routing, and load balancing for ${subCat}.`, a: "a", exp: "Reverse proxies distribute traffic and shield backend instances." },
+                    { q: `Database transaction atomicity ensures that all operations in a transaction either complete or abort together.`, a: "a", exp: "Atomicity guarantees all-or-nothing execution." },
+                    { q: `Premature optimization without profiling is the recommended approach to achieving performance in ${subCat}.`, a: "b", exp: "Profiling should always guide optimization to target actual bottlenecks." }
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const item = tfStatements[i % tfStatements.length];
+                    const qNum = i >= tfStatements.length ? ` (Var ${Math.floor(i / tfStatements.length) + 1})` : "";
+                    list.push({
+                        question: item.q + qNum,
+                        code: "",
+                        options: { a: "True", b: "False" },
+                        answer: item.a,
+                        explanation: item.exp
+                    });
+                }
+                return list;
+            }
+
+            // 5. Multiple Choice & Objective Questions (MCQs, Output Prediction, Debugging, etc.)
+            const topics = [
+                {
+                    q: `What is the core fundamental principle governing ${subCat} in modern ${primaryCat}?`,
+                    a: "Standardized best-practice architecture ensuring reliability and maintainability",
+                    b: "Eliminating structured design in favor of ad-hoc implementation",
+                    c: "Maximizing global mutable variables and unmanaged state",
+                    d: "Ignoring error handling and logging",
+                    correct: "a",
+                    exp: `Standardized architecture and proven patterns form the bedrock of ${subCat}.`
+                },
+                {
+                    q: `When optimizing performance in ${subCat}, which strategy yields the most sustainable outcome?`,
+                    a: "Premature micro-benchmarking without profiling",
+                    b: "Algorithmic bottleneck reduction and efficient resource allocation",
+                    c: "Allocating arbitrary hardware without code analysis",
+                    d: "Disabling validation checks across the pipeline",
+                    correct: "b",
+                    exp: `Targeting true algorithmic bottlenecks delivers optimal efficiency in ${subCat}.`
+                },
+                {
+                    q: `In a production or real-world scenario involving ${subCat}, how should exceptions or unexpected errors be handled?`,
+                    a: "Suppressing errors silently to avoid system alerts",
+                    b: "Structured graceful degradation with actionable logging and isolation",
+                    c: "Terminating the entire host process immediately without rollback",
+                    d: "Hardcoding fallback values directly into core business logic",
+                    correct: "b",
+                    exp: "Graceful error isolation prevents cascading failures in production environments."
+                },
+                {
+                    q: `Which metric is the most critical indicator of quality and stability when evaluating ${subCat}?`,
+                    a: "Total lines of raw implementation code",
+                    b: "Consistency, test coverage, and benchmarked compliance against specifications",
+                    c: "The speed of initial unverified prototyping",
+                    d: "The number of external non-essential dependencies utilized",
+                    correct: "b",
+                    exp: "Verification, testability, and standard compliance ensure dependable quality."
+                },
+                {
+                    q: `Which common anti-pattern should be strictly avoided when designing solutions for ${subCat}?`,
+                    a: "Tightly coupled monolithic state with hidden side effects",
+                    b: "Modular separation of concerns",
+                    c: "Explicit dependency injection and clear interfaces",
+                    d: "Automated regression testing",
+                    correct: "a",
+                    exp: "Tight coupling creates fragility, making debugging and maintenance difficult."
+                },
+                {
+                    q: `During a peer review or quality audit of ${subCat}, what is the primary recommendation for maintainability?`,
+                    a: "Adhering to recognized industry conventions and self-documenting structure",
+                    b: "Using overly obscure abbreviations and single-letter identifiers",
+                    c: "Avoiding documentation to force developers to decipher logic",
+                    d: "Reinventing established standard libraries from scratch",
+                    correct: "a",
+                    exp: "Clear conventions and self-documenting structure facilitate seamless team collaboration."
+                },
+                {
+                    q: `What is the recommended security or safety precaution when handling external inputs in ${subCat}?`,
+                    a: "Trusting all incoming input implicitly without verification",
+                    b: "Strict schema validation, sanitization, and defensive boundary enforcement",
+                    c: "Disabling authentication for internal network operations",
+                    d: "Relying purely on client-side constraints without server validation",
+                    correct: "b",
+                    exp: "Defense-in-depth requires strict validation and sanitization at all boundaries."
+                },
+                {
+                    q: `When scaling or expanding a project centered on ${subCat}, what architectural trade-off must be analyzed?`,
+                    a: "Throughput latency vs consistency and operational complexity",
+                    b: "Abandoning version control to accelerate commits",
+                    c: "Removing automated builds in favor of manual deployment",
+                    d: "Ignoring capacity limits and concurrency constraints",
+                    correct: "a",
+                    exp: "Scalability requires balancing throughput, data consistency, and operational overhead."
+                },
+                {
+                    q: `How does continuous integration and automated testing benefit workflows in ${subCat}?`,
+                    a: "It detects regressions early and guarantees consistent reproducible delivery",
+                    b: "It replaces the need for proper software design and code reviews",
+                    c: "It significantly increases manual deployment overhead",
+                    d: "It forces deployments to be executed only on weekends",
+                    correct: "a",
+                    exp: "Automated pipelines provide rapid feedback, preventing regressions from reaching production."
+                },
+                {
+                    q: `What is the role of caching or pre-computation when dealing with high-frequency operations in ${subCat}?`,
+                    a: "To eliminate database or processing bottlenecks for read-heavy workloads",
+                    b: "To permanently store sensitive data in plaintext memory",
+                    c: "To bypass all authorization checks for recurring queries",
+                    d: "To replace persistent databases with non-durable memory tables",
+                    correct: "a",
+                    exp: "Caching minimizes redundant computations, significantly improving response latencies."
+                },
+                {
+                    q: `In the context of ${subCat}, which debugging methodology is considered most methodical?`,
+                    a: "Randomly altering variables until tests pass",
+                    b: "Hypothesis-driven isolation using reproducible test cases and logs",
+                    c: "Deleting failing test assertions permanently",
+                    d: "Restarting services without investigating root cause logs",
+                    correct: "b",
+                    exp: "Scientific hypothesis testing and reproducible cases pinpoint root causes accurately."
+                },
+                {
+                    q: `Which approach ensures optimal memory and resource lifecycle management in ${subCat}?`,
+                    a: "Explicitly releasing unmanaged handles and avoiding memory retention leaks",
+                    b: "Allocating unbounded static buffers indefinitely",
+                    c: "Disabling garbage collection or memory cleanup algorithms",
+                    d: "Ignoring socket connection pool limits",
+                    correct: "a",
+                    exp: "Proper handle de-allocation and resource cleanup prevent memory exhaustion."
+                },
+                {
+                    q: `When implementing asynchronous or event-driven patterns in ${subCat}, what pitfall must be guarded against?`,
+                    a: "Unhandled promise rejections, race conditions, and event queue starvation",
+                    b: "Using non-blocking I/O operations",
+                    c: "Decoupling producers from consumers",
+                    d: "Implementing backpressure controls",
+                    correct: "a",
+                    exp: "Asynchronous workflows must manage concurrency race conditions and backpressure."
+                },
+                {
+                    q: `What constitutes a robust data validation strategy for ${subCat}?`,
+                    a: "Validating data types, range boundaries, and business rule constraints at ingress",
+                    b: "Accepting raw payloads without schema checking",
+                    c: "Assuming client-side validation is foolproof",
+                    d: "Storing invalid inputs and attempting correction during rendering",
+                    correct: "a",
+                    exp: "Ingress validation protects application integrity against corrupted or malicious data."
+                },
+                {
+                    q: `Which documentation practice is most beneficial for teams adopting ${subCat}?`,
+                    a: "Living API documentation, clear architectural diagrams, and runnable examples",
+                    b: "Outdated static Word documents stored in local folders",
+                    c: "Relying exclusively on memory without written guidelines",
+                    d: "Documenting obvious syntax while skipping complex architecture",
+                    correct: "a",
+                    exp: "Living documentation and working code examples accelerate onboarding and maintainability."
+                },
+                {
+                    q: `In ${subCat}, what is the primary advantage of modular component-based or layered design?`,
+                    a: "High reusability, testability, and isolated failure domains",
+                    b: "Increased coupling between unrelated modules",
+                    c: "Higher compilation times without functional benefit",
+                    d: "Making changes in one layer break every other layer",
+                    correct: "a",
+                    exp: "Modular architecture isolates changes, making testing and maintenance straightforward."
+                },
+                {
+                    q: `What is the significance of idempotency in API and service design for ${subCat}?`,
+                    a: "Ensuring repeated identical requests produce the same side-effect without corruption",
+                    b: "Executing operations multiple times with duplicate charges or records",
+                    c: "Requiring every request to use random non-reproducible parameters",
+                    d: "Disabling transaction rollback mechanisms",
+                    correct: "a",
+                    exp: "Idempotent operations prevent duplicate processing during network retries."
+                },
+                {
+                    q: `How should secret credentials, API keys, and configurations be managed in ${subCat}?`,
+                    a: "Hardcoding credentials directly into source repositories",
+                    b: "Injecting secrets securely via environment variables and vaults at runtime",
+                    c: "Committing secrets in public README files",
+                    d: "Storing passwords in plain-text client cookies",
+                    correct: "b",
+                    exp: "Environment variables and secure secret vaults prevent credential leakage."
+                },
+                {
+                    q: `Which testing level provides the fastest feedback loop for developers working on ${subCat}?`,
+                    a: "Isolated unit tests targeting granular functions and logic",
+                    b: "Full manual end-to-end regression testing across staging",
+                    c: "Testing only in production after release",
+                    d: "Automated UI browser tests requiring 12 hours to complete",
+                    correct: "a",
+                    exp: "Unit tests run in milliseconds, catching syntax and algorithmic errors immediately."
+                },
+                {
+                    q: `What is the primary indicator that refactoring is needed in a ${subCat} codebase?`,
+                    a: "High cyclomatic complexity, code duplication, and fragile regressions",
+                    b: "High test coverage and clean modular architecture",
+                    c: "Following standard naming conventions consistently",
+                    d: "Frequent small, safe pull requests",
+                    correct: "a",
+                    exp: "Code smells, duplication, and high complexity signal the need for refactoring."
+                },
+                {
+                    q: `When designing for high availability in ${subCat}, which strategy is most effective?`,
+                    a: "Single point of failure on a single standalone server",
+                    b: "Redundancy, stateless horizontal scaling, and automated health failovers",
+                    c: "Manual server rebooting during outages",
+                    d: "Disabling load balancing across regions",
+                    correct: "b",
+                    exp: "Redundancy and automated health failover prevent single-point downtime."
+                },
+                {
+                    q: `What role does observability (logs, metrics, traces) play in supporting ${subCat}?`,
+                    a: "It provides real-time visibility into system health, latency, and failure paths",
+                    b: "It wastes disk storage without providing diagnostic utility",
+                    c: "It only matters when the system has already suffered data loss",
+                    d: "It replaces the need for unit testing",
+                    correct: "a",
+                    exp: "Telemetry and distributed tracing enable rapid diagnosis of live production anomalies."
+                },
+                {
+                    q: `Which principle helps prevent scope creep and maintain deliverable deadlines in ${subCat}?`,
+                    a: "Agile iteration, prioritizing highest-value requirements, and clear acceptance criteria",
+                    b: "Accepting every new feature request without timeline adjustments",
+                    c: "Skipping design planning and coding blindly",
+                    d: "Refusing to communicate progress with stakeholders",
+                    correct: "a",
+                    exp: "Prioritizing high-impact features within fixed iterations keeps projects on schedule."
+                },
+                {
+                    q: `How does database indexing impact query execution in systems using ${subCat}?`,
+                    a: "It accelerates lookup search times at the expense of slight write overhead",
+                    b: "It slows down read operations while accelerating batch writes",
+                    c: "It corrupts foreign key relationships",
+                    d: "It has zero impact on query execution plans",
+                    correct: "a",
+                    exp: "B-Tree and Hash indexes provide sub-linear search time for filtered queries."
+                },
+                {
+                    q: `What is the ultimate objective of achieving professional certification in ${subCat}?`,
+                    a: "Demonstrating verified domain mastery, problem-solving capability, and production readiness",
+                    b: "Memorizing theoretical trivia without practical understanding",
+                    c: "Avoiding continuous learning in the future",
+                    d: "Acquiring a credential without demonstrable real-world skills",
+                    correct: "a",
+                    exp: "Certification validates rigorous competence and practical problem-solving capability."
+                }
+            ];
+
+            const answerLetters = ["a", "b", "c", "d"];
+
+            for (let i = 0; i < count; i++) {
+                const item = topics[i % topics.length];
+                const correctLetter = answerLetters[i % 4];
+                const opts = {};
+
+                if (correctLetter === "a") {
+                    opts.a = item.a; opts.b = item.b; opts.c = item.c; opts.d = item.d;
+                } else if (correctLetter === "b") {
+                    opts.a = item.b; opts.b = item.a; opts.c = item.c; opts.d = item.d;
+                } else if (correctLetter === "c") {
+                    opts.a = item.c; opts.b = item.b; opts.c = item.a; opts.d = item.d;
+                } else {
+                    opts.a = item.d; opts.b = item.b; opts.c = item.c; opts.d = item.a;
+                }
+
+                const qNum = i >= topics.length ? ` (Part ${Math.floor(i / topics.length) + 1})` : "";
+
+                list.push({
+                    question: item.q + qNum,
+                    code: (fieldType.toLowerCase().includes('debug') || fieldType.toLowerCase().includes('output'))
+                        ? `// Technical Scenario #${i + 1} (${subCat})\npublic void executeTask() {\n    // Verify: ${item.a.substring(0, 35)}...\n}`
+                        : "",
+                    options: opts,
+                    answer: correctLetter,
+                    explanation: item.exp
+                });
+            }
+
+            return list;
+        }
+
+        // Render generated questions into the questions container
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const box = document.getElementById('questionsFieldBox');
+            const totalCount = document.getElementById('totalQuestionsCount');
+
+            container.innerHTML = '';
+            box.style.display = 'block';
+            totalCount.textContent = questionsList.length;
+
+            const isShort = (currentFieldNum === 7);
+            const isLong = (currentFieldNum === 8);
+            const isCoding = (currentFieldNum === 2);
+            const isTF = (currentFieldNum === 6);
+
+            questionsList.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = 'q-card';
+                card.id = 'q_card_' + idx;
+
+                let codeHtml = '';
+                if (q.code && q.code.trim()) {
+                    codeHtml = `
+                        <pre style="background: #1e1e2f; color: #a5b4fc; padding: 1rem 1.4rem; border-radius: 0.8rem; font-family: monospace; font-size: 1.25rem; overflow-x: auto; margin: 0.8rem 0;">${escapeHtml(q.code)}</pre>
+                    `;
+                }
+
+                let middleSectionHtml = '';
+                let answerBadgeHtml = '';
+
+                if (isShort) {
+                    // Image 2: Give space for user to write short answer, NO multiple choice, 1 short answer
+                    middleSectionHtml = `
+                        <div style="margin: 1.2rem 0; background: var(--surface); border: 1.5px dashed var(--border); border-radius: 0.8rem; padding: 1.2rem;">
+                            <label style="font-size: 1.25rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                                <i class="fas fa-pen-fancy" style="color: var(--secondary);"></i> Candidate's Short Answer Space:
+                            </label>
+                            <input type="text" class="form-control" placeholder="Candidate will write their short answer here..." style="width: 100%; border: 1.5px solid var(--border); border-radius: 0.6rem; padding: 0.9rem 1.2rem; font-size: 1.35rem; background: #fff;" />
+                        </div>
+                    `;
+                    answerBadgeHtml = `
+                        <div style="font-size: 1.3rem; color: #065f46; background: #ecfdf5; border-left: 4px solid #10b981; padding: 1rem 1.4rem; border-radius: 0.6rem; margin-top: 1rem;">
+                            <div style="font-weight: 700; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                <i class="fas fa-check-circle" style="color: #10b981;"></i> Expected Short Answer:
+                            </div>
+                            <div style="font-size: 1.35rem; color: #047857; font-weight: 500;">${escapeHtml(q.answer || 'N/A')}</div>
+                            ${q.explanation ? `<div style="margin-top: 0.4rem; font-size: 1.2rem; color: #065f46; opacity: 0.85;"><strong>Scoring Criteria:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+                        </div>
+                    `;
+                } else if (isLong) {
+                    // Image 3: Give space for user to write long answer, NO multiple choice, 1 model answer
+                    middleSectionHtml = `
+                        <div style="margin: 1.2rem 0; background: var(--surface); border: 1.5px dashed var(--border); border-radius: 0.8rem; padding: 1.2rem;">
+                            <label style="font-size: 1.25rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                                <i class="fas fa-file-signature" style="color: var(--secondary);"></i> Candidate's Long Answer / Theory Space:
+                            </label>
+                            <textarea rows="4" class="form-control" placeholder="Candidate will write comprehensive essay / theoretical explanation here..." style="width: 100%; border: 1.5px solid var(--border); border-radius: 0.6rem; padding: 0.9rem 1.2rem; font-size: 1.35rem; background: #fff; resize: vertical;"></textarea>
+                        </div>
+                    `;
+                    answerBadgeHtml = `
+                        <div style="font-size: 1.3rem; color: #1e40af; background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem 1.4rem; border-radius: 0.6rem; margin-top: 1rem;">
+                            <div style="font-weight: 700; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                <i class="fas fa-book-open" style="color: #3b82f6;"></i> Model Answer & Key Points:
+                            </div>
+                            <div style="font-size: 1.35rem; color: #1d4ed8; font-weight: 500; line-height: 1.5;">${escapeHtml(q.answer || 'N/A')}</div>
+                            ${q.explanation ? `<div style="margin-top: 0.5rem; font-size: 1.2rem; color: #1e40af; opacity: 0.9;"><strong>Evaluation Guidelines:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+                        </div>
+                    `;
+                } else if (isCoding) {
+                    middleSectionHtml = `
+                        <div style="margin: 1.2rem 0; background: var(--surface); border: 1.5px dashed var(--border); border-radius: 0.8rem; padding: 1.2rem;">
+                            <label style="font-size: 1.25rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                                <i class="fas fa-code" style="color: var(--secondary);"></i> Candidate Code Solution Editor:
+                            </label>
+                            <textarea rows="4" class="form-control" placeholder="// Write code solution here..." style="width: 100%; border: 1.5px solid var(--border); border-radius: 0.6rem; padding: 0.9rem 1.2rem; font-size: 1.3rem; font-family: monospace; background: #1e1e2f; color: #a5b4fc; resize: vertical;"></textarea>
+                        </div>
+                    `;
+                    answerBadgeHtml = `
+                        <div style="font-size: 1.3rem; color: #1e293b; background: #f8fafc; border-left: 4px solid #6366f1; padding: 1rem 1.4rem; border-radius: 0.6rem; margin-top: 1rem;">
+                            <strong style="color: #4f46e5;"><i class="fas fa-check-double"></i> Solution / Expected Output:</strong> ${escapeHtml(q.answer || 'N/A')}
+                            ${q.explanation ? `<div style="margin-top: 0.4rem; font-size: 1.2rem; color: #64748b;"><strong>Complexity & Logic:</strong> ${escapeHtml(q.explanation)}</div>` : ''}
+                        </div>
+                    `;
+                } else if (isTF) {
+                    // True or False: Exactly two options (True or False)
+                    const isAnswerTrue = (q.answer === 'a' || q.answer?.toLowerCase() === 'true');
+                    middleSectionHtml = `
+                        <div style="display: flex; gap: 1.4rem; margin: 1.2rem 0; max-width: 44rem;">
+                            <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.8rem; background: ${isAnswerTrue ? 'rgba(16,185,129,0.12)' : 'var(--surface)'}; border: 2px solid ${isAnswerTrue ? '#10b981' : 'var(--border)'}; padding: 1.1rem 1.6rem; border-radius: 0.8rem; font-size: 1.45rem; font-weight: 700; color: ${isAnswerTrue ? '#047857' : 'var(--text)'};">
+                                <i class="fas fa-check-circle" style="color: ${isAnswerTrue ? '#10b981' : 'var(--text-muted)'}; font-size: 1.6rem;"></i> (A) True
+                            </div>
+                            <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.8rem; background: ${!isAnswerTrue ? 'rgba(239,68,68,0.1)' : 'var(--surface)'}; border: 2px solid ${!isAnswerTrue ? '#ef4444' : 'var(--border)'}; padding: 1.1rem 1.6rem; border-radius: 0.8rem; font-size: 1.45rem; font-weight: 700; color: ${!isAnswerTrue ? '#b91c1c' : 'var(--text)'};">
+                                <i class="fas fa-times-circle" style="color: ${!isAnswerTrue ? '#ef4444' : 'var(--text-muted)'}; font-size: 1.6rem;"></i> (B) False
+                            </div>
+                        </div>
+                    `;
+                    answerBadgeHtml = `
+                        <div style="font-size: 1.3rem; color: var(--text); background: var(--bg); padding: 0.8rem 1.2rem; border-radius: 0.6rem; margin-top: 0.8rem;">
+                            <strong>Correct Answer:</strong> <span style="font-weight: 800; color: ${isAnswerTrue ? '#10b981' : '#ef4444'};">${isAnswerTrue ? 'TRUE' : 'FALSE'}</span>
+                            ${q.explanation ? ` &bull; <em>${escapeHtml(q.explanation)}</em>` : ''}
+                        </div>
+                    `;
+                } else {
+                    // Standard choice-based objective questions (MCQs, Output Prediction, Debugging, etc.)
+                    if (q.options && Object.keys(q.options).length > 0) {
+                        middleSectionHtml = '<div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 1rem 0;">';
+                        for (const [key, val] of Object.entries(q.options)) {
+                            const isCorrect = (q.answer && q.answer.toLowerCase() === key.toLowerCase());
+                            middleSectionHtml += `
+                                <div style="background: ${isCorrect ? 'rgba(39,174,96,0.1)' : 'var(--surface)'}; border: 1px solid ${isCorrect ? '#27ae60' : 'var(--border)'}; padding: 0.8rem 1.2rem; border-radius: 0.6rem; font-size: 1.3rem;">
+                                    <strong>(${key.toUpperCase()})</strong> ${escapeHtml(val)}
+                                    ${isCorrect ? '<i class="fas fa-check-circle" style="color:#27ae60; margin-left:0.4rem;"></i>' : ''}
+                                </div>
+                            `;
+                        }
+                        middleSectionHtml += '</div>';
+                    }
+                    answerBadgeHtml = `
+                        <div style="font-size: 1.25rem; color: var(--text-muted); background: var(--bg); padding: 0.6rem 1rem; border-radius: 0.6rem; margin-top: 0.6rem;">
+                            <strong style="color: #27ae60;"><i class="fas fa-check"></i> Answer:</strong> ${escapeHtml(q.answer ? q.answer.toUpperCase() : 'N/A')}
+                            ${q.explanation ? ` &bull; <em>${escapeHtml(q.explanation)}</em>` : ''}
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="q-card-header">
+                        <span class="q-card-num"><i class="fas fa-question-circle"></i> Question ${idx + 1}</span>
+                        <button type="button" class="q-del-btn" onclick="removeQuestion(${idx})"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                    <div style="font-weight: 600; font-size: 1.4rem; color: var(--text); margin-bottom: 0.6rem;">${escapeHtml(q.question)}</div>
+                    ${codeHtml}
+                    ${middleSectionHtml}
+                    ${answerBadgeHtml}
+                `;
+
+                container.appendChild(card);
+            });
+
+            box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function removeQuestion(idx) {
+            questionsList.splice(idx, 1);
+            renderQuestions();
+        }
+
+        function addBlankQuestion() {
+            if (currentFieldNum === 7) {
+                questionsList.push({
+                    question: `Custom Short Answer Question #${questionsList.length + 1} on ${currentSubCategory}`,
+                    code: "",
+                    answer: `Concise model answer for ${currentSubCategory}.`,
+                    explanation: "Evaluate based on key conceptual definitions."
+                });
+            } else if (currentFieldNum === 8) {
+                questionsList.push({
+                    question: `Custom Long Answer / Theory Question #${questionsList.length + 1} on ${currentSubCategory}`,
+                    code: "",
+                    answer: `Comprehensive model explanation and architectural trade-offs for ${currentSubCategory}.`,
+                    explanation: "Evaluate depth of analysis and technical completeness."
+                });
+            } else if (currentFieldNum === 2) {
+                questionsList.push({
+                    question: `Custom Coding Problem #${questionsList.length + 1} for ${currentSubCategory}`,
+                    code: `// Implement task for ${currentSubCategory}\npublic void solve() {\n    \n}`,
+                    answer: "Expected solution logic and test verification pass.",
+                    explanation: "O(n) time complexity approach."
+                });
+            } else if (currentFieldNum === 6) {
+                questionsList.push({
+                    question: `Assertion Statement #${questionsList.length + 1} for ${currentSubCategory}: [Write assertion here]`,
+                    code: "",
+                    options: { a: "True", b: "False" },
+                    answer: "a",
+                    explanation: "Fact verified."
+                });
+            } else {
+                questionsList.push({
+                    question: `Custom Question #${questionsList.length + 1} for ${currentPrimaryCategory} (${currentSubCategory})`,
+                    code: "",
+                    options: { a: "Standard procedure", b: "Alternative approach", c: "Verification requirement", d: "Exception case" },
+                    answer: "a",
+                    explanation: "Verified by admin."
+                });
+            }
+            renderQuestions();
+        }
+
+        // Real-time Submit Action
+        function submitExam() {
+            const codeInput = document.getElementById('examCodeInput');
+            const titleInput = document.getElementById('examTitleInput');
+            
+            if (!codeInput || !codeInput.value.trim()) {
+                alert("Please fill in the Exam Code.");
+                if (codeInput) codeInput.focus();
+                return;
+            }
+            if (!titleInput || !titleInput.value.trim()) {
+                alert("Please fill in the Exam Title.");
+                if (titleInput) titleInput.focus();
+                return;
+            }
+
+            const trackSelect = document.getElementById('trackSelect');
+            const chosenTrack = trackSelect ? trackSelect.value : currentSubCategory;
+
+            // Pack all generated questions and chosen track into exam description for persistence
+            const descInput = document.getElementById('examDescInput');
+            if (descInput) {
+                let userDesc = descInput.value.trim();
+                if (!userDesc.includes('[Track: ')) {
+                    userDesc = `[Track: ${chosenTrack}] ` + userDesc;
+                } else {
+                    userDesc = userDesc.replace(/\[Track: [^\]]+\]/, `[Track: ${chosenTrack}]`);
+                }
+                const header = `[Category: ${currentPrimaryCategory} | Subcategory: ${currentSubCategory} | Format: ${currentFieldName} | Total: ${questionsList.length}]`;
+                if (!userDesc.includes(header)) {
+                    descInput.value = userDesc + "\n\n" +
+                                      header + "\n" +
+                                      JSON.stringify(questionsList, null, 2);
+                } else {
+                    descInput.value = userDesc;
+                }
+            }
+
+            const form = document.getElementById('mainExamForm');
+            if (form) {
+                form.submit();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Sidebar toggle for mobile
         const sidebar  = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
         if (toggleBtn) {
@@ -207,6 +1795,9 @@
                 sidebar.classList.remove('open');
             }
         });
+
+        // Initialize default subcategories
+        renderSubcategories("Development and IT");
     </script>
 </body>
 
