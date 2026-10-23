@@ -161,9 +161,13 @@ public class InstructorController {
         model.addAttribute("activeTab", tab);
         model.addAttribute("statusFilter", statusFilter != null ? statusFilter : "ALL");
 
-        if ("communications".equals(tab)) {
+        if ("communications".equals(tab) || "messages".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
             model.addAttribute("questions", questionsList);
+            List<User> students = userService.getAllUsers().stream()
+                    .filter(u -> !"INSTRUCTOR".equals(u.getRole()) && !"ADMIN".equals(u.getRole()))
+                    .toList();
+            model.addAttribute("chatStudents", students);
         } else if ("reviews".equals(tab)) {
             model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
         } else if ("questions".equals(tab)) {
@@ -690,6 +694,7 @@ public class InstructorController {
     @PostMapping("/profile/update")
     public String updateProfile(
             @RequestParam("name") String name,
+            @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "bio", required = false) String bio,
             @RequestParam(value = "skills", required = false) String skills,
             @RequestParam(value = "expertise", required = false) String expertise,
@@ -703,16 +708,66 @@ public class InstructorController {
             Principal principal,
             RedirectAttributes redirectAttributes) {
         User user = userService.findByEmail(principal.getName());
-        user.setName(name);
-        user.setBio(bio);
-        user.setSkills(skills);
-        user.setExpertise(expertise);
+
+        if (name == null || name.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Full Name is required and cannot be empty.");
+            return "redirect:/vendor/dashboard?tab=profile";
+        }
+        if (name.trim().length() < 2) {
+            redirectAttributes.addFlashAttribute("error", "Full Name must be at least 2 characters long.");
+            return "redirect:/vendor/dashboard?tab=profile";
+        }
+        if (name.trim().length() > 60) {
+            redirectAttributes.addFlashAttribute("error", "Full Name cannot exceed 60 characters.");
+            return "redirect:/vendor/dashboard?tab=profile";
+        }
+
+        user.setName(name.trim());
+        if (phone != null && !phone.trim().isEmpty()) {
+            String cleanPhone = phone.trim();
+            String digitsOnly = cleanPhone.replaceAll("[^0-9]", "");
+            if (digitsOnly.length() < 10 || digitsOnly.length() > 15) {
+                redirectAttributes.addFlashAttribute("error", "Phone number must contain between 10 and 15 digits.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            user.setPhone(cleanPhone);
+        } else {
+            user.setPhone(null);
+        }
+
+        if (expertise != null && expertise.length() > 100) {
+            user.setExpertise(expertise.substring(0, 100));
+        } else {
+            user.setExpertise(expertise != null ? expertise.trim() : null);
+        }
+
+        if (skills != null && skills.length() > 250) {
+            user.setSkills(skills.substring(0, 250));
+        } else {
+            user.setSkills(skills != null ? skills.trim() : null);
+        }
+
+        if (bio != null && bio.length() > 1500) {
+            user.setBio(bio.substring(0, 1500));
+        } else {
+            user.setBio(bio != null ? bio.trim() : null);
+        }
+
         user.setInstagramUrl(instagramUrl);
         user.setLinkedinUrl(linkedinUrl);
         user.setYoutubeUrl(youtubeUrl);
 
         if (profilePicture != null && !profilePicture.isEmpty()) {
             try {
+                String contentType = profilePicture.getContentType();
+                if (contentType != null && !contentType.startsWith("image/")) {
+                    redirectAttributes.addFlashAttribute("error", "Invalid file type. Only image files (JPG, PNG, GIF, WEBP) are allowed.");
+                    return "redirect:/vendor/dashboard?tab=profile";
+                }
+                if (profilePicture.getSize() > 5 * 1024 * 1024) {
+                    redirectAttributes.addFlashAttribute("error", "Profile picture exceeds maximum allowed size of 5MB.");
+                    return "redirect:/vendor/dashboard?tab=profile";
+                }
                 String imagePath = fileStorageService.store(profilePicture);
                 user.setProfileImageUrl(imagePath);
             } catch (Exception e) {
@@ -721,13 +776,29 @@ public class InstructorController {
             }
         }
 
-        if (newPassword != null && !newPassword.isEmpty()) {
-            if (currentPassword == null || currentPassword.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Current password is required to set a new password.");
+        boolean isPasswordChangeRequested = (currentPassword != null && !currentPassword.trim().isEmpty())
+                || (newPassword != null && !newPassword.trim().isEmpty())
+                || (confirmPassword != null && !confirmPassword.trim().isEmpty());
+
+        if (isPasswordChangeRequested) {
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Current password is required to update your login password.");
                 return "redirect:/vendor/dashboard?tab=profile";
             }
             if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-                redirectAttributes.addFlashAttribute("error", "Incorrect current password.");
+                redirectAttributes.addFlashAttribute("error", "Incorrect current password. Please try again.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "New password is required.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            if (newPassword.length() < 6) {
+                redirectAttributes.addFlashAttribute("error", "New password must be at least 6 characters long.");
+                return "redirect:/vendor/dashboard?tab=profile";
+            }
+            if (newPassword.equals(currentPassword)) {
+                redirectAttributes.addFlashAttribute("error", "New password cannot be the same as your current password.");
                 return "redirect:/vendor/dashboard?tab=profile";
             }
             if (!newPassword.equals(confirmPassword)) {
