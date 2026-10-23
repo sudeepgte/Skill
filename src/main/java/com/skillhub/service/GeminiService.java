@@ -44,6 +44,64 @@ public class GeminiService {
     }
 
     /**
+     * Direct Gemini call implementation from Person 1.
+     */
+    public List<Map<String, Object>> generateQuestionsDirect(String topic) {
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            return null; // Fallback to mock
+        }
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/" + (model != null ? model : "gemini-2.5-flash") + ":generateContent?key="
+                    + apiKey.trim();
+
+            String prompt = "Generate exactly 20 multiple choice questions for a certification exam on the topic of '"
+                    + topic + "'. " +
+                    "If the topic is about a specific programming language like C or Python, the questions MUST be about that language. "
+                    +
+                    "Return strictly a JSON array WITHOUT markdown formatting. Each object should have: " +
+                    "\"id\" (integer 1-20), \"question\" (string), \"options\" (object with keys a, b, c, d and string values for each option), "
+                    +
+                    "and \"correctAnswer\" (string matching strictly one of the keys a, b, c, d).";
+
+            Map<String, Object> part = new HashMap<>();
+            part.put("text", prompt);
+
+            Map<String, Object> content = new HashMap<>();
+            content.put("parts", Collections.singletonList(part));
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("contents", Collections.singletonList(content));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                List<Map> candidates = (List<Map>) response.getBody().get("candidates");
+                if (candidates != null && !candidates.isEmpty()) {
+                    Map contentObj = (Map) candidates.get(0).get("content");
+                    List<Map> parts = (List<Map>) contentObj.get("parts");
+                    if (parts != null && !parts.isEmpty()) {
+                        String jsonString = (String) parts.get(0).get("text");
+                        String cleaned = extractJsonArray(jsonString);
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        return mapper.readValue(cleaned.trim(), new TypeReference<List<Map<String, Object>>>() {
+                        });
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error calling Gemini API directly: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Generates at least 'count' (minimum 20) MCQ questions strictly on the specified topic.
      * Each returned map contains: questionText, optionA, optionB, optionC, optionD, correctOption.
      */
@@ -230,9 +288,15 @@ public class GeminiService {
     }
 
     /**
-     * Backward-compatible method used by legacy exam services.
+     * Backward-compatible method used by exam services.
+     * Uses direct Gemini generation first, falling back to normalized MCQ generation with topic question bank.
      */
     public List<Map<String, Object>> generateQuestions(String topic) {
+        List<Map<String, Object>> direct = generateQuestionsDirect(topic);
+        if (direct != null && !direct.isEmpty()) {
+            return direct;
+        }
+
         List<Map<String, String>> mcqs = generateMcqQuestions(topic, 20);
         List<Map<String, Object>> legacyList = new ArrayList<>();
         int idCounter = 1;

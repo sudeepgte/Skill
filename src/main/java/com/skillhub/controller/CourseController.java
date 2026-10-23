@@ -96,9 +96,9 @@ public class CourseController {
             course.setVideoUrl("https://video.wixstatic.com/video/11062b_77a941a31b99484ba3ee77a28469d4d4/1080p/mp4/file.mp4");
         }
 
-        // Increment and Save View Count
-        course.setViewCount((course.getViewCount() == null ? 0 : course.getViewCount()) + 1);
-        courseService.saveCourse(course);
+
+
+
 
         // Map to DTO
         CourseDTO courseDTO = courseMapper.toDTO(course);
@@ -109,6 +109,9 @@ public class CourseController {
         if (principal != null) {
             String email = principal.getName();
             user = userService.findByEmail(email);
+            if (user != null && course.recordUserView(user.getId())) {
+                courseService.saveCourse(course);
+            }
             if (user != null) {
                 boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
                 boolean isAdmin = "ADMIN".equals(user.getRole());
@@ -135,6 +138,11 @@ public class CourseController {
                 }
             }
         }
+
+        boolean isFree = (course.getPrice() == null || course.getPrice() <= 0);
+        boolean hasPaid = isFree || isEnrolled;
+        model.addAttribute("hasPaid", hasPaid);
+        model.addAttribute("isPaidCourse", !isFree);
 
         // Fetch reviews (latest first)
         List<com.skillhub.model.Review> reviews = reviewRepository
@@ -233,25 +241,16 @@ public class CourseController {
         boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
         boolean isAdmin = "ADMIN".equals(user.getRole());
         boolean isFree = (course.getPrice() == null || course.getPrice() <= 0);
+        boolean hasPaid = false;
 
-        // Security & Access Control:
-        // Instructors and Admins can preview.
-        // Paid courses strictly require verified payment via Razorpay.
-        // Free courses can be watched anytime by any student.
-        if (!isOwner && !isAdmin) {
-            if (!isFree) {
-                boolean hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
-                if (!hasPaid) {
-                    // Purge any unauthorized enrollment and redirect unpaid student to checkout
-                    enrollmentRepository.deleteByStudentAndCourse(user, course);
-                    return "redirect:/checkout/" + id;
-                }
-                // Paid student: ensure enrollment record exists
-                if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
-                    enrollmentService.enrollUser(user, id);
-                }
-            } else {
-                // Free course: students can watch anytime; auto-enroll if not enrolled
+        if (isOwner || isAdmin || isFree) {
+            hasPaid = true;
+            if (isFree && !enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
+                enrollmentService.enrollUser(user, id);
+            }
+        } else {
+            hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
+            if (hasPaid) {
                 if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
                     enrollmentService.enrollUser(user, id);
                 }
@@ -260,9 +259,18 @@ public class CourseController {
 
         CourseDTO courseDTO = courseMapper.toDTO(course);
 
-        // Use provided lectureId or find last played, else first lecture
+        // Find the very first lecture ID of the course
+        Long firstLectureId = null;
+        if (!course.getSections().isEmpty() && !course.getSections().get(0).getLectures().isEmpty()) {
+            firstLectureId = course.getSections().get(0).getLectures().get(0).getId();
+        }
+
+        // Target lecture determination:
+        // If course is paid and user has NOT paid, restrict strictly to the 1st lecture preview
         Long targetLectureId = lectureId;
-        if (targetLectureId == null) {
+        if (!hasPaid) {
+            targetLectureId = firstLectureId;
+        } else if (targetLectureId == null) {
             // Check enrollment for lastPlayedLectureId
             enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(e -> {
                 if (e.getLastPlayedLectureId() != null) {
@@ -270,16 +278,18 @@ public class CourseController {
                 }
             });
             
-            // Priority: param > lastPlayed > first lecture
             targetLectureId = (Long) model.getAttribute("resumedFrom");
-            
             if (targetLectureId == null) {
-                // Default to first lecture of first section
-                if (!course.getSections().isEmpty() && !course.getSections().get(0).getLectures().isEmpty()) {
-                    targetLectureId = course.getSections().get(0).getLectures().get(0).getId();
-                }
+                targetLectureId = firstLectureId;
             }
         }
+
+        model.addAttribute("hasPaid", hasPaid);
+        model.addAttribute("isPaidCourse", !isFree);
+        model.addAttribute("previewPercentage", 15);
+        model.addAttribute("previewLimitSeconds", 15);
+        model.addAttribute("firstLectureId", firstLectureId);
+        model.addAttribute("coursePrice", course.getPrice());
 
         // Pass current lesson for titles/video
         com.skillhub.dto.LectureDTO currentLesson = null;
@@ -614,6 +624,43 @@ public class CourseController {
             response.put("success", false);
             response.put("message", "Database error: " + e.getMessage());
         }
+        return response;
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/user/lecture/{id}/note")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.Map<String, Object> getNote(@PathVariable("id") Long id,
+            @org.springframework.web.bind.annotation.RequestParam("courseId") Long courseId,
+            Principal principal) {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        if (principal == null) {
+            response.put("success", false);
+            return response;
+        }
+
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        com.skillhub.model.Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            response.put("success", false);
+            return response;
+        }
+
+        String content = "";
+        if (id > 0) {
+            com.skillhub.model.Lecture lecture = lectureRepository.findById(id).orElse(null);
+            if (lecture != null) {
+                content = noteRepository.findByUserAndLecture(user, lecture)
+                        .map(com.skillhub.model.Note::getContent)
+                        .orElse("");
+            }
+        } else {
+            content = noteRepository.findByUserAndCourseAndLectureIsNull(user, course)
+                    .map(com.skillhub.model.Note::getContent)
+                    .orElse("");
+        }
+
+        response.put("success", true);
+        response.put("content", content);
         return response;
     }
 }

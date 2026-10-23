@@ -87,6 +87,61 @@ public class AdminProfessionalExamController {
         return "admin/professional-exams/versions";
     }
 
+    @PostMapping("/{id}/update")
+    public String updateExam(@PathVariable("id") Long id, @ModelAttribute ProfessionalExam updated, Principal p) {
+        ProfessionalExam exam = examRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
+        exam.setTitle(updated.getTitle());
+        exam.setDurationMinutes(updated.getDurationMinutes());
+        exam.setTotalMarks(updated.getTotalMarks());
+        exam.setPassingMarks(updated.getPassingMarks());
+        if (updated.getLevel() != null) exam.setLevel(updated.getLevel());
+        exam.setActive(updated.isActive());
+        examRepo.save(exam);
+        adminLogRepo.save(new AdminLog(getAdmin(p), "UPDATE_PROFESSIONAL_EXAM", "Updated exam: " + exam.getTitle()));
+        return "redirect:/admin/professional-exams/" + id + "/versions";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String deleteExam(@PathVariable("id") Long id, Principal p) {
+        ProfessionalExam exam = examRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
+        versionRepo.findByProfessionalExamId(id).forEach(v -> {
+            questionRepo.deleteAll(questionRepo.findByExamSectionExamVersionId(v.getId()));
+            sectionRepo.deleteAll(sectionRepo.findByExamVersionId(v.getId()));
+            versionRepo.delete(v);
+        });
+        examRepo.delete(exam);
+        adminLogRepo.save(new AdminLog(getAdmin(p), "DELETE_PROFESSIONAL_EXAM", "Deleted exam: " + exam.getTitle()));
+        return "redirect:/admin/professional-exams";
+    }
+
+    @RequestMapping(value = "/{id}/save-blueprint-version", method = {RequestMethod.GET, RequestMethod.POST})
+    public String saveBlueprintVersion(@PathVariable("id") Long id, Principal p) {
+        ProfessionalExam exam = examRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
+        List<ProfessionalExamVersion> existing = versionRepo.findByProfessionalExamId(id);
+        int nextVer = existing.size() + 1;
+        ProfessionalExamVersion version = new ProfessionalExamVersion();
+        version.setProfessionalExam(exam);
+        version.setVersionNumber("v" + nextVer + ".0");
+        version.setVersionName("Blueprint Deployment v" + nextVer + ".0");
+        version.setTotalMarks(exam.getTotalMarks());
+        version.setPassingMarks(exam.getPassingMarks());
+        version.setDurationMinutes(exam.getDurationMinutes());
+        version.setActive(true);
+        version.setPublished(true);
+        versionRepo.save(version);
+        adminLogRepo.save(new AdminLog(getAdmin(p), "SAVE_BLUEPRINT_VERSION", "Saved blueprint version for exam: " + exam.getTitle()));
+        return "redirect:/admin/professional-exams/" + id + "/versions";
+    }
+
+    @PostMapping("/{id}/update-questions")
+    @ResponseBody
+    public String updateQuestions(@PathVariable("id") Long id, @RequestParam("description") String description, Principal p) {
+        ProfessionalExam exam = examRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
+        exam.setDescription(description);
+        examRepo.save(exam);
+        return "SUCCESS";
+    }
+
     @PostMapping("/versions/{versionId}/publish")
     public String publishVersion(@PathVariable("versionId") Long versionId, Principal p, Model model) {
         ProfessionalExamVersion version = versionRepo.findById(versionId)

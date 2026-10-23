@@ -751,19 +751,28 @@
                          </div>
                     </div>
 
-                    <!-- Watch Now (if enrolled) -->
-                    <th:block th:if="${isEnrolled}">
+                    <!-- Watch Now (if already paid or free course) -->
+                    <th:block th:if="${hasPaid}">
                         <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy"
-                            style="display:block; text-align:center; text-decoration:none; box-sizing: border-box; margin-bottom: 10px;">Watch Now</a>
+                            style="display:block; text-align:center; text-decoration:none; box-sizing: border-box; margin-bottom: 10px; background-color: #4f46e5; color: white;">
+                            <i class="fas fa-play" style="margin-right: 6px;"></i> Watch Now
+                        </a>
                     </th:block>
 
-                    <!-- Buy Now Button (for Paid Courses - opens Razorpay directly) -->
-                    <th:block th:if="${course.price != null and course.price > 0 and not isEnrolled}">
+                    <!-- Paid Course and NOT Paid: Offer Free 15s Preview + Buy Now (Hotstar Flow) -->
+                    <th:block th:if="${isPaidCourse and not hasPaid}">
+                        <!-- 1. Free Preview Button -->
+                        <a th:href="@{/user/course/{id}/learn(id=${course.id})}" class="btn-buy" id="previewBtnSidebar"
+                           style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px; background-color: #f5f3ff; color: #4f46e5; border: 2px solid #6366f1; font-weight: 700; padding: 12px; border-radius: 6px; text-decoration: none; box-sizing: border-box; transition: all 0.2s ease;">
+                            <i class="fas fa-play" style="margin-right: 6px; color: #6366f1;"></i> Watch Free Preview (15%)
+                        </a>
+
+                        <!-- 2. Direct Buy Now Button -->
                         <button type="button" class="btn-buy" id="buyNowRazorpayBtn"
                             th:data-course-id="${course.id}"
                             th:data-course-title="${course.title}"
-                            style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px; background-color: var(--primary); color: white; border: none; font-size: 1.1rem; font-weight: 600; padding: 12px; border-radius: 6px;">
-                            <i class="fas fa-bolt" style="margin-right: 6px;"></i> Buy Now
+                            style="display:block; width:100%; text-align:center; cursor:pointer; margin-bottom: 10px; background-color: #6366f1; color: white; border: none; font-size: 1.1rem; font-weight: 600; padding: 12px; border-radius: 6px;">
+                            <i class="fas fa-bolt" style="margin-right: 6px;"></i> Buy Now (&#8377;<span th:text="${#numbers.formatDecimal(course.price, 1, 0)}">200</span>)
                         </button>
                     </th:block>
 
@@ -865,7 +874,7 @@
                 <!-- Dynamic Sections -->
                 <div style="border: 1px solid var(--border-color); border-bottom: none;"
                     th:if="${course.sections != null and !course.sections.empty}">
-                    <div th:each="section : ${course.sections}">
+                    <div th:each="section, sStat : ${course.sections}">
                         <button class="section-toggle" onclick="toggleSection(this)">
                             <div style="display:flex; align-items:center;">
                                 <i class="fas fa-chevron-down"
@@ -880,18 +889,22 @@
                         <!-- Content, hidden by default -->
                         <div class="section-content" style="display: none;">
                             <th:block th:if="${section.lectures != null and !section.lectures.empty}">
-                                <div th:each="lecture : ${section.lectures}" class="lecture-item"
+                                <div th:each="lecture, lStat : ${section.lectures}" class="lecture-item"
                                     th:attr="data-video-url=${lecture.videoUrl}"
-                                    onclick="if (this.getAttribute('data-is-enrolled') === 'true' || this.getAttribute('data-is-free') === 'true') { window.location.href = '/user/course/' + this.getAttribute('data-course-id') + '/learn?lectureId=' + this.getAttribute('data-lecture-id'); } else { alert('Please purchase this course to access this lecture.'); }"
-                                    th:data-is-enrolled="${isEnrolled}"
+                                    onclick="if (this.getAttribute('data-is-enrolled') === 'true' || this.getAttribute('data-is-free') === 'true' || this.getAttribute('data-is-first') === 'true') { window.location.href = '/user/course/' + this.getAttribute('data-course-id') + '/learn?lectureId=' + this.getAttribute('data-lecture-id'); } else { alert('This lecture is locked. Watch the 1st lecture free preview or purchase the course to unlock all lessons.'); }"
+                                    th:data-is-enrolled="${hasPaid}"
                                     th:data-is-free="${course.price == null or course.price <= 0}"
+                                    th:data-is-first="${sStat.first and lStat.first}"
                                     th:data-course-id="${course.id}"
                                     th:data-lecture-id="${lecture.id}">
                                     <div style="display: flex; align-items: center;">
-                                        <i th:if="${isEnrolled or course.price == null or course.price <= 0}" class="fas fa-play-circle" style="color: var(--primary); margin-right: 10px;"></i>
-                                        <i th:unless="${isEnrolled or course.price == null or course.price <= 0}" class="fas fa-lock" style="color: #94a3b8; margin-right: 10px;"></i>
+                                        <i th:if="${hasPaid or course.price == null or course.price <= 0 or (sStat.first and lStat.first)}" class="fas fa-play-circle" style="color: var(--primary); margin-right: 10px;"></i>
+                                        <i th:unless="${hasPaid or course.price == null or course.price <= 0 or (sStat.first and lStat.first)}" class="fas fa-lock" style="color: #94a3b8; margin-right: 10px;"></i>
                                         <span th:text="${lecture.title}"
                                             style="color: #1c1d1f; font-size: 1.25rem;">Lecture Title</span>
+                                        <span th:if="${not hasPaid and isPaidCourse and sStat.first and lStat.first}" style="margin-left: 10px; background: #e0e7ff; color: #4338ca; font-size: 0.8rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                                            <i class="fas fa-eye"></i> Free Preview (15%)
+                                        </span>
                                     </div>
                                     <span style="font-size: 1.2rem; color: #6a6f73;"
                                         th:if="${lecture.durationSeconds != null}"

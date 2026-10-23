@@ -25,6 +25,9 @@ public class EnrollmentController {
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
+    private com.skillhub.repository.LectureProgressRepository lectureProgressRepository;
+
+    @Autowired
     private CourseService courseService;
 
     @Autowired
@@ -121,11 +124,16 @@ public class EnrollmentController {
         }
         User user = userService.findByEmail(principal.getName());
         var enrollments = enrollmentRepository.findByStudent(user);
-        Map<Long, Double> progressMap = enrollments.stream()
-                .filter(e -> e.getCourse() != null)
-                .collect(java.util.stream.Collectors.toMap(
-                        e -> e.getCourse().getId(),
-                        e -> e.getProgressPercentage()));
+        Map<Long, Double> progressMap = new java.util.HashMap<>();
+        for (Enrollment e : enrollments) {
+            if (e.getCourse() != null) {
+                long total = lectureProgressRepository.countTotalLecturesByCourse(e.getCourse().getId());
+                long completed = lectureProgressRepository.countCompletedLecturesByCourse(user.getId(), e.getCourse().getId());
+                double discretePct = total > 0 ? Math.min(100.0, (double) completed / total * 100.0) : 0.0;
+                double finalPct = Math.max(discretePct, e.getProgressPercentage());
+                progressMap.put(e.getCourse().getId(), finalPct);
+            }
+        }
         return ResponseEntity.ok(progressMap);
     }
 

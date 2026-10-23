@@ -485,6 +485,16 @@
       transform: scaleX(1);
     }
 
+    .cat-card.active-cat-card {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 2px var(--primary) !important;
+      transform: translateY(-4px);
+    }
+
+    .cat-card.active-cat-card::before {
+      transform: scaleX(1) !important;
+    }
+
     .cat-icon {
       font-size: 2.4rem;
       margin-bottom: 1rem;
@@ -1466,7 +1476,7 @@
       <div class="categories-grid">
 
         <th:block th:each="cat : ${categories}">
-          <a th:href="@{/(categoryId=${cat.id})} + '#courses'" class="cat-card">
+          <a th:href="@{/(categoryId=${cat.id})} + '#courses'" class="cat-card" th:classappend="${selectedCategoryId != null and selectedCategoryId == cat.id ? 'active-cat-card' : ''}">
             <img th:src="${cat.name.toLowerCase().contains('development') ? 'https://images.openai.com/static-rsc-4/MmFXfVEU_vzMtwlzHPcgTkwjMz1wuhk88PU5QetscESDSPBy9a0n7_fdP3_HalHQaSFvhe5uKsgbgMNZ8xgyb5qjXK-97a9jzHnI4DnSS5biNEWS0PBxcxsV89uGr_I1HUQJW_5urequU1B8XornK_Fafrmxe0yNSZaV25Rl7K4cb91qnu9gk2LrCMq07Bsh?purpose=fullsize' : 
                          cat.name.toLowerCase().contains('business') ? 'https://images.openai.com/static-rsc-4/T4UMViTYEgeA_S0Ndx7JlvzU8mmVpk5e0MloZBpbWUOtdf4LRgeeUNv0caEyfDZ9y0qCrA8sFkzcammbZmVJaWGJXmJzJBUdRN-JDKXHWtguRwvWp-ThaO4VUTX6SBchKMJ5Es90qEHn9VIVVvx9tvcSJaOhYQwHc5C2ncb8u-e6B1ZBComHzjJ2G0k5RyRO?purpose=fullsize' : 
                          cat.name.toLowerCase().contains('productivity') ? 'https://images.openai.com/static-rsc-4/GAfqX2RzSKoB3Logyr6Q8j2WQ2lutd_Nl30E1EeX85IcMHv2tKhk337JvgwT25v8QWhqehl3b8gV-nysCiCp8Br25l6ai8u3WQEK1tZ8ef7sOYgdcGGIj1g_E6RWeZwIuubvkEc3SrZdExk16nfAZIXB1ZN6lVsLeyt2lmtufDJTD1U0l-LLL00zS--cSOJq?purpose=fullsize' : 
@@ -1514,15 +1524,21 @@
       <div class="courses-grid">
 
         <th:block th:each="course, iterStat : ${courses}">
-          <div class="course-card" th:if="${iterStat.index < 3}">
+          <div class="course-card" th:if="${iterStat.index < 5}">
             <img
               th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}"
               onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
               class="course-thumb" th:alt="${course.title}">
             <div class="course-body">
-              <div class="course-meta">
-                <span class="course-cat-tag"
-                  th:text="${course.category != null ? course.category.name : 'Skill'}">Category</span>
+              <div class="course-meta" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="course-cat-tag"
+                    th:text="${course.category != null ? course.category.name : 'Skill'}">Category</span>
+                  <span th:if="${course.format != null and #strings.contains(course.format, 'Video')}" 
+                        style="font-size: 0.75rem; background: rgba(164, 53, 240, 0.12); color: #a435f0; padding: 2px 7px; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+                    <i class="fas fa-play-circle"></i> Video
+                  </span>
+                </div>
                 <span class="course-rating">★ <span th:text="${course.averageRating}">4.9</span></span>
               </div>
               <div class="course-title" th:text="${course.title}">Course Title</div>
@@ -1532,13 +1548,22 @@
                 <div class="progress-fill" style="width:78%"></div>
               </div>
               <div class="course-footer">
-                <div><span class="course-price" th:text="'₹' + ${course.price}">₹1,499</span></div>
-                <a th:href="@{/course/{id}(id=${course.id})}" class="enroll-btn" style="text-decoration:none">View
-                  Details</a>
+                <div>
+                  <span class="course-price" th:text="${course.price != null and course.price > 0 ? '₹' + #numbers.formatDecimal(course.price, 0, 'COMMA', 2, 'POINT') : 'Free'}">₹1,499</span>
+                </div>
+                <a th:href="@{/course/{id}(id=${course.id})}" class="enroll-btn" style="text-decoration:none">View Details</a>
               </div>
             </div>
           </div>
         </th:block>
+
+        <!-- Empty state if category has no courses -->
+        <div th:if="${#lists.isEmpty(courses)}" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 14px; margin: 1rem 0;">
+          <i class="fas fa-video-slash" style="font-size: 2.5rem; color: #a435f0; margin-bottom: 1rem; display: block;"></i>
+          <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">No Courses Found In This Category</h3>
+          <p style="color: #6a6f73; margin-bottom: 1.5rem; font-size: 0.95rem;">New video masterclasses and tutorials for <span th:text="${activeCategory != null ? activeCategory : 'this category'}">this category</span> will be available soon.</p>
+          <a th:href="@{/#categories}" class="btn-ghost" style="text-decoration:none; display: inline-block;">Browse Other Categories</a>
+        </div>
 
       </div>
       <div style="text-align:center;margin-top:3rem;">

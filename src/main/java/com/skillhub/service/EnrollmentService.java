@@ -50,19 +50,22 @@ public class EnrollmentService {
 
         // Find existing progress or create new
         LectureProgress progress = lectureProgressRepository.findByUserAndLecture(user, lecture)
-                .orElse(new LectureProgress(user, lecture));
+                .orElse(null);
 
-        if (!progress.isCompleted()) {
+        if (progress == null) {
+            progress = new LectureProgress(user, lecture);
             progress.setCompleted(true);
             progress.setCompletedAt(java.time.LocalDateTime.now());
             lectureProgressRepository.saveAndFlush(progress);
-
-            // Update last played to this one
-            updateLastPlayed(user, lecture.getSection().getCourse().getId(), lectureId);
-
-            // Update Course Progress
-            updateCourseProgress(user, lecture.getSection().getCourse());
+        } else if (!progress.isCompleted()) {
+            progress.setCompleted(true);
+            progress.setCompletedAt(java.time.LocalDateTime.now());
+            lectureProgressRepository.saveAndFlush(progress);
         }
+
+        // Always update last played and recompute course progress
+        updateLastPlayed(user, lecture.getSection().getCourse().getId(), lectureId);
+        updateCourseProgress(user, lecture.getSection().getCourse());
     }
 
     @Transactional

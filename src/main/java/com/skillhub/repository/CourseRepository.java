@@ -31,9 +31,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByCategoryName(String name);
 
-    @Query("SELECT c FROM Course c WHERE (c.status = :status OR (c.status IS NULL AND c.isPublished = true)) AND LOWER(c.category.name) = LOWER(:categoryName)")
+    @Query("SELECT c FROM Course c WHERE (c.status = :status OR (c.status IS NULL AND c.isPublished = true)) AND LOWER(c.category.name) = LOWER(:categoryName) ORDER BY c.id DESC")
     List<Course> findPublishedByCategoryName(@Param("status") CourseStatus status, @Param("categoryName") String categoryName);
 
-    @Query("SELECT c FROM Course c WHERE (c.status = :status OR (c.status IS NULL AND c.isPublished = true))")
+    @Query("SELECT c FROM Course c WHERE (c.status = :status OR (c.status IS NULL AND c.isPublished = true)) ORDER BY c.id DESC")
     List<Course> findPublishedCourses(@Param("status") CourseStatus status);
+
+    @Query("SELECT c FROM Course c WHERE (c.status = :status OR (c.status IS NULL AND c.isPublished = true)) AND c.category = :category ORDER BY c.id DESC")
+    List<Course> findPublishedByCategory(@Param("status") CourseStatus status, @Param("category") Category category);
 }

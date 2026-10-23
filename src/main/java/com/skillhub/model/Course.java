@@ -109,6 +109,9 @@ public class Course {
 
     private Long viewCount = 0L;
 
+    @Column(name = "viewed_user_ids", columnDefinition = "TEXT")
+    private String viewedUserIds;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Enrollment> enrollments = new ArrayList<>();
 
@@ -598,10 +601,43 @@ public class Course {
     }
 
     public Long getViewCount() {
-        return viewCount;
+        if (viewedUserIds != null && !viewedUserIds.trim().isEmpty()) {
+            return (long) getViewedUserIdSet().size();
+        }
+        return viewCount != null ? viewCount : 0L;
     }
 
     public void setViewCount(Long viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public String getViewedUserIds() {
+        return viewedUserIds;
+    }
+
+    public void setViewedUserIds(String viewedUserIds) {
+        this.viewedUserIds = viewedUserIds;
+    }
+
+    public java.util.Set<Long> getViewedUserIdSet() {
+        if (this.viewedUserIds == null || this.viewedUserIds.trim().isEmpty()) {
+            return new java.util.HashSet<>();
+        }
+        return java.util.Arrays.stream(this.viewedUserIds.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::parseLong)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
+    public boolean recordUserView(Long userId) {
+        if (userId == null) return false;
+        java.util.Set<Long> set = getViewedUserIdSet();
+        if (set.add(userId)) {
+            this.viewedUserIds = set.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));
+            this.viewCount = (long) set.size();
+            return true;
+        }
+        return false;
     }
 }
