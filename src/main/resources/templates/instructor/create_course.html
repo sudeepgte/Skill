@@ -9,53 +9,53 @@
     <!-- Google Fonts & Font Awesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/vendor_dashboard.css}">
 
     <style>
         :root {
-            /* Clean Commercial Palette */
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --bg-page: #f8fafc;
+            /* Theme matching /vendor/exams */
+            --font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --bg-page: #F5F3FF;
             --bg-card: #ffffff;
-            --bg-card-subtle: #f1f5f9;
-            --border-subtle: #e2e8f0;
-            --border-hover: #cbd5e1;
-            --border-focus: #6366f1;
+            --bg-card-subtle: #F5F3FF;
+            --border-subtle: #C4B5FD;
+            --border-hover: #8B5CF6;
+            --border-focus: #8B5CF6;
 
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-main: #2E1065;
+            --text-secondary: #5B21B6;
+            --text-muted: #6D28D9;
 
-            /* Brand Accent: Deep Indigo */
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --primary-light: #eef2ff;
-            --primary-border: #c7d2fe;
+            /* Brand Accent matching /vendor/exams */
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-light: #EDE9FE;
+            --primary-border: #C4B5FD;
 
             /* Semantics */
-            --success: #059669;
-            --success-light: #ecfdf5;
-            --success-border: #a7f3d0;
-            --warning: #d97706;
-            --warning-light: #fffbeb;
-            --warning-border: #fde68a;
-            --danger: #e11d48;
-            --danger-light: #fff1f2;
-            --danger-border: #fecdd3;
-            --info: #2563eb;
-            --info-light: #eff6ff;
-            --info-border: #bfdbfe;
+            --success: #10B981;
+            --success-light: #ECFDF5;
+            --success-border: #A7F3D0;
+            --warning: #F59E0B;
+            --warning-light: #FFFBEB;
+            --warning-border: #FDE68A;
+            --danger: #EF4444;
+            --danger-light: #FEF2F2;
+            --danger-border: #FECACA;
+            --info: #8B5CF6;
+            --info-light: #F5F3FF;
+            --info-border: #C4B5FD;
 
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-            --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-sm: 0 1px 3px 0 rgba(46, 16, 101, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(46, 16, 101, 0.07), 0 2px 4px -2px rgba(46, 16, 101, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(46, 16, 101, 0.1), 0 4px 6px -4px rgba(46, 16, 101, 0.05);
+            --shadow-modal: 0 20px 25px -5px rgba(46, 16, 101, 0.2), 0 8px 10px -6px rgba(46, 16, 101, 0.1);
 
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
             --radius-full: 9999px;
             --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -85,7 +85,7 @@
             position: sticky;
             top: 0;
             z-index: 900;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 4px rgba(46, 16, 101, 0.04);
         }
 
         .topbar-left {
@@ -254,7 +254,7 @@
             padding: 1.5rem;
             position: sticky;
             top: 85px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .stepper-header {
@@ -351,7 +351,7 @@
             background: var(--primary);
             color: #ffffff;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
         }
 
         .step-item.completed .step-indicator {
@@ -424,12 +424,13 @@
             border-radius: var(--radius-lg);
             padding: 2rem;
             margin-bottom: 1.75rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: var(--transition-smooth);
         }
 
         .form-card:hover {
-            border-color: var(--border-hover);
+            border-color: var(--primary);
+            box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.12);
         }
 
         .form-card-header {
@@ -528,7 +529,7 @@
         .input-select:focus,
         .input-textarea:focus {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
             background: #ffffff;
         }
 
@@ -584,7 +585,7 @@
 
         .category-search-input:focus {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
         }
 
         .selected-category-banner {
@@ -640,7 +641,7 @@
         }
         .multiselect-box.active {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
         }
         .multiselect-tags-wrapper {
             display: flex;
@@ -663,7 +664,7 @@
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 6px;
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
         .multiselect-tag-pill .remove-tag-btn {
             cursor: pointer;
@@ -774,7 +775,7 @@
 
         .objective-row:focus-within {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
         }
 
         .objective-handle {
@@ -838,14 +839,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--primary-light);
-            border: 1px solid var(--primary-border);
+            background: #EDE9FE;
+            border: 1px solid var(--border-subtle);
             padding: 0.85rem 1.25rem;
             border-radius: var(--radius-md);
             margin-bottom: 1.5rem;
             font-size: 0.88rem;
             font-weight: 600;
-            color: var(--primary);
+            color: #6D28D9;
         }
 
         .curriculum-stats {
@@ -978,7 +979,7 @@
         /* ══ DRAG & DROP MEDIA UPLOADS ══ */
         .upload-dropzone {
             border: 2px dashed var(--border-subtle);
-            border-radius: var(--radius-md);
+            border-radius: 16px;
             padding: 2.25rem 1.5rem;
             text-align: center;
             background: #ffffff;
@@ -990,7 +991,7 @@
         .upload-dropzone:hover,
         .upload-dropzone.drag-over {
             border-color: var(--primary);
-            background: var(--primary-light);
+            background: #F5F3FF;
         }
 
         .upload-dropzone-icon {
@@ -1132,7 +1133,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 850;
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 -4px 10px rgba(46, 16, 101, 0.06);
             transition: left 0.2s ease;
         }
 
@@ -1178,19 +1179,21 @@
             padding: 9px 20px;
             border-radius: var(--radius-sm);
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: var(--transition-smooth);
             font-family: inherit;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
         }
 
         .btn-primary:hover {
             background: var(--primary-hover);
             border-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(139, 92, 246, 0.35);
         }
 
         .btn-submit-review {
@@ -1374,6 +1377,9 @@
                 </a>
                 <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item">
                     <i class="fas fa-question-circle"></i> Student Questions
+                </a>
+                <a th:href="@{/vendor/dashboard(tab='communications')}" class="vendor-nav-item">
+                    <i class="fas fa-comments"></i> Communications
                 </a>
                 <a th:href="@{/vendor/exams}" class="vendor-nav-item">
                     <i class="fas fa-file-signature"></i> Manage Exams
