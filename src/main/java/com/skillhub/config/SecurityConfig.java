@@ -48,7 +48,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder)
             throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**", "/ws/**"))
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**", "/ws/**", "/vendor/courses/*/questions/**"))
                 .exceptionHandling(exception -> exception
                         .defaultAuthenticationEntryPointFor(
                                 unauthorizedHandler,

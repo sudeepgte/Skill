@@ -57,6 +57,9 @@ public class Course {
 
     private String lastUpdated;
 
+    @Column(name = "exam_updated_at")
+    private LocalDateTime examUpdatedAt;
+
     @Column(length = 1000)
     private String videoUrl; // Promotional or intro video
 
@@ -363,6 +366,45 @@ public class Course {
 
     public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public LocalDateTime getExamUpdatedAt() {
+        return examUpdatedAt;
+    }
+
+    public void setExamUpdatedAt(LocalDateTime examUpdatedAt) {
+        this.examUpdatedAt = examUpdatedAt;
+    }
+
+    @Transient
+    public String getFormattedExamDate() {
+        LocalDateTime dt = getEffectiveExamTimestamp();
+        return dt.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy"));
+    }
+
+    @Transient
+    public String getFormattedExamTime() {
+        LocalDateTime dt = getEffectiveExamTimestamp();
+        return dt.format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a"));
+    }
+
+    @Transient
+    public String getFormattedExamDateTime() {
+        LocalDateTime dt = getEffectiveExamTimestamp();
+        return dt.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+    }
+
+    private LocalDateTime getEffectiveExamTimestamp() {
+        if (examUpdatedAt != null) {
+            return examUpdatedAt;
+        }
+        if (submittedAt != null) {
+            return submittedAt;
+        }
+        if (reviewedAt != null) {
+            return reviewedAt;
+        }
+        return LocalDateTime.now();
     }
 
     public String getVideoUrl() {
