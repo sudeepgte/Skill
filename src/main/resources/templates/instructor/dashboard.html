@@ -188,6 +188,405 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 18px rgba(46, 16, 101, 0.35);
         }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ── Course Status Filter Buttons ── */
+        .course-filter-group {
+            display: inline-flex;
+            align-items: center;
+            background: #F8FAFC;
+            padding: 4px 6px;
+            border-radius: 9999px;
+            border: 1px solid #E2E8F0;
+            gap: 6px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .course-filter-btn {
+            text-decoration: none !important;
+            font-size: 0.86rem;
+            font-weight: 600;
+            padding: 7px 18px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: #64748B;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        .course-filter-btn:hover {
+            color: #1E293B;
+            background: #F1F5F9;
+            border-color: #CBD5E1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+        .course-filter-btn.active-all {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-published {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-pending {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-draft {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(107, 114, 128, 0.35) !important;
+            transform: translateY(-1px);
+        }
+        .course-filter-btn.active-rejected {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+            transform: translateY(-1px);
+        }
+
+        /* ── Neat Popup Modal & Toast System ── */
+        .neat-popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: neatFadeIn 0.25s ease-out;
+        }
+
+        .neat-popup-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 460px;
+            width: 100%;
+            padding: 2.2rem 2rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            animation: neatPopupScale 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes neatFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes neatPopupScale {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .neat-popup-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: #F1F5F9;
+            color: #64748B;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .neat-popup-close-btn:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            transform: scale(1.08);
+        }
+
+        .neat-popup-icon-wrap {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.25rem;
+        }
+
+        .neat-popup-icon-wrap.success-gradient {
+            background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+            color: #16A34A;
+            box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.3);
+        }
+
+        .neat-popup-icon-wrap.error-gradient {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            color: #DC2626;
+            box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.3);
+        }
+
+        .neat-popup-icon-wrap.warning-gradient {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #D97706;
+            box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.3);
+        }
+
+        .neat-popup-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0 0 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .neat-popup-message {
+            font-size: 0.98rem;
+            color: #475569;
+            line-height: 1.55;
+            margin: 0 0 1.75rem;
+        }
+
+        .neat-popup-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .neat-popup-btn {
+            border: none;
+            padding: 0.75rem 1.6rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .neat-popup-btn-primary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+        }
+        .neat-popup-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+        }
+
+        .neat-popup-btn-secondary {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+        }
+        .neat-popup-btn-secondary:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            transform: translateY(-1px);
+        }
+
+        .neat-popup-btn-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .neat-popup-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
+        }
+
+        .neat-popup-btn-error {
+            background: #0F172A;
+            color: #FFFFFF;
+        }
+        .neat-popup-btn-error:hover {
+            background: #1E293B;
+            transform: translateY(-1px);
+        }
+
+        /* ── Floating Toast System ── */
+        .neat-toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10050;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .neat-toast {
+            pointer-events: auto;
+            background: #FFFFFF;
+            border-radius: 14px;
+            padding: 14px 20px;
+            min-width: 300px;
+            max-width: 420px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: neatToastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s ease;
+        }
+
+        @keyframes neatToastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        .neat-toast.toast-hide {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+
+        .neat-toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .neat-toast.success .neat-toast-icon { color: #10B981; }
+        .neat-toast.error .neat-toast-icon { color: #EF4444; }
+        .neat-toast.warning .neat-toast-icon { color: #F59E0B; }
+        .neat-toast.info .neat-toast-icon { color: #8B5CF6; }
+
+        .neat-toast-text {
+            flex-grow: 1;
+            font-size: 0.92rem;
+            color: #1E293B;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .neat-toast-close {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .neat-toast-close:hover {
+            color: #0F172A;
+        }
+
+        /* ── Modern Status Badges in Table ── */
+        .status-cell {
+            white-space: nowrap;
+        }
+
+        .course-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 13px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .course-status-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .course-status-pill .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        /* Published - Emerald */
+        .course-status-pill.status-published {
+            background-color: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+        .course-status-pill.status-published .status-dot {
+            background-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Pending Review - Amber */
+        .course-status-pill.status-pending {
+            background-color: #FFFBEB;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+        .course-status-pill.status-pending .status-dot {
+            background-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+        }
+
+        /* Draft - Cool Slate */
+        .course-status-pill.status-draft {
+            background-color: #F8FAFC;
+            color: #475569;
+            border: 1px solid #CBD5E1;
+        }
+        .course-status-pill.status-draft .status-dot {
+            background-color: #64748B;
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.2);
+        }
+
+        /* Changes Requested - Rose Red */
+        .course-status-pill.status-rejected {
+            background-color: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        .course-status-pill.status-rejected .status-dot {
+            background-color: #EF4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+        }
     </style>
 </head>
 
@@ -226,7 +625,10 @@
                 <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item" th:classappend="${activeTab == 'questions'} ? 'active'">
                     <i class="fas fa-question-circle"></i> Student Questions
                 </a>
-                <a th:href="@{/vendor/exams}" class="vendor-nav-item">
+                <a th:href="@{/vendor/dashboard(tab='communications')}" class="vendor-nav-item" th:classappend="${activeTab == 'communications'} ? 'active'">
+                    <i class="fas fa-comments"></i> Communications
+                </a>
+                <a th:href="@{/vendor/exams}" class="vendor-nav-item" th:classappend="${activeTab == 'exams'} ? 'active'">
                     <i class="fas fa-file-signature"></i> Manage Exams
                 </a>
                 <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item" th:classappend="${activeTab == 'profile'} ? 'active'">
@@ -255,35 +657,75 @@
                 </a>
             </header>
 
-            <!-- Alerts -->
-            <!-- Celebratory Popup Modal for Course Actions -->
-            <div th:if="${success}" id="successCelebrationModal" class="modal-overlay" style="display: flex; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center;">
-                <div style="background: white; border-radius: 20px; max-width: 500px; width: 90%; padding: 2.5rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative;">
-                    <button type="button" onclick="document.getElementById('successCelebrationModal').style.display='none'" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; font-size: 1.1rem; transition: all 0.2s;">
+            <!-- ══ NEAT POPUP MESSAGES (Success, Error, Delete Confirmation) ══ -->
+            <!-- 1. Success Popup Modal -->
+            <div th:if="${success}" id="neatSuccessPopupModal" class="neat-popup-backdrop" onclick="closeNeatPopup('neatSuccessPopupModal', event)">
+                <div class="neat-popup-card" onclick="event.stopPropagation()">
+                    <button type="button" class="neat-popup-close-btn" onclick="closeNeatPopup('neatSuccessPopupModal')" title="Close">
                         <i class="fas fa-times"></i>
                     </button>
-                    <div style="width: 76px; height: 76px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin: 0 auto 1.5rem; box-shadow: 0 10px 25px -5px rgba(22, 163, 74, 0.3);">
+                    <div class="neat-popup-icon-wrap success-gradient">
                         <i class="fas fa-check"></i>
                     </div>
-                    <h2 style="font-size: 1.7rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem;">Success!</h2>
-                    <p style="font-size: 1.05rem; color: #475569; line-height: 1.6; margin-bottom: 2rem;" th:text="${success}">Action completed successfully!</p>
-                    <div style="display: flex; gap: 1rem; justify-content: center;">
-                        <button type="button" onclick="document.getElementById('successCelebrationModal').style.display='none'" style="background: #2563eb; color: white; border: none; padding: 0.85rem 1.8rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-                            <i class="fas fa-layer-group" style="margin-right: 8px;"></i> View Courses
+                    <h3 class="neat-popup-title">Success!</h3>
+                    <p class="neat-popup-message" th:text="${success}">Action completed successfully!</p>
+                    <div class="neat-popup-actions">
+                        <button type="button" class="neat-popup-btn neat-popup-btn-primary" onclick="closeNeatPopup('neatSuccessPopupModal')">
+                            <i class="fas fa-check-circle"></i> Okay, Got It
                         </button>
-                        <a href="/vendor/courses/create" style="background: #f1f5f9; color: #334155; text-decoration: none; padding: 0.85rem 1.6rem; border-radius: 12px; font-weight: 600; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-plus"></i> Create Another
+                        <a th:if="${activeTab == 'courses' or activeTab == null}" href="/vendor/courses/create" class="neat-popup-btn neat-popup-btn-secondary">
+                            <i class="fas fa-plus"></i> Create Course
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div th:if="${success}" style="background:#d1fae5; border-left:4px solid #10b981; color:#065f46; padding:1.2rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500; font-size:1.1rem;">
-                <i class="fas fa-check-circle" style="color:#10b981; margin-right:8px;"></i> <span th:text="${success}">Success message</span>
+            <!-- 2. Error Popup Modal -->
+            <div th:if="${error}" id="neatErrorPopupModal" class="neat-popup-backdrop" onclick="closeNeatPopup('neatErrorPopupModal', event)">
+                <div class="neat-popup-card" onclick="event.stopPropagation()">
+                    <button type="button" class="neat-popup-close-btn" onclick="closeNeatPopup('neatErrorPopupModal')" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="neat-popup-icon-wrap error-gradient">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <h3 class="neat-popup-title">Notice</h3>
+                    <p class="neat-popup-message" th:text="${error}">An error occurred. Please try again.</p>
+                    <div class="neat-popup-actions">
+                        <button type="button" class="neat-popup-btn neat-popup-btn-error" onclick="closeNeatPopup('neatErrorPopupModal')">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div th:if="${error}" style="background:#fee2e2; border-left:4px solid #ef4444; color:#991b1b; padding:1.2rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500; font-size:1.1rem;">
-                <i class="fas fa-exclamation-circle" style="color:#ef4444; margin-right:8px;"></i> <span th:text="${error}">Error message</span>
+
+            <!-- 3. Delete Course Confirmation Popup Modal (Replaces browser confirm alert) -->
+            <div id="deleteCourseConfirmModal" class="neat-popup-backdrop" style="display: none;" onclick="closeDeleteCourseModal(event)">
+                <div class="neat-popup-card" onclick="event.stopPropagation()">
+                    <button type="button" class="neat-popup-close-btn" onclick="closeDeleteCourseModal()" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="neat-popup-icon-wrap warning-gradient">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3 class="neat-popup-title">Delete Course?</h3>
+                    <p class="neat-popup-message">
+                        Are you sure you want to delete <strong id="deleteCourseNameDisplay" style="color: #0F172A; font-weight: 700;">this course</strong>?
+                        This action cannot be undone.
+                    </p>
+                    <div class="neat-popup-actions">
+                        <button type="button" class="neat-popup-btn neat-popup-btn-secondary" onclick="closeDeleteCourseModal()">
+                            Cancel
+                        </button>
+                        <button type="button" class="neat-popup-btn neat-popup-btn-danger" onclick="submitDeleteCourse()">
+                            <i class="fas fa-trash-alt"></i> Yes, Delete
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            <!-- 4. Floating Toast Container for dynamic alerts -->
+            <div id="neatToastContainer" class="neat-toast-container"></div>
 
             <!-- Stats Grid - Only show on main dashboard tab -->
             <div class="vendor-stats-grid" th:if="${activeTab == 'courses' or activeTab == null}">
@@ -331,30 +773,47 @@
             </div>
 
             <!-- Manage Courses Panel -->
-            <div class="vendor-panel" th:if="${activeTab == 'courses' or activeTab == null}">
+            <div class="vendor-panel" id="coursesTableSection" th:if="${activeTab == 'courses' or activeTab == null}">
                 <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
                     <h2>Manage Your Courses</h2>
-                    <div class="panel-controls" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <a th:href="@{/vendor/dashboard(tab='courses', status='ALL')}" class="status-badge"
-                           th:style="${statusFilter == 'ALL' or statusFilter == null ? 'background:#8B5CF6; color:#fff;' : 'background:#EDE9FE; color:#2E1065;'}">
-                            All
-                        </a>
-                        <a th:href="@{/vendor/dashboard(tab='courses', status='PUBLISHED')}" class="status-badge"
-                           th:style="${statusFilter == 'PUBLISHED' ? 'background:#10b981; color:#fff;' : 'background:#d1fae5; color:#065f46;'}">
-                            Published
-                        </a>
-                        <a th:href="@{/vendor/dashboard(tab='courses', status='PENDING_REVIEW')}" class="status-badge"
-                           th:style="${statusFilter == 'PENDING_REVIEW' ? 'background:#f59e0b; color:#fff;' : 'background:#fef3c7; color:#92400e;'}">
-                            Pending Review
-                        </a>
-                        <a th:href="@{/vendor/dashboard(tab='courses', status='DRAFT')}" class="status-badge"
-                           th:style="${statusFilter == 'DRAFT' ? 'background:#6b7280; color:#fff;' : 'background:#f3f4f6; color:#374151;'}">
-                            Drafts
-                        </a>
-                        <a th:href="@{/vendor/dashboard(tab='courses', status='REJECTED')}" class="status-badge"
-                           th:style="${statusFilter == 'REJECTED' ? 'background:#ef4444; color:#fff;' : 'background:#fee2e2; color:#991b1b;'}">
-                            Changes Requested
-                        </a>
+                    <div class="panel-controls">
+                        <div class="course-filter-group">
+                            <a th:href="@{/vendor/dashboard(tab='courses', status='ALL')}"
+                               data-filter="ALL"
+                               onclick="filterCourses(event, 'ALL')"
+                               class="course-filter-btn"
+                               th:classappend="${statusFilter == 'ALL' or statusFilter == null ? 'active-all' : ''}">
+                                <i class="fas fa-layer-group"></i> All
+                            </a>
+                            <a th:href="@{/vendor/dashboard(tab='courses', status='PUBLISHED')}"
+                               data-filter="PUBLISHED"
+                               onclick="filterCourses(event, 'PUBLISHED')"
+                               class="course-filter-btn"
+                               th:classappend="${statusFilter == 'PUBLISHED' ? 'active-published' : ''}">
+                                <i class="fas fa-check-circle"></i> Published
+                            </a>
+                            <a th:href="@{/vendor/dashboard(tab='courses', status='PENDING_REVIEW')}"
+                               data-filter="PENDING_REVIEW"
+                               onclick="filterCourses(event, 'PENDING_REVIEW')"
+                               class="course-filter-btn"
+                               th:classappend="${statusFilter == 'PENDING_REVIEW' ? 'active-pending' : ''}">
+                                <i class="fas fa-clock"></i> Pending Review
+                            </a>
+                            <a th:href="@{/vendor/dashboard(tab='courses', status='DRAFT')}"
+                               data-filter="DRAFT"
+                               onclick="filterCourses(event, 'DRAFT')"
+                               class="course-filter-btn"
+                               th:classappend="${statusFilter == 'DRAFT' ? 'active-draft' : ''}">
+                                <i class="fas fa-pencil-alt"></i> Drafts
+                            </a>
+                            <a th:href="@{/vendor/dashboard(tab='courses', status='REJECTED')}"
+                               data-filter="REJECTED"
+                               onclick="filterCourses(event, 'REJECTED')"
+                               class="course-filter-btn"
+                               th:classappend="${statusFilter == 'REJECTED' ? 'active-rejected' : ''}">
+                                <i class="fas fa-exclamation-triangle"></i> Changes Requested
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -371,7 +830,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="course : ${courses}" class="course-row">
+                            <tr th:each="course : ${allCourses != null ? allCourses : courses}" 
+                                class="course-row"
+                                th:data-course-status="${course.status != null ? course.status.name() : ''}"
+                                th:style="${statusFilter != 'ALL' and statusFilter != null and course.status != null and course.status.name() != statusFilter ? 'display: none;' : ''}">
                                 <td>
                                     <div class="course-info">
                                         <img th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}" onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';" class="course-thumb" alt="Thumbnail">
@@ -390,17 +852,27 @@
                                     <span th:text="${course.category != null ? course.category.name : 'Uncategorized'}">Category</span>
                                     <div style="font-size:0.8rem; color:#8B5CF6;" th:if="${course.subCategory != null}" th:text="${course.subCategory}">Subcategory</div>
                                 </td>
-                                <td>
-                                    <span class="status-badge published" th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}">PUBLISHED</span>
-                                    <span class="status-badge" style="background:#fef3c7; color:#92400e;" th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}">PENDING REVIEW</span>
-                                    <span class="status-badge" style="background:#f3f4f6; color:#374151;" th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT}">DRAFT</span>
-                                    <span class="status-badge" style="background:#fee2e2; color:#991b1b;" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}">CHANGES REQ</span>
-                                </td>
-                                <td>
-                                    <span class="status-badge" th:text="${course.status != null ? course.status : 'PUBLISHED'}" 
-                                          th:style="${course.status == 'DRAFT'} ? 'background-color:#fef3c7; color:#92400e;' : 
-                                                    (${course.status == 'PENDING_REVIEW'} ? 'background-color:#e0e7ff; color:#3730a3;' : 
-                                                    'background-color:#d1fae5; color:#065f46;')">PUBLISHED</span>
+                                <td class="status-cell">
+                                    <span class="course-status-pill status-published" th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}">
+                                        <span class="status-dot"></span>
+                                        <span>Published</span>
+                                    </span>
+                                    <span class="course-status-pill status-pending" th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}">
+                                        <span class="status-dot"></span>
+                                        <span>Pending Review</span>
+                                    </span>
+                                    <span class="course-status-pill status-draft" th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT}">
+                                        <span class="status-dot"></span>
+                                        <span>Draft</span>
+                                    </span>
+                                    <span class="course-status-pill status-rejected" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}">
+                                        <span class="status-dot"></span>
+                                        <span>Changes Req</span>
+                                    </span>
+                                    <span class="course-status-pill status-draft" th:if="${course.status == null}">
+                                        <span class="status-dot"></span>
+                                        <span>Unknown</span>
+                                    </span>
                                 </td>
                                 <td th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</td>
                                 <td>
@@ -410,13 +882,6 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="action-btns" style="display:flex; gap:10px; align-items:center;">
-                                        <form th:if="${course.status == 'DRAFT'}" th:action="@{/vendor/courses/{id}/submit(id=${course.id})}" method="post" style="display:inline;">
-                                            <button type="submit" class="btn-outline" style="padding: 4px 8px; font-size: 0.8rem; border-color: var(--primary); color: var(--primary); border-radius: 4px;" title="Submit for Review">
-                                                Submit
-                                            </button>
-                                        </form>
-                                        <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn-icon" title="Edit">
                                     <div class="action-btns" style="display:flex; gap:8px; align-items:center;">
                                         <!-- Edit action -->
                                         <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" class="btn-icon" title="Edit Course">
@@ -437,16 +902,17 @@
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
 
-                                        <form th:action="@{/vendor/courses/{id}/delete(id=${course.id})}" method="post" style="display:inline;"
-                                              onsubmit="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
-                                            <button type="submit" class="btn-icon delete" title="Delete" style="background:none; border:none; cursor:pointer; color:#A78BFA; padding:0;">
+                                        <form th:id="'deleteCourseForm_' + ${course.id}" th:action="@{/vendor/courses/{id}/delete(id=${course.id})}" method="post" style="display:inline;">
+                                            <button type="button" class="btn-icon delete" title="Delete Course"
+                                                    th:data-course-id="${course.id}" th:data-course-title="${course.title}" onclick="openDeleteCourseModal(this.getAttribute('data-course-id'), this.getAttribute('data-course-title'))"
+                                                    style="background:none; border:none; cursor:pointer; color:#ef4444; padding:0;">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(courses)}">
+                            <tr id="noCoursesFilterRow" th:style="${(#lists.isEmpty(courses) or #lists.isEmpty(allCourses)) ? '' : 'display: none;'}">
                                 <td colspan="6" style="text-align: center; padding: 3rem; color: #6a6f73;">
                                     <i class="fas fa-graduation-cap" style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; display:block;"></i>
                                     No courses found matching this status.
@@ -694,7 +1160,7 @@
             </div>
 
             <!-- Profile Tab (if selected) -->
-            <div class="vendor-panel" th:if="${activeTab == 'reviews'}">
+            <div class="vendor-panel" th:if="${activeTab == 'reviews' or activeTab == 'communications'}">
                 <div class="panel-header">
                     <h2>Student Reviews</h2>
                 </div>
@@ -744,7 +1210,7 @@
                 </div>
             </div>
 
-            <div class="vendor-panel" th:if="${activeTab == 'questions'}">
+            <div class="vendor-panel" th:if="${activeTab == 'questions' or activeTab == 'communications'}">
                 <div class="panel-header">
                     <h2>Student Questions</h2>
                 </div>
@@ -803,15 +1269,7 @@
                     <h2 style="font-size: 2rem; font-weight: 800; color: #2E1065;">Profile Management</h2>
                 </div>
                 
-                <!-- Success/Error Messages -->
-                <div th:if="${success}" class="alert alert-success" style="background-color: #d1fae5; color: #065f46; padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #10b981; font-weight: 500; display: flex; align-items: center; gap: 0.8rem; font-size: 1.3rem;">
-                    <i class="fas fa-check-circle" style="font-size: 1.6rem; color: #10b981;"></i>
-                    <span th:text="${success}"></span>
-                </div>
-                <div th:if="${error}" class="alert alert-danger" style="background-color: #fee2e2; color: #991b1b; padding: 1.2rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #f87171; font-weight: 500; display: flex; align-items: center; gap: 0.8rem; font-size: 1.3rem;">
-                    <i class="fas fa-exclamation-circle" style="font-size: 1.6rem; color: #f87171;"></i>
-                    <span th:text="${error}"></span>
-                </div>
+                <!-- Global popup modals handle success/error messages -->
                 
                 <form th:action="@{/vendor/profile/update}" method="post" enctype="multipart/form-data" class="profile-edit-form">
                     <!-- CRITICAL: CSRF Token -->
@@ -1196,6 +1654,164 @@
         function closeExamDetailsModal() {
             document.getElementById('examDetailsModal').style.display = 'none';
         }
+
+        // Instant In-Place Filter without page reload and without scrolling
+        function filterCourses(event, status) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // 1. Update button active classes
+            const buttons = document.querySelectorAll('.course-filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active-all', 'active-published', 'active-pending', 'active-draft', 'active-rejected');
+            });
+
+            const activeClassMap = {
+                'ALL': 'active-all',
+                'PUBLISHED': 'active-published',
+                'PENDING_REVIEW': 'active-pending',
+                'DRAFT': 'active-draft',
+                'REJECTED': 'active-rejected'
+            };
+
+            const targetBtn = document.querySelector(`.course-filter-btn[data-filter="${status}"]`);
+            if (targetBtn && activeClassMap[status]) {
+                targetBtn.classList.add(activeClassMap[status]);
+            }
+
+            // 2. Filter rows in-place (no scroll up or down)
+            const rows = document.querySelectorAll('.vendor-table tbody tr.course-row');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                if (status === 'ALL' || rowStatus === status) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // 3. Toggle empty state message
+            const emptyRow = document.getElementById('noCoursesFilterRow');
+            if (emptyRow) {
+                emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+            }
+
+            // 4. Update browser URL without reload or scroll jump
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', 'courses');
+                url.searchParams.set('status', status);
+                url.hash = '';
+                window.history.replaceState({ status: status }, '', url.toString());
+            } catch (e) {
+                window.history.replaceState({ status: status }, '', '/vendor/dashboard?tab=courses&status=' + encodeURIComponent(status));
+            }
+        }
+
+        // ── Neat Popup & Delete Modal Handlers ──
+        function closeNeatPopup(modalId, event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.transition = 'opacity 0.2s ease';
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 200);
+            }
+        }
+
+        let pendingDeleteCourseId = null;
+
+        function openDeleteCourseModal(courseId, courseTitle) {
+            pendingDeleteCourseId = courseId;
+            const nameEl = document.getElementById('deleteCourseNameDisplay');
+            if (nameEl) {
+                nameEl.textContent = courseTitle ? ('"' + courseTitle + '"') : 'this course';
+            }
+            const modal = document.getElementById('deleteCourseConfirmModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.style.opacity = '1';
+            }
+        }
+
+        function closeDeleteCourseModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('deleteCourseConfirmModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            pendingDeleteCourseId = null;
+        }
+
+        function submitDeleteCourse() {
+            if (pendingDeleteCourseId) {
+                const form = document.getElementById('deleteCourseForm_' + pendingDeleteCourseId);
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+
+        // Floating Toast Function (Replaces browser alert)
+        function showNeatToast(message, type = 'info') {
+            const container = document.getElementById('neatToastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = 'neat-toast ' + type;
+
+            let iconHtml = '<i class="fas fa-info-circle"></i>';
+            if (type === 'success') iconHtml = '<i class="fas fa-check-circle"></i>';
+            if (type === 'error') iconHtml = '<i class="fas fa-exclamation-circle"></i>';
+            if (type === 'warning') iconHtml = '<i class="fas fa-exclamation-triangle"></i>';
+
+            toast.innerHTML = `
+                <div class="neat-toast-icon">${iconHtml}</div>
+                <div class="neat-toast-text">${message}</div>
+                <button type="button" class="neat-toast-close" onclick="this.parentElement.remove()" title="Dismiss">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast-hide');
+                setTimeout(() => toast.remove(), 250);
+            }, 4000);
+        }
+
+        // Intercept native browser alert with neat toast
+        window.alert = function (msg) {
+            showNeatToast(msg, 'info');
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Remove any anchor hash without jumping
+            if (window.location.hash === '#coursesTableSection') {
+                try {
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                } catch (e) {}
+            }
+
+            // Verify initial visible rows count
+            const rows = document.querySelectorAll('.vendor-table tbody tr.course-row');
+            if (rows.length > 0) {
+                let visibleCount = 0;
+                rows.forEach(r => {
+                    if (r.style.display !== 'none') visibleCount++;
+                });
+                const emptyRow = document.getElementById('noCoursesFilterRow');
+                if (emptyRow) {
+                    emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
+                }
+            }
+        });
     </script>
 
 </body>

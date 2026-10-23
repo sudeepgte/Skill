@@ -4,6 +4,7 @@ import com.skillhub.model.*;
 import com.skillhub.repository.*;
 import com.skillhub.service.CategoryService;
 import com.skillhub.service.CourseService;
+import com.skillhub.service.GeminiService;
 import com.skillhub.service.FileStorageService;
 import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.function.Predicate;
 
 @Controller
@@ -64,11 +66,21 @@ public class InstructorController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private GeminiService geminiService;
+
+    @Autowired
+    private ExamQuestionRepository examQuestionRepository;
+
     // Helper method to enforce ownership validation
     private Course getOwnedCourseOrThrow(Long courseId, String email) {
         Course course = courseService.getCourseById(courseId);
         if (course == null) {
             throw new NoSuchElementException("Course not found with id: " + courseId);
+        }
+        User user = userService.findByEmail(email);
+        if (user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()))) {
+            return course;
         }
         if (course.getInstructor() == null || !course.getInstructor().getEmail().equals(email)) {
             throw new AccessDeniedException("Unauthorized: You do not own this course");
@@ -779,7 +791,33 @@ public class InstructorController {
     public String listExams(Model model, Principal principal) {
         String email = principal.getName();
         User instructor = userService.findByEmail(email);
-        model.addAttribute("courses", courseService.getCoursesByInstructor(email));
+        List<Course> courses;
+        if (instructor != null && ("ADMIN".equalsIgnoreCase(instructor.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(instructor.getRole()))) {
+            courses = courseService.getAllCourses();
+        } else {
+            courses = courseService.getCoursesByInstructor(email);
+        }
+
+        for (Course c : courses) {
+            if (c.getExamQuestions() != null && !c.getExamQuestions().isEmpty() && c.getExamUpdatedAt() == null) {
+                c.setExamUpdatedAt(c.getSubmittedAt() != null ? c.getSubmittedAt() : LocalDateTime.now());
+                courseService.saveCourse(c);
+            }
+        }
+
+        List<Course> addedExams = courses.stream()
+                .filter(c -> c.getExamQuestions() != null && !c.getExamQuestions().isEmpty())
+                .sorted((c1, c2) -> {
+                    LocalDateTime t1 = c1.getExamUpdatedAt() != null ? c1.getExamUpdatedAt() :
+                            (c1.getSubmittedAt() != null ? c1.getSubmittedAt() : LocalDateTime.MIN);
+                    LocalDateTime t2 = c2.getExamUpdatedAt() != null ? c2.getExamUpdatedAt() :
+                            (c2.getSubmittedAt() != null ? c2.getSubmittedAt() : LocalDateTime.MIN);
+                    return t2.compareTo(t1);
+                })
+                .collect(Collectors.toList());
+
+        model.addAttribute("courses", courses);
+        model.addAttribute("addedExams", addedExams);
         model.addAttribute("activeTab", "exams");
         model.addAttribute("instructor", instructor);
         model.addAttribute("vendor", instructor);
@@ -793,12 +831,32 @@ public class InstructorController {
         if (principal == null)
             return ResponseEntity.status(401).build();
         String email = principal.getName();
-        List<Course> courses = courseService.getCoursesByInstructor(email);
+        User user = userService.findByEmail(email);
+        List<Course> courses;
+        if (user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()))) {
+            courses = courseService.getAllCourses();
+        } else {
+            courses = courseService.getCoursesByInstructor(email);
+        }
         Map<Long, Integer> stats = new HashMap<>();
         for (Course course : courses) {
             stats.put(course.getId(), course.getExamQuestions() != null ? course.getExamQuestions().size() : 0);
         }
         return ResponseEntity.ok(stats);
+    }
+
+    private String resolveCourseTopic(Course course) {
+        if (course.getCategory() != null && course.getCategory().getName() != null && !course.getCategory().getName().isBlank()) {
+            String topic = course.getCategory().getName().trim();
+            if (course.getSubCategory() != null && !course.getSubCategory().isBlank()) {
+                topic += " - " + course.getSubCategory().trim();
+            }
+            return topic;
+        }
+        if (course.getTitle() != null && !course.getTitle().isBlank()) {
+            return course.getTitle().trim();
+        }
+        return "General";
     }
 
     @GetMapping("/courses/{id}/questions")
@@ -810,6 +868,10 @@ public class InstructorController {
         User instructor = userService.findByEmail(principal.getName());
         model.addAttribute("instructor", instructor);
         model.addAttribute("vendor", instructor);
+
+        String defaultTopic = resolveCourseTopic(course);
+        model.addAttribute("defaultTopic", defaultTopic);
+
         return "instructor/manage_questions";
     }
 
@@ -826,8 +888,157 @@ public class InstructorController {
 
         ExamQuestion q = new ExamQuestion(course, questionText, optionA, optionB, optionC, optionD, correctOption);
         course.getExamQuestions().add(q);
+        course.setExamUpdatedAt(LocalDateTime.now());
         courseService.saveCourse(course);
         return "redirect:/vendor/courses/" + id + "/questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/generate-ai")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generateQuestionsAi(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "count", required = false) Integer count,
+            Principal principal) {
+        if (count == null || count <= 0) {
+            Map<String, Object> err = new HashMap<>();
+            err.put("success", false);
+            err.put("message", "Number of questions cannot be 0 or empty. Please enter any number greater than 0.");
+            return ResponseEntity.badRequest().body(err);
+        }
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+
+        // Strictly enforce the registered course category/topic (cannot be modified)
+        String topic = resolveCourseTopic(course);
+
+        int targetCount = count;
+        List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
+
+        // REPLACE existing questions: completely remove existing questions first
+        if (course.getExamQuestions() != null) {
+            course.getExamQuestions().clear();
+            courseService.saveCourse(course);
+        }
+        examQuestionRepository.deleteByCourseId(course.getId());
+
+        if (course.getExamQuestions() == null) {
+            course.setExamQuestions(new ArrayList<>());
+        }
+
+        List<Map<String, Object>> savedResults = new ArrayList<>();
+        for (Map<String, String> item : generatedList) {
+            ExamQuestion q = new ExamQuestion(
+                    course,
+                    item.get("questionText"),
+                    item.get("optionA"),
+                    item.get("optionB"),
+                    item.get("optionC"),
+                    item.get("optionD"),
+                    item.get("correctOption")
+            );
+            q.setCourse(course);
+            q = examQuestionRepository.save(q);
+            course.getExamQuestions().add(q);
+
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id", q.getId());
+            dto.put("questionText", q.getQuestionText());
+            dto.put("optionA", q.getOptionA());
+            dto.put("optionB", q.getOptionB());
+            dto.put("optionC", q.getOptionC());
+            dto.put("optionD", q.getOptionD());
+            dto.put("correctOption", q.getCorrectOption());
+            savedResults.add(dto);
+        }
+        course.setExamUpdatedAt(LocalDateTime.now());
+        courseService.saveCourse(course);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Successfully generated and replaced with " + savedResults.size() + " questions!");
+        response.put("topic", topic);
+        response.put("count", savedResults.size());
+        response.put("totalQuestions", course.getExamQuestions().size());
+        response.put("questions", savedResults);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/courses/{id}/questions/generate-ai-form")
+    public String generateQuestionsAiForm(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "count", required = false) Integer count,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        if (count == null || count <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Number of questions cannot be 0 or empty. Please enter any number greater than 0.");
+            return "redirect:/vendor/courses/" + id + "/questions";
+        }
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+
+        String topic = resolveCourseTopic(course);
+        int targetCount = count;
+        List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
+
+        // REPLACE existing questions: completely remove existing questions first
+        if (course.getExamQuestions() != null) {
+            course.getExamQuestions().clear();
+            courseService.saveCourse(course);
+        }
+        examQuestionRepository.deleteByCourseId(course.getId());
+
+        if (course.getExamQuestions() == null) {
+            course.setExamQuestions(new ArrayList<>());
+        }
+
+        for (Map<String, String> item : generatedList) {
+            ExamQuestion q = new ExamQuestion(
+                    course,
+                    item.get("questionText"),
+                    item.get("optionA"),
+                    item.get("optionB"),
+                    item.get("optionC"),
+                    item.get("optionD"),
+                    item.get("correctOption")
+            );
+            q.setCourse(course);
+            q = examQuestionRepository.save(q);
+            course.getExamQuestions().add(q);
+        }
+        course.setExamUpdatedAt(LocalDateTime.now());
+        courseService.saveCourse(course);
+
+        redirectAttributes.addFlashAttribute("success", "Successfully generated and replaced with " + generatedList.size() + " questions for topic: " + topic);
+        return "redirect:/vendor/courses/" + id + "/questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/clear-all")
+    public String clearAllExamQuestions(@PathVariable("id") Long id, Principal principal, RedirectAttributes redirectAttributes) {
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+        if (course.getExamQuestions() != null) {
+            course.getExamQuestions().clear();
+        }
+        course.setExamUpdatedAt(null);
+        courseService.saveCourse(course);
+        examQuestionRepository.deleteByCourseId(course.getId());
+        redirectAttributes.addFlashAttribute("success", "All exam questions have been cleared.");
+        return "redirect:/vendor/courses/" + id + "/questions";
+    }
+
+    @PostMapping("/courses/{id}/questions/clear-all-ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> clearAllExamQuestionsAjax(@PathVariable("id") Long id, Principal principal) {
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+        if (course.getExamQuestions() != null) {
+            course.getExamQuestions().clear();
+        }
+        course.setExamUpdatedAt(null);
+        courseService.saveCourse(course);
+        examQuestionRepository.deleteByCourseId(course.getId());
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", true);
+        resp.put("message", "All exam questions have been cleared.");
+        resp.put("totalQuestions", 0);
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/courses/{id}/questions/delete/{qid}")
@@ -837,6 +1048,11 @@ public class InstructorController {
         Course course = getOwnedCourseOrThrow(id, principal.getName());
 
         course.getExamQuestions().removeIf(q -> q.getId().equals(qid));
+        if (course.getExamQuestions().isEmpty()) {
+            course.setExamUpdatedAt(null);
+        } else {
+            course.setExamUpdatedAt(LocalDateTime.now());
+        }
         courseService.saveCourse(course);
         return "redirect:/vendor/courses/" + id + "/questions";
     }

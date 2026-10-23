@@ -253,7 +253,7 @@
                                     <strong style="color: var(--text);" th:text="${exam.title}">Java Professional Architect</strong>
                                 </td>
                                 <td>
-                                    <span th:text="${exam.track}">BACKEND</span>
+                                    <span th:text="${exam.description != null and #strings.contains(exam.description, '[Track: ') ? #strings.substringBefore(#strings.substringAfter(exam.description, '[Track: '), ']') : exam.track}">BACKEND</span>
                                 </td>
                                 <td>
                                     <span class="pill pill-dark" th:text="${exam.level != null ? exam.level : 'ALL_LEVELS'}">ADVANCED</span>

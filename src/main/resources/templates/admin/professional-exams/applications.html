@@ -271,7 +271,7 @@
                                     <div style="font-weight: 600;" th:text="${app.professionalExam != null ? app.professionalExam.title : 'General Track'}">Java Certified Expert</div>
                                     <div class="candidate-meta" th:if="${app.professionalExam != null}">
                                         <span class="pill pill-blue" th:text="${app.professionalExam.examCode}">EXAM-101</span>
-                                        <span th:text="${app.professionalExam.track}">BACKEND</span>
+                                        <span th:text="${app.professionalExam.description != null and #strings.contains(app.professionalExam.description, '[Track: ') ? #strings.substringBefore(#strings.substringAfter(app.professionalExam.description, '[Track: '), ']') : app.professionalExam.track}">BACKEND</span>
                                     </div>
                                 </td>
                                 <td>
