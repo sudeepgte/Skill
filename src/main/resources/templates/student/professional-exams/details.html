@@ -165,6 +165,10 @@
 
             <div class="info-grid">
                 <div class="info-item">
+                    <span class="info-label"><i class="fas fa-list-check"></i> Questions</span>
+                    <span class="info-value" th:text="${questionCount != null ? questionCount + ' Questions' : '10 Questions'}">10 Questions</span>
+                </div>
+                <div class="info-item">
                     <span class="info-label"><i class="far fa-clock"></i> Duration</span>
                     <span class="info-value" th:text="${exam.durationMinutes > 0 ? exam.durationMinutes + ' Minutes' : '60 Minutes'}">60 Minutes</span>
                 </div>
@@ -174,7 +178,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-tag"></i> Exam Fee</span>
-                    <span class="info-value" style="color: #16a34a;" th:text="${exam.applicationFee != null && exam.applicationFee > 0 ? '₹' + exam.applicationFee : 'Free'}">Free</span>
+                    <span class="info-value" style="color: #16a34a;" th:text="${exam.applicationFee != null && exam.applicationFee > 0 ? '₹' + exam.applicationFee : 'Free Access'}">Free Access</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-award"></i> Credential</span>
@@ -183,8 +187,8 @@
             </div>
 
             <div class="actions-row">
-                <a th:href="@{/student/professional-exams/{id}/apply(id=${exam.id})}" class="btn-apply">
-                    <i class="fas fa-file-signature"></i> Apply Now
+                <a th:href="@{/student/professional-exams/{id}/start(id=${exam.id})}" class="btn-apply" style="background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                    <i class="fas fa-bolt" style="color: #fbbf24;"></i> Start Examination Challenge →
                 </a>
                 <a href="/student/professional-exams" class="btn-back">
                     Back to Exams

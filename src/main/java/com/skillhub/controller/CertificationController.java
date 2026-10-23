@@ -30,6 +30,8 @@ public class CertificationController {
     private ExamService examService;
     @Autowired
     private com.skillhub.repository.ExamAttemptRepository examAttemptRepository;
+    @Autowired
+    private com.skillhub.repository.ExamQuestionRepository examQuestionRepository;
 
     // ─── CERTIFICATIONS DASHBOARD ───────────────────────────────────────────────
     @GetMapping("/user/certifications")
@@ -83,8 +85,25 @@ public class CertificationController {
             info.put("total", totalLectures);
             info.put("percent", percent);
             info.put("isExamPending", hasSubmittedExam && !enrollment.isExamPassed());
+            int qCount = examQuestionRepository.findByCourseId(course.getId()).size();
+            info.put("examQuestionCount", qCount);
+            info.put("hasInstructorExam", qCount > 0);
             progressMap.put(course.getId(), info);
         }
+
+        java.util.Set<Long> enrolledIds = enrollments.stream().map(e -> e.getCourse().getId()).collect(java.util.stream.Collectors.toSet());
+        List<Course> allCourses = courseService.getAllCourses();
+        java.util.List<Course> availableExamCourses = new ArrayList<>();
+        for (Course c : allCourses) {
+            if (!enrolledIds.contains(c.getId())) {
+                List<ExamQuestion> qList = examQuestionRepository.findByCourseId(c.getId());
+                if (!qList.isEmpty()) {
+                    c.setExamQuestions(qList);
+                    availableExamCourses.add(c);
+                }
+            }
+        }
+        model.addAttribute("availableExamCourses", availableExamCourses);
 
         model.addAttribute("user", user);
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -101,16 +120,19 @@ public class CertificationController {
         User user = userService.findByEmail(principal.getName());
         Course course = courseService.getCourseById(id);
 
-        // Must be enrolled
+        // Ensure enrolled so user can attempt exam directly
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
                 .orElse(null);
         if (enrollment == null) {
-            return "redirect:/course/" + id;
+            enrollment = new Enrollment(user, course);
+            enrollment = enrollmentRepository.save(enrollment);
         }
 
         // Exam can be taken at any time, restriction removed.
 
+        int questionCount = examQuestionRepository.findByCourseId(id).size();
         model.addAttribute("course", course);
+        model.addAttribute("questionCount", questionCount);
         return "course/exam_intro";
     }
 

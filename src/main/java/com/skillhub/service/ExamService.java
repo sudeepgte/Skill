@@ -20,6 +20,9 @@ public class ExamService {
     private ExamAttemptRepository examAttemptRepository;
 
     @Autowired
+    private com.skillhub.repository.ExamQuestionRepository examQuestionRepository;
+
+    @Autowired
     private GeminiService geminiService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -40,8 +43,8 @@ public class ExamService {
         int questionIdCounter = 1;
 
         // 1. Fetch custom course questions from database
-        List<ExamQuestion> customQuestions = course.getExamQuestions();
-        if (customQuestions != null) {
+        List<ExamQuestion> customQuestions = (course != null && course.getId() != null) ? examQuestionRepository.findByCourseId(course.getId()) : (course != null ? course.getExamQuestions() : Collections.emptyList());
+        if (customQuestions != null && !customQuestions.isEmpty()) {
             for (ExamQuestion customQ : customQuestions) {
                 int currentQId = questionIdCounter++;
                 String qKey = "q_" + currentQId;
@@ -100,15 +103,10 @@ public class ExamService {
                 meta.put("questionText", customQ.getQuestionText());
                 metaMap.put(qKey, meta);
 
-                if (finalQuestions.size() >= 20) {
-                    break;
-                }
             }
-        }
-
-        // 2. AI Fallback for remaining questions
-        int remainingQuestions = 20 - finalQuestions.size();
-        if (remainingQuestions > 0) {
+        } else {
+            // 2. AI Fallback for remaining questions (only when instructor has not added custom questions)
+            int remainingQuestions = 20;
             List<Map<String, Object>> aiQuestions = geminiService.generateQuestions(course.getTitle());
 
             if (aiQuestions != null && aiQuestions.size() >= remainingQuestions) {

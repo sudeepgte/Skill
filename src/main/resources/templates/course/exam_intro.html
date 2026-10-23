@@ -772,7 +772,7 @@
                     <div class="rule-spec-item">
                         <div class="rule-bullet-icon"><i class="fas fa-layer-group"></i></div>
                         <div class="rule-item-content">
-                            <strong>20 Comprehensive Assessment Questions</strong>
+                            <strong th:text="${(questionCount != null && questionCount > 0) ? questionCount + ' Comprehensive Assessment Questions' : (course.examQuestions != null && !course.examQuestions.isEmpty() ? course.examQuestions.size() + ' Comprehensive Assessment Questions' : 'Comprehensive Assessment Questions')}">Comprehensive Assessment Questions</strong>
                             <span>Evaluates deep conceptual foundations, practical applications, and synthesis.</span>
                         </div>
                     </div>

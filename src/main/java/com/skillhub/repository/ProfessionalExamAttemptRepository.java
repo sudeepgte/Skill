@@ -8,4 +8,6 @@ import java.util.List;
 public interface ProfessionalExamAttemptRepository extends JpaRepository<ProfessionalExamAttempt, Long> {
     Optional<ProfessionalExamAttempt> findByApplicationIdAndStudentId(Long applicationId, Long studentId);
     List<ProfessionalExamAttempt> findByStudentIdAndExamVersionProfessionalExamIdAndStatusIn(Long studentId, Long examId, List<com.skillhub.model.enums.AttemptStatus> statuses);
+    List<ProfessionalExamAttempt> findByStudentId(Long studentId);
+    Optional<ProfessionalExamAttempt> findTopByStudentIdAndExamVersionProfessionalExamIdOrderByStartedAtDesc(Long studentId, Long examId);
 }

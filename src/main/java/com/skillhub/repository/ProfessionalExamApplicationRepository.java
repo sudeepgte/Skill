@@ -10,4 +10,5 @@ public interface ProfessionalExamApplicationRepository extends JpaRepository<Pro
     java.util.List<ProfessionalExamApplication> findByUserId(Long userId);
     java.util.List<ProfessionalExamApplication> findByStatus(com.skillhub.model.enums.ApplicationStatus status);
     long countByStatus(com.skillhub.model.enums.ApplicationStatus status);
+    java.util.Optional<ProfessionalExamApplication> findByUserIdAndProfessionalExamId(Long userId, Long examId);
 }
