@@ -75,6 +75,17 @@
         }
 
         /* ══ TOPBAR NAVIGATION ══ */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .btn-label-full {
+            display: inline;
+        }
+        .btn-label-short {
+            display: none;
+        }
         .studio-topbar {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border-subtle);
@@ -1318,6 +1329,63 @@
 
         @media (max-width: 768px) {
             .studio-topbar {
+                padding: 0.65rem 0.85rem !important;
+                gap: 0.5rem !important;
+            }
+            .topbar-left {
+                gap: 0.4rem !important;
+                min-width: 0 !important;
+                flex: 1 !important;
+            }
+            .studio-badge {
+                font-size: 0.72rem !important;
+                padding: 2px 6px !important;
+            }
+            .breadcrumb-divider:first-of-type {
+                display: none !important;
+            }
+            .breadcrumb-trail .breadcrumb-link {
+                display: none !important;
+            }
+            .breadcrumb-trail .breadcrumb-divider {
+                display: inline-block !important;
+                margin: 0 2px !important;
+            }
+            #headerCourseTitle {
+                max-width: 105px !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            .topbar-right {
+                gap: 0.4rem !important;
+                flex-shrink: 0 !important;
+            }
+            .save-indicator {
+                font-size: 0.78rem !important;
+                margin-right: 2px !important;
+                white-space: nowrap !important;
+            }
+            #saveIndicatorText {
+                display: none !important;
+            }
+            .btn-label-full {
+                display: none !important;
+            }
+            .btn-label-short {
+                display: inline !important;
+            }
+            .btn-secondary {
+                padding: 6px 10px !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+                gap: 5px !important;
+            }
+            .status-pill .pill-text {
+                display: none !important;
+            }
+            .studio-topbar {
                 padding: 0.75rem 1rem;
             }
             .studio-container {
@@ -1425,8 +1493,8 @@
                         <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> Needs Revision</span>
                     </span>
 
-                    <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
-                        <i class="fas fa-eye"></i> Live Student Preview
+                    <button type="button" class="btn-secondary btn-preview" onclick="openLivePreviewModal()" title="Live Student Preview">
+                        <i class="fas fa-eye"></i> <span class="btn-label-full">Live Student Preview</span><span class="btn-label-short">Preview</span>
                     </button>
                 </div>
             </header>

@@ -8,6 +8,158 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Mobile responsive overrides */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .admin-body {
+            min-width: 0;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        .content-grid > * {
+            min-width: 0;
+        }
+        .content-grid canvas {
+            max-width: 100% !important;
+        }
+        @media (max-width: 900px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                width: 26rem;
+                max-width: 80vw;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+                z-index: 999;
+            }
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+            .admin-body {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .sidebar-toggle {
+                display: flex !important;
+            }
+            .topbar-search {
+                display: none !important;
+            }
+            .admin-topbar {
+                padding: 0 1.6rem;
+                gap: 1.2rem;
+            }
+            .topbar-title {
+                font-size: 1.6rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .admin-main {
+                padding: 2rem 1.6rem;
+                width: 100%;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1.4rem;
+            }
+            .content-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.6rem;
+            }
+        }
+        @media (max-width: 600px) {
+            html {
+                font-size: 58%;
+            }
+            .admin-topbar {
+                padding: 0 1.2rem;
+                height: 5.6rem;
+                gap: 0.8rem;
+            }
+            .sidebar-toggle {
+                width: 3.4rem;
+                height: 3.4rem;
+                font-size: 1.8rem;
+            }
+            .topbar-title {
+                font-size: 1.45rem;
+            }
+            .topbar-actions {
+                gap: 0.8rem !important;
+            }
+            .admin-avatar {
+                width: 3.2rem;
+                height: 3.2rem;
+                font-size: 1.3rem;
+            }
+            .admin-main {
+                padding: 1.6rem 1.2rem;
+            }
+            .page-header {
+                margin-bottom: 1.8rem;
+                gap: 0.4rem;
+            }
+            .page-header-left h1 {
+                font-size: 2.1rem;
+            }
+            .page-header-left p {
+                font-size: 1.2rem;
+                line-height: 1.4;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.2rem;
+                margin-bottom: 2rem;
+            }
+            .stat-card {
+                padding: 1.6rem 1.4rem;
+            }
+            .stat-value {
+                font-size: 2.8rem;
+            }
+            .content-grid {
+                gap: 1.4rem;
+                margin-bottom: 2rem;
+            }
+            .panel-header {
+                padding: 1.4rem 1.4rem;
+            }
+            .panel-title {
+                font-size: 1.45rem;
+            }
+            .panel-body {
+                padding: 1.4rem;
+            }
+            .most-watched {
+                padding: 1.8rem 1.4rem;
+            }
+            .most-watched-title {
+                font-size: 1.6rem;
+            }
+            .most-watched-stat {
+                font-size: 2.6rem;
+            }
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.8rem;
+            }
+            .action-card {
+                padding: 1.4rem 0.8rem;
+                gap: 0.8rem;
+            }
+            .action-card-icon {
+                width: 3.8rem;
+                height: 3.8rem;
+                font-size: 1.5rem;
+            }
+            .action-card-label {
+                font-size: 1.15rem;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
