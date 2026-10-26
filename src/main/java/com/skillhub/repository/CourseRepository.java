@@ -39,4 +39,9 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c WHERE c.status = :status AND c.isPublished = true AND c.category = :category ORDER BY c.id DESC")
     List<Course> findPublishedByCategory(@Param("status") CourseStatus status, @Param("category") Category category);
+    @Query("SELECT COUNT(c) FROM Course c WHERE c.instructor.id = :instructorId AND ((c.createdAt IS NOT NULL AND c.createdAt >= :startDate AND c.createdAt <= :endDate) OR (c.createdAt IS NULL AND c.submittedAt IS NOT NULL AND c.submittedAt >= :startDate AND c.submittedAt <= :endDate))")
+    long countCoursesCreatedInPeriod(@Param("instructorId") Long instructorId, @Param("startDate") java.time.LocalDateTime startDate, @Param("endDate") java.time.LocalDateTime endDate);
+
+    @Query("SELECT COUNT(c) FROM Course c WHERE c.instructor.id = :instructorId")
+    long countAllCoursesByInstructorId(@Param("instructorId") Long instructorId);
 }

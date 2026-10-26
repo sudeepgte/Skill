@@ -4,6 +4,8 @@ import com.skillhub.model.*;
 import com.skillhub.repository.*;
 import com.skillhub.service.CategoryService;
 import com.skillhub.service.CourseService;
+import com.skillhub.service.SubscriptionService;
+import com.skillhub.dto.CourseUsageDto;
 import com.skillhub.service.GeminiService;
 import com.skillhub.service.FileStorageService;
 import com.skillhub.service.UserService;
@@ -33,6 +35,9 @@ public class InstructorController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     @Autowired
     private CategoryService categoryService;
@@ -703,6 +708,14 @@ public class InstructorController {
         model.addAttribute("subcategoriesMap", categoryService.getCategorySubcategoriesMap());
         model.addAttribute("categoryFieldsMap", categoryService.getAllCategoryFieldDefinitions());
         model.addAttribute("categoryDataMap", new HashMap<String, String>());
+        if (principal != null) {
+            User instructor = userService.findByEmail(principal.getName());
+            if (instructor != null) {
+                com.skillhub.dto.CourseUsageDto usage = subscriptionService.getCourseUsage(instructor);
+                model.addAttribute("subscriptionUsage", usage);
+                model.addAttribute("canCreateCourse", !usage.isLimitReached());
+            }
+        }
         model.addAttribute("isEdit", false);
         return "instructor/create_course";
     }
@@ -778,6 +791,11 @@ public class InstructorController {
             course.setPublished(false);
             course.setStatus(CourseStatus.DRAFT);
         }
+        if (isNew && !subscriptionService.canCreateCourse(instructor)) {
+            redirectAttributes.addFlashAttribute("error", "You have reached your monthly course publishing limit under your current subscription. Please upgrade or renew your plan to publish more courses.");
+            return "redirect:/vendor/subscription";
+        }
+
         if (isNew) {
             targetCourse = course;
             targetCourse.setInstructor(instructor);

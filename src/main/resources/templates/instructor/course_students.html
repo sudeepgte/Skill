@@ -513,6 +513,9 @@
             <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item">
                 <i class="fas fa-user-circle"></i> Profile Management
             </a>
+                <a th:href="@{/vendor/subscription}" class="vendor-nav-item" th:classappend="${activeTab == 'subscription'} ? 'active'">
+                    <i class="fas fa-crown"></i> Subscriptions
+                </a>
         </nav>
 
         <div class="vendor-sidebar-footer">
