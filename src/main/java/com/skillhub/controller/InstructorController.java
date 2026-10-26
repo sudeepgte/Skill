@@ -8,6 +8,7 @@ import com.skillhub.service.GeminiService;
 import com.skillhub.service.FileStorageService;
 import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -72,6 +73,17 @@ public class InstructorController {
     @Autowired
     private ExamQuestionRepository examQuestionRepository;
 
+    @Autowired
+    private CourseExamRepository courseExamRepository;
+
+    // Helper method to enforce exam ownership validation
+    private CourseExam getOwnedCourseExamOrThrow(Long examId, String email) {
+        CourseExam exam = courseExamRepository.findById(examId)
+                .orElseThrow(() -> new NoSuchElementException("Exam not found with id: " + examId));
+        getOwnedCourseOrThrow(exam.getCourse().getId(), email);
+        return exam;
+    }
+
     // Helper method to enforce ownership validation
     private Course getOwnedCourseOrThrow(Long courseId, String email) {
         Course course = courseService.getCourseById(courseId);
@@ -91,6 +103,8 @@ public class InstructorController {
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(value = "tab", defaultValue = "courses") String tab,
             @RequestParam(value = "status", required = false) String statusFilter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             Model model, Principal principal) {
         String email = principal.getName();
         User instructor = userService.findByEmail(email);
@@ -169,9 +183,56 @@ public class InstructorController {
                     .toList();
             model.addAttribute("chatStudents", students);
         } else if ("reviews".equals(tab)) {
-            model.addAttribute("reviews", reviewRepository.findByInstructorEmail(email));
+            List<Review> allReviews = reviewRepository.findByInstructorEmail(email);
+            int totalReviewsCount = allReviews.size();
+            int pageSize = (size > 0) ? size : 10;
+            int reviewsTotalPages = (int) Math.ceil((double) totalReviewsCount / pageSize);
+            if (reviewsTotalPages < 1) reviewsTotalPages = 1;
+            int revPage = page;
+            if (revPage < 1) revPage = 1;
+            if (revPage > reviewsTotalPages && totalReviewsCount > 0) revPage = reviewsTotalPages;
+            int revStart = Math.min((revPage - 1) * pageSize, totalReviewsCount);
+            int revEnd = Math.min(revStart + pageSize, totalReviewsCount);
+            List<Review> pagedReviews = allReviews.subList(revStart, revEnd);
+
+            List<Integer> reviewsPageNumbers = new ArrayList<>();
+            for (int i = 1; i <= reviewsTotalPages; i++) {
+                reviewsPageNumbers.add(i);
+            }
+
+            model.addAttribute("reviews", pagedReviews);
+            model.addAttribute("reviewsCurrentPage", revPage);
+            model.addAttribute("reviewsTotalPages", reviewsTotalPages);
+            model.addAttribute("reviewsTotalItems", totalReviewsCount);
+            model.addAttribute("reviewsPageSize", pageSize);
+            model.addAttribute("reviewsStartItem", totalReviewsCount > 0 ? (revStart + 1) : 0);
+            model.addAttribute("reviewsEndItem", revEnd);
+            model.addAttribute("reviewsPageNumbers", reviewsPageNumbers);
         } else if ("questions".equals(tab)) {
-            model.addAttribute("questions", questionsList);
+            int totalQuestionsCount = questionsList.size();
+            int pageSize = (size > 0) ? size : 10;
+            int questionsTotalPages = (int) Math.ceil((double) totalQuestionsCount / pageSize);
+            if (questionsTotalPages < 1) questionsTotalPages = 1;
+            int qPage = page;
+            if (qPage < 1) qPage = 1;
+            if (qPage > questionsTotalPages && totalQuestionsCount > 0) qPage = questionsTotalPages;
+            int qStart = Math.min((qPage - 1) * pageSize, totalQuestionsCount);
+            int qEnd = Math.min(qStart + pageSize, totalQuestionsCount);
+            List<CourseQuestion> pagedQuestions = questionsList.subList(qStart, qEnd);
+
+            List<Integer> questionsPageNumbers = new ArrayList<>();
+            for (int i = 1; i <= questionsTotalPages; i++) {
+                questionsPageNumbers.add(i);
+            }
+
+            model.addAttribute("questions", pagedQuestions);
+            model.addAttribute("questionsCurrentPage", qPage);
+            model.addAttribute("questionsTotalPages", questionsTotalPages);
+            model.addAttribute("questionsTotalItems", totalQuestionsCount);
+            model.addAttribute("questionsPageSize", pageSize);
+            model.addAttribute("questionsStartItem", totalQuestionsCount > 0 ? (qStart + 1) : 0);
+            model.addAttribute("questionsEndItem", qEnd);
+            model.addAttribute("questionsPageNumbers", questionsPageNumbers);
         } else if ("students".equals(tab)) {
             List<Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
             for (Enrollment enrollment : enrollments) {
@@ -213,7 +274,86 @@ public class InstructorController {
         return "instructor/dashboard";
     }
 
+    /** Dedicated Page: View enrolled students for a course with pagination */
+    @GetMapping("/courses/{id}/students")
+    public String viewCourseStudents(@PathVariable("id") Long id,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+        User instructor = userService.findByEmail(principal.getName());
+        List<Enrollment> allEnrollments = course.getEnrollments() != null ? new ArrayList<>(course.getEnrollments()) : new ArrayList<>();
+
+        // Ensure updated lecture-based progress is calculated
+        for (Enrollment enrollment : allEnrollments) {
+            if (enrollment.getStudent() != null) {
+                long total = lectureProgressRepository.countTotalLecturesByCourse(course.getId());
+                double lectureBasedPct = 0.0;
+                if (total > 0) {
+                    long completed = lectureProgressRepository.countCompletedLecturesByCourse(
+                            enrollment.getStudent().getId(), course.getId());
+                    lectureBasedPct = Math.min(100.0, (double) completed / total * 100.0);
+                }
+                double storedPct = enrollment.getProgressPercentage();
+                enrollment.setProgressPercentage(Math.max(lectureBasedPct, storedPct));
+            }
+        }
+
+        int totalCount = allEnrollments.size();
+        int pageSize = (size > 0) ? size : 10;
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalCount / pageSize));
+        int curPage = Math.max(1, Math.min(page, totalPages));
+        int startIdx = Math.min((curPage - 1) * pageSize, totalCount);
+        int endIdx = Math.min(startIdx + pageSize, totalCount);
+        List<Enrollment> pagedEnrollments = (totalCount > 0) ? allEnrollments.subList(startIdx, endIdx) : Collections.emptyList();
+        List<Integer> pageNumbers = new ArrayList<>();
+        for (int i = 1; i <= totalPages; i++) {
+            pageNumbers.add(i);
+        }
+
+        model.addAttribute("course", course);
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
+        model.addAttribute("user", instructor);
+        model.addAttribute("enrollments", pagedEnrollments);
+        model.addAttribute("allEnrollments", allEnrollments);
+        model.addAttribute("totalStudents", totalCount);
+        model.addAttribute("currentPage", curPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("startItem", totalCount > 0 ? (startIdx + 1) : 0);
+        model.addAttribute("endItem", endIdx);
+        model.addAttribute("pageNumbers", pageNumbers);
+        return "instructor/course_students";
+    }
+
     /** REST endpoint â€“ returns live progress for all enrolled students (JSON) */
+    @GetMapping("/api/courses/{id}/students")
+    @ResponseBody
+    public ResponseEntity<?> getCourseStudents(@PathVariable("id") Long id, Principal principal) {
+        if (principal == null)
+            return ResponseEntity.status(401).build();
+        Course course = getOwnedCourseOrThrow(id, principal.getName());
+        List<Map<String, Object>> result = new ArrayList<>();
+        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy");
+        if (course.getEnrollments() != null) {
+            for (Enrollment e : course.getEnrollments()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id", e.getId());
+                row.put("name", e.getStudent() != null ? e.getStudent().getName() : "Unknown");
+                row.put("email", e.getStudent() != null ? e.getStudent().getEmail() : "N/A");
+                row.put("enrolledAt", e.getEnrolledAt() != null ? e.getEnrolledAt().format(dtf) : "N/A");
+                row.put("progress", Math.round(e.getProgressPercentage()));
+                row.put("examPassed", Boolean.TRUE.equals(e.isExamPassed()));
+                result.add(row);
+            }
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/api/students-progress")
     @ResponseBody
     public ResponseEntity<List<Map<String, Object>>> getStudentsProgress(Principal principal) {
@@ -815,6 +955,7 @@ public class InstructorController {
 
     @PostMapping("/reviews/{id}/reply")
     public String replyToReview(@PathVariable("id") Long id, @RequestParam("reply") String reply,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             Principal principal, RedirectAttributes redirectAttributes) {
         Review review = reviewRepository.findById(id).orElse(null);
         if (review != null) {
@@ -824,11 +965,12 @@ public class InstructorController {
             reviewRepository.save(review);
             redirectAttributes.addFlashAttribute("success", "Reply sent!");
         }
-        return "redirect:/vendor/dashboard?tab=communications";
+        return "redirect:/vendor/dashboard?tab=reviews&page=" + page;
     }
 
     @PostMapping("/questions/{id}/reply")
     public String replyToQuestion(@PathVariable("id") Long id, @RequestParam("content") String content,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             Principal principal, RedirectAttributes redirectAttributes) {
         CourseQuestion question = courseQuestionRepository.findById(id).orElse(null);
         if (question != null) {
@@ -841,7 +983,7 @@ public class InstructorController {
             courseAnswerRepository.save(answer);
             redirectAttributes.addFlashAttribute("success", "Answer posted successfully!");
         }
-        return "redirect:/vendor/dashboard?tab=communications";
+        return "redirect:/vendor/dashboard?tab=questions&page=" + page;
     }
 
     @PostMapping("/enrollments/{id}/certificate")
@@ -859,7 +1001,10 @@ public class InstructorController {
     }
 
     @GetMapping("/exams")
-    public String listExams(Model model, Principal principal) {
+    public String listExams(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model, Principal principal) {
         String email = principal.getName();
         User instructor = userService.findByEmail(email);
         List<Course> courses;
@@ -869,30 +1014,375 @@ public class InstructorController {
             courses = courseService.getCoursesByInstructor(email);
         }
 
+        // Auto-synchronize CourseExam entities for existing courses with questions
         for (Course c : courses) {
-            if (c.getExamQuestions() != null && !c.getExamQuestions().isEmpty() && c.getExamUpdatedAt() == null) {
-                c.setExamUpdatedAt(c.getSubmittedAt() != null ? c.getSubmittedAt() : LocalDateTime.now());
-                courseService.saveCourse(c);
+            List<CourseExam> existingForCourse = courseExamRepository.findByCourseId(c.getId());
+            if (existingForCourse == null || existingForCourse.isEmpty()) {
+                if (c.getExamQuestions() != null && !c.getExamQuestions().isEmpty()) {
+                    CourseExam defaultExam = new CourseExam(c.getTitle() + " - Final Assessment", c);
+                    defaultExam.setCreatedAt(c.getExamUpdatedAt() != null ? c.getExamUpdatedAt() : LocalDateTime.now());
+                    defaultExam.setUpdatedAt(c.getExamUpdatedAt() != null ? c.getExamUpdatedAt() : LocalDateTime.now());
+                    defaultExam = courseExamRepository.save(defaultExam);
+                    for (ExamQuestion q : c.getExamQuestions()) {
+                        if (q.getExam() == null) {
+                            q.setExam(defaultExam);
+                            examQuestionRepository.save(q);
+                        }
+                    }
+                }
             }
         }
 
-        List<Course> addedExams = courses.stream()
-                .filter(c -> c.getExamQuestions() != null && !c.getExamQuestions().isEmpty())
-                .sorted((c1, c2) -> {
-                    LocalDateTime t1 = c1.getExamUpdatedAt() != null ? c1.getExamUpdatedAt() :
-                            (c1.getSubmittedAt() != null ? c1.getSubmittedAt() : LocalDateTime.MIN);
-                    LocalDateTime t2 = c2.getExamUpdatedAt() != null ? c2.getExamUpdatedAt() :
-                            (c2.getSubmittedAt() != null ? c2.getSubmittedAt() : LocalDateTime.MIN);
-                    return t2.compareTo(t1);
-                })
-                .collect(Collectors.toList());
+        List<CourseExam> addedExams;
+        if (instructor != null && ("ADMIN".equalsIgnoreCase(instructor.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(instructor.getRole()))) {
+            addedExams = courseExamRepository.findAll();
+            addedExams.sort((e1, e2) -> e2.getUpdatedAt().compareTo(e1.getUpdatedAt()));
+        } else {
+            addedExams = courseExamRepository.findByInstructorEmail(email);
+        }
+
+        int totalExams = addedExams.size();
+        int pageSize = (size > 0) ? size : 10;
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalExams / pageSize));
+        int curPage = Math.max(1, Math.min(page, totalPages));
+        int startIdx = Math.min((curPage - 1) * pageSize, totalExams);
+        int endIdx = Math.min(startIdx + pageSize, totalExams);
+        List<CourseExam> pagedExams = (totalExams > 0) ? addedExams.subList(startIdx, endIdx) : Collections.emptyList();
+        List<Integer> pageNumbers = new ArrayList<>();
+        for (int i = 1; i <= totalPages; i++) {
+            pageNumbers.add(i);
+        }
 
         model.addAttribute("courses", courses);
-        model.addAttribute("addedExams", addedExams);
+        model.addAttribute("addedExams", pagedExams);
+        model.addAttribute("allAddedExams", addedExams);
+        model.addAttribute("totalExams", totalExams);
+        model.addAttribute("currentPage", curPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("startItem", totalExams > 0 ? (startIdx + 1) : 0);
+        model.addAttribute("endItem", endIdx);
+        model.addAttribute("pageNumbers", pageNumbers);
         model.addAttribute("activeTab", "exams");
         model.addAttribute("instructor", instructor);
         model.addAttribute("vendor", instructor);
         return "instructor/exams";
+    }
+
+    /** Create a brand new exam for a course without overwriting existing exams */
+    @PostMapping("/exams/create")
+    public String createExam(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("title") String title,
+            @RequestParam(value = "passingScore", defaultValue = "70") int passingScore,
+            @RequestParam(value = "durationMinutes", defaultValue = "30") int durationMinutes,
+            Principal principal, RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        Course course = getOwnedCourseOrThrow(courseId, principal.getName());
+        String examTitle = (title != null && !title.trim().isEmpty()) ? title.trim() : (course.getTitle() + " - Exam " + (courseExamRepository.findByCourseId(courseId).size() + 1));
+        CourseExam exam = new CourseExam(examTitle, course);
+        exam.setPassingScore(passingScore > 0 ? passingScore : 70);
+        exam.setDurationMinutes(durationMinutes > 0 ? durationMinutes : 30);
+        exam.setCreatedAt(LocalDateTime.now());
+        exam.setUpdatedAt(LocalDateTime.now());
+        exam = courseExamRepository.save(exam);
+
+        redirectAttributes.addFlashAttribute("success", "New exam '" + exam.getTitle() + "' created successfully! Add your questions below.");
+        return "redirect:/vendor/exams/" + exam.getId() + "/questions";
+    }
+
+    /** Manage questions for a specific CourseExam */
+    @GetMapping("/exams/{examId}/questions")
+    public String manageCourseExamQuestions(@PathVariable("examId") Long examId, Model model, Principal principal) {
+        if (principal == null) return "redirect:/login";
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        Course course = exam.getCourse();
+
+        List<ExamQuestion> questions = examQuestionRepository.findByExamId(exam.getId());
+        if (questions == null) questions = new ArrayList<>();
+
+        model.addAttribute("exam", exam);
+        model.addAttribute("course", course);
+        model.addAttribute("questions", questions);
+        User instructor = userService.findByEmail(principal.getName());
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
+
+        String defaultTopic = resolveCourseTopic(course);
+        model.addAttribute("defaultTopic", defaultTopic);
+
+        return "instructor/manage_questions";
+    }
+
+    /** Add single question to a specific CourseExam */
+    @PostMapping("/exams/{examId}/questions/add")
+    public String addExamQuestionToExam(@PathVariable("examId") Long examId,
+            @RequestParam("questionText") String questionText,
+            @RequestParam("optionA") String optionA,
+            @RequestParam("optionB") String optionB,
+            @RequestParam("optionC") String optionC,
+            @RequestParam("optionD") String optionD,
+            @RequestParam("correctOption") String correctOption,
+            Principal principal) {
+        if (principal == null) return "redirect:/login";
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        Course course = exam.getCourse();
+
+        ExamQuestion q = new ExamQuestion(course, questionText, optionA, optionB, optionC, optionD, correctOption);
+        q.setExam(exam);
+        q = examQuestionRepository.save(q);
+
+        exam.getQuestions().add(q);
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+
+        return "redirect:/vendor/exams/" + examId + "/questions";
+    }
+
+    /** AI question generation for a specific CourseExam - APPENDS instead of replacing */
+    @PostMapping("/exams/{examId}/questions/generate-ai")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generateQuestionsAiForExam(
+            @PathVariable("examId") Long examId,
+            @RequestParam(value = "count", required = false) Integer count,
+            Principal principal) {
+        if (count == null || count <= 0) {
+            Map<String, Object> err = new HashMap<>();
+            err.put("success", false);
+            err.put("message", "Number of questions cannot be 0 or empty. Please enter any number greater than 0.");
+            return ResponseEntity.badRequest().body(err);
+        }
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        Course course = exam.getCourse();
+
+        String topic = resolveCourseTopic(course);
+        int targetCount = count;
+        List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
+
+        List<Map<String, Object>> savedResults = new ArrayList<>();
+        for (Map<String, String> item : generatedList) {
+            ExamQuestion q = new ExamQuestion(
+                    course,
+                    item.get("questionText"),
+                    item.get("optionA"),
+                    item.get("optionB"),
+                    item.get("optionC"),
+                    item.get("optionD"),
+                    item.get("correctOption")
+            );
+            q.setExam(exam);
+            q = examQuestionRepository.save(q);
+            exam.getQuestions().add(q);
+
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id", q.getId());
+            dto.put("questionText", q.getQuestionText());
+            dto.put("optionA", q.getOptionA());
+            dto.put("optionB", q.getOptionB());
+            dto.put("optionC", q.getOptionC());
+            dto.put("optionD", q.getOptionD());
+            dto.put("correctOption", q.getCorrectOption());
+            savedResults.add(dto);
+        }
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Successfully generated and added " + savedResults.size() + " questions!");
+        response.put("topic", topic);
+        response.put("count", savedResults.size());
+        response.put("totalQuestions", exam.getQuestions().size());
+        response.put("questions", savedResults);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/exams/{examId}/questions/generate-ai-form")
+    public String generateQuestionsAiFormForExam(
+            @PathVariable("examId") Long examId,
+            @RequestParam(value = "count", required = false) Integer count,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        if (count == null || count <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Number of questions cannot be 0 or empty. Please enter any number greater than 0.");
+            return "redirect:/vendor/exams/" + examId + "/questions";
+        }
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        Course course = exam.getCourse();
+
+        String topic = resolveCourseTopic(course);
+        int targetCount = count;
+        List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
+
+        for (Map<String, String> item : generatedList) {
+            ExamQuestion q = new ExamQuestion(
+                    course,
+                    item.get("questionText"),
+                    item.get("optionA"),
+                    item.get("optionB"),
+                    item.get("optionC"),
+                    item.get("optionD"),
+                    item.get("correctOption")
+            );
+            q.setExam(exam);
+            q = examQuestionRepository.save(q);
+            exam.getQuestions().add(q);
+        }
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+
+        redirectAttributes.addFlashAttribute("success", "Successfully generated and added " + generatedList.size() + " questions for topic: " + topic);
+        return "redirect:/vendor/exams/" + examId + "/questions";
+    }
+
+    @PostMapping("/exams/{examId}/questions/delete/{qid}")
+    public String deleteQuestionFromExam(@PathVariable("examId") Long examId,
+            @PathVariable("qid") Long qid,
+            Principal principal) {
+        if (principal == null) return "redirect:/login";
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        examQuestionRepository.deleteById(qid);
+        exam.getQuestions().removeIf(q -> q.getId().equals(qid));
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+        return "redirect:/vendor/exams/" + examId + "/questions";
+    }
+
+    @PostMapping("/exams/{examId}/questions/clear-all")
+    public String clearAllExamQuestionsForExam(@PathVariable("examId") Long examId, Principal principal, RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        if (exam.getQuestions() != null) {
+            exam.getQuestions().clear();
+        }
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+        examQuestionRepository.deleteByExamId(exam.getId());
+        redirectAttributes.addFlashAttribute("success", "All exam questions have been cleared.");
+        return "redirect:/vendor/exams/" + examId + "/questions";
+    }
+
+    @PostMapping("/exams/{examId}/questions/clear-all-ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> clearAllExamQuestionsForExamAjax(@PathVariable("examId") Long examId, Principal principal) {
+        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        if (exam.getQuestions() != null) {
+            exam.getQuestions().clear();
+        }
+        exam.setUpdatedAt(LocalDateTime.now());
+        courseExamRepository.save(exam);
+        examQuestionRepository.deleteByExamId(exam.getId());
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", true);
+        resp.put("message", "All exam questions have been cleared.");
+        resp.put("totalQuestions", 0);
+        return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/exams/{examId}/delete")
+    public String deleteExam(@PathVariable("examId") Long examId,
+            Principal principal, RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+        CourseExam exam = getOwnedCourseExamOrThrow(examId, principal.getName());
+        String examTitle = exam.getTitle();
+        courseExamRepository.delete(exam);
+        redirectAttributes.addFlashAttribute("success", "Exam '" + examTitle + "' deleted successfully.");
+        return "redirect:/vendor/exams";
+    }
+
+    /** Dedicated Page: View exam attempts, student scores, and history with pagination */
+    @GetMapping("/exams/{id}/attempts")
+    public String viewExamAttempts(@PathVariable("id") Long id,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        User instructor = userService.findByEmail(principal.getName());
+
+        CourseExam exam = courseExamRepository.findById(id).orElse(null);
+        Course course;
+        List<ExamAttempt> allAttempts;
+
+        if (exam != null) {
+            course = getOwnedCourseOrThrow(exam.getCourse().getId(), principal.getName());
+            allAttempts = examAttemptRepository.findByExamOrderByAttemptDateDesc(exam);
+            if (allAttempts == null || allAttempts.isEmpty()) {
+                allAttempts = examAttemptRepository.findByCourseOrderByAttemptDateDesc(course);
+            }
+        } else {
+            course = getOwnedCourseOrThrow(id, principal.getName());
+            allAttempts = examAttemptRepository.findByCourseOrderByAttemptDateDesc(course);
+        }
+
+        if (allAttempts == null) {
+            allAttempts = new ArrayList<>();
+        }
+
+        // Calculate attempt sequence number per user
+        List<ExamAttempt> chronoAttempts = new ArrayList<>(allAttempts);
+        chronoAttempts.sort(Comparator.comparing(ExamAttempt::getAttemptDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        Map<Long, Integer> attemptNumberMap = new HashMap<>();
+        Map<Long, Integer> userAttemptCounter = new HashMap<>();
+        for (ExamAttempt att : chronoAttempts) {
+            if (att.getUser() != null) {
+                int count = userAttemptCounter.getOrDefault(att.getUser().getId(), 0) + 1;
+                userAttemptCounter.put(att.getUser().getId(), count);
+                attemptNumberMap.put(att.getId(), count);
+            }
+        }
+
+        int totalAttempts = allAttempts.size();
+        Set<Long> uniqueStudents = new HashSet<>();
+        long passedCount = 0;
+        int totalScoreSum = 0;
+        for (ExamAttempt att : allAttempts) {
+            if (att.getUser() != null) {
+                uniqueStudents.add(att.getUser().getId());
+            }
+            if (att.isPassed()) {
+                passedCount++;
+            }
+            totalScoreSum += att.getScore();
+        }
+        double passRate = (totalAttempts > 0) ? ((double) passedCount / totalAttempts * 100.0) : 0.0;
+        double avgScore = (totalAttempts > 0) ? ((double) totalScoreSum / totalAttempts) : 0.0;
+
+        int pageSize = (size > 0) ? size : 10;
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalAttempts / pageSize));
+        int curPage = Math.max(1, Math.min(page, totalPages));
+        int startIdx = Math.min((curPage - 1) * pageSize, totalAttempts);
+        int endIdx = Math.min(startIdx + pageSize, totalAttempts);
+        List<ExamAttempt> pagedAttempts = (totalAttempts > 0) ? allAttempts.subList(startIdx, endIdx) : Collections.emptyList();
+        List<Integer> pageNumbers = new ArrayList<>();
+        for (int i = 1; i <= totalPages; i++) {
+            pageNumbers.add(i);
+        }
+
+        model.addAttribute("course", course);
+        model.addAttribute("exam", exam != null ? exam : course);
+        model.addAttribute("examTitle", exam != null ? exam.getTitle() : (course.getTitle() + " - Final Assessment"));
+        model.addAttribute("instructor", instructor);
+        model.addAttribute("vendor", instructor);
+        model.addAttribute("user", instructor);
+        model.addAttribute("attempts", pagedAttempts);
+        model.addAttribute("allAttempts", allAttempts);
+        model.addAttribute("attemptNumberMap", attemptNumberMap);
+        model.addAttribute("totalAttempts", totalAttempts);
+        model.addAttribute("uniqueStudentCount", uniqueStudents.size());
+        model.addAttribute("passedCount", passedCount);
+        model.addAttribute("passRate", Math.round(passRate));
+        model.addAttribute("avgScore", Math.round(avgScore));
+        model.addAttribute("currentPage", curPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("startItem", totalAttempts > 0 ? (startIdx + 1) : 0);
+        model.addAttribute("endItem", endIdx);
+        model.addAttribute("pageNumbers", pageNumbers);
+        return "instructor/exam_attempts";
     }
 
     /** REST endpoint â€“ returns question counts for each course (JSON) */
@@ -984,13 +1474,7 @@ public class InstructorController {
         int targetCount = count;
         List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
 
-        // REPLACE existing questions: completely remove existing questions first
-        if (course.getExamQuestions() != null) {
-            course.getExamQuestions().clear();
-            courseService.saveCourse(course);
-        }
-        examQuestionRepository.deleteByCourseId(course.getId());
-
+        // Do NOT delete existing questions! Append generated questions to existing questions.
         if (course.getExamQuestions() == null) {
             course.setExamQuestions(new ArrayList<>());
         }
@@ -1025,7 +1509,7 @@ public class InstructorController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "Successfully generated and replaced with " + savedResults.size() + " questions!");
+        response.put("message", "Successfully generated and added " + savedResults.size() + " questions!");
         response.put("topic", topic);
         response.put("count", savedResults.size());
         response.put("totalQuestions", course.getExamQuestions().size());
@@ -1049,13 +1533,7 @@ public class InstructorController {
         int targetCount = count;
         List<Map<String, String>> generatedList = geminiService.generateMcqQuestions(topic, targetCount);
 
-        // REPLACE existing questions: completely remove existing questions first
-        if (course.getExamQuestions() != null) {
-            course.getExamQuestions().clear();
-            courseService.saveCourse(course);
-        }
-        examQuestionRepository.deleteByCourseId(course.getId());
-
+        // Do NOT delete existing questions! Append generated questions to existing questions.
         if (course.getExamQuestions() == null) {
             course.setExamQuestions(new ArrayList<>());
         }
@@ -1077,7 +1555,7 @@ public class InstructorController {
         course.setExamUpdatedAt(LocalDateTime.now());
         courseService.saveCourse(course);
 
-        redirectAttributes.addFlashAttribute("success", "Successfully generated and replaced with " + generatedList.size() + " questions for topic: " + topic);
+        redirectAttributes.addFlashAttribute("success", "Successfully generated and added " + generatedList.size() + " questions for topic: " + topic);
         return "redirect:/vendor/courses/" + id + "/questions";
     }
 

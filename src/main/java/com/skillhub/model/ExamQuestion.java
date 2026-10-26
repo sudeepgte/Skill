@@ -15,6 +15,10 @@ public class ExamQuestion {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exam_id", nullable = true)
+    private CourseExam exam;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
@@ -219,5 +223,13 @@ public class ExamQuestion {
 
     public void setCodeLanguage(String codeLanguage) {
         this.codeLanguage = codeLanguage;
+    }
+
+    public CourseExam getExam() {
+        return exam;
+    }
+
+    public void setExam(CourseExam exam) {
+        this.exam = exam;
     }
 }

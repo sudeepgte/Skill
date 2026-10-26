@@ -10,6 +10,7 @@ import com.skillhub.model.enums.AttemptStatus;
 import com.skillhub.repository.*;
 import com.skillhub.service.ProfessionalExamAttemptService;
 import com.skillhub.service.ProfessionalExamService;
+import com.skillhub.service.impl.ProfessionalExamEvaluationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
@@ -32,8 +33,11 @@ public class StudentProfessionalExamController {
     @Autowired private ProfessionalCertificateRepository certificateRepo;
     @Autowired private ProfessionalExamVersionRepository versionRepo;
     @Autowired private ProfessionalExamQuestionRepository questionRepo;
+    @Autowired private ProfessionalExamAttemptQuestionRepository attemptQuestionRepo;
+    @Autowired private ProfessionalExamAnswerRepository answerRepo;
     @Autowired private ProfessionalExamService professionalExamService;
     @Autowired private ProfessionalExamAttemptService attemptService;
+    @Autowired private ProfessionalExamEvaluationServiceImpl evaluationService;
 
     private User getUser(Principal p) {
         if (p == null) throw new AccessDeniedException("Unauthenticated user");
@@ -44,7 +48,9 @@ public class StudentProfessionalExamController {
 
     @GetMapping
     public String listExams(Model model, Principal p) {
-        List<ProfessionalExam> exams = examRepo.findByActiveTrue();
+        List<ProfessionalExam> exams = examRepo.findByActiveTrue().stream()
+                .filter(e -> e.getExamCode() != null && !e.getExamCode().equalsIgnoreCase("SH-DEV-CERT-01"))
+                .collect(java.util.stream.Collectors.toList());
 
         // Ensure all active exams have published versions and questions ready
         Map<Long, Integer> questionCountMap = new HashMap<>();
@@ -63,13 +69,13 @@ public class StudentProfessionalExamController {
             if (user != null) {
                 List<ProfessionalExamApplication> apps = appRepo.findByUserId(user.getId());
                 for (ProfessionalExamApplication app : apps) {
-                    if (app.getProfessionalExam() != null) {
+                    if (app.getProfessionalExam() != null && (app.getProfessionalExam().getExamCode() == null || !app.getProfessionalExam().getExamCode().equalsIgnoreCase("SH-DEV-CERT-01"))) {
                         userApps.put(app.getProfessionalExam().getId(), app);
                     }
                 }
                 List<ProfessionalExamAttempt> attempts = attemptRepo.findByStudentId(user.getId());
                 for (ProfessionalExamAttempt att : attempts) {
-                    if (att.getExamVersion() != null && att.getExamVersion().getProfessionalExam() != null) {
+                    if (att.getExamVersion() != null && att.getExamVersion().getProfessionalExam() != null && (att.getExamVersion().getProfessionalExam().getExamCode() == null || !att.getExamVersion().getProfessionalExam().getExamCode().equalsIgnoreCase("SH-DEV-CERT-01"))) {
                         Long exId = att.getExamVersion().getProfessionalExam().getId();
                         if (!userAttempts.containsKey(exId) || att.getStatus() == AttemptStatus.IN_PROGRESS) {
                             userAttempts.put(exId, att);
@@ -101,14 +107,14 @@ public class StudentProfessionalExamController {
         if (p != null) {
             User user = userRepository.findByEmail(p.getName());
             if (user != null) {
-                appRepo.findByUserIdAndProfessionalExamId(user.getId(), id)
+                appRepo.findFirstByUserIdAndProfessionalExamIdOrderByIdDesc(user.getId(), id)
                         .ifPresent(app -> model.addAttribute("userApp", app));
 
                 attemptRepo.findTopByStudentIdAndExamVersionProfessionalExamIdOrderByStartedAtDesc(user.getId(), id)
                         .ifPresent(att -> {
                             model.addAttribute("userAttempt", att);
                             resultRepo.findByAttemptId(att.getId())
-                                    .ifPresent(res -> model.addAttribute("userResult", res));
+                                     .ifPresent(res -> model.addAttribute("userResult", res));
                         });
             }
         }
@@ -139,6 +145,16 @@ public class StudentProfessionalExamController {
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
 
         ProfessionalExamVersion version = professionalExamService.ensurePublishedVersionWithQuestions(exam);
+
+        Optional<ProfessionalExamApplication> existingApp = appRepo.findFirstByUserIdAndProfessionalExamIdOrderByIdDesc(user.getId(), id);
+        if (existingApp.isPresent()) {
+            ProfessionalExamApplication ea = existingApp.get();
+            ea.setStatus(ApplicationStatus.APPROVED);
+            ea.setExamVersion(version);
+            ea.setPaymentStatus(PaymentStatus.SUCCESS);
+            appRepo.save(ea);
+            return "redirect:/student/professional-exams/" + id + "/start";
+        }
 
         app.setId(null);
         app.setProfessionalExam(exam);
@@ -171,7 +187,7 @@ public class StudentProfessionalExamController {
         ProfessionalExamVersion version = professionalExamService.ensurePublishedVersionWithQuestions(exam);
 
         // Find or create approved application
-        ProfessionalExamApplication app = appRepo.findByUserIdAndProfessionalExamId(user.getId(), id)
+        ProfessionalExamApplication app = appRepo.findFirstByUserIdAndProfessionalExamIdOrderByIdDesc(user.getId(), id)
                 .orElseGet(() -> {
                     ProfessionalExamApplication newApp = new ProfessionalExamApplication();
                     newApp.setUser(user);
@@ -205,7 +221,10 @@ public class StudentProfessionalExamController {
         int maxAllowed = exam.getMaximumAttempts() > 0 ? exam.getMaximumAttempts() : 3;
         Optional<ProfessionalExamAttempt> lastAttempt = attemptRepo.findTopByStudentIdAndExamVersionProfessionalExamIdOrderByStartedAtDesc(user.getId(), exam.getId());
         if (lastAttempt.isPresent()) {
-            long totalAttempts = attemptRepo.findByApplicationIdAndStudentId(app.getId(), user.getId()).stream().count();
+            long totalAttempts = attemptRepo.countByApplicationIdAndStudentId(app.getId(), user.getId());
+            if (totalAttempts == 0) {
+                totalAttempts = attemptRepo.findByApplicationIdAndStudentId(app.getId(), user.getId()).stream().count();
+            }
             if (totalAttempts >= maxAllowed) {
                 return "redirect:/student/professional-exams/results/" + lastAttempt.get().getId();
             }
@@ -246,9 +265,58 @@ public class StudentProfessionalExamController {
             throw new AccessDeniedException("Access denied: You do not have permission to view these results.");
         }
 
+        List<ProfessionalExamAttemptQuestion> attemptQuestions = attemptQuestionRepo.findByAttemptIdOrderByDisplayOrderAsc(attemptId);
+        int totalQuestions = attemptQuestions.size();
+
         ProfessionalExamResult result = resultRepo.findByAttemptId(attemptId).orElse(null);
+
+        // If result is missing or result has corrupted counts (e.g. wrong question count), re-evaluate cleanly
+        if (result == null || (totalQuestions > 0 && (result.getCorrectAnswers() + result.getWrongAnswers() + result.getUnansweredAnswers()) != totalQuestions)) {
+            result = evaluationService.evaluateAttempt(attemptId, true);
+            attempt = attemptRepo.findById(attemptId).orElse(attempt);
+        }
+
+        // Prepare question-by-question review items
+        List<Map<String, Object>> questionReview = new ArrayList<>();
+        for (ProfessionalExamAttemptQuestion aq : attemptQuestions) {
+            ProfessionalExamQuestion q = aq.getQuestion();
+            Map<String, Object> item = new HashMap<>();
+            item.put("number", aq.getQuestionNumber());
+            item.put("questionText", q.getQuestionText());
+            item.put("type", q.getQuestionType() != null ? q.getQuestionType().name() : "MCQ");
+            item.put("marks", q.getMarks());
+
+            List<ProfessionalExamAnswer> answers = answerRepo.findAllByAttemptIdAndQuestionId(attemptId, q.getId());
+            ProfessionalExamAnswer ans = answers.isEmpty() ? null : answers.get(0);
+
+            String candidateAnswer = null;
+            if (ans != null) {
+                if (ans.getSelectedOption() != null && !ans.getSelectedOption().trim().isEmpty()) {
+                    candidateAnswer = ans.getSelectedOption();
+                } else if (ans.getTextAnswer() != null && !ans.getTextAnswer().trim().isEmpty()) {
+                    candidateAnswer = ans.getTextAnswer();
+                } else if (ans.getCodeAnswer() != null && !ans.getCodeAnswer().trim().isEmpty()) {
+                    candidateAnswer = ans.getCodeAnswer();
+                }
+            }
+
+            item.put("userAnswer", candidateAnswer);
+            item.put("correctAnswer", q.getCorrectAnswer());
+            item.put("explanation", q.getExplanation());
+
+            if (candidateAnswer == null || candidateAnswer.trim().isEmpty()) {
+                item.put("status", "SKIPPED");
+            } else if (ans != null && Boolean.TRUE.equals(ans.getIsCorrect())) {
+                item.put("status", "CORRECT");
+            } else {
+                item.put("status", "INCORRECT");
+            }
+            questionReview.add(item);
+        }
+
         model.addAttribute("attempt", attempt);
         model.addAttribute("result", result);
+        model.addAttribute("questionReview", questionReview);
 
         if (result != null) {
             certificateRepo.findByResultId(result.getId()).ifPresent(cert -> model.addAttribute("certificate", cert));

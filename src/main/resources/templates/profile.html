@@ -1076,21 +1076,20 @@
 
             <!-- My Courses Tab -->
             <div id="courses" class="tab-content">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 1.6rem; margin-bottom: 3rem;">
+                <div style="border-bottom: 1px solid var(--border); padding-bottom: 1.6rem; margin-bottom: 3rem;">
                     <div>
                         <h2 style="margin: 0;">My Enrolled Courses</h2>
                         <p style="color: var(--muted); margin-top: 0.5rem;">Track your progress and certifications.</p>
                     </div>
-                    <button class="btn-save" style="background: var(--primary); display: flex; align-items: center; gap: 0.8rem;" onclick="openScanner()">
-                        <i class="fas fa-qrcode"></i> Scan to Join Exam
-                    </button>
                 </div>
 
                 <div th:if="${#lists.isEmpty(enrollments)}"
-                    style="padding: 4rem; text-align: center; border: 1px solid var(--border);">
-                    <p style="color: var(--muted); margin-bottom: 1.6rem;">You haven't enrolled in any courses yet.</p>
-                    <a href="/user/home" class="btn-save" style="text-decoration: none; display: inline-block;">Browse
-                        Courses</a>
+                    style="padding: 4rem; text-align: center; border: 1px dashed var(--border); border-radius: 12px; background: #fafafa;">
+                    <i class="fas fa-graduation-cap" style="font-size: 4rem; color: #ccc; margin-bottom: 1.2rem; display: block;"></i>
+                    <p style="color: var(--muted); margin-bottom: 1.6rem; font-size: 1.5rem;">You haven't enrolled in any courses yet.</p>
+                    <a th:href="@{/}" href="/" class="btn-save" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.8rem; padding: 1.1rem 2.6rem; font-size: 1.4rem; font-weight: 600; border-radius: 6px;">
+                        <i class="fas fa-compass"></i> Browse Courses
+                    </a>
                 </div>
                 <div class="grid" th:unless="${#lists.isEmpty(enrollments)}">
                     <div th:each="enrollment : ${enrollments}" class="card" th:if="${enrollment.course != null}"

@@ -56,6 +56,9 @@ public class DataInitializer {
             }
             
             jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+            try {
+                jdbcTemplate.execute("ALTER TABLE professional_exam_attempts DROP INDEX UKo976hbu37ifoet5pt7w8fbrcb;");
+            } catch (Exception ignored) {}
 
             // Admin
             User admin = userRepository.findByEmail("admin@skillhub.com");
@@ -144,152 +147,39 @@ public class DataInitializer {
             } catch (Exception e) {
                 // Ignore if table or column doesn't exist yet
             }
+
+            // Clean up hardcoded seeded professional exam so only admin-added exams exist
+            try {
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+                String seededCode = "SH-DEV-CERT-01";
+                jdbcTemplate.update("DELETE FROM professional_exam_attempt_questions WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_answers WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_coding_submissions WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_security_events WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_skill_results WHERE result_id IN (SELECT id FROM professional_exam_results WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?))))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_results WHERE attempt_id IN (SELECT id FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_certificates WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_attempts WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_applications WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_questions WHERE section_id IN (SELECT id FROM professional_exam_sections WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_sections WHERE exam_version_id IN (SELECT id FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?))", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_versions WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exam_blueprints WHERE exam_id IN (SELECT id FROM professional_exams WHERE exam_code = ?)", seededCode);
+                jdbcTemplate.update("DELETE FROM professional_exams WHERE exam_code = ?", seededCode);
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+            try {
+                jdbcTemplate.execute("ALTER TABLE professional_exam_attempts DROP INDEX UKo976hbu37ifoet5pt7w8fbrcb;");
+            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                // Ignore if tables do not exist yet
+            }
         };
     }
 
     @Bean
-    public CommandLineRunner seedProfessionalExamAttempt(
-            UserRepository userRepository,
-            com.skillhub.repository.ProfessionalExamRepository examRepository,
-            com.skillhub.repository.ProfessionalExamVersionRepository versionRepository,
-            com.skillhub.repository.ProfessionalExamSectionRepository sectionRepository,
-            com.skillhub.repository.ProfessionalExamQuestionRepository questionRepository,
-            com.skillhub.repository.ProfessionalExamApplicationRepository applicationRepository,
-            com.skillhub.repository.ProfessionalExamAttemptRepository attemptRepository,
-            com.skillhub.repository.ProfessionalExamAttemptQuestionRepository attemptQuestionRepository) {
+    public CommandLineRunner seedProfessionalExamAttempt() {
         return args -> {
-            try {
-                if (attemptRepository.count() > 0) {
-                    return;
-                }
-
-                User neha = userRepository.findByEmail("neha@123");
-                if (neha == null) return;
-
-                com.skillhub.model.ProfessionalExam exam = examRepository.findByExamCode("SH-DEV-CERT-01").orElse(null);
-                if (exam == null) {
-                    exam = new com.skillhub.model.ProfessionalExam();
-                    exam.setExamCode("SH-DEV-CERT-01");
-                    exam.setTitle("Full Stack Software Engineering Certification");
-                    exam.setDescription("Comprehensive examination testing core algorithms, database optimization, coding proficiency, and system design.");
-                    exam.setTrack(com.skillhub.model.enums.ExamTrack.DEVELOPMENT);
-                    exam.setLevel(com.skillhub.model.enums.ExamDifficulty.INTERMEDIATE);
-                    exam.setDurationMinutes(60);
-                    exam.setTotalMarks(30);
-                    exam.setPassingMarks(15);
-                    exam.setNegativeMarking(true);
-                    exam.setNegativeMarkValue(new java.math.BigDecimal("0.5"));
-                    exam.setMaximumAttempts(3);
-                    exam.setApplicationRequired(false);
-                    exam.setActive(true);
-                    exam = examRepository.save(exam);
-                }
-
-                com.skillhub.model.ProfessionalExamVersion version = versionRepository.findByProfessionalExamId(exam.getId()).stream().findFirst().orElse(null);
-                if (version == null) {
-                    version = new com.skillhub.model.ProfessionalExamVersion();
-                    version.setProfessionalExam(exam);
-                    version.setVersionNumber("1.0");
-                    version.setVersionName("Standard 2026");
-                    version.setTotalMarks(30);
-                    version.setPassingMarks(15);
-                    version.setDurationMinutes(60);
-                    version.setActive(true);
-                    version.setPublished(true);
-                    version = versionRepository.save(version);
-                }
-
-                com.skillhub.model.ProfessionalExamSection section = sectionRepository.findByExamVersionId(version.getId()).stream().findFirst().orElse(null);
-                if (section == null) {
-                    section = new com.skillhub.model.ProfessionalExamSection();
-                    section.setExamVersion(version);
-                    section.setName("Core Engineering & Problem Solving");
-                    section.setDisplayOrder(1);
-                    section.setActive(true);
-                    section = sectionRepository.save(section);
-                }
-
-                if (questionRepository.findByExamSectionExamVersionId(version.getId()).isEmpty()) {
-                    com.skillhub.model.ProfessionalExamQuestion q1 = new com.skillhub.model.ProfessionalExamQuestion();
-                    q1.setExamSection(section);
-                    q1.setQuestionText("Which SOLID principle states that high-level modules should not depend on low-level modules, but both should depend on abstractions?");
-                    q1.setQuestionType(com.skillhub.model.enums.QuestionType.SINGLE_CHOICE);
-                    q1.setDifficulty(com.skillhub.model.enums.ExamDifficulty.INTERMEDIATE);
-                    q1.setMarks(5);
-                    q1.setNegativeMarks(new java.math.BigDecimal("0.5"));
-                    q1.setOptions(java.util.List.of("Single Responsibility Principle", "Open/Closed Principle", "Interface Segregation Principle", "Dependency Inversion Principle"));
-                    q1.setCorrectAnswer("Dependency Inversion Principle");
-                    q1.setActive(true);
-                    questionRepository.save(q1);
-
-                    com.skillhub.model.ProfessionalExamQuestion q2 = new com.skillhub.model.ProfessionalExamQuestion();
-                    q2.setExamSection(section);
-                    q2.setQuestionText("Write a method in Java that takes a string and returns true if it is a valid palindrome, ignoring casing and non-alphanumeric characters.");
-                    q2.setQuestionType(com.skillhub.model.enums.QuestionType.CODING);
-                    q2.setDifficulty(com.skillhub.model.enums.ExamDifficulty.INTERMEDIATE);
-                    q2.setMarks(10);
-                    q2.setNegativeMarks(java.math.BigDecimal.ZERO);
-                    q2.setCodeLanguage("java");
-                    q2.setCodeStarterTemplate("public class Solution {\n    public static boolean isPalindrome(String s) {\n        // Write your solution here\n        return true;\n    }\n}");
-                    q2.setActive(true);
-                    questionRepository.save(q2);
-
-                    com.skillhub.model.ProfessionalExamQuestion q3 = new com.skillhub.model.ProfessionalExamQuestion();
-                    q3.setExamSection(section);
-                    q3.setQuestionText("In relational database management systems, which isolation level provides complete protection against dirty reads, non-repeatable reads, and phantom reads?");
-                    q3.setQuestionType(com.skillhub.model.enums.QuestionType.SINGLE_CHOICE);
-                    q3.setDifficulty(com.skillhub.model.enums.ExamDifficulty.ADVANCED);
-                    q3.setMarks(5);
-                    q3.setNegativeMarks(new java.math.BigDecimal("0.5"));
-                    q3.setOptions(java.util.List.of("Read Uncommitted", "Read Committed", "Repeatable Read", "Serializable"));
-                    q3.setCorrectAnswer("Serializable");
-                    q3.setActive(true);
-                    questionRepository.save(q3);
-
-                    com.skillhub.model.ProfessionalExamQuestion q4 = new com.skillhub.model.ProfessionalExamQuestion();
-                    q4.setExamSection(section);
-                    q4.setQuestionText("Explain how you would design an idempotent payment processing API to prevent duplicate charges when network timeouts occur between the client and payment gateway.");
-                    q4.setQuestionType(com.skillhub.model.enums.QuestionType.SCENARIO);
-                    q4.setDifficulty(com.skillhub.model.enums.ExamDifficulty.ADVANCED);
-                    q4.setMarks(10);
-                    q4.setNegativeMarks(java.math.BigDecimal.ZERO);
-                    q4.setActive(true);
-                    questionRepository.save(q4);
-                }
-
-                com.skillhub.model.ProfessionalExamApplication app = applicationRepository.findByUserId(neha.getId()).stream().findFirst().orElse(null);
-                if (app == null) {
-                    app = new com.skillhub.model.ProfessionalExamApplication();
-                    app.setApplicationNumber("APP-CERT-001");
-                    app.setUser(neha);
-                    app.setEmail(neha.getEmail());
-                    app.setProfessionalExam(exam);
-                    app.setExamVersion(version);
-                    app.setStatus(com.skillhub.model.enums.ApplicationStatus.APPROVED);
-                    app.setPaymentStatus(com.skillhub.model.PaymentStatus.SUCCESS);
-                    app.setApplicationFee(java.math.BigDecimal.ZERO);
-                    app = applicationRepository.save(app);
-                }
-
-                com.skillhub.model.ProfessionalExamAttempt attempt = new com.skillhub.model.ProfessionalExamAttempt();
-                attempt.setApplication(app);
-                attempt.setStudent(neha);
-                attempt.setExamVersion(version);
-                attempt.setStartedAt(java.time.LocalDateTime.now());
-                attempt.setStatus(com.skillhub.model.enums.AttemptStatus.IN_PROGRESS);
-                attempt.setCurrentQuestion(1L);
-                attempt = attemptRepository.save(attempt);
-
-                java.util.List<com.skillhub.model.ProfessionalExamQuestion> qs = questionRepository.findByExamSectionExamVersionId(version.getId());
-                int num = 1;
-                for (com.skillhub.model.ProfessionalExamQuestion q : qs) {
-                    com.skillhub.model.ProfessionalExamAttemptQuestion aq = new com.skillhub.model.ProfessionalExamAttemptQuestion(attempt, q, num, num);
-                    attemptQuestionRepository.save(aq);
-                    num++;
-                }
-            } catch (Exception ex) {
-                // Ignore seed errors on dynamic environments
-            }
+            // Hardcoded seeded exams have been removed so only admin-added exams exist for students.
         };
     }
 
