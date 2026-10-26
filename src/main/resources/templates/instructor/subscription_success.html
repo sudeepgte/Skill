@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Activated | SkillHub Authoring Studio</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #EDE9FE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            color: #1E293B;
+        }
+
+        .success-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(124, 58, 237, 0.12);
+            border: 2px solid #E2E8F0;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-icon-wrap {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem auto;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+        }
+
+        .details-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.75rem 0;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #F1F5F9;
+            font-size: 0.92rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="success-card">
+        <div class="success-icon-wrap">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 style="font-size: 1.9rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">
+            Subscription Successfully Activated!
+        </h1>
+        <p style="color: #64748B; font-size: 0.98rem; line-height: 1.5; margin: 0;">
+            Thank you for subscribing! Your monthly course publishing allowance has been updated and is active immediately.
+        </p>
+
+        <!-- Subscription Confirmation Box -->
+        <div class="details-box" th:if="${subscription != null}">
+            <div class="detail-row">
+                <span style="color: #64748B;">Plan Name:</span>
+                <strong style="color: #7C3AED; font-size: 1rem;" th:text="${subscription.planName}">Growth Plan</strong>
+            </div>
+            <div class="detail-row">
+                <span style="color: #64748B;">Monthly Course Allowance:</span>
+                <strong style="color: #0F172A;" th:text="${subscription.courseLimit} + ' Courses / Month'">5 Courses / Month</strong>
+            </div>
+            <div class="detail-row">
+                <span style="color: #64748B;">Monthly Fee:</span>
+                <strong style="color: #0F172A;" th:text="'₹' + ${#numbers.formatDecimal(subscription.monthlyPrice, 0, 'COMMA', 0, 'POINT')}">₹499</strong>
+            </div>
+            <div class="detail-row">
+                <span style="color: #64748B;">Active Validity Period:</span>
+                <span style="font-weight: 600; color: #334155;" th:text="${#temporals.format(subscription.startDate, 'dd MMM yyyy')} + ' - ' + ${#temporals.format(subscription.endDate, 'dd MMM yyyy')}">01 Nov - 01 Dec 2026</span>
+            </div>
+            <div class="detail-row" th:if="${txnId != null}">
+                <span style="color: #64748B;">Payment Reference:</span>
+                <span style="font-family: monospace; font-size: 0.85rem; color: #4338CA;" th:text="${txnId}">pay_xxx</span>
+            </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a th:href="@{/vendor/courses/create}" class="btn"
+               style="background: linear-gradient(135deg, #7C3AED, #6D28D9); color: #ffffff; padding: 0.85rem; border-radius: 12px; font-weight: 700; font-size: 1rem; text-decoration: none; box-shadow: 0 4px 14px rgba(109, 40, 217, 0.3);">
+                <i class="fas fa-plus-circle" style="margin-right: 6px;"></i> Create Course in Studio
+            </a>
+            <div style="display: flex; gap: 0.75rem;">
+                <a th:href="@{/vendor/subscription}" class="btn"
+                   style="flex: 1; background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; padding: 0.65rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+                    <i class="fas fa-crown"></i> My Subscription
+                </a>
+                <a th:href="@{/vendor/dashboard}" class="btn"
+                   style="flex: 1; background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; padding: 0.65rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+                    <i class="fas fa-th-large"></i> Vendor Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
+</body>
+</html>

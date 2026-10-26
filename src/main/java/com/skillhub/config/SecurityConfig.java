@@ -27,6 +27,9 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private CustomAuthenticationFailureHandler failureHandler;
+
     @Bean
     public JwtAuthenticationFilter authenticationJwtTokenFilter() {
         return new JwtAuthenticationFilter();
@@ -57,7 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/saveUser",
                                 "/login", "/forgot-password", "/reset-password", "/verify-otp",
-                                "/api/auth/**",
+                                "/api/auth/**", "/api/broadcast/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/course/**", "/courses", "/courses/**", "/pricing", "/library", "/error", "/uploads/**",
                                 "/about", "/contact", "/submit-contact-form",
@@ -71,6 +74,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/register/admin", "/admin/register", "/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                         .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/instructor/subscription/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/api/subscriptions/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
                         .requestMatchers("/api/upload-video").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
@@ -83,6 +88,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

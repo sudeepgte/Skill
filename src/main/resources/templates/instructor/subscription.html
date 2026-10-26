@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Subscriptions | SkillHub Vendor</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        /* ══ COLOR PALETTE & VARIABLES (IDENTICAL TO EXAMS & DASHBOARD) ══ */
+        :root {
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --secondary: #A78BFA;
+            --background: #F5F3FF;
+            --sidebar: #2E1065;
+            --card-bg: #EDE9FE;
+            --text-main: #2E1065;
+            --text-muted: #6D28D9;
+            --border: #C4B5FD;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* ══ SIDEBAR ══ */
+        .vendor-sidebar {
+            width: 260px;
+            background-color: var(--sidebar);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 0 0 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            border-right: 1px solid rgba(167, 139, 250, 0.15);
+        }
+
+        .vendor-sidebar::-webkit-scrollbar,
+        .vendor-nav::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .vendor-sidebar-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .vendor-sidebar-brand {
+            padding: 0 1.5rem 2.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .btn-sidebar-close {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-close:hover {
+            background: rgba(239, 68, 68, 0.7);
+            border-color: #EF4444;
+            color: #ffffff;
+        }
+
+        .vendor-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .vendor-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            color: #F5F3FF;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .vendor-nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .vendor-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .vendor-nav-item.active {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+        }
+
+        .vendor-sidebar-footer {
+            margin-top: auto;
+            padding: 1rem 0.8rem 1.5rem 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* ══ MAIN CONTENT WRAPPER ══ */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2.5rem 3rem 5rem 3rem;
+            min-height: 100vh;
+            background-color: var(--background);
+            transition: margin-left 0.3s ease;
+        }
+
+        /* ══ MOBILE RESPONSIVE TOPBAR & OVERLAYS ══ */
+        .vendor-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 7, 34, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .vendor-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .vendor-mobile-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            box-shadow: 0 4px 16px rgba(46, 16, 101, 0.05);
+        }
+
+        .btn-sidebar-toggle {
+            background: #F5F3FF;
+            color: #7C3AED;
+            border: 1px solid #DDD6FE;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background: #EDE9FE;
+            color: #5B21B6;
+            transform: scale(1.03);
+        }
+
+        .mobile-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+            text-transform: uppercase;
+        }
+
+        /* ══ WELCOME HEADER ══ */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+        }
+
+        .welcome-text h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+
+        .welcome-text p {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.5;
+            max-width: 780px;
+        }
+
+        .btn-primary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.4rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #6D28D9 100%);
+            color: white;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.25);
+            cursor: pointer;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.35);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: #ffffff;
+            color: var(--text-muted);
+            font-weight: 700;
+            border-radius: 12px;
+            border: 1.5px solid #DDD6FE;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #EDE9FE;
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+
+        /* ══ ACTIVE SUBSCRIPTION CARD ══ */
+        .sub-active-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 1.75rem 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px -10px rgba(46, 16, 101, 0.08);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sub-active-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(180deg, var(--primary) 0%, #10B981 100%);
+        }
+
+        .badge-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        .badge-default {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+
+        .usage-progress {
+            height: 10px;
+            background: #EDE9FE;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+            max-width: 520px;
+        }
+
+        .usage-progress-bar {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        /* ══ SECTION TITLE BAR ══ */
+        .section-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-icon-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), #6D28D9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+            flex-shrink: 0;
+        }
+
+        /* ══ PRICING CARDS GRID ══ */
+        .pricing-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.75rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .pricing-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 2.25rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 10px 30px -10px rgba(46, 16, 101, 0.08);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 16px 36px rgba(139, 92, 246, 0.18);
+        }
+
+        .pricing-card.current {
+            border: 2px solid var(--success);
+            background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 120px);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--primary);
+            background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 120px);
+            box-shadow: 0 14px 34px rgba(139, 92, 246, 0.16);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), #6D28D9);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            white-space: nowrap;
+        }
+
+        .current-badge {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .price-val {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        .price-period {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .plan-allowance-box {
+            background: #F5F3FF;
+            border: 1px solid #DDD6FE;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin: 1.25rem 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+            flex: 1;
+        }
+
+        .features-list li {
+            padding: 0.45rem 0;
+            font-size: 0.88rem;
+            color: #475569;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            line-height: 1.45;
+        }
+
+        .features-list li i {
+            color: var(--primary);
+            margin-top: 3px;
+            font-size: 0.85rem;
+        }
+
+        .btn-subscribe {
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-subscribe.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #6D28D9 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.25);
+        }
+
+        .btn-subscribe.primary:hover {
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(109, 40, 217, 0.35);
+        }
+
+        .btn-subscribe.secondary {
+            background: #F5F3FF;
+            color: var(--text-muted);
+            border: 1.5px solid #DDD6FE;
+        }
+
+        .btn-subscribe.secondary:hover {
+            background: #EDE9FE;
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+
+        .btn-subscribe.active-btn {
+            background: #ECFDF5;
+            color: #059669;
+            border: 1.5px solid #A7F3D0;
+            cursor: default;
+        }
+
+        /* ══ CUSTOM CALCULATOR CARD ══ */
+        .calculator-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 2.25rem;
+            margin-bottom: 3.5rem;
+            box-shadow: 0 10px 30px -10px rgba(46, 16, 101, 0.08);
+        }
+
+        .calc-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #E2E8F0;
+            outline: none;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .calc-summary-box {
+            background: #FAF5FF;
+            border: 1.5px solid #DDD6FE;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+        }
+
+        /* ══ HISTORY TABLE ══ */
+        .history-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px -10px rgba(46, 16, 101, 0.08);
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .history-table th {
+            padding: 1.1rem 1.5rem;
+            background: #F5F3FF;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #EDE9FE;
+            vertical-align: middle;
+            font-size: 0.925rem;
+        }
+
+        .history-table tbody tr:hover {
+            background: #FAF8FF;
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ══ MODAL STYLES ══ */
+        .sub-modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 7, 34, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .sub-modal-backdrop.open {
+            display: flex;
+        }
+
+        .sub-modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            padding: 2.25rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px rgba(15, 7, 34, 0.25);
+            position: relative;
+        }
+
+        /* ══ RESPONSIVE BREAKPOINTS (MATCHING EXAMS & DASHBOARD) ══ */
+        @media (max-width: 991.98px) {
+            .vendor-sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                bottom: 0 !important;
+                width: 280px !important;
+                max-width: 85vw !important;
+                height: 100vh !important;
+                z-index: 1050 !important;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 0 24px 24px 0 !important;
+                border-right: 1px solid rgba(167, 139, 250, 0.25) !important;
+                box-shadow: 12px 0 45px rgba(15, 7, 34, 0.55) !important;
+            }
+
+            .vendor-sidebar.mobile-open {
+                transform: translateX(0) !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1.25rem !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0.85rem !important;
+            }
+
+            header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .sub-active-card {
+                grid-template-columns: 1fr;
+                padding: 1.5rem 1.25rem;
+            }
+
+            .pricing-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calculator-card {
+                padding: 1.5rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="vendor-sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="toggleVendorMobileSidebar(false)"></div>
+
+    <!-- ══ INSTRUCTOR SIDEBAR (IDENTICAL TO EXAMS & DASHBOARD) ══ -->
+    <aside class="vendor-sidebar" id="vendorSidebar">
+        <div class="vendor-sidebar-top-row">
+            <a th:href="@{/}" class="vendor-sidebar-brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.25rem 2rem 1.25rem; flex: 1;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px; text-transform: none;">
+                        <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Instructor Studio</div>
+                </div>
+            </a>
+            <button type="button" class="btn-sidebar-close d-lg-none" onclick="toggleVendorMobileSidebar(false)" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="vendor-nav">
+            <a th:href="@{/vendor/dashboard(tab='courses')}" class="vendor-nav-item">
+                <i class="fas fa-th-large"></i> My Courses
+            </a>
+            <a th:href="@{/vendor/courses/create}" class="vendor-nav-item">
+                <i class="fas fa-plus-circle"></i> Create New Course
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='students')}" class="vendor-nav-item">
+                <i class="fas fa-users"></i> Students
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='analytics')}" class="vendor-nav-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a th:href="@{/vendor/exams}" class="vendor-nav-item">
+                <i class="fas fa-file-signature"></i> Manage Exams
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item">
+                <i class="fas fa-user-circle"></i> Profile Management
+            </a>
+            <a th:href="@{/vendor/subscription}" class="vendor-nav-item active">
+                <i class="fas fa-crown"></i> Subscriptions
+            </a>
+        </nav>
+
+        <div class="vendor-sidebar-footer">
+            <a th:href="@{/logout}" class="vendor-nav-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN CONTENT (MARGIN-LEFT: 260px; BACKGROUND: #F5F3FF) ══ -->
+    <main class="main-content">
+
+        <!-- Mobile Topbar (< 992px) -->
+        <div class="vendor-mobile-topbar d-lg-none">
+            <button type="button" class="btn-sidebar-toggle" onclick="toggleVendorMobileSidebar(true)" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a th:href="@{/}" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub" style="height: 28px; width: auto;">
+                <div style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 900; letter-spacing: -0.5px;">
+                    <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
+                </div>
+            </a>
+            <div class="mobile-user-avatar">
+                <span><i class="fas fa-crown"></i></span>
+            </div>
+        </div>
+
+        <!-- ━━ PAGE HEADER (WELCOME TEXT & ACTIONS) ━━ -->
+        <header>
+            <div class="welcome-text">
+                <h1>Instructor Subscription Plans</h1>
+                <p>Choose a monthly plan based on the number of courses you want to publish. Review the pricing and subscription terms before proceeding.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <a href="#custom-section" class="btn-secondary-custom">
+                    <i class="fas fa-sliders-h"></i> Customize Limit
+                </a>
+                <a th:href="@{/vendor/courses/create}" class="btn-primary-custom">
+                    <i class="fas fa-plus-circle"></i> Create New Course
+                </a>
+            </div>
+        </header>
+
+        <!-- ━━ CURRENT ACTIVE SUBSCRIPTION STATUS ━━ -->
+        <div class="sub-active-card" th:if="${activeSubscription != null}">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                    <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: var(--text-main);" th:text="${activeSubscription.planName}">
+                        Growth Plan
+                    </h3>
+                    <span class="badge-status-pill badge-active">
+                        <i class="fas fa-check-circle" style="font-size: 0.75rem;"></i> ACTIVE
+                    </span>
+                    <span th:if="${activeSubscription.monthlyPrice > 0}" style="font-size: 1rem; font-weight: 800; color: var(--text-muted);"
+                          th:text="'₹' + ${#numbers.formatDecimal(activeSubscription.monthlyPrice, 0, 'COMMA', 0, 'POINT')} + ' / month'">
+                        ₹499 / month
+                    </span>
+                </div>
+
+                <!-- Usage info -->
+                <div style="font-size: 0.92rem; color: #475569; margin-bottom: 0.4rem;" th:if="${usage != null}">
+                    Monthly Course Allowance: <strong style="color: var(--text-main);" th:text="${usage.usedCount} + ' of ' + ${usage.limitCount} + ' courses created'">2 of 5 courses created</strong>
+                    &bull; <span style="color: #059669; font-weight: 700;" th:text="${usage.remainingSlots} + ' slots remaining'">3 slots remaining</span>
+                </div>
+
+                <div class="usage-progress" th:if="${usage != null}">
+                    <div class="usage-progress-bar"
+                         th:with="pct = ${usage.limitCount > 0 ? (usage.usedCount * 100 / usage.limitCount) : 0}"
+                         th:style="'width:' + (${pct > 100 ? 100 : pct}) + '%; background:' + (${pct >= 100 ? '#EF4444' : (pct >= 70 ? '#F59E0B' : '#10B981')}) + ';'"></div>
+                </div>
+
+                <div style="font-size: 0.85rem; color: #64748B; margin-top: 0.75rem;">
+                    Billing Cycle: <strong th:text="${#temporals.format(activeSubscription.startDate, 'dd MMM yyyy')} + ' - ' + ${#temporals.format(activeSubscription.endDate, 'dd MMM yyyy')}">01 Jan 2026 - 31 Jan 2026</strong>
+                    <span th:if="${activeSubscription.autoRenew}" style="margin-left: 12px; color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-sync-alt" style="font-size: 0.75rem;"></i> Auto-renews
+                    </span>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-end;">
+                <a href="#custom-section" class="btn-secondary-custom" style="padding: 0.55rem 1rem; font-size: 0.88rem;">
+                    <i class="fas fa-sliders-h"></i> Adjust Monthly Limit
+                </a>
+                <button th:if="${activeSubscription.status.name() == 'ACTIVE' and activeSubscription.monthlyPrice > 0}"
+                        onclick="openCancelModal()" class="btn btn-link" style="color: #EF4444; font-size: 0.82rem; text-decoration: none; padding: 0; font-weight: 600;">
+                    Cancel Auto-Renewal
+                </button>
+            </div>
+        </div>
+
+        <!-- Default Tier Fallback Banner if no active subscription -->
+        <div class="sub-active-card" th:if="${activeSubscription == null}">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                        Default Tier (Free Trial)
+                    </h3>
+                    <span class="badge-status-pill badge-default">
+                        DEFAULT
+                    </span>
+                </div>
+                <div style="font-size: 0.92rem; color: #475569;" th:if="${usage != null}">
+                    You are currently on the default 1-course trial allowance (<span th:text="${usage.usedCount} + ' / 1 used'">0 / 1 used</span>). Select a monthly plan below to publish more courses.
+                </div>
+            </div>
+            <div>
+                <a href="#plans-grid" class="btn-primary-custom">
+                    Select a Plan &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- ━━ PRICING CARDS SECTION ━━ -->
+        <div id="plans-grid">
+            <div class="section-title-bar">
+                <div class="section-title-left">
+                    <div class="section-icon-badge">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.2rem 0;">
+                            Available Monthly Plans
+                        </h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0; font-weight: 500;">
+                            Select the course publishing allowance that matches your content creation goals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pricing-cards-grid">
+                <div th:each="plan : ${plans}" class="pricing-card"
+                     th:with="isCurrentPlan = ${activeSubscription != null and ((activeSubscription.plan != null and activeSubscription.plan.id == plan.id) or (activeSubscription.planName != null and #strings.equalsIgnoreCase(activeSubscription.planName, plan.name)))}"
+                     th:classappend="${isCurrentPlan ? 'current' : (plan.popular ? 'popular' : '')}">
+
+                    <!-- Status Badges -->
+                    <div th:if="${isCurrentPlan}" class="current-badge">
+                        <i class="fas fa-check" style="margin-right: 3px;"></i> Current Plan
+                    </div>
+                    <div th:if="${plan.popular and !isCurrentPlan}" class="popular-badge">
+                        Most Popular
+                    </div>
+
+                    <div style="margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main);" th:text="${plan.name}">
+                            Starter
+                        </h3>
+                        <p style="font-size: 0.85rem; color: #64748B; margin: 0; min-height: 42px; line-height: 1.45;" th:text="${plan.description}">
+                            Description
+                        </p>
+                    </div>
+
+                    <!-- Pricing Display -->
+                    <div style="margin: 0.85rem 0 1.25rem 0;">
+                        <div th:if="${!plan.custom}">
+                            <span class="price-val" th:text="'₹' + ${#numbers.formatDecimal(plan.monthlyPrice, 0, 'COMMA', 0, 'POINT')}">₹299</span>
+                            <span class="price-period" th:if="${plan.monthlyPrice > 0}">/ month</span>
+                            <span class="price-period" th:if="${plan.monthlyPrice == 0}">forever</span>
+                        </div>
+                        <div th:if="${plan.custom}">
+                            <span class="price-val" style="font-size: 1.8rem;">Custom</span>
+                            <span class="price-period">per course basis</span>
+                        </div>
+                    </div>
+
+                    <!-- Course Limit Allowance Box -->
+                    <div class="plan-allowance-box">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span th:if="${!plan.custom}" th:text="'Publish up to ' + ${plan.courseLimit} + ' courses / month'">
+                            Publish up to 3 courses / month
+                        </span>
+                        <span th:if="${plan.custom}">
+                            Custom volume allowance
+                        </span>
+                    </div>
+
+                    <!-- Feature List -->
+                    <ul class="features-list">
+                        <li th:each="feat : ${#strings.arraySplit(plan.features, ',')}">
+                            <i class="fas fa-check-circle"></i>
+                            <span th:text="${feat.trim()}">Benefit text</span>
+                        </li>
+                    </ul>
+
+                    <!-- Action Button -->
+                    <div style="margin-top: auto;">
+                        <!-- Current Plan state -->
+                        <button th:if="${isCurrentPlan}"
+                                class="btn-subscribe active-btn" disabled>
+                            <i class="fas fa-check-circle"></i> Current Plan
+                        </button>
+
+                        <!-- Custom Enterprise CTA -->
+                        <a th:if="${plan.custom and !isCurrentPlan}"
+                           href="#custom-section" class="btn-subscribe secondary" style="text-decoration: none;">
+                            <i class="fas fa-sliders-h"></i> Customize Limit
+                        </a>
+
+                        <!-- Free Plan Subscribe CTA -->
+                        <button th:if="${!plan.custom and plan.monthlyPrice == 0 and !isCurrentPlan}"
+                                th:data-id="${plan.id}"
+                                th:data-name="${plan.name}"
+                                th:data-limit="${plan.courseLimit}"
+                                onclick="handleFreePlanClick(this)"
+                                class="btn-subscribe secondary">
+                            Activate Free
+                        </button>
+
+                        <!-- Paid Plan Subscribe CTA -->
+                        <button th:if="${!plan.custom and plan.monthlyPrice > 0 and !isCurrentPlan}"
+                                th:data-id="${plan.id}"
+                                th:data-name="${plan.name}"
+                                th:data-limit="${plan.courseLimit}"
+                                th:data-price="${plan.monthlyPrice}"
+                                onclick="handlePaidPlanClick(this)"
+                                class="btn-subscribe primary">
+                            Select Plan &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ━━ CUSTOMIZE YOUR SUBSCRIPTION SECTION ━━ -->
+        <div id="custom-section" class="calculator-card">
+            <div class="section-title-bar" style="margin-bottom: 1rem;">
+                <div class="section-title-left">
+                    <div class="section-icon-badge">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.2rem 0;">
+                            Customize Your Subscription
+                        </h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0; font-weight: 500;">
+                            Need a custom publishing volume? Choose how many courses you want to publish per month to see your personalized monthly pricing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <label for="customCourseInput" style="font-weight: 700; color: var(--text-main); font-size: 1.05rem;">
+                        Courses to Publish Each Month:
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="number" id="customCourseInput" min="1" max="50" value="7"
+                               style="width: 85px; padding: 0.5rem 0.75rem; font-size: 1.2rem; font-weight: 800; text-align: center; border-radius: 10px; border: 2px solid var(--primary); outline: none; color: var(--primary);"
+                               onchange="onCourseInputChange(this.value)">
+                        <span style="font-weight: 700; color: var(--text-muted); font-size: 0.95rem;">courses</span>
+                    </div>
+                </div>
+
+                <!-- Range Slider -->
+                <input type="range" id="customCourseSlider" class="calc-slider" min="1" max="50" value="7"
+                       oninput="onCourseSliderChange(this.value)">
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: #64748B; margin-top: 0.5rem;">
+                    <span>1 course</span>
+                    <span>10 courses (Standard)</span>
+                    <span>25 courses (Pro)</span>
+                    <span>50 courses (Max)</span>
+                </div>
+            </div>
+
+            <!-- Calculation Summary Box -->
+            <div class="calc-summary-box">
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.25rem;">
+                        Estimated Monthly Billing
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                        <span id="customPriceDisplay" style="font-size: 2.2rem; font-weight: 900; color: var(--text-main);">
+                            ₹699
+                        </span>
+                        <span style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600;">/ month</span>
+                    </div>
+                    <div id="customTierBadge" style="font-size: 0.82rem; color: #059669; font-weight: 700; margin-top: 0.25rem;">
+                        <i class="fas fa-tag"></i> Tiered Volume Rate Applied
+                    </div>
+                </div>
+
+                <div style="text-align: right;">
+                    <div style="font-size: 0.88rem; color: #64748B; margin-bottom: 0.6rem;">
+                        Selected Limit: <strong id="summaryCourseCount" style="color: var(--text-main);">7 Courses / Month</strong>
+                    </div>
+                    <button type="button" onclick="continueCustomSubscription()" class="btn-primary-custom" style="padding: 0.85rem 1.6rem; font-size: 1rem;">
+                        Continue with Custom Plan &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.25rem; font-size: 0.82rem; color: #64748B; line-height: 1.5;">
+                <i class="fas fa-info-circle" style="color: var(--primary); margin-right: 4px;"></i>
+                Pricing is calculated using the configured tiered rate formula. Volume pricing discounts automatically apply for selections exceeding 10 courses. Courses can be published anytime within the 30-day billing cycle.
+            </div>
+        </div>
+
+        <!-- ━━ SUBSCRIPTION & PAYMENT HISTORY ━━ -->
+        <div class="history-card">
+            <div style="padding: 1.5rem 1.5rem 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div class="section-title-left">
+                    <div class="section-icon-badge" style="width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px;">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.15rem 0;">
+                            Subscription & Payment History
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; font-weight: 500;">
+                            Review your past subscription purchases, order receipts, and status.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Plan / Package</th>
+                            <th>Amount</th>
+                            <th>Transaction Reference</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${payments.empty and history.empty}">
+                            <td colspan="5" style="padding: 2.5rem 1rem; text-align: center; color: #94A3B8;">
+                                <i class="fas fa-history fa-2x" style="margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+                                No payment or subscription history recorded yet.
+                            </td>
+                        </tr>
+                        <tr th:each="p : ${payments}">
+                            <td style="color: #64748B;" th:text="${p.paymentDate != null ? #temporals.format(p.paymentDate, 'dd MMM yyyy, HH:mm') : (p.createdAt != null ? #temporals.format(p.createdAt, 'dd MMM yyyy') : '-')}">Date</td>
+                            <td style="font-weight: 700; color: var(--text-main);" th:text="${p.subscription.planName}">Growth</td>
+                            <td style="font-weight: 700; color: var(--text-main);" th:text="'₹' + ${#numbers.formatDecimal(p.amount, 0, 'COMMA', 0, 'POINT')}">₹499</td>
+                            <td style="font-family: monospace; color: var(--primary); font-weight: 600;" th:text="${p.transactionId}">TXN-1234</td>
+                            <td>
+                                <span th:class="'badge-status-pill ' + (${p.paymentStatus.name() == 'SUCCESS' ? 'badge-active' : (p.paymentStatus.name() == 'PENDING' ? 'badge-default' : 'bg-danger text-white')})"
+                                      th:text="${p.paymentStatus.name()}">SUCCESS</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ══ SUBSCRIPTION CHECKOUT & CONFIRMATION MODAL ══ -->
+    <div class="sub-modal-backdrop" id="checkoutModal">
+        <div class="sub-modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--text-main);">
+                    Confirm Subscription Order
+                </h3>
+                <button type="button" onclick="closeCheckoutModal()" style="background: none; border: none; font-size: 1.25rem; color: #94A3B8; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Order Summary Card -->
+            <div style="background: #F8FAFC; border: 1.5px solid #DDD6FE; border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem;">
+                    <span style="color: #64748B; font-size: 0.9rem;">Selected Plan:</span>
+                    <strong id="modalPlanName" style="color: var(--text-main); font-size: 0.95rem;">Growth Plan</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem;">
+                    <span style="color: #64748B; font-size: 0.9rem;">Monthly Course Allowance:</span>
+                    <strong id="modalCourseLimit" style="color: var(--primary); font-size: 0.95rem;">5 Courses / Month</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem;">
+                    <span style="color: #64748B; font-size: 0.9rem;">Billing Interval:</span>
+                    <strong style="color: var(--text-main); font-size: 0.95rem;">30 Days (Monthly Cycle)</strong>
+                </div>
+                <div style="border-top: 1px dashed #CBD5E1; padding-top: 0.75rem; margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: baseline;">
+                    <span style="color: var(--text-main); font-weight: 700; font-size: 1rem;">Total Amount Payable:</span>
+                    <span id="modalTotalAmount" style="font-size: 1.6rem; font-weight: 900; color: var(--text-main);">₹499</span>
+                </div>
+            </div>
+
+            <!-- Terms agreement -->
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.84rem; color: #475569; cursor: pointer;">
+                    <input type="checkbox" id="termsCheck" checked style="margin-top: 3px; accent-color: var(--primary);">
+                    <span>I confirm that I want to activate this subscription plan. I understand that the course allowance applies for 30 days and existing courses remain intact.</span>
+                </label>
+            </div>
+
+            <!-- Actions -->
+            <div id="checkoutActionButtons">
+                <button type="button" id="btnPayNow" onclick="processSubscriptionPayment()"
+                        class="btn-subscribe primary" style="font-size: 1rem;">
+                    <i class="fas fa-lock"></i> Proceed to Secure Payment
+                </button>
+            </div>
+
+            <div id="paymentLoadingIndicator" style="display: none; text-align: center; padding: 1rem 0;">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+                <div style="margin-top: 0.5rem; font-weight: 600; color: #475569; font-size: 0.9rem;">
+                    Initiating secure Razorpay checkout...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CANCEL SUBSCRIPTION MODAL ══ -->
+    <div class="sub-modal-backdrop" id="cancelModal">
+        <div class="sub-modal-card" style="max-width: 440px;">
+            <div style="text-align: center; margin-bottom: 1.25rem;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #FEE2E2; color: #EF4444; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 0.75rem auto;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 style="margin: 0 0 0.35rem 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Cancel Auto-Renewal?</h3>
+                <p style="margin: 0; font-size: 0.88rem; color: #64748B;">
+                    Your subscription will remain active until the end of the current billing cycle. You will not be charged again.
+                </p>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Reason for cancelling (optional):</label>
+                <textarea id="cancelReasonInput" rows="2" placeholder="e.g. Taking a break from publishing" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #CBD5E1; outline: none; font-size: 0.88rem;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="button" onclick="closeCancelModal()" class="btn-secondary-custom" style="flex: 1; justify-content: center;">
+                    Keep Subscription
+                </button>
+                <button type="button" onclick="confirmCancelSubscription()" class="btn-primary-custom" style="flex: 1; background: #EF4444; justify-content: center;">
+                    Confirm Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CLIENT LOGIC & PAYMENT ORCHESTRATION ══ -->
+    <script th:inline="javascript">
+        const razorpayKeyId = /*[[${razorpayKeyId}]]*/ 'rzp_test_RIlD5bEKRjyn3h';
+        const activeSubId = /*[[${activeSubscription != null ? activeSubscription.id : null}]]*/ null;
+
+        let selectedPlan = {
+            id: null,
+            name: '',
+            courses: 1,
+            price: 0,
+            isCustom: false
+        };
+
+        // Mobile sidebar toggle function
+        function toggleVendorMobileSidebar(open) {
+            const sidebar = document.getElementById('vendorSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar && backdrop) {
+                if (open) {
+                    sidebar.classList.add('mobile-open');
+                    backdrop.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.remove('mobile-open');
+                    backdrop.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            }
+        }
+
+        // Live calculation formula
+        function calculateLocalCustomPrice(courses) {
+            courses = parseInt(courses) || 1;
+            if (courses <= 1) return 0;
+            if (courses <= 3) return 299;
+            if (courses <= 5) return 499;
+            if (courses <= 10) return 499 + ((courses - 5) * 100);
+            return 999 + ((courses - 10) * 80);
+        }
+
+        function onCourseSliderChange(val) {
+            document.getElementById('customCourseInput').value = val;
+            updateCustomPriceDisplay(val);
+        }
+
+        function onCourseInputChange(val) {
+            val = parseInt(val) || 1;
+            if (val < 1) val = 1;
+            if (val > 50) val = 50;
+            document.getElementById('customCourseInput').value = val;
+            document.getElementById('customCourseSlider').value = val;
+            updateCustomPriceDisplay(val);
+        }
+
+        function updateCustomPriceDisplay(courses) {
+            courses = parseInt(courses) || 1;
+            const price = calculateLocalCustomPrice(courses);
+            document.getElementById('customPriceDisplay').textContent = '₹' + price.toLocaleString('en-IN');
+            document.getElementById('summaryCourseCount').textContent = courses + ' Courses / Month';
+        }
+
+        // Initialize slider on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCustomPriceDisplay(7);
+        });
+
+        function continueCustomSubscription() {
+            const courses = parseInt(document.getElementById('customCourseInput').value) || 7;
+            const price = calculateLocalCustomPrice(courses);
+            openCheckoutModal(null, 'Custom Plan (' + courses + ' Courses)', courses, price, true);
+        }
+
+        function handleFreePlanClick(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const limit = btn.getAttribute('data-limit');
+            confirmFreePlanSelection(id, name, limit);
+        }
+
+        function handlePaidPlanClick(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const limit = btn.getAttribute('data-limit');
+            const price = parseFloat(btn.getAttribute('data-price')) || 0;
+            openCheckoutModal(id, name, limit, price, false);
+        }
+
+        function confirmFreePlanSelection(planId, planName, courses) {
+            openCheckoutModal(planId, planName, courses, 0, false);
+        }
+
+        function openCheckoutModal(planId, name, courses, price, isCustom = false) {
+            selectedPlan = {
+                id: planId,
+                name: name,
+                courses: courses,
+                price: price,
+                isCustom: isCustom
+            };
+
+            document.getElementById('modalPlanName').textContent = name;
+            document.getElementById('modalCourseLimit').textContent = courses + ' Courses / Month';
+            document.getElementById('modalTotalAmount').textContent = '₹' + price.toLocaleString('en-IN');
+
+            const btnPayNow = document.getElementById('btnPayNow');
+            if (price === 0) {
+                btnPayNow.innerHTML = '<i class="fas fa-check-circle"></i> Activate Free Subscription';
+                btnPayNow.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+            } else {
+                btnPayNow.innerHTML = '<i class="fas fa-lock"></i> Pay ₹' + price.toLocaleString('en-IN') + ' & Activate';
+                btnPayNow.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+            }
+
+            document.getElementById('paymentLoadingIndicator').style.display = 'none';
+            document.getElementById('checkoutActionButtons').style.display = 'block';
+            document.getElementById('checkoutModal').classList.add('open');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.remove('open');
+        }
+
+        async function processSubscriptionPayment() {
+            const termsCheck = document.getElementById('termsCheck');
+            if (!termsCheck.checked) {
+                alert('Please accept the terms before proceeding.');
+                return;
+            }
+
+            document.getElementById('checkoutActionButtons').style.display = 'none';
+            document.getElementById('paymentLoadingIndicator').style.display = 'block';
+
+            // Case 1: Free Tier Plan (₹0)
+            if (selectedPlan.price === 0) {
+                try {
+                    const res = await fetch('/api/subscriptions/subscribe-free', {
+                        method: 'POST'
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        window.location.href = data.redirectUrl || '/vendor/subscription';
+                    } else {
+                        alert(data.message || 'Failed to activate free subscription.');
+                        document.getElementById('checkoutActionButtons').style.display = 'block';
+                        document.getElementById('paymentLoadingIndicator').style.display = 'none';
+                    }
+                } catch (e) {
+                    alert('Error activating free plan: ' + e.message);
+                    document.getElementById('checkoutActionButtons').style.display = 'block';
+                    document.getElementById('paymentLoadingIndicator').style.display = 'none';
+                }
+                return;
+            }
+
+            // Case 2: Paid Plan via Razorpay
+            try {
+                let orderUrl = '/api/subscriptions/create-order?';
+                if (selectedPlan.id) {
+                    orderUrl += 'planId=' + selectedPlan.id;
+                } else {
+                    orderUrl += 'customCourses=' + selectedPlan.courses;
+                }
+
+                const orderRes = await fetch(orderUrl, { method: 'POST' });
+                const orderData = await orderRes.json();
+
+                if (orderData.status !== 'success') {
+                    throw new Error(orderData.message || 'Failed to create order');
+                }
+
+                const options = {
+                    key: orderData.keyId,
+                    amount: orderData.amount,
+                    currency: 'INR',
+                    name: 'SkillHub Authoring Studio',
+                    description: 'Subscription for ' + orderData.planName,
+                    order_id: orderData.orderId,
+                    prefill: {
+                        name: orderData.userName,
+                        email: orderData.userEmail,
+                        contact: orderData.userPhone
+                    },
+                    theme: {
+                        color: '#8B5CF6'
+                    },
+                    handler: async function (response) {
+                        try {
+                            const verifyRes = await fetch('/api/subscriptions/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.status === 'success') {
+                                window.location.href = verifyData.redirectUrl;
+                            } else {
+                                alert('Verification failed: ' + verifyData.message);
+                                closeCheckoutModal();
+                            }
+                        } catch (err) {
+                            alert('Payment verification network error: ' + err.message);
+                            closeCheckoutModal();
+                        }
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            document.getElementById('checkoutActionButtons').style.display = 'block';
+                            document.getElementById('paymentLoadingIndicator').style.display = 'none';
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    alert('Payment failed: ' + response.error.description);
+                    document.getElementById('checkoutActionButtons').style.display = 'block';
+                    document.getElementById('paymentLoadingIndicator').style.display = 'none';
+                });
+
+                rzp.open();
+
+            } catch (err) {
+                alert('Order error: ' + err.message);
+                document.getElementById('checkoutActionButtons').style.display = 'block';
+                document.getElementById('paymentLoadingIndicator').style.display = 'none';
+            }
+        }
+
+        function openCancelModal() {
+            document.getElementById('cancelModal').classList.add('open');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.remove('open');
+        }
+
+        async function confirmCancelSubscription() {
+            if (!activeSubId) return;
+            const reason = document.getElementById('cancelReasonInput').value;
+
+            try {
+                const res = await fetch('/api/subscriptions/cancel?subscriptionId=' + activeSubId + '&reason=' + encodeURIComponent(reason), {
+                    method: 'POST'
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Cancellation failed.');
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+    </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
+</body>
+</html>

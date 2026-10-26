@@ -51,6 +51,8 @@ public class User {
     private String badges; // Comma-separated badge IDs or names (e.g., "QUIZ_MASTER,FAST_LEARNER")
 
     // Documents
+    private String aadharCardUrl;
+    private String proofDocUrl;
     private String resumeUrl;
     private String tenthCertUrl;
     private String puCertUrl;
@@ -283,6 +285,10 @@ public class User {
     }
 
     // Document Getters/Setters
+    public String getAadharCardUrl() { return aadharCardUrl; }
+    public void setAadharCardUrl(String aadharCardUrl) { this.aadharCardUrl = aadharCardUrl; }
+    public String getProofDocUrl() { return proofDocUrl; }
+    public void setProofDocUrl(String proofDocUrl) { this.proofDocUrl = proofDocUrl; }
     public String getResumeUrl() { return resumeUrl; }
     public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
     public String getTenthCertUrl() { return tenthCertUrl; }
