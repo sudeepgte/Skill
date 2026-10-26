@@ -78,9 +78,13 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
             return getAttemptOverview(activeAttempts.get(0).getId(), user);
         }
 
-        // Check max attempts
-        long totalAttempts = attemptRepository.findByApplicationIdAndStudentId(app.getId(), user.getId()).stream().count();
-        if (totalAttempts >= app.getProfessionalExam().getMaximumAttempts()) {
+        // Check max attempts (default to 3 if unconfigured)
+        long totalAttempts = attemptRepository.countByApplicationIdAndStudentId(app.getId(), user.getId());
+        if (totalAttempts == 0) {
+            totalAttempts = attemptRepository.findByApplicationIdAndStudentId(app.getId(), user.getId()).stream().count();
+        }
+        int maxAllowed = app.getProfessionalExam().getMaximumAttempts() > 0 ? app.getProfessionalExam().getMaximumAttempts() : 3;
+        if (totalAttempts >= maxAllowed) {
             throw new BusinessException("MAX_ATTEMPTS_EXCEEDED");
         }
 
@@ -173,7 +177,9 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
         res.setCodeLanguage(q.getCodeLanguage());
         res.setStarterCode(q.getCodeStarterTemplate());
 
-        answerRepository.findByAttemptIdAndQuestionId(attemptId, q.getId()).ifPresent(ans -> {
+        List<ProfessionalExamAnswer> existingAnswers = answerRepository.findAllByAttemptIdAndQuestionId(attemptId, q.getId());
+        if (!existingAnswers.isEmpty()) {
+            ProfessionalExamAnswer ans = existingAnswers.get(0);
             if (ans.getSelectedOption() != null && !ans.getSelectedOption().isEmpty()) {
                 res.setSavedAnswer(ans.getSelectedOption());
             } else if (ans.getCodeAnswer() != null && !ans.getCodeAnswer().isEmpty()) {
@@ -181,7 +187,7 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
             } else if (ans.getTextAnswer() != null && !ans.getTextAnswer().isEmpty()) {
                 res.setSavedAnswer(ans.getTextAnswer());
             }
-        });
+        }
 
         return res;
     }
@@ -204,8 +210,20 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
         
         ProfessionalExamQuestion q = aq.getQuestion();
 
-        ProfessionalExamAnswer ans = answerRepository.findByAttemptIdAndQuestionId(attemptId, q.getId())
-                .orElse(new ProfessionalExamAnswer());
+        List<ProfessionalExamAnswer> existing = answerRepository.findAllByAttemptIdAndQuestionId(attemptId, q.getId());
+        ProfessionalExamAnswer ans;
+        if (!existing.isEmpty()) {
+            ans = existing.get(0);
+            if (existing.size() > 1) {
+                for (int i = 1; i < existing.size(); i++) {
+                    try {
+                        answerRepository.delete(existing.get(i));
+                    } catch (Exception ignored) {}
+                }
+            }
+        } else {
+            ans = new ProfessionalExamAnswer();
+        }
         
         ans.setAttempt(attempt);
         ans.setQuestion(q);
@@ -216,7 +234,10 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
         
         answerRepository.save(ans);
 
-        aq.setAnswered(req.getSelectedOption() != null || req.getTextAnswer() != null || req.getCodeAnswer() != null);
+        boolean answered = (req.getSelectedOption() != null && !req.getSelectedOption().trim().isEmpty())
+                || (req.getTextAnswer() != null && !req.getTextAnswer().trim().isEmpty())
+                || (req.getCodeAnswer() != null && !req.getCodeAnswer().trim().isEmpty());
+        aq.setAnswered(answered);
         attemptQuestionRepository.save(aq);
 
         return new AnswerSubmitResponse(true, LocalDateTime.now());
@@ -294,8 +315,15 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
         ProfessionalExamQuestion q = aq.getQuestion();
 
         // Preserve current code answer as well
-        ProfessionalExamAnswer ans = answerRepository.findByAttemptIdAndQuestionId(attemptId, q.getId())
-                .orElse(new ProfessionalExamAnswer());
+        List<ProfessionalExamAnswer> existingAnswers = answerRepository.findAllByAttemptIdAndQuestionId(attemptId, q.getId());
+        ProfessionalExamAnswer ans = existingAnswers.isEmpty() ? new ProfessionalExamAnswer() : existingAnswers.get(0);
+        if (existingAnswers.size() > 1) {
+            for (int i = 1; i < existingAnswers.size(); i++) {
+                try {
+                    answerRepository.delete(existingAnswers.get(i));
+                } catch (Exception ignored) {}
+            }
+        }
         ans.setAttempt(attempt);
         ans.setQuestion(q);
         ans.setCodeAnswer(req.getSourceCode());

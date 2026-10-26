@@ -74,6 +74,17 @@
         }
 
         /* ══ TOPBAR NAVIGATION ══ */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .btn-label-full {
+            display: inline;
+        }
+        .btn-label-short {
+            display: none;
+        }
         .studio-topbar {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border-subtle);
@@ -1296,6 +1307,71 @@
 
         @media (max-width: 768px) {
             .studio-topbar {
+                padding: 0.65rem 0.85rem !important;
+                gap: 0.5rem !important;
+            }
+            .topbar-left {
+                gap: 0.4rem !important;
+                min-width: 0 !important;
+                flex: 1 !important;
+            }
+            .brand-logo {
+                font-size: 1.15rem !important;
+                gap: 6px !important;
+                white-space: nowrap !important;
+            }
+            .studio-badge {
+                display: none !important;
+            }
+            .breadcrumb-divider:first-of-type {
+                display: none !important;
+            }
+            .breadcrumb-trail .breadcrumb-link {
+                display: none !important;
+            }
+            .breadcrumb-trail .breadcrumb-divider {
+                display: inline-block !important;
+                margin: 0 2px !important;
+            }
+            #headerCourseTitle {
+                max-width: 105px !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            .topbar-right {
+                gap: 0.4rem !important;
+                flex-shrink: 0 !important;
+            }
+            .save-indicator {
+                font-size: 0.78rem !important;
+                margin-right: 2px !important;
+                white-space: nowrap !important;
+            }
+            #saveIndicatorText {
+                display: none !important;
+            }
+            .btn-label-full {
+                display: none !important;
+            }
+            .btn-label-short {
+                display: inline !important;
+            }
+            .btn-secondary {
+                padding: 6px 10px !important;
+                font-size: 0.82rem !important;
+                white-space: nowrap !important;
+                gap: 5px !important;
+            }
+            .btn-delete .btn-delete-text {
+                display: none !important;
+            }
+            .status-pill .pill-text {
+                display: none !important;
+            }
+            .nav-placeholder-fix { display: none; }
+            .studio-topbar {
                 padding: 0.75rem 1rem;
             }
             .studio-container {
@@ -1318,6 +1394,44 @@
                 justify-content: space-between;
             }
         }
+
+        @media (max-width: 480px) {
+            .studio-topbar {
+                padding: 0.55rem 0.6rem !important;
+                gap: 0.35rem !important;
+            }
+            .brand-logo {
+                font-size: 1.05rem !important;
+                gap: 4px !important;
+            }
+            #headerCourseTitle {
+                max-width: 80px !important;
+                font-size: 0.78rem !important;
+            }
+            .topbar-right {
+                gap: 0.35rem !important;
+            }
+            .btn-secondary {
+                padding: 6px 8px !important;
+                font-size: 0.78rem !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .brand-logo .brand-text {
+                display: none !important;
+            }
+            #headerCourseTitle {
+                max-width: 75px !important;
+            }
+            .btn-preview .btn-label-short {
+                display: none !important;
+            }
+            .btn-exit .btn-exit-text {
+                display: none !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -1327,7 +1441,7 @@
     <header class="studio-topbar">
         <div class="topbar-left">
             <a href="/admin/dashboard" class="brand-logo">
-                <i class="fas fa-graduation-cap"></i> SkillHub
+                <i class="fas fa-graduation-cap"></i> <span class="brand-text">SkillHub</span>
             </a>
             <span class="studio-badge">Admin Studio</span>
             <span class="breadcrumb-divider">/</span>
@@ -1340,30 +1454,30 @@
         </div>
 
         <div class="topbar-right">
-            <span class="save-indicator active" id="saveIndicator">
+            <span class="save-indicator active" id="saveIndicator" title="Draft auto-saved">
                 <span class="save-indicator-dot"></span>
                 <span id="saveIndicatorText">Draft auto-saved</span>
             </span>
 
             <span th:if="${course.id != null}">
-                <span th:if="${course.status == null or course.status.name() == 'DRAFT'}" class="status-pill status-draft"><i class="fas fa-file-pen"></i> Draft</span>
-                <span th:if="${course.status != null and course.status.name() == 'PENDING_REVIEW'}" class="status-pill status-pending"><i class="fas fa-clock"></i> In Review</span>
-                <span th:if="${course.status != null and course.status.name() == 'PUBLISHED'}" class="status-pill status-published"><i class="fas fa-check-circle"></i> Published</span>
-                <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> Needs Revision</span>
+                <span th:if="${course.status == null or course.status.name() == 'DRAFT'}" class="status-pill status-draft"><i class="fas fa-file-pen"></i> <span class="pill-text">Draft</span></span>
+                <span th:if="${course.status != null and course.status.name() == 'PENDING_REVIEW'}" class="status-pill status-pending"><i class="fas fa-clock"></i> <span class="pill-text">In Review</span></span>
+                <span th:if="${course.status != null and course.status.name() == 'PUBLISHED'}" class="status-pill status-published"><i class="fas fa-check-circle"></i> <span class="pill-text">Published</span></span>
+                <span th:if="${course.status != null and course.status.name() == 'REJECTED'}" class="status-pill status-rejected"><i class="fas fa-triangle-exclamation"></i> <span class="pill-text">Needs Revision</span></span>
             </span>
 
-            <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
-                <i class="fas fa-eye"></i> Live Student Preview
+            <button type="button" class="btn-secondary btn-preview" onclick="openLivePreviewModal()" title="Live Student Preview">
+                <i class="fas fa-eye"></i> <span class="btn-label-full">Live Student Preview</span><span class="btn-label-short">Preview</span>
             </button>
 
-            <button th:if="${isEdit}" type="button" class="btn-secondary" style="color: var(--danger); border-color: var(--danger-border); background: var(--danger-light); padding: 8px 12px;" onclick="confirmDeleteCourse()">
-                <i class="fas fa-trash"></i> Delete Course
+            <button th:if="${isEdit}" type="button" class="btn-secondary btn-delete" style="color: var(--danger); border-color: var(--danger-border); background: var(--danger-light); padding: 8px 12px;" onclick="confirmDeleteCourse()" title="Delete Course">
+                <i class="fas fa-trash"></i> <span class="btn-delete-text">Delete Course</span>
             </button>
             <form th:if="${isEdit}" id="deleteCourseForm" th:action="@{/admin/courses/delete}" method="post" style="display:none;">
                 <input type="hidden" name="id" th:value="${course.id}">
             </form>
-            <a href="/admin/courses" class="btn-secondary" style="padding: 8px 12px;">
-                <i class="fas fa-xmark"></i> Exit
+            <a href="/admin/courses" class="btn-secondary btn-exit" style="padding: 8px 12px;" title="Exit to Courses">
+                <i class="fas fa-xmark"></i> <span class="btn-exit-text">Exit</span>
             </a>
         </div>
     </header>
@@ -2114,8 +2228,8 @@
                 <button type="button" class="btn-secondary" id="btnSaveDraftFooter" onclick="submitCourseForm('draft')">
                     <i class="fas fa-floppy-disk"></i> Save Draft
                 </button>
-                <button type="button" class="btn-secondary" onclick="openLivePreviewModal()">
-                    <i class="fas fa-eye"></i> Live Student Preview
+                <button type="button" class="btn-secondary btn-preview" onclick="openLivePreviewModal()" title="Live Student Preview">
+                    <i class="fas fa-eye"></i> <span class="btn-label-full">Live Student Preview</span><span class="btn-label-short">Preview</span>
                 </button>
             </div>
 

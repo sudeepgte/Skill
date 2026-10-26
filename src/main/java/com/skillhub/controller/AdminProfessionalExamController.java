@@ -36,6 +36,7 @@ public class AdminProfessionalExamController {
     @Autowired private UserRepository userRepo;
 
     @Autowired private ProfessionalExamBlueprintRepository blueprintRepo;
+    @Autowired private com.skillhub.service.ProfessionalExamService professionalExamService;
 
     private User getAdmin(Principal p) {
         return p != null ? userRepo.findByEmail(p.getName()) : null;
@@ -74,6 +75,9 @@ public class AdminProfessionalExamController {
         }
         exam.setActive(true);
         ProfessionalExam saved = examRepo.save(exam);
+
+        // Auto-initialize published version, section, and questions immediately so exam is ready to take
+        professionalExamService.ensurePublishedVersionWithQuestions(saved);
 
         // Audit log
         adminLogRepo.save(new AdminLog(getAdmin(p), "CREATE_PROFESSIONAL_EXAM", "Created exam: " + saved.getTitle() + " (" + saved.getExamCode() + ")"));

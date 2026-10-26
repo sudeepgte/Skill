@@ -169,62 +169,95 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Title</th>
-                                <th>Instructor</th>
-                                <th>Category</th>
-                                <th>Status</th>
+                                <th>Instructor Name</th>
+                                <th>Course Title</th>
+                                <th>Pricing</th>
+                                <th>Entire Course Details</th>
                                 <th>Actions</th>
+                                <th>Users / Buyers</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:if="${courses.empty}">
-                                <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                <td colspan="7" style="text-align: center; padding: 4rem; color: var(--text-muted);">
                                     <i class="fas fa-box-open" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
                                     No courses found matching this filter.
                                 </td>
                             </tr>
                             <tr th:each="course : ${courses}">
-                                <td th:text="${course.id}" style="color: var(--text-muted);">1</td>
-                                <td style="font-weight: 600; color: var(--text);" th:text="${course.title}">Java Masterclass</td>
-                                <td th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}">Jane Doe</td>
-                                <td th:text="${course.category != null ? course.category.name : 'Uncategorized'}">Category</td>
-                                <td>
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:15px; font-size:0.8rem; font-weight:700; text-transform:uppercase; background:#d1fae5; color:#065f46;"
-                                          th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}"
-                                          class="badge-published">PUBLISHED</span>
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:15px; font-size:0.8rem; font-weight:700; text-transform:uppercase; background:#fef3c7; color:#92400e;"
-                                          th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}">PENDING REVIEW</span>
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:15px; font-size:0.8rem; font-weight:700; text-transform:uppercase; background:#f3f4f6; color:#374151;"
-                                          th:if="${course.status == T(com.skillhub.model.CourseStatus).DRAFT}">DRAFT</span>
-                                    <span style="display:inline-block; padding:4px 10px; border-radius:15px; font-size:0.8rem; font-weight:700; text-transform:uppercase; background:#fee2e2; color:#991b1b;"
-                                          th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}">CHANGES REQ</span>
-                                </td>
-                                <td>
-                                    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; align-items:center;">
-                                        <!-- Review action for pending courses -->
-                                        <a th:if="${course.status == T(com.skillhub.model.CourseStatus).PENDING_REVIEW}"
-                                           th:href="@{/admin/courses/{id}/review(id=${course.id})}"
-                                           class="btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: #f59e0b; color:#fff;">
-                                            <i class="fas fa-clipboard-check"></i> Review & Verify
-                                        </a>
+                                <!-- 1. ID -->
+                                <td th:text="${course.id}" style="color: var(--text-muted); font-weight: 700;">1</td>
 
-                                        <a th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: var(--accent);">
-                                            <i class="fas fa-external-link-alt"></i> View
-                                        </a>
-                                        <a th:href="@{/admin/courses/edit(id=${course.id})}" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: rgba(52,152,219,0.15); color: var(--accent);">
+                                <!-- 2. Instructor Name -->
+                                <td>
+                                    <strong th:text="${course.instructor != null ? course.instructor.name : 'Unknown'}" style="color: var(--text);">Instructor Name</strong>
+                                    <div style="font-size: 1.15rem; color: var(--text-muted);" th:text="${course.instructor != null ? course.instructor.email : ''}">instructor@email.com</div>
+                                </td>
+
+                                <!-- 3. Course Title -->
+                                <td>
+                                    <div style="font-weight: 700; color: var(--text); font-size: 1.4rem;" th:text="${course.title}">Course Title</div>
+                                    <div style="font-size: 1.2rem; color: var(--text-muted); margin-top: 0.3rem;">
+                                        Category: <span th:text="${course.category != null ? course.category.name : 'General'}">Category</span> |
+                                        Status: <span style="font-weight: 700;" th:text="${course.status != null ? course.status.name() : (course.published ? 'PUBLISHED' : 'DRAFT')}">STATUS</span>
+                                    </div>
+                                </td>
+
+                                <!-- 4. Pricing -->
+                                <td>
+                                    <span th:if="${course.price == null or course.price == 0}" style="display:inline-block; padding: 4px 10px; border-radius: 15px; font-size: 1.1rem; font-weight: 700; background: #d1fae5; color: #065f46;">
+                                        FREE
+                                    </span>
+                                    <span th:unless="${course.price == null or course.price == 0}" style="display:inline-block; padding: 4px 10px; border-radius: 15px; font-size: 1.1rem; font-weight: 700; background: #fef3c7; color: #92400e;">
+                                        PAID (₹<span th:text="${course.price}">0</span>)
+                                    </span>
+                                </td>
+
+                                <!-- 5. Entire Course Details: (View Course only) -->
+                                <td>
+                                    <a th:href="@{/admin/courses/{id}/review(id=${course.id})}" class="btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 1.2rem; background: var(--accent); color: #fff;">
+                                        <i class="fas fa-eye"></i> View Course
+                                    </a>
+                                </td>
+
+                                <!-- 6. Actions: (Approve, Reject, Edit, Delete) -->
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                                        <!-- Approve (Available when Pending Review or Rejected or Draft) -->
+                                        <form th:if="${course.status != T(com.skillhub.model.CourseStatus).PUBLISHED}" th:action="@{/admin/courses/{id}/approve(id=${course.id})}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 1.15rem; background: #10b981; color: #fff;" title="Approve & Publish">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+
+                                        <!-- Reject (Available when not already Rejected) -->
+                                        <form th:if="${course.status != T(com.skillhub.model.CourseStatus).REJECTED}" th:action="@{/admin/courses/{id}/reject(id=${course.id})}" method="post" style="display:inline;" onsubmit="return confirm('Request changes and reject this course?');">
+                                            <input type="hidden" name="reason" value="Requires administrative adjustments" />
+                                            <button type="submit" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 1.15rem; background: #f59e0b; color: #fff;" title="Reject / Request Changes">
+                                                <i class="fas fa-times-circle"></i> Reject
+                                            </button>
+                                        </form>
+
+                                        <!-- Edit -->
+                                        <a th:href="@{/admin/courses/edit(id=${course.id})}" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 1.15rem; background: rgba(52,152,219,0.15); color: var(--accent);" title="Edit Course">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
-                                        <a th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: var(--warning);">
-                                            <i class="fas fa-file-alt"></i> Exams
-                                        </a>
 
+                                        <!-- Delete -->
                                         <form th:action="@{/admin/courses/delete}" method="post" style="display:inline;">
                                             <input type="hidden" name="id" th:value="${course.id}">
-                                            <button class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 0.85rem; background: rgba(231,76,60,0.15); color: var(--danger);" onclick="return confirm('Delete this course permanently?');">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="btn-primary-admin" style="padding: 0.5rem 0.8rem; font-size: 1.15rem; background: rgba(231,76,60,0.15); color: var(--danger);" onclick="return confirm('Delete this course permanently?');" title="Delete Course">
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </form>
                                     </div>
+                                </td>
+
+                                <!-- 7. Users / Buyers -->
+                                <td>
+                                    <a th:href="@{/admin/courses/{courseId}/users(courseId=${course.id})}" class="btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 1.2rem; background: #3b82f6; color: #fff;">
+                                        <i class="fas fa-users"></i> Bought (<span th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</span>)
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>

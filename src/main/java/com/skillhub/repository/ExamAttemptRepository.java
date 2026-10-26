@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> {
     List<ExamAttempt> findByUserAndCourse(User user, Course course);
+    List<ExamAttempt> findByCourse(Course course);
 
     Optional<ExamAttempt> findTopByUserAndCourseOrderByScoreDesc(User user, Course course);
 
