@@ -190,14 +190,15 @@
                                 <th>Grade</th>
                                 <th>Status</th>
                                 <th>Evaluated At</th>
+                                <th style="text-align: center;">Answer Sheet</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="r : ${results}">
                                 <td th:text="${r.id}">1</td>
                                 <td>
-                                    <strong style="color:var(--text);" th:text="${r.attempt != null and r.attempt.user != null ? r.attempt.user.name : 'Candidate'}">Student</strong>
-                                    <div style="font-size:1.2rem; color:var(--text-muted);" th:text="${r.attempt != null and r.attempt.user != null ? r.attempt.user.email : ''}">student@example.com</div>
+                                    <strong style="color:var(--text);" th:text="${r.attempt != null and r.attempt.student != null ? r.attempt.student.name : (r.attempt != null and r.attempt.user != null ? r.attempt.user.name : 'Candidate')}">Student</strong>
+                                    <div style="font-size:1.2rem; color:var(--text-muted);" th:text="${r.attempt != null and r.attempt.student != null ? r.attempt.student.email : (r.attempt != null and r.attempt.user != null ? r.attempt.user.email : '')}">student@example.com</div>
                                 </td>
                                 <td>
                                     <span th:text="${r.attempt != null and r.attempt.professionalExam != null ? r.attempt.professionalExam.title : 'Professional Exam'}">Exam Track</span>
@@ -216,10 +217,17 @@
                                 <td>
                                     <span th:text="${r.evaluatedAt != null ? #temporals.format(r.evaluatedAt, 'dd MMM yyyy, HH:mm') : 'Recently'}">16 Oct 2026</span>
                                 </td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn-primary-admin" 
+                                            th:onclick="'openAnswerSheet(' + ${r.id} + ')'"
+                                            style="padding: 0.5rem 1.2rem; font-size: 1.2rem; background: var(--secondary); color: #fff; border-radius: 0.6rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <i class="fas fa-file-invoice"></i> Review Answer Sheet
+                                    </button>
+                                </td>
                             </tr>
 
                             <tr th:if="${results == null or results.empty}">
-                                <td colspan="7" style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+                                <td colspan="8" style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
                                     <i class="fas fa-certificate" style="font-size: 3.6rem; color: var(--border); display: block; margin-bottom: 1.2rem;"></i>
                                     <strong>No completed exam evaluations yet</strong>
                                     <p style="margin-top: 0.4rem; font-size: 1.3rem;">Completed exam attempts and graded candidate results will be archived here.</p>
@@ -248,6 +256,41 @@
         </main>
     </div>
 
+    <!-- Review Answer Sheet Modal -->
+    <div id="answerSheetModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; padding: 1.5rem;">
+        <div style="background: #ffffff; border-radius: 1.2rem; width: 100%; max-width: 820px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); overflow: hidden;">
+            <div style="padding: 1.6rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #faf5ff;">
+                <div>
+                    <h3 id="sheetCandidateName" style="font-size: 1.8rem; font-weight: 800; color: #2E1065; margin: 0;">Candidate Answer Sheet</h3>
+                    <p id="sheetExamTitle" style="font-size: 1.3rem; color: #6b21a8; margin: 0.3rem 0 0 0;">Exam Title</p>
+                </div>
+                <button type="button" onclick="closeAnswerSheet()" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
+            </div>
+            
+            <div style="padding: 1rem 2rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 2rem; align-items: center;">
+                <div>
+                    <span style="font-size: 1.1rem; color: #64748b; text-transform: uppercase; font-weight: 700;">Score</span>
+                    <div id="sheetScore" style="font-size: 1.8rem; font-weight: 800; color: #8b5cf6;">0 / 100</div>
+                </div>
+                <div>
+                    <span style="font-size: 1.1rem; color: #64748b; text-transform: uppercase; font-weight: 700;">Status</span>
+                    <div id="sheetStatusBadge"></div>
+                </div>
+            </div>
+
+            <div id="sheetQuestionsContainer" style="padding: 2rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.5rem;">
+                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 1rem; display: block;"></i>
+                    Loading candidate answer sheet...
+                </div>
+            </div>
+
+            <div style="padding: 1.2rem 2rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; background: #fafafa;">
+                <button type="button" onclick="closeAnswerSheet()" style="padding: 0.7rem 1.6rem; border-radius: 0.6rem; background: #e2e8f0; color: #334155; font-weight: 600; border: none; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const sidebar  = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
@@ -259,6 +302,153 @@
                 sidebar.classList.remove('open');
             }
         });
+
+        function openAnswerSheet(resultId) {
+            const modal = document.getElementById('answerSheetModal');
+            const container = document.getElementById('sheetQuestionsContainer');
+            modal.style.display = 'flex';
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; margin-bottom: 1rem; display: block;"></i>Loading answer sheet...</div>';
+
+            fetch('/admin/professional-exams/results/' + resultId + '/answers')
+                .then(r => {
+                    if (!r.ok) throw new Error('Failed to load answers');
+                    return r.json();
+                })
+                .then(data => {
+                    document.getElementById('sheetCandidateName').innerText = (data.candidateName || 'Candidate') + "'s Answer Sheet";
+                    document.getElementById('sheetExamTitle').innerText = data.examTitle || 'Professional Exam';
+                    document.getElementById('sheetScore').innerText = data.score + ' (' + (data.percentage ? data.percentage.toFixed(1) : 0) + '%)';
+                    
+                    const badge = document.getElementById('sheetStatusBadge');
+                    const isPassed = (data.status === 'PASS' || data.status === 'PASSED');
+                    badge.innerHTML = isPassed 
+                        ? '<span class="pill pill-green"><i class="fas fa-check-circle"></i> Passed</span>'
+                        : '<span class="pill pill-red"><i class="fas fa-times-circle"></i> Failed</span>';
+
+                    container.innerHTML = '';
+                    const questions = data.questions || [];
+                    if (questions.length === 0) {
+                        container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-info-circle" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No question details found for this attempt.</div>';
+                        return;
+                    }
+
+                    questions.forEach((q, idx) => {
+                        const card = document.createElement('div');
+                        card.style.border = q.isCorrect ? '1px solid #bbf7d0' : '1px solid #fecaca';
+                        card.style.borderRadius = '0.8rem';
+                        card.style.padding = '1.4rem';
+                        card.style.background = q.isCorrect ? '#f0fdf4' : '#fef2f2';
+                        card.style.display = 'flex';
+                        card.style.flexDirection = 'column';
+                        card.style.gap = '0.8rem';
+
+                        const header = document.createElement('div');
+                        header.style.display = 'flex';
+                        header.style.justifyContent = 'space-between';
+                        header.style.alignItems = 'flex-start';
+                        header.style.gap = '1rem';
+
+                        const qTitle = document.createElement('div');
+                        qTitle.style.fontWeight = '700';
+                        qTitle.style.fontSize = '1.4rem';
+                        qTitle.style.color = '#1e293b';
+                        qTitle.innerText = "Q" + (q.questionNumber || (idx + 1)) + ". " + (q.questionText || 'Question');
+                        header.appendChild(qTitle);
+
+                        const verdict = document.createElement('span');
+                        verdict.style.fontSize = '1.1rem';
+                        verdict.style.fontWeight = '700';
+                        verdict.style.padding = '0.3rem 0.8rem';
+                        verdict.style.borderRadius = '1rem';
+                        if (q.isCorrect) {
+                            verdict.style.background = '#dcfce7';
+                            verdict.style.color = '#15803d';
+                            verdict.innerHTML = '<i class="fas fa-check"></i> Correct (+' + (q.marksObtained || q.marks || 1) + ' marks)';
+                        } else {
+                            verdict.style.background = '#fee2e2';
+                            verdict.style.color = '#b91c1c';
+                            verdict.innerHTML = '<i class="fas fa-times"></i> Incorrect (0/' + (q.marks || 1) + ' marks)';
+                        }
+                        header.appendChild(verdict);
+                        card.appendChild(header);
+
+                        // If options available
+                        if (q.options && Array.isArray(q.options) && q.options.length > 0) {
+                            const optBox = document.createElement('div');
+                            optBox.style.display = 'flex';
+                            optBox.style.flexDirection = 'column';
+                            optBox.style.gap = '0.5rem';
+                            optBox.style.marginTop = '0.4rem';
+
+                            const letters = ['a', 'b', 'c', 'd', 'e', 'f'];
+                            q.options.forEach((optText, i) => {
+                                const row = document.createElement('div');
+                                row.style.padding = '0.7rem 1rem';
+                                row.style.borderRadius = '0.5rem';
+                                row.style.fontSize = '1.3rem';
+                                row.style.display = 'flex';
+                                row.style.alignItems = 'center';
+                                row.style.gap = '0.8rem';
+
+                                const optKey = letters[i] || String(i + 1);
+                                const isUserAns = (String(q.userAnswer).trim().toLowerCase() === optKey || String(q.userAnswer).trim() === optText.trim());
+                                const isCorrectAns = (String(q.correctAnswer).trim().toLowerCase() === optKey || String(q.correctAnswer).trim() === optText.trim());
+
+                                if (isCorrectAns) {
+                                    row.style.background = '#dcfce7';
+                                    row.style.border = '1px solid #86efac';
+                                    row.style.color = '#14532d';
+                                    row.style.fontWeight = '600';
+                                    row.innerHTML = '<span>' + optKey.toUpperCase() + '. ' + optText + '</span><span style="margin-left:auto; font-size:1.1rem; color:#15803d;"><i class="fas fa-check-circle"></i> Correct Answer</span>';
+                                } else if (isUserAns) {
+                                    row.style.background = '#fee2e2';
+                                    row.style.border = '1px solid #fca5a5';
+                                    row.style.color = '#7f1d1d';
+                                    row.innerHTML = '<span>' + optKey.toUpperCase() + '. ' + optText + '</span><span style="margin-left:auto; font-size:1.1rem; color:#b91c1c;"><i class="fas fa-user"></i> Candidate Selected (Wrong)</span>';
+                                } else {
+                                    row.style.background = '#ffffff';
+                                    row.style.border = '1px solid #e2e8f0';
+                                    row.style.color = '#475569';
+                                    row.innerText = optKey.toUpperCase() + '. ' + optText;
+                                }
+                                optBox.appendChild(row);
+                            });
+                            card.appendChild(optBox);
+                        } else {
+                            const ansInfo = document.createElement('div');
+                            ansInfo.style.fontSize = '1.3rem';
+                            ansInfo.style.marginTop = '0.4rem';
+                            ansInfo.style.display = 'flex';
+                            ansInfo.style.flexDirection = 'column';
+                            ansInfo.style.gap = '0.4rem';
+
+                            ansInfo.innerHTML = '<div><strong>Candidate Answer:</strong> <span style="' + (q.isCorrect ? 'color:#15803d;' : 'color:#b91c1c;') + '">' + (q.userAnswer ? q.userAnswer : '<em>(No Answer)</em>') + '</span></div>' +
+                                                '<div><strong>Correct Answer:</strong> <span style="color:#15803d; font-weight:600;">' + (q.correctAnswer || 'N/A') + '</span></div>';
+                            card.appendChild(ansInfo);
+                        }
+
+                        if (q.explanation) {
+                            const exp = document.createElement('div');
+                            exp.style.fontSize = '1.2rem';
+                            exp.style.color = '#475569';
+                            exp.style.fontStyle = 'italic';
+                            exp.style.borderTop = '1px dashed #cbd5e1';
+                            exp.style.paddingTop = '0.4rem';
+                            exp.innerText = "Explanation: " + q.explanation;
+                            card.appendChild(exp);
+                        }
+
+                        container.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    container.innerHTML = '<div style="color: #ef4444; padding: 2rem; text-align: center;"><i class="fas fa-exclamation-triangle" style="font-size:2rem; margin-bottom:0.5rem; display:block;"></i>Could not load answer sheet details.</div>';
+                });
+        }
+
+        function closeAnswerSheet() {
+            document.getElementById('answerSheetModal').style.display = 'none';
+        }
     </script>
 </body>
 

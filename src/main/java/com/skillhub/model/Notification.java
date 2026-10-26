@@ -18,6 +18,8 @@ public class Notification {
     @Column(nullable = false)
     private String title;
 
+    @Lob
+    @Column(name = "message", columnDefinition = "LONGTEXT")
     private String message;
 
     // e.g. "INFO", "SUCCESS", "WARNING", "PROMO"
