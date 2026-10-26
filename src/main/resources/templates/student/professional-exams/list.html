@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style th:replace="~{fragments/student_sidebar :: student-sidebar-styles}"></style>
     <style>
         :root {
             --primary: #4f46e5;
@@ -18,7 +18,7 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --bg-page: #f8fafc;
-            --border: #e2e8f0;
+            --border: #EDE9FE;
             --border-hover: #cbd5e1;
             --gold: #f59e0b;
             --gold-light: #fef3c7;
@@ -35,38 +35,29 @@
             padding: 0;
         }
 
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar {
-            width: 100% !important;
-            max-width: 100% !important;
-            box-sizing: border-box !important;
+        html {
+            font-size: 62.5% !important;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            background-color: var(--vendor-content-bg) !important;
+            color: var(--text-main) !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         /* ══ HERO BANNER ══ */
         .hero-banner {
             background: linear-gradient(135deg, #070B14 0%, #0F172A 50%, #1E1B4B 100%);
             color: white;
-            padding: 4.5rem 1.5rem 4rem;
+            padding: 3.2rem 2.4rem 3rem;
             text-align: center;
             position: relative;
             overflow: hidden;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
         }
 
         .hero-banner::before {
@@ -88,17 +79,17 @@
             background: rgba(245, 158, 11, 0.15);
             border: 1px solid rgba(245, 158, 11, 0.35);
             color: #fbbf24;
-            padding: 5px 14px;
+            padding: 4px 14px;
             border-radius: 9999px;
-            font-size: 0.82rem;
+            font-size: 1.15rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         .hero-title {
-            font-size: 2.75rem;
+            font-size: 2.6rem;
             font-weight: 800;
             letter-spacing: -0.02em;
             margin-bottom: 0.8rem;
@@ -109,11 +100,11 @@
         }
 
         .hero-subtitle {
-            font-size: 1.15rem;
+            font-size: 1.35rem;
             color: #94a3b8;
             max-width: 680px;
-            margin: 0 auto 2.2rem;
-            line-height: 1.6;
+            margin: 0 auto 2rem;
+            line-height: 1.5;
         }
 
         /* Search & Filter Bar inside Hero */
@@ -130,7 +121,7 @@
             background: rgba(30, 41, 59, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            padding: 0.5rem 0.6rem 0.5rem 1.4rem;
+            padding: 0.6rem 0.8rem 0.6rem 1.4rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             transition: var(--transition);
@@ -143,7 +134,7 @@
 
         .search-box i {
             color: #94a3b8;
-            font-size: 1.15rem;
+            font-size: 1.35rem;
             margin-right: 0.8rem;
         }
 
@@ -153,7 +144,7 @@
             border: none;
             outline: none;
             color: #ffffff;
-            font-size: 1.05rem;
+            font-size: 1.35rem;
             font-family: inherit;
         }
 
@@ -174,9 +165,9 @@
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #cbd5e1;
-            font-size: 0.85rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            padding: 0.45rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 9999px;
             cursor: pointer;
             transition: var(--transition);
@@ -196,37 +187,37 @@
 
         /* ══ MAIN CONTENT ══ */
         .content-container {
-            max-width: 1220px;
-            margin: 3rem auto;
-            padding: 0 1.5rem;
-            flex: 1;
             width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         /* ══ EXAM GRID & CARDS ══ */
         .exam-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
         }
 
         .exam-card {
             background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 2rem;
+            border: 1.5px solid #EDE9FE;
+            border-radius: 16px;
+            padding: 2.2rem;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.05);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
         .exam-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.09);
-            border-color: #cbd5e1;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(139, 92, 246, 0.14);
+            border-color: #8B5CF6;
         }
 
         .exam-card-top {
@@ -237,9 +228,9 @@
         }
 
         .badge-level {
-            font-size: 0.75rem;
+            font-size: 1.1rem;
             font-weight: 800;
-            padding: 0.35rem 0.8rem;
+            padding: 0.4rem 0.9rem;
             border-radius: 9999px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -251,16 +242,16 @@
         .level-expert { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
         .badge-track {
-            font-size: 0.78rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: #64748b;
             background: #f1f5f9;
-            padding: 0.3rem 0.75rem;
+            padding: 0.35rem 0.85rem;
             border-radius: var(--radius-sm);
         }
 
         .exam-title {
-            font-size: 1.35rem;
+            font-size: 1.7rem;
             font-weight: 800;
             color: var(--dark);
             line-height: 1.35;
@@ -273,9 +264,9 @@
         }
 
         .exam-desc {
-            font-size: 0.95rem;
+            font-size: 1.35rem;
             color: var(--text-muted);
-            line-height: 1.6;
+            line-height: 1.55;
             margin-bottom: 1.5rem;
             flex: 1;
             display: -webkit-box;
@@ -300,8 +291,8 @@
         .meta-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.88rem;
+            gap: 0.6rem;
+            font-size: 1.25rem;
             color: #334155;
             font-weight: 600;
         }
@@ -310,6 +301,7 @@
             color: var(--primary);
             width: 16px;
             text-align: center;
+            font-size: 1.3rem;
         }
 
         /* Card Action Row */
@@ -326,9 +318,9 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            padding: 0.85rem 1.2rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.98rem;
+            padding: 0.95rem 1.4rem;
+            border-radius: 10px;
+            font-size: 1.3rem;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
@@ -372,12 +364,12 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.85rem 1rem;
-            border-radius: var(--radius-sm);
+            padding: 0.95rem 1.2rem;
+            border-radius: 10px;
             background: #f1f5f9;
             color: #475569;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1.3rem;
             font-weight: 700;
             transition: var(--transition);
         }
@@ -397,6 +389,7 @@
         }
 
         .empty-state-box i {
+            font-size: 4rem;
             color: #cbd5e1;
             margin-bottom: 1.2rem;
         }
@@ -408,7 +401,9 @@
     </style>
 </head>
 <body>
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div class="student-layout">
+        <aside th:replace="~{fragments/student_sidebar :: student-sidebar('professional-exams')}"></aside>
+        <main class="student-main-content" style="padding: 0;">
 
     <div class="hero-banner">
         <div class="hero-badge">
@@ -435,7 +430,7 @@
         </div>
     </div>
 
-    <main class="content-container">
+    <div class="content-container">
         <!-- Flash Message -->
         <div th:if="${success}" style="background: #ecfdf5; color: #065f46; padding: 1.2rem 1.5rem; border-radius: 10px; margin-bottom: 2.5rem; border: 1px solid #a7f3d0; display: flex; align-items: center; gap: 0.8rem; font-weight: 600; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);">
             <i class="fas fa-circle-check" style="color: #10b981; font-size: 1.35rem;"></i>
@@ -521,9 +516,9 @@
 
             </div>
         </div>
-    </main>
-
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+        </main>
+    </div>
 
     <script>
         let currentTrack = 'ALL';
