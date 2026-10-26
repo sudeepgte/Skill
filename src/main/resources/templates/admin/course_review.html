@@ -320,6 +320,45 @@
             from { opacity: 0; transform: scale(0.96); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        /* ══ Admin Dashboard Theme Sidebar Matching ══ */
+        .admin-sidebar {
+            background: #A78BFA !important;
+            color: #2E1065 !important;
+        }
+        .admin-sidebar .sidebar-brand {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+        .admin-sidebar .sidebar-brand-icon {
+            background: #C4B5FD !important;
+            color: #2E1065 !important;
+        }
+        .admin-sidebar .sidebar-brand-name {
+            color: #2E1065 !important;
+            font-weight: 700 !important;
+        }
+        .admin-sidebar .sidebar-brand-sub {
+            color: #4C1D95 !important;
+        }
+        .admin-sidebar .nav-section-label {
+            color: #4C1D95 !important;
+            font-weight: 700 !important;
+        }
+        .admin-sidebar .nav-item {
+            color: #2E1065 !important;
+        }
+        .admin-sidebar .nav-item:hover {
+            background: #EDE9FE !important;
+            color: #8B5CF6 !important;
+        }
+        .admin-sidebar .nav-item.active {
+            background: #8B5CF6 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4) !important;
+        }
+        .admin-sidebar .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
     </style>
 </head>
 
@@ -387,23 +426,23 @@
     <div class="admin-body">
         <header class="admin-topbar">
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-            <div class="topbar-title">Course Verification & Quality Audit</div>
+            <div class="topbar-title">Course Details & Overview</div>
             <div class="topbar-actions">
                 <a href="/admin/courses" class="btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                    <i class="fas fa-arrow-left"></i> Back to Review Queue
+                    <i class="fas fa-arrow-left"></i> Back to Courses
                 </a>
             </div>
         </header>
 
         <main class="review-layout-container">
 
-            <!-- ══ VERIFICATION HEADER BAR ══ -->
+            <!-- ══ HEADER BAR ══ -->
             <div class="review-page-header">
                 <div>
                     <div class="header-meta-trail">
                         <span>Admin Console</span>
                         <span>/</span>
-                        <span>Verification Queue</span>
+                        <span>Courses</span>
                         <span>/</span>
                         <span th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
                     </div>
@@ -600,17 +639,31 @@
                             </div>
                             <div style="padding: 10px 14px; background: #ffffff;">
                                 <div th:if="${#lists.isEmpty(section.lectures)}" style="color: var(--text-muted); font-size: 0.85rem;">No lectures in this module.</div>
-                                <div th:each="lecture, lStat : ${section.lectures}" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border-subtle); font-size: 0.88rem;">
-                                    <div>
-                                        <i class="fas fa-circle-play" style="color: var(--primary); margin-right: 6px;"></i>
-                                        <strong th:text="${lecture.title}">Lecture Title</strong>
-                                        <span style="color: var(--text-muted); font-size: 0.8rem;" th:text="'(' + ${lecture.durationSeconds ?: 0} + 's)'">(0s)</span>
+                                <div th:each="lecture, lStat : ${section.lectures}" style="padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); font-size: 0.88rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <i class="fas fa-circle-play" style="color: var(--primary); margin-right: 6px;"></i>
+                                            <strong th:text="${lecture.title}">Lecture Title</strong>
+                                            <span style="color: var(--text-muted); font-size: 0.8rem;" th:text="'(' + ${lecture.durationSeconds ?: 0} + 's)'">(0s)</span>
+                                        </div>
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <span class="status-pill status-published" style="font-size: 0.7rem; padding: 2px 6px;" th:if="${lecture.preview}">Preview</span>
+                                            <button th:if="${lecture.videoUrl != null and !lecture.videoUrl.isEmpty()}"
+                                                    type="button"
+                                                    th:onclick="'document.getElementById(\'video_' + ${lecture.id} + '\').style.display = document.getElementById(\'video_' + ${lecture.id} + '\').style.display === \'none\' ? \'block\' : \'none\''"
+                                                    class="btn-primary-admin" style="padding: 3px 8px; font-size: 0.75rem; background: var(--primary); color: #fff;">
+                                                <i class="fas fa-play"></i> Watch Video
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; gap: 8px; align-items: center;">
-                                        <span class="status-pill status-published" style="font-size: 0.7rem; padding: 2px 6px;" th:if="${lecture.preview}">Preview</span>
-                                        <span th:if="${lecture.videoUrl != null and !lecture.videoUrl.isEmpty()}" style="color: var(--primary); font-size: 0.8rem;">
-                                            <i class="fas fa-video"></i> Video Attached
-                                        </span>
+                                    <!-- Embedded Video Player for Admin -->
+                                    <div th:if="${lecture.videoUrl != null and !lecture.videoUrl.isEmpty()}" th:id="'video_' + ${lecture.id}" style="display: none; margin-top: 10px; background: #000; border-radius: 8px; overflow: hidden;">
+                                        <div th:if="${#strings.contains(lecture.videoUrl, 'youtube.com') or #strings.contains(lecture.videoUrl, 'youtu.be')}" style="padding: 10px;">
+                                            <a th:href="${lecture.videoUrl}" target="_blank" style="color: #60a5fa;" th:text="${lecture.videoUrl}">Watch on YouTube</a>
+                                        </div>
+                                        <div th:unless="${#strings.contains(lecture.videoUrl, 'youtube.com') or #strings.contains(lecture.videoUrl, 'youtu.be')}">
+                                            <video th:src="${lecture.videoUrl}" controls style="width: 100%; max-height: 320px;"></video>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

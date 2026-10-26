@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Assessment Exam Results | SkillHub Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .stat-card {
+            background: var(--surface);
+            padding: 1.8rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+        .stat-label {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .badge {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .badge-passed { background: #d1fae5; color: #065f46; }
+        .badge-failed { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+
+<body>
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="/admin/dashboard" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-item"><i class="fas fa-users"></i> Users</a>
+            <a href="/admin/vendors" class="nav-item"><i class="fas fa-store"></i> Vendors</a>
+            <a href="/admin/courses" class="nav-item"><i class="fas fa-graduation-cap"></i> Courses</a>
+            <a href="/admin/categories" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
+            <a href="/admin/exams" class="nav-item active"><i class="fas fa-file-alt"></i> Exams</a>
+        </nav>
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="admin-body">
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <div class="topbar-title">Exam Candidate Results</div>
+            <div class="topbar-actions">
+                <a href="/admin/profile" class="admin-avatar">
+                    <span th:text="${#strings.substring(user.name,0,1)}" th:if="${user != null}">A</span>
+                    <span th:unless="${user != null}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 th:text="${course != null ? course.title + ' - Exam Results' : 'Exam Results'}">Exam Candidates</h1>
+                    <p>Comprehensive record of all candidates who attempted this assessment exam, their scores, and pass/fail status.</p>
+                </div>
+                <div style="display: flex; gap: 0.8rem;">
+                    <a th:if="${course != null}" th:href="@{/admin/courses/{id}/questions(id=${course.id})}" class="btn-primary-admin" style="background: var(--accent); color:#fff;">
+                        <i class="fas fa-clipboard-question"></i> View Questions & Details
+                    </a>
+                    <a href="/admin/exams" class="btn-primary-admin" style="background: #e2e8f0; color: #334155;">
+                        <i class="fas fa-arrow-left"></i> Back to Exams
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-num" style="color: var(--primary);" th:text="${totalAttempts}">0</div>
+                    <div class="stat-label">Total Attempts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" style="color: #10b981;" th:text="${passedCount}">0</div>
+                    <div class="stat-label">Passed Candidates</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" style="color: #ef4444;" th:text="${failedCount}">0</div>
+                    <div class="stat-label">Failed Candidates</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" style="color: #8b5cf6;" th:text="${passRate + '%'}">0%</div>
+                    <div class="stat-label">Pass Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" style="color: #f59e0b;" th:text="${avgScore}">0</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+
+            <!-- Candidate Attempts Table -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title"><i class="fas fa-user-graduate" style="color:var(--accent); margin-right:0.8rem;"></i> Candidate Exam Submissions</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rank / Sl No.</th>
+                                <th>Candidate Name</th>
+                                <th>Candidate Email</th>
+                                <th>Passing Marks</th>
+                                <th>Score (Highest First)</th>
+                                <th>Result</th>
+                                <th>Attempt Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${attempts.empty}">
+                                <td colspan="7" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                                    <i class="fas fa-clipboard-user" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
+                                    No candidates have taken this exam yet.
+                                </td>
+                            </tr>
+                            <tr th:each="attempt, iterStat : ${attempts}">
+                                <td>
+                                    <span th:if="${iterStat.count == 1}" style="background: #fef08a; color: #854d0e; padding: 0.3rem 0.8rem; border-radius: 1.5rem; font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-crown" style="color: #eab308;"></i> #1 Top
+                                    </span>
+                                    <span th:if="${iterStat.count == 2}" style="background: #f1f5f9; color: #475569; padding: 0.3rem 0.8rem; border-radius: 1.5rem; font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-medal" style="color: #94a3b8;"></i> #2
+                                    </span>
+                                    <span th:if="${iterStat.count == 3}" style="background: #fed7aa; color: #9a3412; padding: 0.3rem 0.8rem; border-radius: 1.5rem; font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                        <i class="fas fa-medal" style="color: #d97706;"></i> #3
+                                    </span>
+                                    <span th:if="${iterStat.count > 3}" th:text="'#' + ${iterStat.count}" style="font-weight: 700; color: var(--text-muted); padding-left: 0.6rem;">#4</span>
+                                </td>
+                                <td style="font-weight: 600; color: var(--text);" th:text="${attempt.user != null ? attempt.user.name : 'Unknown User'}">Candidate Name</td>
+                                <td th:text="${attempt.user != null ? attempt.user.email : 'N/A'}">candidate@email.com</td>
+                                <td>
+                                    <span style="font-weight: 700; font-size: 1.35rem; color: #10b981; background: #ecfdf5; padding: 0.3rem 0.8rem; border-radius: 0.6rem; border: 1px solid #a7f3d0;">
+                                        70 / 100 (70%)
+                                    </span>
+                                </td>
+                                <td style="font-weight: 800; font-size: 1.5rem;">
+                                    <span th:text="${attempt.score}" th:style="${attempt.passed ? 'color:#10b981;' : 'color:#ef4444;'}">0</span>
+                                    <span style="font-size: 1.2rem; color: var(--text-muted); font-weight: 500;">/ 100</span>
+                                </td>
+                                <td>
+                                    <span th:if="${attempt.passed}" class="badge badge-passed"><i class="fas fa-check-circle"></i> PASSED</span>
+                                    <span th:unless="${attempt.passed}" class="badge badge-failed"><i class="fas fa-times-circle"></i> FAILED</span>
+                                </td>
+                                <td th:text="${attempt.attemptDate != null ? #temporals.format(attempt.attemptDate, 'dd MMM yyyy, hh:mm a') : 'N/A'}">Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('adminSidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+    </script>
+</body>
+</html>

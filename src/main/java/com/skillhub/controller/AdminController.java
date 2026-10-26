@@ -67,6 +67,9 @@ public class AdminController {
     @Autowired
     private ReviewRepository reviewRepository;
 
+    @Autowired
+    private ExamAttemptRepository examAttemptRepository;
+
     @GetMapping({"", "/"})
     public String adminRoot() {
         return "redirect:/admin/dashboard";
@@ -938,8 +941,70 @@ public class AdminController {
         if (principal != null) {
             model.addAttribute("user", userService.findByEmail(principal.getName()));
         }
-        model.addAttribute("courses", courseService.getAllCourses());
+        // Only keep exams/courses added by instructors (vendors); exclude courses added by admin
+        List<Course> instructorExams = courseService.getAllCourses().stream()
+                .filter(c -> c.getInstructor() != null)
+                .filter(c -> !"ADMIN".equalsIgnoreCase(c.getInstructor().getRole()))
+                .filter(c -> c.getInstructor().getEmail() == null || !c.getInstructor().getEmail().toLowerCase().contains("admin"))
+                .collect(Collectors.toList());
+        model.addAttribute("courses", instructorExams);
         return "admin/exams";
+    }
+
+    @GetMapping("/exams/{courseId}/details")
+    public String viewCourseExamDetails(@PathVariable("courseId") Long courseId, Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        Course course = courseService.getCourseById(courseId);
+        List<ExamQuestion> questions = (course != null && course.getExamQuestions() != null)
+                ? course.getExamQuestions()
+                : new ArrayList<>();
+        int totalMarks = questions.stream().mapToInt(q -> q.getMarks() != null ? q.getMarks() : 1).sum();
+
+        model.addAttribute("course", course);
+        model.addAttribute("questions", questions);
+        model.addAttribute("totalQuestions", questions.size());
+        model.addAttribute("totalMarks", totalMarks);
+        return "admin/exam_details";
+    }
+
+    @GetMapping("/exams/{courseId}/results")
+    public String viewCourseExamResults(@PathVariable("courseId") Long courseId, Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        Course course = courseService.getCourseById(courseId);
+        List<ExamAttempt> attempts = course != null ? examAttemptRepository.findByCourse(course) : new ArrayList<>();
+        // Sort descending: highest scores first, lowest last
+        attempts.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        long passedCount = attempts.stream().filter(ExamAttempt::isPassed).count();
+        long failedCount = attempts.size() - passedCount;
+        double passRate = attempts.isEmpty() ? 0.0 : Math.round((passedCount * 100.0 / attempts.size()) * 10.0) / 10.0;
+        double avgScore = attempts.isEmpty() ? 0.0 : Math.round((attempts.stream().mapToInt(ExamAttempt::getScore).average().orElse(0.0)) * 10.0) / 10.0;
+
+        model.addAttribute("course", course);
+        model.addAttribute("attempts", attempts);
+        model.addAttribute("totalAttempts", attempts.size());
+        model.addAttribute("passedCount", passedCount);
+        model.addAttribute("failedCount", failedCount);
+        model.addAttribute("passRate", passRate);
+        model.addAttribute("avgScore", avgScore);
+        return "admin/exam_results";
+    }
+
+    @GetMapping("/courses/{courseId}/users")
+    public String viewCourseUsers(@PathVariable("courseId") Long courseId, Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("user", userService.findByEmail(principal.getName()));
+        }
+        Course course = courseService.getCourseById(courseId);
+        List<Enrollment> enrollments = course != null ? enrollmentRepository.findByCourse(course) : new ArrayList<>();
+
+        model.addAttribute("course", course);
+        model.addAttribute("enrollments", enrollments);
+        model.addAttribute("totalStudents", enrollments.size());
+        return "admin/course_users";
     }
 
     @GetMapping("/courses/{id}/questions")
