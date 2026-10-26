@@ -813,6 +813,23 @@
     <!-- ═════════════════════════════════════════════════════════════════════════
          REAL-TIME JAVASCRIPT ENGINE
     ══════════════════════════════════════════════════════════════════════════ -->
+        <!-- =========================================================================
+         CUSTOM INTERACTIVE POPUP MODAL (REPLACES BROWSER ALERTS & CONFIRMS)
+    ========================================================================== -->
+    <div id="appModalOverlay" class="custom-modal-overlay">
+        <div class="custom-modal-card">
+            <div id="modalIconContainer" class="modal-icon-badge warning">
+                <i id="modalIcon" class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 id="modalTitle" class="modal-title">Attention</h3>
+            <p id="modalMessage" class="modal-message">Message text here...</p>
+            <div id="modalActions" class="modal-actions">
+                <button type="button" id="modalCancelBtn" class="btn btn-outline" style="display: none; padding: 0.75rem 1.5rem;">Cancel</button>
+                <button type="button" id="modalOkBtn" class="btn btn-primary" style="min-width: 120px; padding: 0.75rem 1.5rem;">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script th:inline="javascript">
         /*<![CDATA[*/
         const courseId = /*[[${course.id}]]*/ 3;
@@ -884,8 +901,8 @@
             }
         }
 
-        document.getElementById('modalOkBtn').addEventListener('click', () => closeCustomPopup(true));
-        document.getElementById('modalCancelBtn').addEventListener('click', () => closeCustomPopup(false));
+        document.getElementById('modalOkBtn')?.addEventListener('click', () => closeCustomPopup(true));
+        document.getElementById('modalCancelBtn')?.addEventListener('click', () => closeCustomPopup(false));
 
         function showCustomAlert(title, message, type = 'warning') {
             return showCustomPopup({
@@ -1030,7 +1047,7 @@
                             if (noQuestionsNotice) {
                                 noQuestionsNotice.style.display = 'block';
                             }
-                            showToast('ðŸ—‘ï¸ All exam questions have been cleared successfully.');
+                            showToast('🗑️ All exam questions have been cleared successfully.');
                             return;
                         }
                     }
@@ -1177,7 +1194,7 @@
                             totalQuestionsCount.textContent = data.questions.length;
                         }
 
-                        showToast('âœ¨ Replaced with ' + data.count + ' fresh questions for ' + data.topic + '!');
+                        showToast('✨ Replaced with ' + data.count + ' fresh questions for ' + data.topic + '!');
                     } else {
                         throw new Error(data.message || 'Failed to generate questions.');
                     }
@@ -1205,19 +1222,5 @@
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
          CUSTOM INTERACTIVE POPUP MODAL (REPLACES BROWSER ALERTS & CONFIRMS)
     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <div id="appModalOverlay" class="custom-modal-overlay">
-        <div class="custom-modal-card">
-            <div id="modalIconContainer" class="modal-icon-badge warning">
-                <i id="modalIcon" class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h3 id="modalTitle" class="modal-title">Attention</h3>
-            <p id="modalMessage" class="modal-message">Message text here...</p>
-            <div id="modalActions" class="modal-actions">
-                <button type="button" id="modalCancelBtn" class="btn btn-outline" style="display: none; padding: 0.75rem 1.5rem;">Cancel</button>
-                <button type="button" id="modalOkBtn" class="btn btn-primary" style="min-width: 120px; padding: 0.75rem 1.5rem;">OK</button>
-            </div>
-        </div>
-    </div>
 </body>
-
 </html>

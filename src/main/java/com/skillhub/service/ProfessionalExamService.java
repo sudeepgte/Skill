@@ -16,4 +16,5 @@ public interface ProfessionalExamService {
     ProfessionalExam createExam(ProfessionalExam exam, User admin);
     ProfessionalExam updateExam(Long id, ProfessionalExam exam, User admin);
     void publishExamVersion(Long versionId, User admin);
+    ProfessionalExamVersion ensurePublishedVersionWithQuestions(ProfessionalExam exam);
 }

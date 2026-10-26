@@ -106,7 +106,7 @@ public class GeminiService {
      * Each returned map contains: questionText, optionA, optionB, optionC, optionD, correctOption.
      */
     public List<Map<String, String>> generateMcqQuestions(String topic, int count) {
-        int targetCount = Math.max(20, count);
+        int targetCount = (count > 0) ? count : 20;
         String effectiveTopic = (topic != null && !topic.trim().isEmpty()) ? topic.trim() : "General Computer Science & IT";
 
         if (apiKey != null && !apiKey.trim().isEmpty()) {
@@ -167,13 +167,13 @@ public class GeminiService {
                                 }
                             }
 
-                            if (normalized.size() >= 20) {
-                                return normalized;
+                            if (normalized.size() >= targetCount) {
+                                return new ArrayList<>(normalized.subList(0, targetCount));
                             } else if (!normalized.isEmpty()) {
                                 // Pad remaining questions using fallback
                                 List<Map<String, String>> fallback = generateFallbackQuestions(effectiveTopic, targetCount - normalized.size(), normalized.size() + 1);
                                 normalized.addAll(fallback);
-                                return normalized;
+                                return new ArrayList<>(normalized.subList(0, Math.min(normalized.size(), targetCount)));
                             }
                         }
                     }
@@ -272,9 +272,11 @@ public class GeminiService {
             {"What does OAuth 2.0 primarily handle in modern " + topic + " applications?", "Delegated authorization and secure token exchange", "Compressing image assets", "Writing unit test assertions", "Sorting arrays in memory", "A"}
         };
 
+        List<String[]> pool = new ArrayList<>(Arrays.asList(baseBank));
+        Collections.shuffle(pool, new java.util.Random());
+
         for (int i = 0; i < count; i++) {
-            int idx = (startIndex - 1 + i) % baseBank.length;
-            String[] q = baseBank[idx];
+            String[] q = pool.get(i % pool.size());
             Map<String, String> item = new LinkedHashMap<>();
             item.put("questionText", (startIndex + i) + ". " + q[0]);
             item.put("optionA", q[1]);

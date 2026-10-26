@@ -1,8 +1,477 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${attempt?.examVersion?.professionalExam?.title != null ? attempt.examVersion.professionalExam.title + ' - Exam Results | SkillHub' : 'Examination Results | SkillHub'}">Examination Results | SkillHub</title>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --slate: #475569;
+            --light-bg: #f8fafc;
+            --border: #e2e8f0;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-container {
+            max-width: 900px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--slate);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .result-main-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Banner Header */
+        .result-banner {
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .result-banner.passed {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-bottom: 2px solid #a7f3d0;
+        }
+
+        .result-banner.failed {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-bottom: 2px solid #fecaca;
+        }
+
+        .status-icon-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+
+        .passed .status-icon-badge {
+            background: var(--success);
+            color: #ffffff;
+        }
+
+        .failed .status-icon-badge {
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        .result-banner h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .passed h1 { color: #065f46; }
+        .failed h1 { color: #991b1b; }
+
+        .result-banner p.subtitle {
+            font-size: 1.1rem;
+            color: #374151;
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Result Body */
+        .result-body {
+            padding: 2.5rem;
+        }
+
+        .score-highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .score-box {
+            background: var(--light-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .score-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .score-box-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--slate);
+            margin-bottom: 0.5rem;
+        }
+
+        .score-box-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .score-box-hint {
+            font-size: 0.82rem;
+            color: var(--slate);
+            margin-top: 0.35rem;
+        }
+
+        /* Detailed Breakdown */
+        .breakdown-section {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--dark);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.1rem;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.correct { background: var(--success-light); color: var(--success); }
+        .stat-icon.wrong { background: var(--danger-light); color: var(--danger); }
+        .stat-icon.skipped { background: #f1f5f9; color: var(--slate); }
+
+        .stat-info .stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1.1;
+        }
+
+        .stat-info .stat-lbl {
+            font-size: 0.8rem;
+            color: var(--slate);
+            font-weight: 500;
+        }
+
+        /* Certificate Box */
+        .cert-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(49, 46, 129, 0.2);
+        }
+
+        .cert-card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .cert-card p {
+            font-size: 0.95rem;
+            color: #c7d2fe;
+            margin-bottom: 0;
+        }
+
+        .cert-btn {
+            background: #ffffff;
+            color: #4338ca;
+            padding: 0.85rem 1.6rem;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .cert-btn:hover {
+            transform: translateY(-2px);
+            background: #f8fafc;
+        }
+
+        /* Actions Footer */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.75rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.75rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-bg);
+        }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .cert-card { flex-direction: column; text-align: center; }
+            .action-bar { flex-direction: column; align-items: stretch; }
+            .action-bar .btn { justify-content: center; }
+        }
+    </style>
+</head>
 <body>
-    <h1>Exam Result</h1>
-    <p th:text="'Status: ' + ${attempt.result?.status}"></p>
-    <p th:text="'Percentage: ' + ${attempt.result?.percentage} + '%'"></p>
+
+    <!-- SkillHub Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="results-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="@{/student/professional-exams}">Professional Exams</a>
+            <i class="fas fa-chevron-right" style="font-size: 0.75rem;"></i>
+            <span th:text="${attempt?.examVersion?.professionalExam?.title}">Exam Title</span>
+            <i class="fas fa-chevron-right" style="font-size: 0.75rem;"></i>
+            <span>Results & Performance</span>
+        </div>
+
+        <div class="result-main-card">
+            <!-- Header Banner based on Pass/Fail status -->
+            <div th:class="'result-banner ' + (${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'passed' : 'failed')">
+                <div class="status-icon-badge">
+                    <i th:class="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                </div>
+
+                <h1 th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                    Congratulations! You Passed!
+                </h1>
+                <h1 th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                    Examination Assessment Completed
+                </h1>
+
+                <p class="subtitle" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                    You demonstrated mastery in <strong th:text="${attempt?.examVersion?.professionalExam?.title}">Exam Title</strong> and met the professional certification benchmarks!
+                </p>
+                <p class="subtitle" th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                    You did not meet the passing score threshold of <span th:text="${attempt?.examVersion?.professionalExam?.passingMarks}">70</span> marks on this attempt. Review the domain material and retake when prepared.
+                </p>
+            </div>
+
+            <div class="result-body">
+                <!-- Score Highlights -->
+                <div class="score-highlight-grid">
+                    <div class="score-box">
+                        <div class="score-box-label">Your Score</div>
+                        <div class="score-box-value" style="color: var(--primary);">
+                            <span th:text="${result != null ? result.obtainedMarks : attempt.obtainedMarks}">0</span>
+                            <span style="font-size: 1.2rem; color: var(--slate); font-weight: 500;">/ <span th:text="${result != null ? result.totalMarks : attempt.totalMarks}">100</span></span>
+                        </div>
+                        <div class="score-box-hint" th:text="'Required to Pass: ' + (${attempt?.examVersion?.professionalExam?.passingMarks} ?: 'N/A') + ' Marks'">Passing Criteria</div>
+                    </div>
+
+                    <div class="score-box">
+                        <div class="score-box-label">Accuracy Percentage</div>
+                        <div class="score-box-value">
+                            <span th:if="${result != null}" th:text="${#numbers.formatDecimal(result.percentage, 1, 1)} + '%'">0%</span>
+                            <span th:unless="${result != null}" th:text="${attempt.totalMarks > 0 ? #numbers.formatDecimal(attempt.obtainedMarks * 100.0 / attempt.totalMarks, 1, 1) + '%' : '0%'}">0%</span>
+                        </div>
+                        <div class="score-box-hint" th:text="'Grade Awarded: ' + (${result != null ? result.grade : (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0) ? 'A' : 'F')})">Grade</div>
+                    </div>
+
+                    <div class="score-box">
+                        <div class="score-box-label">Status</div>
+                        <div class="score-box-value">
+                            <span th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}" style="color: var(--success);">PASSED</span>
+                            <span th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}" style="color: var(--danger);">FAILED</span>
+                        </div>
+                        <div class="score-box-hint">Verified Credential Result</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Performance Breakdown -->
+                <div class="breakdown-section">
+                    <h3><i class="fas fa-chart-pie" style="color: var(--primary);"></i> Question Response Breakdown</h3>
+                    <div class="stats-row">
+                        <div class="stat-pill">
+                            <div class="stat-icon correct"><i class="fas fa-check"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-num" th:text="${result != null ? result.correctAnswers : attempt.correctAnswers}">0</div>
+                                <div class="stat-lbl">Correct Answers</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-pill">
+                            <div class="stat-icon wrong"><i class="fas fa-times"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-num" th:text="${result != null ? result.wrongAnswers : attempt.wrongAnswers}">0</div>
+                                <div class="stat-lbl">Incorrect Answers</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-pill">
+                            <div class="stat-icon skipped"><i class="fas fa-minus"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-num" th:text="${result != null ? result.unansweredAnswers : attempt.unansweredAnswers}">0</div>
+                                <div class="stat-lbl">Skipped Questions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Certificate Card (If Passed or Available) -->
+                <div class="cert-card" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                    <div>
+                        <h3><i class="fas fa-award"></i> Professional Credential Verified</h3>
+                        <p>Your official SkillHub Professional Certificate has been generated and recorded on your student profile.</p>
+                    </div>
+                    <a th:href="@{/user/certifications}" class="cert-btn">
+                        <i class="fas fa-certificate"></i> View Certificate
+                    </a>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-bar">
+                    <a th:href="@{/student/professional-exams}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> All Professional Exams
+                    </a>
+                    
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button onclick="window.print()" class="btn btn-secondary">
+                            <i class="fas fa-print"></i> Print Transcript
+                        </button>
+                        <a th:href="@{/student/professional-exams/{id}/start(id=${attempt.examVersion.professionalExam.id})}" class="btn btn-primary" th:if="${!(result != null && result.status == 'PASS')}">
+                            <i class="fas fa-redo"></i> Retake Challenge
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SkillHub Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

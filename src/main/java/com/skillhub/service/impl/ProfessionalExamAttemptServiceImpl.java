@@ -78,9 +78,10 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
             return getAttemptOverview(activeAttempts.get(0).getId(), user);
         }
 
-        // Check max attempts
+        // Check max attempts (default to 3 if unconfigured)
         long totalAttempts = attemptRepository.findByApplicationIdAndStudentId(app.getId(), user.getId()).stream().count();
-        if (totalAttempts >= app.getProfessionalExam().getMaximumAttempts()) {
+        int maxAllowed = app.getProfessionalExam().getMaximumAttempts() > 0 ? app.getProfessionalExam().getMaximumAttempts() : 3;
+        if (totalAttempts >= maxAllowed) {
             throw new BusinessException("MAX_ATTEMPTS_EXCEEDED");
         }
 
