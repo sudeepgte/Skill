@@ -41,8 +41,11 @@ public class CourseService {
 
     public List<Course> getPublishedCourses() {
         List<Course> courses = courseRepository.findPublishedCourses(CourseStatus.PUBLISHED);
-        courses.forEach(this::populateCourseRatings);
-        return courses;
+        if (courses != null) {
+            courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
+            courses.forEach(this::populateCourseRatings);
+        }
+        return courses != null ? courses : List.of();
     }
 
     public List<Course> getPendingReviewCourses() {
@@ -81,8 +84,11 @@ public class CourseService {
 
     public List<Course> getCoursesByCategory(String categoryName) {
         List<Course> courses = courseRepository.findPublishedByCategoryName(CourseStatus.PUBLISHED, categoryName);
-        courses.forEach(this::populateCourseRatings);
-        return courses;
+        if (courses != null) {
+            courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
+            courses.forEach(this::populateCourseRatings);
+        }
+        return courses != null ? courses : List.of();
     }
 
     public List<Course> getCoursesByCategory(Category category) {
@@ -91,15 +97,8 @@ public class CourseService {
         if (courses == null || courses.isEmpty()) {
             courses = courseRepository.findPublishedByCategoryName(CourseStatus.PUBLISHED, category.getName());
         }
-        if (courses == null || courses.isEmpty()) {
-            courses = courseRepository.findByCategory(category);
-            if (courses != null) {
-                courses = courses.stream()
-                        .sorted((a, b) -> Long.compare(b.getId() != null ? b.getId() : 0, a.getId() != null ? a.getId() : 0))
-                        .collect(java.util.stream.Collectors.toList());
-            }
-        }
         if (courses != null) {
+            courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
             courses.forEach(this::populateCourseRatings);
         }
         return courses != null ? courses : List.of();
@@ -178,7 +177,7 @@ public class CourseService {
             course.setPublished(false);
             course.setReviewedAt(LocalDateTime.now());
             course.setRejectionReason(reason);
-            courseRepository.save(course);
+            courseRepository.saveAndFlush(course);
         }
     }
 
@@ -204,7 +203,7 @@ public class CourseService {
 
     public List<Course> searchCourses(String query) {
         List<Course> courses = courseRepository.findByTitleContainingIgnoreCase(query);
-        courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED);
+        courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
         courses.forEach(this::populateCourseRatings);
         return courses;
     }

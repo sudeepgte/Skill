@@ -45,6 +45,9 @@ public class WishlistRestController {
         if (course == null) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Course not found"));
         }
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Course is not published"));
+        }
 
         if (wishlistRepository.findByUserAndCourse(user, course).isPresent()) {
             return ResponseEntity.ok(Map.of("success", true, "message", "Course already in wishlist"));

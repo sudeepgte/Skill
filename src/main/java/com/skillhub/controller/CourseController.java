@@ -75,7 +75,7 @@ public class CourseController {
         }
 
         // Access check for unpublished courses: only instructor or admin can view
-        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED) {
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
             boolean canView = false;
             if (principal != null) {
                 com.skillhub.model.User currentUser = userService.findByEmail(principal.getName());
@@ -241,16 +241,25 @@ public class CourseController {
         boolean isOwner = (course.getInstructor() != null && course.getInstructor().getEmail().equals(user.getEmail()));
         boolean isAdmin = "ADMIN".equals(user.getRole());
         boolean isFree = (course.getPrice() == null || course.getPrice() <= 0);
+        boolean isPublished = (course.getStatus() == com.skillhub.model.CourseStatus.PUBLISHED && course.isPublished());
+
+        if (!isOwner && !isAdmin && !isPublished) {
+            boolean alreadyEnrolled = enrollmentRepository.findByStudentAndCourse(user, course).isPresent();
+            if (!alreadyEnrolled) {
+                return "redirect:/?error=CourseNotAvailable";
+            }
+        }
+
         boolean hasPaid = false;
 
-        if (isOwner || isAdmin || isFree) {
+        if (isOwner || isAdmin || (isFree && isPublished)) {
             hasPaid = true;
-            if (isFree && !enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
+            if (isFree && isPublished && !enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
                 enrollmentService.enrollUser(user, id);
             }
         } else {
             hasPaid = paymentRepository.existsByUserAndCourseAndStatus(user, course, com.skillhub.model.PaymentStatus.SUCCESS);
-            if (hasPaid) {
+            if (hasPaid && isPublished) {
                 if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
                     enrollmentService.enrollUser(user, id);
                 }
@@ -532,6 +541,11 @@ public class CourseController {
         com.skillhub.model.Course course = courseService.getCourseById(id);
         if (course == null) {
             return "redirect:/courses";
+        }
+
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
+            redirectAttributes.addFlashAttribute("error", "This course is currently undergoing revisions and is not open for new enrollments.");
+            return "redirect:/";
         }
 
         // If user is already enrolled, take them straight to profile or learning room

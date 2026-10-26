@@ -81,7 +81,11 @@ public class CommonController {
             return "redirect:/";
         }
         model.addAttribute("instructor", instructor);
-        model.addAttribute("courses", courseService.getCoursesByInstructor(instructor.getEmail()));
+        java.util.List<com.skillhub.model.Course> pubCourses = courseService.getCoursesByInstructorAndStatus(instructor.getEmail(), com.skillhub.model.CourseStatus.PUBLISHED);
+        if (pubCourses != null) {
+            pubCourses.removeIf(c -> c.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !c.isPublished());
+        }
+        model.addAttribute("courses", pubCourses != null ? pubCourses : java.util.List.of());
         return "common/instructor_details";
     }
 }

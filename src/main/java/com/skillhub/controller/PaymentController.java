@@ -37,6 +37,9 @@ public class PaymentController {
         
         Course course = courseService.getCourseById(courseId);
         if (course == null) return "redirect:/";
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
+            return "redirect:/?error=CourseNotAvailable";
+        }
         
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("course", course);
@@ -61,6 +64,12 @@ public class PaymentController {
 
             User user = userService.findByEmail(principal.getName());
             Course course = courseService.getCourseById(courseId);
+
+            if (course == null || course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
+                response.put("status", "error");
+                response.put("message", "This course is currently undergoing revisions and is not available for purchase.");
+                return response;
+            }
 
             Payment payment = paymentService.createOrder(user, course);
             

@@ -92,10 +92,10 @@ public class CertificationController {
         }
 
         java.util.Set<Long> enrolledIds = enrollments.stream().map(e -> e.getCourse().getId()).collect(java.util.stream.Collectors.toSet());
-        List<Course> allCourses = courseService.getAllCourses();
+        List<Course> allCourses = courseService.getPublishedCourses();
         java.util.List<Course> availableExamCourses = new ArrayList<>();
         for (Course c : allCourses) {
-            if (!enrolledIds.contains(c.getId())) {
+            if (c.getStatus() == CourseStatus.PUBLISHED && c.isPublished() && !enrolledIds.contains(c.getId())) {
                 List<ExamQuestion> qList = examQuestionRepository.findByCourseId(c.getId());
                 if (!qList.isEmpty()) {
                     c.setExamQuestions(qList);
@@ -119,6 +119,9 @@ public class CertificationController {
             return "redirect:/login";
         User user = userService.findByEmail(principal.getName());
         Course course = courseService.getCourseById(id);
+        if (course == null || course.getStatus() != CourseStatus.PUBLISHED || !course.isPublished()) {
+            return "redirect:/certifications?error=CourseNotPublished";
+        }
 
         // Ensure enrolled so user can attempt exam directly
         Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(user, course)
