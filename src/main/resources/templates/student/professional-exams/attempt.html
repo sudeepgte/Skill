@@ -949,8 +949,8 @@
                         ${options.map((opt, idx) => {
                             const isSelected = savedOpt === opt;
                             return `
-                                <label class="option-item ${isSelected ? 'selected' : ''}" onclick="selectOption('${escapeJs(opt)}')">
-                                    <input type="radio" name="optionRadio" value="${escapeHtml(opt)}" ${isSelected ? 'checked' : ''} />
+                                <label class="option-item ${isSelected ? 'selected' : ''}" onclick="selectOption(event, '${escapeJs(opt)}')">
+                                    <input type="radio" name="optionRadio" value="${escapeHtml(opt)}" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()" />
                                     <span class="option-text">${escapeHtml(opt)}</span>
                                 </label>
                             `;
@@ -1055,7 +1055,14 @@
         }
 
         // ── SAVE ANSWERS ──
-        async function selectOption(val) {
+        async function selectOption(eventOrVal, maybeVal) {
+            let val = maybeVal;
+            if (typeof eventOrVal === 'string') {
+                val = eventOrVal;
+            } else if (eventOrVal && eventOrVal.stopPropagation) {
+                eventOrVal.stopPropagation();
+            }
+            if (!val) return;
             // Update UI selection
             const items = document.querySelectorAll('.option-item');
             items.forEach(item => {
