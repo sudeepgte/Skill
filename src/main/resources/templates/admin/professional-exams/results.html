@@ -190,7 +190,7 @@
                                 <th>Grade</th>
                                 <th>Status</th>
                                 <th>Evaluated At</th>
-                                <th style="text-align: center;">Answer Sheet</th>
+                                <th style="text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -218,11 +218,18 @@
                                     <span th:text="${r.evaluatedAt != null ? #temporals.format(r.evaluatedAt, 'dd MMM yyyy, HH:mm') : 'Recently'}">16 Oct 2026</span>
                                 </td>
                                 <td style="text-align: center;">
+                                    <div style="display: flex; gap: 0.6rem; justify-content: center; align-items: center; flex-wrap: wrap;">
                                     <button type="button" class="btn-primary-admin" 
                                             th:onclick="'openAnswerSheet(' + ${r.id} + ')'"
                                             style="padding: 0.5rem 1.2rem; font-size: 1.2rem; background: var(--secondary); color: #fff; border-radius: 0.6rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                                         <i class="fas fa-file-invoice"></i> Review Answer Sheet
                                     </button>
+                                        <a th:href="@{/admin/professional-exams/recordings/{id}(id=${r.attempt != null ? r.attempt.id : r.id})}"
+                                           class="btn-primary-admin"
+                                           style="padding: 0.5rem 1.1rem; font-size: 1.2rem; background: #6366f1; color: #fff; border-radius: 0.6rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 600;">
+                                            <i class="fas fa-video"></i> View Recordings
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
 

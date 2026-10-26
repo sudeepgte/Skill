@@ -110,6 +110,21 @@
             border-bottom: 2px solid #fecaca;
         }
 
+        .result-banner.terminated {
+            background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+            border-bottom: 3px solid #ef4444;
+            color: #ffffff;
+        }
+
+        .terminated .status-icon-badge {
+            background: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+        }
+
+        .terminated h1 { color: #fee2e2 !important; }
+        .terminated p.subtitle { color: #fca5a5 !important; }
+
         .status-icon-badge {
             width: 80px;
             height: 80px;
@@ -371,23 +386,30 @@
         </div>
 
         <div class="result-main-card">
-            <!-- Header Banner based on Pass/Fail status -->
-            <div th:class="'result-banner ' + (${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'passed' : 'failed')">
+            <!-- Header Banner based on Termination / Pass / Fail status -->
+            <div th:class="'result-banner ' + (${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')} ? 'terminated' : (${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'passed' : 'failed'))">
                 <div class="status-icon-badge">
-                    <i th:class="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                    <i th:if="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" class="fas fa-ban"></i>
+                    <i th:unless="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" th:class="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))} ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
                 </div>
 
-                <h1 th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                <h1 th:if="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}">
+                    Examination Terminated by Proctor
+                </h1>
+                <h1 th:unless="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
                     Congratulations! You Passed!
                 </h1>
-                <h1 th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                <h1 th:unless="${((attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')) || ((result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0)))}">
                     Examination Assessment Completed
                 </h1>
 
-                <p class="subtitle" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                <p class="subtitle" th:if="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}">
+                    This attempt was automatically terminated due to reaching <strong>3 proctoring security violations</strong> (candidate absence or unauthorized face detected). Video and audio recordings have been submitted to exam administrators for review.
+                </p>
+                <p class="subtitle" th:unless="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
                     You demonstrated mastery in <strong th:text="${attempt?.examVersion?.professionalExam?.title}">Exam Title</strong> and met the professional certification benchmarks!
                 </p>
-                <p class="subtitle" th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}">
+                <p class="subtitle" th:unless="${((attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')) || ((result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0)))}">
                     You did not meet the passing score threshold of <span th:text="${attempt?.examVersion?.professionalExam?.passingMarks}">70</span> marks on this attempt. Review the domain material and retake when prepared.
                 </p>
             </div>
@@ -410,16 +432,23 @@
                             <span th:if="${result != null}" th:text="${#numbers.formatDecimal(result.percentage, 1, 1)} + '%'">0%</span>
                             <span th:unless="${result != null}" th:text="${attempt.totalMarks > 0 ? #numbers.formatDecimal(attempt.obtainedMarks * 100.0 / attempt.totalMarks, 1, 1) + '%' : '0%'}">0%</span>
                         </div>
-                        <div class="score-box-hint" th:text="'Grade Awarded: ' + (${result != null ? result.grade : (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0) ? 'A' : 'F')})">Grade</div>
+                        <div class="score-box-hint" th:text="'Grade Awarded: ' + (${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')} ? 'TERMINATED' : (${result != null ? result.grade : (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0) ? 'A' : 'F')}))">Grade</div>
                     </div>
 
                     <div class="score-box">
                         <div class="score-box-label">Status</div>
                         <div class="score-box-value">
-                            <span th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}" style="color: var(--success);">PASSED</span>
-                            <span th:unless="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}" style="color: var(--danger);">FAILED</span>
+                            <span th:if="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" style="color: var(--danger);">TERMINATED</span>
+                            <span th:unless="${(attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')}" th:if="${(result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0))}" style="color: var(--success);">PASSED</span>
+                            <span th:unless="${((attempt.proctoringWarnings != null && attempt.proctoringWarnings >= 3) || (result != null && result.status == 'TERMINATED')) || ((result != null && result.status == 'PASS') || (attempt.obtainedMarks >= (attempt?.examVersion?.professionalExam?.passingMarks ?: 0)))}" style="color: var(--danger);">FAILED</span>
                         </div>
                         <div class="score-box-hint">Verified Credential Result</div>
+                    </div>
+
+                    <div class="score-box" th:if="${attempt.proctoringWarnings != null && attempt.proctoringWarnings > 0}">
+                        <div class="score-box-label">Proctoring Warnings</div>
+                        <div class="score-box-value" style="color: var(--danger);" th:text="${attempt.proctoringWarnings} + ' / 3'">3 / 3</div>
+                        <div class="score-box-hint" th:text="${attempt.proctoringWarnings >= 3 ? 'Exceeded Limit (Terminated)' : 'Incident Telemetry'}">Security Incident Log</div>
                     </div>
                 </div>
 

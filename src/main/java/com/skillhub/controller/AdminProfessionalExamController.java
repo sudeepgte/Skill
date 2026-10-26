@@ -33,6 +33,7 @@ public class AdminProfessionalExamController {
     @Autowired private ProfessionalExamSecurityEventRepository securityEventRepo;
     @Autowired private ProfessionalExamAnswerRepository answerRepo;
     @Autowired private ProfessionalExamAttemptQuestionRepository attemptQuestionRepo;
+    @Autowired private ProfessionalExamAttemptRepository attemptRepo;
     @Autowired private ProfessionalCertificateService certificateService;
     @Autowired private AdminLogRepository adminLogRepo;
     @Autowired private UserRepository userRepo;
@@ -299,6 +300,32 @@ public class AdminProfessionalExamController {
         model.addAttribute("page", events);
         model.addAttribute("totalApplications", appRepo.count());
         return "admin/professional-exams/security-events";
+    }
+
+    @GetMapping("/recordings/{attemptId}")
+    public String viewRecording(@PathVariable("attemptId") Long attemptId, Model model) {
+        ProfessionalExamAttempt attempt = attemptRepo.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found with ID: " + attemptId));
+
+        ProfessionalExamResult result = resultRepo.findByAttemptId(attemptId).orElse(null);
+        List<ProfessionalExamSecurityEvent> securityEvents = securityEventRepo.findByAttemptIdOrderByEventTimestampDesc(attemptId);
+
+        model.addAttribute("attempt", attempt);
+        model.addAttribute("result", result);
+        model.addAttribute("securityEvents", securityEvents);
+        model.addAttribute("candidate", attempt.getStudent());
+        model.addAttribute("exam", attempt.getProfessionalExam());
+        model.addAttribute("examVersion", attempt.getExamVersion());
+
+        return "admin/professional-exams/recording";
+    }
+
+    @GetMapping("/results/{resultId}/recording")
+    public String viewRecordingByResult(@PathVariable("resultId") Long resultId) {
+        ProfessionalExamResult result = resultRepo.findById(resultId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exam result not found with ID: " + resultId));
+        Long attemptId = result.getAttempt() != null ? result.getAttempt().getId() : resultId;
+        return "redirect:/admin/professional-exams/recordings/" + attemptId;
     }
 
     @PostMapping("/certificates/{certificateId}/revoke")
