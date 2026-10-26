@@ -182,7 +182,7 @@
         </main>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         // Mobile sidebar toggle
         const sidebar  = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
@@ -194,6 +194,10 @@
                 sidebar.classList.remove('open');
             }
         });
+
+        /*[# th:if="${success}"]*/
+        alert(/*[[${success}]]*/ 'broadcast email sent successfully');
+        /*[/]*/
     </script>
 </body>
 

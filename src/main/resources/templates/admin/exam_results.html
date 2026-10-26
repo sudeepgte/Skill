@@ -53,6 +53,15 @@
             <a href="/admin/courses" class="nav-item"><i class="fas fa-graduation-cap"></i> Courses</a>
             <a href="/admin/categories" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
             <a href="/admin/exams" class="nav-item active"><i class="fas fa-file-alt"></i> Exams</a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Certifications</div>
+            <a href="/admin/professional-exams" class="nav-item"><i class="fas fa-award"></i> Professional Exams</a>
+            <a href="/admin/professional-exams/applications" class="nav-item"><i class="fas fa-id-card"></i> Exam Applications</a>
+            <a href="/admin/professional-exams/question-bank" class="nav-item"><i class="fas fa-database"></i> Question Bank</a>
+            <a href="/admin/professional-exams/results" class="nav-item"><i class="fas fa-certificate"></i> Results & Certs</a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Communications</div>
+            <a href="/admin/broadcast" class="nav-item"><i class="fas fa-envelope"></i> Broadcast Email</a>
         </nav>
         <div class="sidebar-footer">
             <form th:action="@{/logout}" method="post">
@@ -129,11 +138,12 @@
                                 <th>Score (Highest First)</th>
                                 <th>Result</th>
                                 <th>Attempt Date</th>
+                                <th style="text-align: center;">Answer Sheet</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:if="${attempts.empty}">
-                                <td colspan="7" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                                <td colspan="8" style="text-align: center; padding: 4rem; color: var(--text-muted);">
                                     <i class="fas fa-clipboard-user" style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
                                     No candidates have taken this exam yet.
                                 </td>
@@ -167,6 +177,14 @@
                                     <span th:unless="${attempt.passed}" class="badge badge-failed"><i class="fas fa-times-circle"></i> FAILED</span>
                                 </td>
                                 <td th:text="${attempt.attemptDate != null ? #temporals.format(attempt.attemptDate, 'dd MMM yyyy, hh:mm a') : 'N/A'}">Date</td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn-primary-admin" 
+                                            th:attr="data-submission=${attempt.submissionDetails}"
+                                            th:onclick="reviewAnswerSheet([[${attempt.user != null ? attempt.user.name : 'Candidate'}]], [[${course != null ? course.title : 'Exam'}]], [[${attempt.score}]], [[${attempt.passed}]], this.getAttribute('data-submission'))"
+                                            style="padding: 0.5rem 1.2rem; font-size: 1.2rem; background: var(--secondary); color: #fff; border-radius: 0.6rem; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <i class="fas fa-file-invoice"></i> Review Answer Sheet
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -175,11 +193,172 @@
         </main>
     </div>
 
+    <!-- Review Answer Sheet Modal -->
+    <div id="answerSheetModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; padding: 1.5rem;">
+        <div style="background: #ffffff; border-radius: 1.2rem; width: 100%; max-width: 780px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); overflow: hidden;">
+            <div style="padding: 1.6rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #faf5ff;">
+                <div>
+                    <h3 id="sheetStudentName" style="font-size: 1.8rem; font-weight: 800; color: #2E1065; margin: 0;">Candidate Answer Sheet</h3>
+                    <p id="sheetCourseTitle" style="font-size: 1.3rem; color: #6b21a8; margin: 0.3rem 0 0 0;">Exam Title</p>
+                </div>
+                <button type="button" onclick="closeAnswerSheet()" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: #64748b; line-height: 1;">&times;</button>
+            </div>
+            
+            <div style="padding: 1rem 2rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 2rem; align-items: center;">
+                <div>
+                    <span style="font-size: 1.1rem; color: #64748b; text-transform: uppercase; font-weight: 700;">Score</span>
+                    <div id="sheetScore" style="font-size: 1.8rem; font-weight: 800; color: #8b5cf6;">0 / 100</div>
+                </div>
+                <div>
+                    <span style="font-size: 1.1rem; color: #64748b; text-transform: uppercase; font-weight: 700;">Status</span>
+                    <div id="sheetStatusBadge"></div>
+                </div>
+            </div>
+
+            <div id="sheetQuestionsContainer" style="padding: 2rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div style="padding: 1.2rem 2rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; background: #fafafa;">
+                <button type="button" onclick="closeAnswerSheet()" style="padding: 0.7rem 1.6rem; border-radius: 0.6rem; background: #e2e8f0; color: #334155; font-weight: 600; border: none; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const sidebar = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        }
+
+        function reviewAnswerSheet(candidateName, courseTitle, score, isPassed, submissionJson) {
+            document.getElementById('sheetStudentName').innerText = candidateName + "'s Answer Sheet";
+            document.getElementById('sheetCourseTitle').innerText = courseTitle;
+            document.getElementById('sheetScore').innerText = score + " / 100";
+            
+            const badge = document.getElementById('sheetStatusBadge');
+            if (isPassed) {
+                badge.innerHTML = '<span class="badge badge-passed"><i class="fas fa-check-circle"></i> PASSED</span>';
+            } else {
+                badge.innerHTML = '<span class="badge badge-failed"><i class="fas fa-times-circle"></i> FAILED</span>';
+            }
+
+            const container = document.getElementById('sheetQuestionsContainer');
+            container.innerHTML = '';
+
+            try {
+                const list = JSON.parse(submissionJson || '[]');
+                if (!list || list.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-info-circle" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No detailed answer responses recorded for this attempt.</div>';
+                } else {
+                    list.forEach((item, idx) => {
+                        const card = document.createElement('div');
+                        card.style.border = item.isCorrect ? '1px solid #bbf7d0' : '1px solid #fecaca';
+                        card.style.borderRadius = '0.8rem';
+                        card.style.padding = '1.4rem';
+                        card.style.background = item.isCorrect ? '#f0fdf4' : '#fef2f2';
+                        card.style.display = 'flex';
+                        card.style.flexDirection = 'column';
+                        card.style.gap = '0.8rem';
+
+                        const header = document.createElement('div');
+                        header.style.display = 'flex';
+                        header.style.justifyContent = 'space-between';
+                        header.style.alignItems = 'flex-start';
+                        header.style.gap = '1rem';
+
+                        const qTitle = document.createElement('div');
+                        qTitle.style.fontWeight = '700';
+                        qTitle.style.fontSize = '1.4rem';
+                        qTitle.style.color = '#1e293b';
+                        qTitle.innerText = "Q" + (idx + 1) + ". " + (item.question || 'Question');
+                        header.appendChild(qTitle);
+
+                        const verdict = document.createElement('span');
+                        verdict.style.fontSize = '1.1rem';
+                        verdict.style.fontWeight = '700';
+                        verdict.style.padding = '0.3rem 0.8rem';
+                        verdict.style.borderRadius = '1rem';
+                        if (item.isCorrect) {
+                            verdict.style.background = '#dcfce7';
+                            verdict.style.color = '#15803d';
+                            verdict.innerHTML = '<i class="fas fa-check"></i> Correct (+' + (item.marks || 1) + ' marks)';
+                        } else {
+                            verdict.style.background = '#fee2e2';
+                            verdict.style.color = '#b91c1c';
+                            verdict.innerHTML = '<i class="fas fa-times"></i> Incorrect (0/' + (item.marks || 1) + ' marks)';
+                        }
+                        header.appendChild(verdict);
+                        card.appendChild(header);
+
+                        // If options exist
+                        if (item.options && typeof item.options === 'object') {
+                            const optBox = document.createElement('div');
+                            optBox.style.display = 'flex';
+                            optBox.style.flexDirection = 'column';
+                            optBox.style.gap = '0.5rem';
+                            optBox.style.marginTop = '0.4rem';
+
+                            for (const [key, val] of Object.entries(item.options)) {
+                                const row = document.createElement('div');
+                                row.style.padding = '0.7rem 1rem';
+                                row.style.borderRadius = '0.5rem';
+                                row.style.fontSize = '1.3rem';
+                                row.style.display = 'flex';
+                                row.style.alignItems = 'center';
+                                row.style.gap = '0.8rem';
+
+                                const isUserAns = String(item.selectedAnswer).trim().toLowerCase() === String(key).trim().toLowerCase();
+                                const isCorrectAns = String(item.correctAnswer).trim().toLowerCase() === String(key).trim().toLowerCase();
+
+                                if (isCorrectAns) {
+                                    row.style.background = '#dcfce7';
+                                    row.style.border = '1px solid #86efac';
+                                    row.style.color = '#14532d';
+                                    row.style.fontWeight = '600';
+                                    row.innerHTML = '<span>' + key.toUpperCase() + ': ' + val + '</span><span style="margin-left:auto; font-size:1.1rem; color:#15803d;"><i class="fas fa-check-circle"></i> Correct Answer</span>';
+                                } else if (isUserAns) {
+                                    row.style.background = '#fee2e2';
+                                    row.style.border = '1px solid #fca5a5';
+                                    row.style.color = '#7f1d1d';
+                                    row.innerHTML = '<span>' + key.toUpperCase() + ': ' + val + '</span><span style="margin-left:auto; font-size:1.1rem; color:#b91c1c;"><i class="fas fa-user"></i> User Selected (Wrong)</span>';
+                                } else {
+                                    row.style.background = '#ffffff';
+                                    row.style.border = '1px solid #e2e8f0';
+                                    row.style.color = '#475569';
+                                    row.innerText = key.toUpperCase() + ': ' + val;
+                                }
+                                optBox.appendChild(row);
+                            }
+                            card.appendChild(optBox);
+                        } else {
+                            // Non-options answer display
+                            const ansInfo = document.createElement('div');
+                            ansInfo.style.fontSize = '1.3rem';
+                            ansInfo.style.marginTop = '0.4rem';
+                            ansInfo.style.display = 'flex';
+                            ansInfo.style.flexDirection = 'column';
+                            ansInfo.style.gap = '0.4rem';
+
+                            ansInfo.innerHTML = '<div><strong>Candidate Answer:</strong> <span style="' + (item.isCorrect ? 'color:#15803d;' : 'color:#b91c1c;') + '">' + (item.selectedAnswer ? item.selectedAnswer : '<em>(No Answer)</em>') + '</span></div>' +
+                                                '<div><strong>Correct Answer:</strong> <span style="color:#15803d; font-weight:600;">' + (item.correctAnswer || 'N/A') + '</span></div>';
+                            card.appendChild(ansInfo);
+                        }
+
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div style="color: #ef4444; padding: 2rem;">Error reading candidate answer sheet.</div>';
+            }
+
+            document.getElementById('answerSheetModal').style.display = 'flex';
+        }
+
+        function closeAnswerSheet() {
+            document.getElementById('answerSheetModal').style.display = 'none';
         }
     </script>
 </body>

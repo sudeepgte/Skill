@@ -878,7 +878,7 @@ public class AdminController {
             notificationService.createAndSend(user, subject, message, "INFO");
         }
 
-        redirectAttributes.addFlashAttribute("success", "Broadcast sent to " + allUsers.size() + " users!");
+        redirectAttributes.addFlashAttribute("success", "broadcast email sent successfully");
         return "redirect:/admin/broadcast";
     }
 

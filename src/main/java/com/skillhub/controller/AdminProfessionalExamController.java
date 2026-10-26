@@ -31,6 +31,9 @@ public class AdminProfessionalExamController {
     @Autowired private ProfessionalExamApplicationRepository appRepo;
     @Autowired private ProfessionalExamResultRepository resultRepo;
     @Autowired private ProfessionalExamSecurityEventRepository securityEventRepo;
+    @Autowired private ProfessionalExamAnswerRepository answerRepo;
+    @Autowired private ProfessionalExamAttemptQuestionRepository attemptQuestionRepo;
+    @Autowired private ProfessionalExamAttemptRepository attemptRepo;
     @Autowired private ProfessionalCertificateService certificateService;
     @Autowired private AdminLogRepository adminLogRepo;
     @Autowired private UserRepository userRepo;
@@ -299,11 +302,102 @@ public class AdminProfessionalExamController {
         return "admin/professional-exams/security-events";
     }
 
+    @GetMapping("/recordings/{attemptId}")
+    public String viewRecording(@PathVariable("attemptId") Long attemptId, Model model) {
+        ProfessionalExamAttempt attempt = attemptRepo.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exam attempt not found with ID: " + attemptId));
+
+        ProfessionalExamResult result = resultRepo.findByAttemptId(attemptId).orElse(null);
+        List<ProfessionalExamSecurityEvent> securityEvents = securityEventRepo.findByAttemptIdOrderByEventTimestampDesc(attemptId);
+
+        model.addAttribute("attempt", attempt);
+        model.addAttribute("result", result);
+        model.addAttribute("securityEvents", securityEvents);
+        model.addAttribute("candidate", attempt.getStudent());
+        model.addAttribute("exam", attempt.getProfessionalExam());
+        model.addAttribute("examVersion", attempt.getExamVersion());
+
+        return "admin/professional-exams/recording";
+    }
+
+    @GetMapping("/results/{resultId}/recording")
+    public String viewRecordingByResult(@PathVariable("resultId") Long resultId) {
+        ProfessionalExamResult result = resultRepo.findById(resultId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exam result not found with ID: " + resultId));
+        Long attemptId = result.getAttempt() != null ? result.getAttempt().getId() : resultId;
+        return "redirect:/admin/professional-exams/recordings/" + attemptId;
+    }
+
     @PostMapping("/certificates/{certificateId}/revoke")
     public String revokeCertificate(@PathVariable("certificateId") String certificateId,
                                     @RequestParam("reason") String reason,
                                     Principal p) {
         certificateService.revokeCertificate(certificateId, reason, getAdmin(p));
         return "redirect:/admin/professional-exams/results";
+    }
+
+    @GetMapping("/results/{resultId}/answers")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<?> getAnswerSheet(@PathVariable("resultId") Long resultId) {
+        ProfessionalExamResult result = resultRepo.findById(resultId).orElse(null);
+        if (result == null || result.getAttempt() == null) {
+            return org.springframework.http.ResponseEntity.notFound().build();
+        }
+
+        Long attemptId = result.getAttempt().getId();
+        List<ProfessionalExamAttemptQuestion> attemptQuestions = attemptQuestionRepo.findByAttemptIdOrderByDisplayOrderAsc(attemptId);
+        List<ProfessionalExamAnswer> answers = answerRepo.findByAttemptId(attemptId);
+        java.util.Map<Long, ProfessionalExamAnswer> answerMap = new java.util.HashMap<>();
+        for (ProfessionalExamAnswer a : answers) {
+            if (a.getQuestion() != null) {
+                answerMap.put(a.getQuestion().getId(), a);
+            }
+        }
+
+        java.util.List<java.util.Map<String, Object>> sheet = new java.util.ArrayList<>();
+        for (ProfessionalExamAttemptQuestion aq : attemptQuestions) {
+            ProfessionalExamQuestion q = aq.getQuestion();
+            if (q == null) continue;
+            ProfessionalExamAnswer ans = answerMap.get(q.getId());
+
+            java.util.Map<String, Object> item = new java.util.HashMap<>();
+            item.put("questionNumber", aq.getQuestionNumber());
+            item.put("questionText", q.getQuestionText());
+            item.put("questionType", q.getQuestionType() != null ? q.getQuestionType().name() : "MULTIPLE_CHOICE");
+            item.put("marks", q.getMarks());
+            item.put("options", q.getOptions());
+            item.put("correctAnswer", q.getCorrectAnswer());
+            item.put("explanation", q.getExplanation());
+
+            String userAns = "";
+            if (ans != null) {
+                if (ans.getSelectedOption() != null && !ans.getSelectedOption().isEmpty()) {
+                    userAns = ans.getSelectedOption();
+                } else if (ans.getTextAnswer() != null && !ans.getTextAnswer().isEmpty()) {
+                    userAns = ans.getTextAnswer();
+                } else if (ans.getCodeAnswer() != null && !ans.getCodeAnswer().isEmpty()) {
+                    userAns = ans.getCodeAnswer();
+                }
+            }
+            item.put("userAnswer", userAns);
+            item.put("isCorrect", ans != null && Boolean.TRUE.equals(ans.getIsCorrect()));
+            item.put("marksObtained", ans != null && ans.getMarksObtained() != null ? ans.getMarksObtained() : 0);
+            sheet.add(item);
+        }
+
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        String studentName = (result.getAttempt() != null && result.getAttempt().getStudent() != null)
+                ? result.getAttempt().getStudent().getName() : "Candidate";
+        String examTitle = (result.getAttempt() != null && result.getAttempt().getExamVersion() != null && result.getAttempt().getExamVersion().getProfessionalExam() != null)
+                ? result.getAttempt().getExamVersion().getProfessionalExam().getTitle() : "Professional Exam";
+
+        response.put("candidateName", studentName);
+        response.put("examTitle", examTitle);
+        response.put("score", result.getObtainedMarks() + " / " + result.getTotalMarks());
+        response.put("percentage", result.getPercentage());
+        response.put("status", result.getStatus());
+        response.put("questions", sheet);
+
+        return org.springframework.http.ResponseEntity.ok(response);
     }
 }
