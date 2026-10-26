@@ -2101,6 +2101,24 @@
                     </div>
                 </div>
 
+                <!-- Alert Banner when viewing Changes Requested / Rejected courses -->
+                <div id="rejectedStatusBanner" 
+                     th:style="${statusFilter == 'REJECTED' ? '' : 'display: none;'}"
+                     class="alert-changes-banner" 
+                     style="margin-bottom: 1.5rem; padding: 1.15rem 1.35rem; background: #FFFBEB; border: 1px solid #FCD34D; border-left: 5px solid #F59E0B; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);">
+                    <div style="display: flex; align-items: center; gap: 0.95rem;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #92400E;">Courses Requiring Changes</h4>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.88rem; color: #B45309;">
+                                The administrator has reviewed the course(s) below and requested revisions. Please check the feedback, update your course content or exam questions, and click <strong style="color: #047857;"><i class="fas fa-paper-plane"></i> Submit for Admin Verification</strong> when ready.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="vendor-table-wrap">
                     <table class="vendor-table" id="instructorCoursesTable">
                         <thead>
@@ -2125,10 +2143,36 @@
                                         <div class="course-title-wrap">
                                             <span class="course-name" th:text="${course.title}">Course Title</span>
                                             <span class="course-meta" th:text="'Updated ' + ${course.lastUpdated}">Updated 2024-01-01</span>
-                                            <!-- Show Rejection Reason if present -->
-                                            <div th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED and course.rejectionReason != null}"
-                                                 style="margin-top: 4px; padding: 4px 8px; background: #fee2e2; color: #991b1b; border-radius: 4px; font-size: 0.8rem;">
-                                                <i class="fas fa-exclamation-triangle"></i> <span th:text="'Changes requested: ' + ${course.rejectionReason}">Reason</span>
+                                            <!-- Prominent Admin Feedback & Requested Changes Card if course is REJECTED -->
+                                            <div th:if="${course.status != null and (course.status.name() == 'REJECTED' or course.status == T(com.skillhub.model.CourseStatus).REJECTED)}"
+                                                 class="admin-changes-box"
+                                                 style="margin-top: 10px; padding: 12px 14px; background: #FEF2F2; border-left: 4px solid #EF4444; border-radius: 10px; border-top: 1px solid #FEE2E2; border-right: 1px solid #FEE2E2; border-bottom: 1px solid #FEE2E2; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.06);">
+                                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+                                                    <span style="font-weight: 800; font-size: 0.84rem; color: #B91C1C; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.03em;">
+                                                        <i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i> Admin Requested Changes:
+                                                    </span>
+                                                    <span style="font-size: 0.75rem; font-weight: 700; background: #FEE2E2; color: #991B1B; padding: 2px 8px; border-radius: 4px;">Action Required</span>
+                                                </div>
+                                                <div style="font-size: 0.88rem; color: #7F1D1D; line-height: 1.5; font-weight: 600; word-break: break-word;"
+                                                     th:text="${course.rejectionReason != null and !#strings.isEmpty(course.rejectionReason) ? course.rejectionReason : 'Admin has requested revisions on course syllabus, lectures, or test questions. Please review and update your course content before resubmitting for verification.'}">
+                                                    Reason details here
+                                                </div>
+                                                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                                    <a th:href="@{/vendor/courses/{id}/edit(id=${course.id})}" style="font-size: 0.82rem; font-weight: 700; color: #6D28D9; text-decoration: none; background: #EDE9FE; padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #DDD6FE;">
+                                                        <i class="fas fa-edit"></i> Edit Course Content
+                                                    </a>
+                                                    <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" style="font-size: 0.82rem; font-weight: 700; color: #047857; text-decoration: none; background: #D1FAE5; padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #A7F3D0;">
+                                                        <i class="fas fa-question-circle"></i> Manage Questions
+                                                    </a>
+                                                    <button type="button" 
+                                                            th:data-course-id="${course.id}"
+                                                            th:data-course-title="${course.title}"
+                                                            th:data-rejection-reason="${course.rejectionReason != null and !#strings.isEmpty(course.rejectionReason) ? course.rejectionReason : 'Admin has requested revisions on course syllabus, lectures, or test questions.'}"
+                                                            onclick="openFeedbackModal(this.getAttribute('data-course-id'), this.getAttribute('data-course-title'), this.getAttribute('data-rejection-reason'))"
+                                                            style="font-size: 0.82rem; font-weight: 700; color: #991B1B; text-decoration: none; background: #FEE2E2; padding: 5px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #FECACA; cursor: pointer;">
+                                                        <i class="fas fa-eye"></i> View Full Feedback
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -2150,9 +2194,16 @@
                                         <span class="status-dot"></span>
                                         <span>Draft</span>
                                     </span>
-                                    <span class="course-status-pill status-rejected" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}">
+                                    <span class="course-status-pill status-rejected" th:if="${course.status == T(com.skillhub.model.CourseStatus).REJECTED}"
+                                          th:data-course-id="${course.id}"
+                                          th:data-course-title="${course.title}"
+                                          th:data-rejection-reason="${course.rejectionReason != null and !#strings.isEmpty(course.rejectionReason) ? course.rejectionReason : 'Admin has requested revisions on course syllabus, lectures, or test questions.'}"
+                                          onclick="openFeedbackModal(this.getAttribute('data-course-id'), this.getAttribute('data-course-title'), this.getAttribute('data-rejection-reason'))"
+                                          style="cursor: pointer;"
+                                          title="Click to view Admin Feedback">
                                         <span class="status-dot"></span>
                                         <span>Changes Req</span>
+                                        <i class="fas fa-info-circle ms-1" style="font-size: 0.75rem;"></i>
                                     </span>
                                     <span class="course-status-pill status-draft" th:if="${course.status == null}">
                                         <span class="status-dot"></span>
@@ -2221,15 +2272,59 @@
 
             <!-- Manage Students Panel -->
             <div class="vendor-panel" th:if="${activeTab == 'students'}">
-                <div class="panel-header">
+                <div class="panel-header" style="margin-bottom: 1.25rem;">
                     <h2>Student Learning Progress</h2>
                     <div class="panel-controls">
-                        <span class="status-badge" style="background:#f3f4f6; color:#374151;" th:text="${totalStudents + ' Total Enrolled'}">0 Total Enrolled</span>
+                        <span class="status-badge" style="background:#f3f4f6; color:#374151;" th:text="${(studentsTotalItems != null ? studentsTotalItems : totalStudents) + ' Total Enrolled'}">0 Total Enrolled</span>
+                    </div>
+                </div>
+
+                <!-- Upside Pagination Bar for Students with Per-Page Dropdown (10, 20, 30) -->
+                <div class="vendor-pagination-bar" id="studentsPaginationBar" th:if="${enrollments != null and !#lists.isEmpty(enrollments)}">
+                    <div style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+                        <div class="vendor-pagination-info" id="studentsPaginationInfo">
+                            Showing <span class="fw-bold" id="studentsStart" th:text="${studentsStartItem != null ? studentsStartItem : 1}">1</span> to 
+                            <span class="fw-bold" id="studentsEnd" th:text="${studentsEndItem != null ? studentsEndItem : (enrollments != null ? #lists.size(enrollments) : 1)}">10</span> of 
+                            <span class="fw-bold" id="studentsTotal" th:text="${studentsTotalItems != null ? studentsTotalItems : (enrollments != null ? #lists.size(enrollments) : 1)}">0</span> students
+                        </div>
+                        <div class="students-per-page-wrap" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: #4B5563;">
+                            <label for="studentsPageSizeSelect" style="margin-bottom: 0; font-weight: 600;">Per page:</label>
+                            <select id="studentsPageSizeSelect" class="form-select form-select-sm" style="width: auto; padding: 0.25rem 1.75rem 0.25rem 0.65rem; font-size: 0.85rem; font-weight: 600; border-radius: 8px; border-color: #DDD6FE; color: #6D28D9; background-color: #F5F3FF; cursor: pointer;" onchange="changeStudentsPageSize(this.value)">
+                                <option value="10" th:selected="${studentsPageSize == 10}">10</option>
+                                <option value="20" th:selected="${studentsPageSize == 20}">20</option>
+                                <option value="30" th:selected="${studentsPageSize == 30}">30</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vendor-pagination-controls" id="studentsPaginationControls">
+                        <a th:href="@{/vendor/dashboard(tab='students', page=${(studentsCurrentPage != null ? studentsCurrentPage : 1) - 1}, size=${studentsPageSize != null ? studentsPageSize : 10})}"
+                           class="vendor-page-btn" id="studentsPrevBtn"
+                           th:classappend="${(studentsCurrentPage != null ? studentsCurrentPage : 1) <= 1} ? ' disabled' : ''">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                        <div class="vendor-page-numbers" id="studentsPageNumbers">
+                            <th:block th:if="${studentsPageNumbers != null and #lists.size(studentsPageNumbers) > 0}">
+                                <th:block th:each="p : ${studentsPageNumbers}">
+                                    <a th:href="@{/vendor/dashboard(tab='students', page=${p}, size=${studentsPageSize != null ? studentsPageSize : 10})}"
+                                       class="vendor-page-num"
+                                       th:classappend="${p == (studentsCurrentPage != null ? studentsCurrentPage : 1)} ? ' active' : ''"
+                                       th:text="${p}">1</a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${studentsPageNumbers == null or #lists.size(studentsPageNumbers) == 0}">
+                                <span class="vendor-page-num active">1</span>
+                            </th:block>
+                        </div>
+                        <a th:href="@{/vendor/dashboard(tab='students', page=${(studentsCurrentPage != null ? studentsCurrentPage : 1) + 1}, size=${studentsPageSize != null ? studentsPageSize : 10})}"
+                           class="vendor-page-btn" id="studentsNextBtn"
+                           th:classappend="${(studentsCurrentPage != null ? studentsCurrentPage : 1) >= (studentsTotalPages != null ? studentsTotalPages : 1)} ? ' disabled' : ''">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
                     </div>
                 </div>
 
                 <div class="vendor-table-wrap">
-                    <table class="vendor-table">
+                    <table class="vendor-table" id="studentsProgressTable">
                         <thead>
                             <tr>
                                 <th>Student</th>
@@ -2240,7 +2335,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="enrollment : ${enrollments}">
+                            <tr th:each="enrollment : ${enrollments}" class="student-progress-row">
                                 <td>
                                     <div class="course-info">
                                         <div class="stat-icon purple" style="width: 32px; height: 32px; font-size: 0.9rem; min-width: 32px;"><i class="fas fa-user-graduate"></i></div>
@@ -2281,83 +2376,6 @@
                                 <td colspan="5" style="text-align: center; padding: 4rem; color: #6a6f73;">
                                     <i class="fas fa-user-slash" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
                                     No students enrolled in your courses yet.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- ══ EXAM SUBMISSIONS SECTION ══ -->
-                <div class="panel-header" style="margin-top: 4.5rem; margin-bottom: 2rem; border-top: 1px solid rgba(167, 139, 250, 0.2); padding-top: 3.5rem;">
-                    <h2>Exam Submissions & Certificate Issuance</h2>
-                    <div class="panel-controls">
-                        <span class="status-badge published" th:text="${#lists.size(examSubmissions) + ' Submissions'}">0 Submissions</span>
-                    </div>
-                </div>
-
-                <div class="vendor-table-wrap">
-                    <table class="vendor-table">
-                        <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>Course</th>
-                                <th>Score</th>
-                                <th>Submitted Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="sub : ${examSubmissions}">
-                                <td>
-                                    <div class="course-info">
-                                        <div class="stat-icon purple" style="width: 32px; height: 32px; font-size: 0.9rem; min-width: 32px;"><i class="fas fa-user-graduate"></i></div>
-                                        <div class="course-title-wrap">
-                                            <span class="course-name" th:text="${sub.attempt.user.name}">Student Name</span>
-                                            <span class="course-meta" th:text="${sub.attempt.user.email}">student@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span th:text="${sub.attempt.course.title}">Course Title</span>
-                                </td>
-                                <td>
-                                    <span th:text="${sub.attempt.score + '/100'}" style="font-weight: 700; font-size: 1.5rem;"
-                                          th:style="${sub.attempt.isPassed ? 'color:#10b981;' : 'color:#ef4444;'}">85/100</span>
-                                </td>
-                                <td>
-                                    <span th:text="${#temporals.format(sub.attempt.attemptDate, 'yyyy-MM-dd HH:mm')}">Date</span>
-                                </td>
-                                <td>
-                                    <span class="status-badge published" th:if="${sub.enrollment != null and sub.enrollment.isExamPassed()}">CERTIFIED</span>
-                                    <span class="status-badge" style="background:#fee2e2; color:#991b1b;" th:if="${sub.enrollment != null and !sub.enrollment.isExamPassed() and !sub.attempt.isPassed}">FAILED</span>
-                                    <span class="status-badge" style="background:#fef3c7; color:#92400e;" th:if="${sub.enrollment != null and !sub.enrollment.isExamPassed() and sub.attempt.isPassed}">PENDING REVIEW</span>
-                                </td>
-                                <td>
-                                    <div class="action-btns" style="display: flex; gap: 0.8rem; align-items: center;">
-                                        <!-- View Answers Button -->
-                                        <button class="btn-new-course" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: #8B5CF6; border: none; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 0.5rem;"
-                                                th:attr="data-submission=${sub.attempt.submissionDetails}"
-                                                th:onclick="showExamDetails([[${sub.attempt.user.name}]], [[${sub.attempt.course.title}]], [[${sub.attempt.score}]], [[${sub.attempt.isPassed}]], this.getAttribute('data-submission'))">
-                                            <i class="fas fa-eye"></i> View Answers
-                                        </button>
-                                        
-                                        <!-- Issue Certificate Form (only if student passed and has not yet been issued a certificate) -->
-                                        <form th:if="${sub.attempt.isPassed and sub.enrollment != null and !sub.enrollment.isExamPassed()}"
-                                              th:action="@{/vendor/enrollments/{id}/certificate(id=${sub.enrollment.id})}" method="post" style="display: inline;">
-                                            <!-- CRITICAL: CSRF Token -->
-                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                            <button type="submit" class="btn-new-course" style="padding: 0.6rem 1.2rem; font-size: 1.2rem; background: #10b981; border: none; cursor: pointer; color: white; display: inline-flex; align-items: center; gap: 0.5rem;" title="Issue Certificate">
-                                                <i class="fas fa-certificate"></i> Issue Certificate
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(examSubmissions)}">
-                                <td colspan="6" style="text-align: center; padding: 4rem; color: #6a6f73;">
-                                    <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
-                                    No exam attempts submitted yet.
                                 </td>
                             </tr>
                         </tbody>
@@ -3254,6 +3272,16 @@
         let coursesCurrentPage = 1;
         let coursesPageSize = 10;
 
+        let studentsPageSize = 10;
+        function changeStudentsPageSize(newSize) {
+            studentsPageSize = parseInt(newSize, 10) || 10;
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', 'students');
+            url.searchParams.set('size', studentsPageSize);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
         function changeCoursesPageSize(newSize) {
             coursesPageSize = parseInt(newSize, 10) || 10;
             renderCoursesPagination(1);
@@ -3299,6 +3327,12 @@
                     row.style.display = 'none';
                 }
             });
+
+            // Toggle empty state message
+            const emptyRow = document.getElementById('noCoursesFilterRow');
+            if (emptyRow) {
+                emptyRow.style.display = (total === 0) ? '' : 'none';
+            }
 
             // Update Info
             const info = document.getElementById('coursesPaginationInfo');
@@ -4247,6 +4281,12 @@
                 targetBtn.classList.add(activeClassMap[status]);
             }
 
+            // Toggle rejected status banner
+            const rejectedBanner = document.getElementById('rejectedStatusBanner');
+            if (rejectedBanner) {
+                rejectedBanner.style.display = (status === 'REJECTED') ? 'flex' : 'none';
+            }
+
             // 2. Filter rows in-place (no scroll up or down)
             const rows = document.querySelectorAll('.vendor-table tbody tr.course-row');
             let visibleCount = 0;
@@ -4368,6 +4408,10 @@
                 try {
                     history.replaceState(null, '', window.location.pathname + window.location.search);
                 } catch (e) {}
+            }
+
+            if (typeof renderCoursesPagination === 'function') {
+                renderCoursesPagination(1);
             }
 
             // Verify initial visible rows count
@@ -4497,6 +4541,80 @@
             setupDynamicPagination('instructorReviewsTable', 'review-row', 'reviewsPaginationBar', 'reviews', 10);
             setupDynamicPagination('instructorQuestionsTable', 'question-row', 'questionsPaginationBar', 'questions', 10);
         });
+    </script>
+    <!-- ══ ADMIN REQUESTED CHANGES FEEDBACK MODAL ══ -->
+    <div id="adminFeedbackModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2500; justify-content: center; align-items: center;" onclick="closeAdminFeedbackModal(event)">
+        <div class="modal-content modal-content-custom" style="background: #fff; border-radius: 16px; max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; border: 1px solid #FEE2E2; padding: 0;" onclick="event.stopPropagation()">
+            <div style="background: #FEF2F2; border-bottom: 1px solid #FEE2E2; padding: 1.5rem 1.75rem; border-top-left-radius: 16px; border-top-right-radius: 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.95rem;">
+                    <div style="width: 46px; height: 46px; border-radius: 12px; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <h3 id="feedbackModalCourseTitle" style="font-size: 1.25rem; font-weight: 800; color: #991B1B; margin: 0;">Admin Requested Changes</h3>
+                        <p style="color: #B91C1C; font-size: 0.85rem; margin: 0.2rem 0 0 0;">Please review the administrator audit notes and take required action</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminFeedbackModal()" style="background: none; border: none; font-size: 1.4rem; color: #991B1B; cursor: pointer; padding: 4px 8px; border-radius: 6px;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div style="padding: 1.75rem;">
+                <div style="padding: 1.15rem 1.35rem; background: #FFF5F5; border-left: 5px solid #EF4444; border-radius: 10px; margin-bottom: 1.5rem; border-top: 1px solid #FEE2E2; border-right: 1px solid #FEE2E2; border-bottom: 1px solid #FEE2E2;">
+                    <h5 style="font-size: 0.88rem; font-weight: 800; color: #991B1B; margin: 0 0 0.5rem 0; text-transform: uppercase; letter-spacing: 0.04em;">
+                        <i class="fas fa-comment-dots me-1"></i> Admin Audit Feedback:
+                    </h5>
+                    <p id="feedbackModalReasonText" style="font-size: 0.95rem; color: #7F1D1D; line-height: 1.6; margin: 0; font-weight: 600; word-break: break-word;">
+                        Feedback message...
+                    </p>
+                </div>
+
+                <div style="background: #FAF5FF; padding: 1.15rem 1.35rem; border-radius: 10px; border: 1px solid #EDE9FE; font-size: 0.9rem; color: #6D28D9;">
+                    <div style="font-weight: 800; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 6px; color: #5B21B6;">
+                        <i class="fas fa-lightbulb"></i> Recommended Next Steps:
+                    </div>
+                    <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.6; color: #5B21B6;">
+                        <li>Click <strong>Edit Course Content</strong> to modify course description, lessons, or media.</li>
+                        <li>Check <strong>Manage Questions</strong> to update or add required assessment questions.</li>
+                        <li>Return here and click <strong style="color: #047857;"><i class="fas fa-paper-plane"></i> Submit for Admin Verification</strong> when ready.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="gap: 0.75rem; padding: 1.15rem 1.75rem; border-top: 1px solid #EDE9FE; display: flex; justify-content: flex-end; align-items: center; background: #FAF5FF; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+                <button type="button" onclick="closeAdminFeedbackModal()" style="border-radius: 8px; font-weight: 600; padding: 0.55rem 1.25rem; background: #E5E7EB; color: #374151; border: none; cursor: pointer;">Close</button>
+                <a id="feedbackModalQuestionsBtn" href="#" style="border-radius: 8px; font-weight: 700; background: #10B981; border: none; padding: 0.55rem 1.25rem; text-decoration: none; color: white; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-question-circle"></i> Manage Questions
+                </a>
+                <a id="feedbackModalEditBtn" href="#" style="border-radius: 8px; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6D28D9); border: none; padding: 0.55rem 1.25rem; text-decoration: none; color: white; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-edit"></i> Edit Course Content
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openFeedbackModal(courseId, courseTitle, reason) {
+            const modal = document.getElementById('adminFeedbackModal');
+            if (!modal) return;
+            document.getElementById('feedbackModalCourseTitle').textContent = 'Changes Requested: ' + (courseTitle || 'Course');
+            document.getElementById('feedbackModalReasonText').textContent = reason || 'Admin has requested revisions on course syllabus, lectures, or test questions.';
+            const editBtn = document.getElementById('feedbackModalEditBtn');
+            if (editBtn) {
+                editBtn.href = '/vendor/courses/' + courseId + '/edit';
+            }
+            const qBtn = document.getElementById('feedbackModalQuestionsBtn');
+            if (qBtn) {
+                qBtn.href = '/vendor/courses/' + courseId + '/questions';
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeAdminFeedbackModal(e) {
+            if (!e || e.target.id === 'adminFeedbackModal' || (e.target && e.target.closest && e.target.closest('button'))) {
+                const modal = document.getElementById('adminFeedbackModal');
+                if (modal) modal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

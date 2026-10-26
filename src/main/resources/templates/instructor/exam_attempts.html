@@ -560,6 +560,230 @@
                 text-align: center;
             }
         }
+        .btn-answer-sheet {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            background: #F5F3FF;
+            color: #7C3AED;
+            border: 1px solid #DDD6FE;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-answer-sheet:hover {
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            color: #ffffff;
+            border-color: #7C3AED;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* ━━ ANSWER SHEET MODAL ━━ */
+        .answer-sheet-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 7, 34, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .answer-sheet-modal-dialog {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(15, 7, 34, 0.3);
+            border: 1px solid #EDE9FE;
+            overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+
+        .answer-sheet-modal-header {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid #EDE9FE;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FAF5FF;
+        }
+
+        .modal-icon-header {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #EDE9FE;
+            color: #8B5CF6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        .btn-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: #64748B;
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-close:hover {
+            color: #EF4444;
+            background: #FEE2E2;
+        }
+
+        .answer-sheet-summary-bar {
+            padding: 0.85rem 1.75rem;
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .summary-stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .summary-stat-pill .stat-lbl {
+            color: #64748B;
+            font-weight: 600;
+        }
+
+        .summary-stat-pill .stat-val {
+            color: #1E1B4B;
+            font-weight: 800;
+        }
+
+        .answer-sheet-modal-body {
+            padding: 1.5rem 1.75rem;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ans-question-card {
+            background: #ffffff;
+            border: 1px solid #EDE9FE;
+            border-radius: 14px;
+            padding: 1.15rem 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .ans-question-card.correct-card {
+            border-left: 5px solid #10B981;
+            background: #F0FDF4;
+        }
+
+        .ans-question-card.wrong-card {
+            border-left: 5px solid #EF4444;
+            background: #FEF2F2;
+        }
+
+        .ans-q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .ans-q-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #1E1B4B;
+            line-height: 1.45;
+        }
+
+        .ans-q-badge {
+            padding: 0.3rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .ans-q-badge.correct {
+            background: #DCFCE7;
+            color: #15803D;
+        }
+
+        .ans-q-badge.wrong {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+
+        .ans-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            margin-top: 0.5rem;
+        }
+
+        .ans-opt-item {
+            padding: 0.55rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ans-opt-item.user-correct {
+            background: #DCFCE7;
+            border-color: #86EFAC;
+            color: #14532D;
+            font-weight: 700;
+        }
+
+        .ans-opt-item.user-wrong {
+            background: #FEE2E2;
+            border-color: #FCA5A5;
+            color: #7F1D1D;
+            font-weight: 700;
+        }
+
+        .ans-opt-item.correct-answer-hint {
+            background: #ECFDF5;
+            border: 1px dashed #34D399;
+            color: #065F46;
+            font-weight: 600;
+        }
+
+        .answer-sheet-modal-footer {
+            padding: 1rem 1.75rem;
+            border-top: 1px solid #EDE9FE;
+            display: flex;
+            justify-content: flex-end;
+            background: #FAF5FF;
+        }
     </style>
 </head>
 
@@ -699,13 +923,13 @@
                 </div>
             </div>
 
-            <!-- Upside Pagination Bar with Dropdown 10, 20, 30 -->
-            <div class="vendor-pagination-bar" id="attemptsPaginationBar" th:if="${attempts != null and !#lists.isEmpty(attempts)}">
+            <!-- Upside Pagination Bar with Dropdown 10, 20, 30 & Result Sort/Filter -->
+            <div class="vendor-pagination-bar" id="attemptsPaginationBar">
                 <div class="vendor-pagination-left">
                     <span class="vendor-pagination-info" id="attemptsPaginationInfo">
                         Showing <span class="fw-bold" id="attemptsStart" th:text="${startItem != null ? startItem : 1}">1</span> to 
                         <span class="fw-bold" id="attemptsEnd" th:text="${endItem != null ? endItem : (attempts != null ? #lists.size(attempts) : 1)}">1</span> of 
-                        <span class="fw-bold" id="attemptsTotal" th:text="${totalAttempts != null ? totalAttempts : (attempts != null ? #lists.size(attempts) : 1)}">1</span> attempts
+                        <span class="fw-bold" id="attemptsTotal" th:text="${filteredTotal != null ? filteredTotal : (totalAttempts != null ? totalAttempts : 1)}">1</span> attempts
                     </span>
                     <div class="page-size-selector">
                         <label for="attemptsPageSizeSelect">Per page:</label>
@@ -715,9 +939,23 @@
                             <option value="30" th:selected="${pageSize == 30}">30</option>
                         </select>
                     </div>
+
+                    <!-- Result Filter & Sort Dropdown -->
+                    <div class="filter-sort-selector" style="display: flex; align-items: center; gap: 0.45rem; margin-left: 0.75rem;">
+                        <label for="attemptsFilterSortSelect" style="font-size: 0.85rem; font-weight: 700; color: #4B5563; white-space: nowrap;">
+                            <i class="fas fa-filter me-1" style="color: #8B5CF6;"></i> Result:
+                        </label>
+                        <select id="attemptsFilterSortSelect" class="form-select form-select-sm" onchange="applyAttemptsFilterSort(this.value)" style="border-radius: 8px; border: 1px solid #DDD6FE; font-weight: 600; padding: 0.35rem 0.75rem; color: #2E1065; background: #ffffff;">
+                            <option value="all" th:selected="${filterSort == null or filterSort == 'all'}">All Results</option>
+                            <option value="pass" th:selected="${filterSort == 'pass'}">Pass</option>
+                            <option value="fail" th:selected="${filterSort == 'fail'}">Fail</option>
+                            <option value="highest" th:selected="${filterSort == 'highest'}">Highest Marks</option>
+                            <option value="lowest" th:selected="${filterSort == 'lowest'}">Lowest Marks</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="vendor-pagination-controls" id="attemptsPaginationControls">
-                    <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${(currentPage != null ? currentPage : 1) - 1}, size=${pageSize != null ? pageSize : 10})}"
+                    <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${(currentPage != null ? currentPage : 1) - 1}, size=${pageSize != null ? pageSize : 10}, filterSort=${filterSort != null ? filterSort : 'all'})}"
                        class="vendor-page-btn" id="attemptsPrevBtn"
                        th:classappend="${(currentPage != null ? currentPage : 1) <= 1} ? ' disabled' : ''">
                         <i class="fas fa-chevron-left me-1"></i> Prev
@@ -726,7 +964,7 @@
                     <div class="vendor-page-numbers" id="attemptsPageNumbers">
                         <th:block th:if="${pageNumbers != null and #lists.size(pageNumbers) > 0}">
                             <th:block th:each="p : ${pageNumbers}">
-                                <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${p}, size=${pageSize != null ? pageSize : 10})}"
+                                <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${p}, size=${pageSize != null ? pageSize : 10}, filterSort=${filterSort != null ? filterSort : 'all'})}"
                                    class="vendor-page-num"
                                    th:classappend="${p == (currentPage != null ? currentPage : 1)} ? ' active' : ''"
                                    th:text="${p}">1</a>
@@ -737,7 +975,7 @@
                         </th:block>
                     </div>
 
-                    <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${(currentPage != null ? currentPage : 1) + 1}, size=${pageSize != null ? pageSize : 10})}"
+                    <a th:href="@{/vendor/exams/{id}/attempts(id=${exam != null ? exam.id : course.id}, page=${(currentPage != null ? currentPage : 1) + 1}, size=${pageSize != null ? pageSize : 10}, filterSort=${filterSort != null ? filterSort : 'all'})}"
                        class="vendor-page-btn" id="attemptsNextBtn"
                        th:classappend="${(currentPage != null ? currentPage : 1) >= (totalPages != null ? totalPages : 1)} ? ' disabled' : ''">
                         Next <i class="fas fa-chevron-right ms-1"></i>
@@ -756,6 +994,7 @@
                             <th>Marks / Score</th>
                             <th>Attempt Date & Time</th>
                             <th>Result Status</th>
+                            <th style="text-align: right;">Answer Sheet</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -806,9 +1045,17 @@
                                     <i class="fas fa-times-circle"></i> FAILED
                                 </span>
                             </td>
+                            <td style="text-align: right;">
+                                <button type="button" class="btn-answer-sheet"
+                                        th:data-attempt-id="${attempt.id}"
+                                        onclick="openAnswerSheet(this.getAttribute('data-attempt-id'))"
+                                        title="View Student's Answer Sheet">
+                                    <i class="fas fa-file-signature me-1"></i> View Answers
+                                </button>
+                            </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(attempts)}">
-                            <td colspan="6" style="text-align: center; padding: 4.5rem 1rem; color: #64748B;">
+                            <td colspan="7" style="text-align: center; padding: 4.5rem 1rem; color: #64748B;">
                                 <div style="width: 68px; height: 68px; border-radius: 50%; background: #F5F3FF; color: #8B5CF6; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
                                     <i class="fas fa-file-signature"></i>
                                 </div>
@@ -913,6 +1160,207 @@
             const size = parseInt(urlParams.get('size') || '10', 10);
             setupAttemptsPagination(size);
         });
+    </script>
+    <!-- ══ STUDENT ANSWER SHEET MODAL ══ -->
+    <div id="answerSheetModal" class="answer-sheet-modal-backdrop" style="display: none;" onclick="closeAnswerSheetModal(event)">
+        <div class="answer-sheet-modal-dialog" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="answer-sheet-modal-header">
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                    <div class="modal-icon-header">
+                        <i class="fas fa-file-circle-check"></i>
+                    </div>
+                    <div>
+                        <h3 id="ansModalStudentName" style="font-size: 1.25rem; font-weight: 800; color: #1E1B4B; margin: 0;">Student Answer Sheet</h3>
+                        <p style="color: #64748B; font-size: 0.85rem; margin: 0;" id="ansModalSubTitle">
+                            Reviewing submitted answers for this assessment
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn-modal-close" onclick="closeAnswerSheetModal()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Student KPI Summary Bar inside Modal -->
+            <div class="answer-sheet-summary-bar">
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Exam:</span>
+                    <strong class="stat-val" id="ansModalExamTitle">Assessment Exam</strong>
+                </div>
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Score:</span>
+                    <strong class="stat-val" id="ansModalScore">0%</strong>
+                </div>
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Result:</span>
+                    <span class="badge" id="ansModalResultBadge" style="padding: 0.35rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem;">PASSED</span>
+                </div>
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Correct:</span>
+                    <strong class="stat-val text-success" id="ansModalCorrectCount">0</strong>
+                </div>
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Wrong/Skipped:</span>
+                    <strong class="stat-val text-danger" id="ansModalWrongCount">0</strong>
+                </div>
+                <div class="summary-stat-pill">
+                    <span class="stat-lbl">Date:</span>
+                    <strong class="stat-val" id="ansModalDate">-</strong>
+                </div>
+            </div>
+
+            <!-- Modal Body (Question list) -->
+            <div class="answer-sheet-modal-body" id="answerSheetModalBody">
+                <div style="text-align: center; padding: 3rem 1rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i>
+                    <p style="color: #6B7280; margin-top: 0.75rem; font-weight: 600;">Loading student answer sheet...</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="answer-sheet-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAnswerSheetModal()" style="border-radius: 10px; font-weight: 600; padding: 0.5rem 1.25rem;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function applyAttemptsFilterSort(val) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('filterSort', val);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
+        async function openAnswerSheet(attemptId) {
+            const modal = document.getElementById('answerSheetModal');
+            const body = document.getElementById('answerSheetModalBody');
+            if (!modal || !body) return;
+
+            modal.style.display = 'flex';
+            body.innerHTML = '<div style="text-align: center; padding: 3rem 1rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6;"></i><p style="color: #6B7280; margin-top: 0.75rem; font-weight: 600;">Loading student answer sheet...</p></div>';
+
+            try {
+                const response = await fetch('/vendor/api/attempts/' + attemptId + '/answers');
+                if (!response.ok) {
+                    throw new Error('Failed to load answer sheet (HTTP ' + response.status + ')');
+                }
+                const data = await response.json();
+
+                // Set headers
+                document.getElementById('ansModalStudentName').textContent = (data.studentName || 'Student') + ' - Answer Sheet';
+                document.getElementById('ansModalSubTitle').textContent = 'Email: ' + (data.studentEmail || 'N/A') + ' • Attempt #' + (attemptId || '1');
+                document.getElementById('ansModalExamTitle').textContent = data.examTitle || 'Assessment';
+                document.getElementById('ansModalScore').textContent = data.score + '%';
+                document.getElementById('ansModalCorrectCount').textContent = data.correctCount || 0;
+                document.getElementById('ansModalWrongCount').textContent = data.wrongCount || 0;
+                document.getElementById('ansModalDate').textContent = data.attemptDate || 'N/A';
+
+                const badge = document.getElementById('ansModalResultBadge');
+                if (data.isPassed) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'PASSED';
+                } else {
+                    badge.className = 'badge bg-danger';
+                    badge.textContent = 'FAILED';
+                }
+
+                // Render questions
+                if (!data.answers || data.answers.length === 0) {
+                    body.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #64748B;"><i class="fas fa-info-circle" style="font-size: 2rem; color: #8B5CF6; margin-bottom: 0.75rem;"></i><p>No detailed answers recorded for this attempt.</p></div>';
+                    return;
+                }
+
+                let cardsHtml = '';
+                data.answers.forEach((q, idx) => {
+                    const isCorrect = Boolean(q.isCorrect);
+                    const cardClass = isCorrect ? 'correct-card' : 'wrong-card';
+                    const badgeClass = isCorrect ? 'correct' : 'wrong';
+                    const badgeText = isCorrect ? '<i class="fas fa-check-circle me-1"></i> CORRECT (+1)' : '<i class="fas fa-times-circle me-1"></i> INCORRECT (0)';
+                    const userAns = (q.selectedAnswer || 'Unanswered').toUpperCase().trim();
+                    const correctAns = (q.correctAnswer || '').toUpperCase().trim();
+
+                    const optA = q.optionA || 'Option A';
+                    const optB = q.optionB || 'Option B';
+                    const optC = q.optionC || 'Option C';
+                    const optD = q.optionD || 'Option D';
+
+                    function getOptClass(optLetter) {
+                        if (userAns === optLetter) {
+                            return isCorrect ? 'user-correct' : 'user-wrong';
+                        }
+                        if (!isCorrect && correctAns === optLetter) {
+                            return 'correct-answer-hint';
+                        }
+                        return '';
+                    }
+
+                    function getOptPill(optLetter) {
+                        if (userAns === optLetter) {
+                            return isCorrect 
+                                ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i> Student Answered</span>'
+                                : '<span class="badge bg-danger"><i class="fas fa-times me-1"></i> Student Answered</span>';
+                        }
+                        if (!isCorrect && correctAns === optLetter) {
+                            return '<span class="badge bg-success" style="opacity: 0.85;"><i class="fas fa-check-double me-1"></i> Correct Answer</span>';
+                        }
+                        return '';
+                    }
+
+                    cardsHtml += `
+                        <div class="ans-question-card ${cardClass}">
+                            <div class="ans-q-header">
+                                <div class="ans-q-title">
+                                    <span style="color: #8B5CF6; font-weight: 800;">Q${idx + 1}.</span> ${escapeHtml(q.question || '')}
+                                </div>
+                                <span class="ans-q-badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="ans-options-list">
+                                <div class="ans-opt-item ${getOptClass('A')}">
+                                    <span><strong>A.</strong> ${escapeHtml(optA)}</span>
+                                    ${getOptPill('A')}
+                                </div>
+                                <div class="ans-opt-item ${getOptClass('B')}">
+                                    <span><strong>B.</strong> ${escapeHtml(optB)}</span>
+                                    ${getOptPill('B')}
+                                </div>
+                                <div class="ans-opt-item ${getOptClass('C')}">
+                                    <span><strong>C.</strong> ${escapeHtml(optC)}</span>
+                                    ${getOptPill('C')}
+                                </div>
+                                <div class="ans-opt-item ${getOptClass('D')}">
+                                    <span><strong>D.</strong> ${escapeHtml(optD)}</span>
+                                    ${getOptPill('D')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                body.innerHTML = cardsHtml;
+
+            } catch (err) {
+                body.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #EF4444;"><i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 0.75rem;"></i><p>' + escapeHtml(err.message || 'Error loading answer sheet') + '</p></div>';
+            }
+        }
+
+        function closeAnswerSheetModal(e) {
+            if (!e || e.target.id === 'answerSheetModal' || e.target.closest('.btn-modal-close') || e.target.closest('.answer-sheet-modal-footer button')) {
+                const modal = document.getElementById('answerSheetModal');
+                if (modal) modal.style.display = 'none';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
     </script>
 </body>
 

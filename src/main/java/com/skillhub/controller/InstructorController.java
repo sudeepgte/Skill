@@ -9,6 +9,8 @@ import com.skillhub.service.FileStorageService;
 import com.skillhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.function.Predicate;
@@ -234,8 +237,8 @@ public class InstructorController {
             model.addAttribute("questionsEndItem", qEnd);
             model.addAttribute("questionsPageNumbers", questionsPageNumbers);
         } else if ("students".equals(tab)) {
-            List<Enrollment> enrollments = enrollmentRepository.findByInstructorEmail(email);
-            for (Enrollment enrollment : enrollments) {
+            List<Enrollment> allEnrollments = enrollmentRepository.findByInstructorEmail(email);
+            for (Enrollment enrollment : allEnrollments) {
                 long total = lectureProgressRepository.countTotalLecturesByCourse(enrollment.getCourse().getId());
                 double lectureBasedPct = 0.0;
                 if (total > 0) {
@@ -246,20 +249,32 @@ public class InstructorController {
                 double storedPct = enrollment.getProgressPercentage();
                 enrollment.setProgressPercentage(Math.max(lectureBasedPct, storedPct));
             }
-            model.addAttribute("enrollments", enrollments);
 
-            List<ExamAttempt> examAttempts = examAttemptRepository.findByInstructorEmail(email);
-            examAttempts.sort((a, b) -> b.getAttemptDate().compareTo(a.getAttemptDate()));
+            int totalStudentsCount = allEnrollments.size();
+            int pageSize = (size > 0) ? size : 10;
+            int studentsTotalPages = (int) Math.ceil((double) totalStudentsCount / pageSize);
+            if (studentsTotalPages < 1) studentsTotalPages = 1;
+            int sPage = page;
+            if (sPage < 1) sPage = 1;
+            if (sPage > studentsTotalPages && totalStudentsCount > 0) sPage = studentsTotalPages;
+            int sStart = Math.min((sPage - 1) * pageSize, totalStudentsCount);
+            int sEnd = Math.min(sStart + pageSize, totalStudentsCount);
+            List<Enrollment> pagedEnrollments = (totalStudentsCount > 0) ? allEnrollments.subList(sStart, sEnd) : Collections.emptyList();
 
-            List<Map<String, Object>> examSubmissions = new ArrayList<>();
-            for (ExamAttempt attempt : examAttempts) {
-                Map<String, Object> submission = new HashMap<>();
-                submission.put("attempt", attempt);
-                Enrollment enrollment = enrollmentRepository.findByStudentAndCourse(attempt.getUser(), attempt.getCourse()).orElse(null);
-                submission.put("enrollment", enrollment);
-                examSubmissions.add(submission);
+            List<Integer> studentsPageNumbers = new ArrayList<>();
+            for (int i = 1; i <= studentsTotalPages; i++) {
+                studentsPageNumbers.add(i);
             }
-            model.addAttribute("examSubmissions", examSubmissions);
+
+            model.addAttribute("enrollments", pagedEnrollments);
+            model.addAttribute("allEnrollments", allEnrollments);
+            model.addAttribute("studentsCurrentPage", sPage);
+            model.addAttribute("studentsTotalPages", studentsTotalPages);
+            model.addAttribute("studentsTotalItems", totalStudentsCount);
+            model.addAttribute("studentsPageSize", pageSize);
+            model.addAttribute("studentsStartItem", totalStudentsCount > 0 ? (sStart + 1) : 0);
+            model.addAttribute("studentsEndItem", sEnd);
+            model.addAttribute("studentsPageNumbers", studentsPageNumbers);
         } else if ("analytics".equals(tab)) {
             List<Enrollment> allEnrollments = enrollmentRepository.findByInstructorEmail(email);
             List<Enrollment> passedExams = new ArrayList<>();
@@ -668,6 +683,9 @@ public class InstructorController {
                                         return isNew ? "redirect:/vendor/courses/create" : "redirect:/vendor/courses/" + targetCourse.getId() + "/edit";
                                     }
                                     lecture.setVideoUrl(fileStorageService.store(lecture.getVideoFile()));
+                                } else if ((lecture.getVideoUrl() == null || lecture.getVideoUrl().trim().isEmpty()) && (isNew || "submit".equalsIgnoreCase(action))) {
+                                    redirectAttributes.addFlashAttribute("error", "Video File Upload (.mp4) is required for lecture: " + lecture.getTitle());
+                                    return isNew ? "redirect:/vendor/courses/create" : "redirect:/vendor/courses/" + targetCourse.getId() + "/edit";
                                 }
                                 lecture.setSection(section);
                                 validLectures.add(lecture);
@@ -1292,11 +1310,12 @@ public class InstructorController {
         return "redirect:/vendor/exams";
     }
 
-    /** Dedicated Page: View exam attempts, student scores, and history with pagination */
+    /** Dedicated Page: View exam attempts, student scores, and history with pagination & result filter/sort */
     @GetMapping("/exams/{id}/attempts")
     public String viewExamAttempts(@PathVariable("id") Long id,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "filterSort", defaultValue = "all") String filterSort,
             Model model, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
@@ -1320,9 +1339,11 @@ public class InstructorController {
 
         if (allAttempts == null) {
             allAttempts = new ArrayList<>();
+        } else {
+            allAttempts = new ArrayList<>(allAttempts);
         }
 
-        // Calculate attempt sequence number per user
+        // Calculate attempt sequence number per user before filtering
         List<ExamAttempt> chronoAttempts = new ArrayList<>(allAttempts);
         chronoAttempts.sort(Comparator.comparing(ExamAttempt::getAttemptDate, Comparator.nullsLast(Comparator.naturalOrder())));
         Map<Long, Integer> attemptNumberMap = new HashMap<>();
@@ -1351,12 +1372,24 @@ public class InstructorController {
         double passRate = (totalAttempts > 0) ? ((double) passedCount / totalAttempts * 100.0) : 0.0;
         double avgScore = (totalAttempts > 0) ? ((double) totalScoreSum / totalAttempts) : 0.0;
 
+        // Apply Result filter / sort
+        if ("pass".equalsIgnoreCase(filterSort)) {
+            allAttempts = allAttempts.stream().filter(ExamAttempt::isPassed).collect(Collectors.toList());
+        } else if ("fail".equalsIgnoreCase(filterSort)) {
+            allAttempts = allAttempts.stream().filter(a -> !a.isPassed()).collect(Collectors.toList());
+        } else if ("highest".equalsIgnoreCase(filterSort)) {
+            allAttempts.sort((a, b) -> Integer.compare(b.getScore(), a.getScore()));
+        } else if ("lowest".equalsIgnoreCase(filterSort)) {
+            allAttempts.sort((a, b) -> Integer.compare(a.getScore(), b.getScore()));
+        }
+
+        int filteredTotal = allAttempts.size();
         int pageSize = (size > 0) ? size : 10;
-        int totalPages = Math.max(1, (int) Math.ceil((double) totalAttempts / pageSize));
+        int totalPages = Math.max(1, (int) Math.ceil((double) filteredTotal / pageSize));
         int curPage = Math.max(1, Math.min(page, totalPages));
-        int startIdx = Math.min((curPage - 1) * pageSize, totalAttempts);
-        int endIdx = Math.min(startIdx + pageSize, totalAttempts);
-        List<ExamAttempt> pagedAttempts = (totalAttempts > 0) ? allAttempts.subList(startIdx, endIdx) : Collections.emptyList();
+        int startIdx = Math.min((curPage - 1) * pageSize, filteredTotal);
+        int endIdx = Math.min(startIdx + pageSize, filteredTotal);
+        List<ExamAttempt> pagedAttempts = (filteredTotal > 0) ? allAttempts.subList(startIdx, endIdx) : Collections.emptyList();
         List<Integer> pageNumbers = new ArrayList<>();
         for (int i = 1; i <= totalPages; i++) {
             pageNumbers.add(i);
@@ -1372,6 +1405,7 @@ public class InstructorController {
         model.addAttribute("allAttempts", allAttempts);
         model.addAttribute("attemptNumberMap", attemptNumberMap);
         model.addAttribute("totalAttempts", totalAttempts);
+        model.addAttribute("filteredTotal", filteredTotal);
         model.addAttribute("uniqueStudentCount", uniqueStudents.size());
         model.addAttribute("passedCount", passedCount);
         model.addAttribute("passRate", Math.round(passRate));
@@ -1379,10 +1413,91 @@ public class InstructorController {
         model.addAttribute("currentPage", curPage);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageSize", pageSize);
-        model.addAttribute("startItem", totalAttempts > 0 ? (startIdx + 1) : 0);
+        model.addAttribute("filterSort", filterSort);
+        model.addAttribute("startItem", filteredTotal > 0 ? (startIdx + 1) : 0);
         model.addAttribute("endItem", endIdx);
         model.addAttribute("pageNumbers", pageNumbers);
         return "instructor/exam_attempts";
+    }
+
+    /** REST endpoint – Get detailed Answer Sheet for a student's attempt */
+    @GetMapping("/api/attempts/{attemptId}/answers")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAttemptAnswerSheet(@PathVariable("attemptId") Long attemptId, Principal principal) {
+        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        ExamAttempt attempt = examAttemptRepository.findById(attemptId).orElse(null);
+        if (attempt == null) return ResponseEntity.notFound().build();
+
+        Course course = attempt.getCourse();
+        if (course == null && attempt.getExam() != null) {
+            course = attempt.getExam().getCourse();
+        }
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("success", true);
+        resp.put("attemptId", attempt.getId());
+        resp.put("studentName", attempt.getUser() != null ? attempt.getUser().getName() : "Student");
+        resp.put("studentEmail", attempt.getUser() != null ? attempt.getUser().getEmail() : "");
+        resp.put("score", attempt.getScore());
+        resp.put("isPassed", attempt.isPassed());
+        resp.put("attemptDate", attempt.getAttemptDate() != null ? attempt.getAttemptDate().format(DateTimeFormatter.ofPattern("MMM dd, yyyy, hh:mm a")) : "N/A");
+        resp.put("examTitle", attempt.getExam() != null ? attempt.getExam().getTitle() : (course != null ? course.getTitle() : "Assessment Exam"));
+
+        List<Map<String, Object>> answers = new ArrayList<>();
+        String detailsJson = attempt.getSubmissionDetails();
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (detailsJson != null && !detailsJson.trim().isEmpty() && !detailsJson.trim().equals("[]")) {
+            try {
+                answers = mapper.readValue(detailsJson, new TypeReference<List<Map<String, Object>>>() {});
+            } catch (Exception ignored) {}
+        }
+
+        List<ExamQuestion> qList = (attempt.getExam() != null && attempt.getExam().getExamQuestions() != null && !attempt.getExam().getExamQuestions().isEmpty())
+                ? attempt.getExam().getExamQuestions()
+                : (course != null ? course.getExamQuestions() : Collections.emptyList());
+
+        if (answers.isEmpty() && qList != null && !qList.isEmpty()) {
+            for (ExamQuestion q : qList) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("question", q.getQuestionText());
+                item.put("optionA", q.getOptionA());
+                item.put("optionB", q.getOptionB());
+                item.put("optionC", q.getOptionC());
+                item.put("optionD", q.getOptionD());
+                item.put("correctAnswer", q.getCorrectOption());
+                item.put("selectedAnswer", "Unanswered");
+                item.put("isCorrect", false);
+                answers.add(item);
+            }
+        } else if (qList != null && !qList.isEmpty()) {
+            for (Map<String, Object> ans : answers) {
+                String qText = (String) ans.get("question");
+                if (qText != null) {
+                    for (ExamQuestion eq : qList) {
+                        if (qText.trim().equalsIgnoreCase(eq.getQuestionText().trim())) {
+                            ans.putIfAbsent("optionA", eq.getOptionA());
+                            ans.putIfAbsent("optionB", eq.getOptionB());
+                            ans.putIfAbsent("optionC", eq.getOptionC());
+                            ans.putIfAbsent("optionD", eq.getOptionD());
+                            ans.putIfAbsent("correctAnswer", eq.getCorrectOption());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        int totalQ = answers.size();
+        long correctQ = answers.stream().filter(a -> Boolean.TRUE.equals(a.get("isCorrect"))).count();
+        long wrongQ = totalQ - correctQ;
+
+        resp.put("totalQuestions", totalQ);
+        resp.put("correctCount", correctQ);
+        resp.put("wrongCount", wrongQ);
+        resp.put("answers", answers);
+
+        return ResponseEntity.ok(resp);
     }
 
     /** REST endpoint â€“ returns question counts for each course (JSON) */
