@@ -1621,6 +1621,145 @@
             background-color: #EF4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
         }
+
+        /* ══ VIEW ENROLLED STUDENTS BUTTON ══ */
+        .btn-view-students {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #6d28d9;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-view-students:hover {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(139, 92, 246, 0.25);
+        }
+
+        /* ══ VENDOR PAGINATION STYLING ══ */
+        .vendor-pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(46, 16, 101, 0.04);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .vendor-pagination-info {
+            font-size: 0.92rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .vendor-pagination-info span {
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+
+        .vendor-pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vendor-page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.95rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #6d28d9;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .vendor-page-btn:hover:not(.disabled) {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+        }
+
+        .vendor-page-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .vendor-page-numbers {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .vendor-page-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #4b5563;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .vendor-page-num:hover:not(.active) {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #c4b5fd;
+        }
+
+        .vendor-page-num.active {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #ffffff !important;
+            border-color: #7c3aed;
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+        }
+
+        @media (max-width: 576px) {
+            .vendor-pagination-bar {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .vendor-pagination-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 
@@ -1757,6 +1896,63 @@
                 </div>
             </div>
 
+            <!-- 2b. Enrolled Students Details Modal -->
+            <div id="enrolledUsersModal" class="neat-popup-backdrop" style="display: none;" onclick="closeEnrolledUsersModal(event)">
+                <div class="neat-popup-card" style="max-width: 760px; width: 94%; padding: 2rem; border-radius: 20px; max-height: 85vh; display: flex; flex-direction: column;" onclick="event.stopPropagation()">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; border-bottom: 1px solid #EDE9FE; padding-bottom: 1rem;">
+                        <div>
+                            <h3 style="font-size: 1.35rem; font-weight: 800; color: #2E1065; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.6rem;">
+                                <i class="fas fa-users" style="color: #8B5CF6;"></i> Enrolled Students
+                            </h3>
+                            <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 0;">
+                                Course: <strong id="modalCourseTitleDisplay" style="color: #7C3AED;">Course Title</strong>
+                                <span id="modalEnrollmentBadge" class="badge ms-2" style="background: #EDE9FE; color: #6D28D9; font-size: 0.8rem; font-weight: 700; padding: 0.35rem 0.65rem; border-radius: 6px;">0 Enrolled</span>
+                            </p>
+                        </div>
+                        <button type="button" class="neat-popup-close-btn" onclick="closeEnrolledUsersModal()" title="Close" style="position: static;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div id="enrolledUsersModalBody" style="overflow-y: auto; flex: 1; min-height: 180px;">
+                        <div id="modalLoadingSpinner" style="text-align: center; padding: 3rem 1rem; display: none;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8B5CF6; margin-bottom: 0.75rem;"></i>
+                            <p style="color: #64748B; font-size: 0.9rem;">Loading enrolled students...</p>
+                        </div>
+
+                        <div id="modalEmptyState" style="text-align: center; padding: 3rem 1rem; display: none;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: #F5F3FF; color: #8B5CF6; display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1rem;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h4 style="font-size: 1.1rem; font-weight: 700; color: #1E1B4B; margin-bottom: 0.35rem;">No Students Enrolled Yet</h4>
+                            <p style="color: #64748B; font-size: 0.88rem; max-width: 360px; margin: 0 auto;">No students have registered for this course yet.</p>
+                        </div>
+
+                        <div id="modalTableWrap" style="overflow-x: auto; display: none;">
+                            <table class="vendor-table" style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #EDE9FE; background: #FAF5FF;">
+                                        <th style="padding: 0.75rem 1rem; font-size: 0.8rem; color: #64748B; text-transform: uppercase;">Student</th>
+                                        <th style="padding: 0.75rem 1rem; font-size: 0.8rem; color: #64748B; text-transform: uppercase;">Email</th>
+                                        <th style="padding: 0.75rem 1rem; font-size: 0.8rem; color: #64748B; text-transform: uppercase;">Enrolled On</th>
+                                        <th style="padding: 0.75rem 1rem; font-size: 0.8rem; color: #64748B; text-transform: uppercase;">Progress</th>
+                                        <th style="padding: 0.75rem 1rem; font-size: 0.8rem; color: #64748B; text-transform: uppercase;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="enrolledUsersTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #EDE9FE;">
+                        <button type="button" class="neat-popup-btn neat-popup-btn-primary" onclick="closeEnrolledUsersModal()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 3. Delete Course Confirmation Popup Modal (Replaces browser confirm alert) -->
             <div id="deleteCourseConfirmModal" class="neat-popup-backdrop" style="display: none;" onclick="closeDeleteCourseModal(event)">
                 <div class="neat-popup-card" onclick="event.stopPropagation()">
@@ -1875,14 +2071,45 @@
                     </div>
                 </div>
 
+                <!-- Upside Pagination Bar for Courses with Per-Page Dropdown (10, 20, 30) -->
+                <div class="vendor-pagination-bar" id="coursesPaginationBar">
+                    <div style="display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+                        <div class="vendor-pagination-info" id="coursesPaginationInfo">
+                            Showing <span class="fw-bold" id="coursesStart">1</span> to 
+                            <span class="fw-bold" id="coursesEnd">10</span> of 
+                            <span class="fw-bold" id="coursesTotal">0</span> courses
+                        </div>
+                        <div class="courses-per-page-wrap" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: #4B5563;">
+                            <label for="coursesPageSizeSelect" style="margin-bottom: 0; font-weight: 600;">Per page:</label>
+                            <select id="coursesPageSizeSelect" class="form-select form-select-sm" style="width: auto; padding: 0.25rem 1.75rem 0.25rem 0.65rem; font-size: 0.85rem; font-weight: 600; border-radius: 8px; border-color: #DDD6FE; color: #6D28D9; background-color: #F5F3FF; cursor: pointer;" onchange="changeCoursesPageSize(this.value)">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vendor-pagination-controls" id="coursesPaginationControls">
+                        <button type="button" class="vendor-page-btn disabled" disabled id="coursesPrevBtn">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </button>
+                        <div class="vendor-page-numbers" id="coursesPageNumbers">
+                            <button type="button" class="vendor-page-num active" data-page="1">1</button>
+                        </div>
+                        <button type="button" class="vendor-page-btn disabled" disabled id="coursesNextBtn">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="vendor-table-wrap">
-                    <table class="vendor-table">
+                    <table class="vendor-table" id="instructorCoursesTable">
                         <thead>
                             <tr>
                                 <th>Course</th>
                                 <th>Category</th>
                                 <th>Status</th>
                                 <th>Enrollments</th>
+                                <th>Enrolled Users</th>
                                 <th>Rating</th>
                                 <th>Actions</th>
                             </tr>
@@ -1932,7 +2159,22 @@
                                         <span>Unknown</span>
                                     </span>
                                 </td>
-                                <td th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</td>
+                                <!-- Enrollments Count Column -->
+                                <td>
+                                    <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-size: 0.85rem; font-weight: 700; padding: 0.4rem 0.75rem; border-radius: 8px;">
+                                        <i class="fas fa-user-graduate me-1"></i>
+                                        <span th:text="${course.enrollments != null ? course.enrollments.size() : 0}">0</span>
+                                    </span>
+                                </td>
+
+                                <!-- Enrolled Users View Column -->
+                                <td>
+                                    <a th:href="@{/vendor/courses/{id}/students(id=${course.id})}"
+                                       class="btn-view-students"
+                                       title="View Enrolled Students">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                </td>
                                 <td>
                                     <div class="rating-stars">
                                         <i class="fas fa-star stars-icon" style="color:#f59e0b;"></i>
@@ -1955,11 +2197,7 @@
                                         </form>
 
                                         <!-- Preview published course -->
-                                        <a th:if="${course.status == T(com.skillhub.model.CourseStatus).PUBLISHED}"
-                                           th:href="@{/course/{id}(id=${course.id})}" target="_blank" class="btn-icon" title="View Course in Catalog">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </a>
-
+                                      
                                         <form th:id="'deleteCourseForm_' + ${course.id}" th:action="@{/vendor/courses/{id}/delete(id=${course.id})}" method="post" style="display:inline;">
                                             <button type="button" class="btn-icon delete" title="Delete Course"
                                                     th:data-course-id="${course.id}" th:data-course-title="${course.title}" onclick="openDeleteCourseModal(this.getAttribute('data-course-id'), this.getAttribute('data-course-title'))"
@@ -2219,11 +2457,50 @@
 
             <!-- Profile Tab (if selected) -->
             <div class="vendor-panel" th:if="${activeTab == 'reviews'}">
-                <div class="panel-header">
+                <div class="panel-header" style="margin-bottom: 1.25rem;">
                     <h2>Student Reviews</h2>
                 </div>
+
+                <!-- Neatly Placed Upside Pagination Bar -->
+                <div class="vendor-pagination-bar" id="reviewsPaginationBar" th:if="${reviews != null and !#lists.isEmpty(reviews)}">
+                    <div class="vendor-pagination-info" id="reviewsPaginationInfo">
+                        Showing <span class="fw-bold" id="reviewsStart" th:text="${reviewsStartItem != null ? reviewsStartItem : 1}">1</span> to 
+                        <span class="fw-bold" id="reviewsEnd" th:text="${reviewsEndItem != null ? reviewsEndItem : (reviews != null ? #lists.size(reviews) : 1)}">1</span> of 
+                        <span class="fw-bold" id="reviewsTotal" th:text="${reviewsTotalItems != null ? reviewsTotalItems : (reviews != null ? #lists.size(reviews) : 1)}">1</span> reviews
+                    </div>
+                    <div class="vendor-pagination-controls" id="reviewsPaginationControls">
+                        <a th:href="@{/vendor/dashboard(tab='reviews', page=${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) - 1}, size=10)}"
+                           class="vendor-page-btn" id="reviewsPrevBtn"
+                           th:classappend="${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) <= 1} ? ' disabled' : ''"
+                           th:aria-disabled="${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) <= 1}">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                        
+                        <div class="vendor-page-numbers" id="reviewsPageNumbers">
+                            <th:block th:if="${reviewsPageNumbers != null and #lists.size(reviewsPageNumbers) > 0}">
+                                <th:block th:each="p : ${reviewsPageNumbers}">
+                                    <a th:href="@{/vendor/dashboard(tab='reviews', page=${p}, size=10)}"
+                                       class="vendor-page-num"
+                                       th:classappend="${p == (reviewsCurrentPage != null ? reviewsCurrentPage : 1)} ? ' active' : ''"
+                                       th:text="${p}">1</a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${reviewsPageNumbers == null or #lists.size(reviewsPageNumbers) == 0}">
+                                <span class="vendor-page-num active">1</span>
+                            </th:block>
+                        </div>
+
+                        <a th:href="@{/vendor/dashboard(tab='reviews', page=${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) + 1}, size=10)}"
+                           class="vendor-page-btn" id="reviewsNextBtn"
+                           th:classappend="${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) >= (reviewsTotalPages != null ? reviewsTotalPages : 1)} ? ' disabled' : ''"
+                           th:aria-disabled="${(reviewsCurrentPage != null ? reviewsCurrentPage : 1) >= (reviewsTotalPages != null ? reviewsTotalPages : 1)}">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <div class="vendor-table-wrap">
-                    <table class="vendor-table">
+                    <table class="vendor-table" id="instructorReviewsTable">
                         <thead>
                             <tr>
                                 <th>Student</th>
@@ -2234,7 +2511,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="review : ${reviews}">
+                            <tr th:each="review : ${reviews}" class="review-row">
                                 <td>
                                     <div class="course-info">
                                         <div class="course-title-wrap">
@@ -2252,6 +2529,7 @@
                                 <td><p th:text="${review.comment}" style="max-width: 300px; white-space: normal;"></p></td>
                                 <td>
                                     <form th:action="@{/vendor/reviews/{id}/reply(id=${review.id})}" method="post" style="display:flex; gap:10px;">
+                                        <input type="hidden" name="page" th:value="${reviewsCurrentPage != null ? reviewsCurrentPage : 1}" />
                                         <input type="text" name="reply" placeholder="Type a reply..." th:value="${review.reply}" style="flex:1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px;" required>
                                         <button type="submit" class="btn-new-course" style="padding: 5px 10px; font-size: 0.9rem;">Reply</button>
                                     </form>
@@ -2269,11 +2547,50 @@
             </div>
 
             <div class="vendor-panel" th:if="${activeTab == 'questions'}">
-                <div class="panel-header">
+                <div class="panel-header" style="margin-bottom: 1.25rem;">
                     <h2>Student Questions</h2>
                 </div>
+
+                <!-- Neatly Placed Upside Pagination Bar -->
+                <div class="vendor-pagination-bar" id="questionsPaginationBar" th:if="${questions != null and !#lists.isEmpty(questions)}">
+                    <div class="vendor-pagination-info" id="questionsPaginationInfo">
+                        Showing <span class="fw-bold" id="questionsStart" th:text="${questionsStartItem != null ? questionsStartItem : 1}">1</span> to 
+                        <span class="fw-bold" id="questionsEnd" th:text="${questionsEndItem != null ? questionsEndItem : (questions != null ? #lists.size(questions) : 1)}">1</span> of 
+                        <span class="fw-bold" id="questionsTotal" th:text="${questionsTotalItems != null ? questionsTotalItems : (questions != null ? #lists.size(questions) : 1)}">1</span> questions
+                    </div>
+                    <div class="vendor-pagination-controls" id="questionsPaginationControls">
+                        <a th:href="@{/vendor/dashboard(tab='questions', page=${(questionsCurrentPage != null ? questionsCurrentPage : 1) - 1}, size=10)}"
+                           class="vendor-page-btn" id="questionsPrevBtn"
+                           th:classappend="${(questionsCurrentPage != null ? questionsCurrentPage : 1) <= 1} ? ' disabled' : ''"
+                           th:aria-disabled="${(questionsCurrentPage != null ? questionsCurrentPage : 1) <= 1}">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                        
+                        <div class="vendor-page-numbers" id="questionsPageNumbers">
+                            <th:block th:if="${questionsPageNumbers != null and #lists.size(questionsPageNumbers) > 0}">
+                                <th:block th:each="p : ${questionsPageNumbers}">
+                                    <a th:href="@{/vendor/dashboard(tab='questions', page=${p}, size=10)}"
+                                       class="vendor-page-num"
+                                       th:classappend="${p == (questionsCurrentPage != null ? questionsCurrentPage : 1)} ? ' active' : ''"
+                                       th:text="${p}">1</a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${questionsPageNumbers == null or #lists.size(questionsPageNumbers) == 0}">
+                                <span class="vendor-page-num active">1</span>
+                            </th:block>
+                        </div>
+
+                        <a th:href="@{/vendor/dashboard(tab='questions', page=${(questionsCurrentPage != null ? questionsCurrentPage : 1) + 1}, size=10)}"
+                           class="vendor-page-btn" id="questionsNextBtn"
+                           th:classappend="${(questionsCurrentPage != null ? questionsCurrentPage : 1) >= (questionsTotalPages != null ? questionsTotalPages : 1)} ? ' disabled' : ''"
+                           th:aria-disabled="${(questionsCurrentPage != null ? questionsCurrentPage : 1) >= (questionsTotalPages != null ? questionsTotalPages : 1)}">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <div class="vendor-table-wrap">
-                    <table class="vendor-table">
+                    <table class="vendor-table" id="instructorQuestionsTable">
                         <thead>
                             <tr>
                                 <th>Student</th>
@@ -2283,7 +2600,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="question : ${questions}">
+                            <tr th:each="question : ${questions}" class="question-row">
                                 <td>
                                     <div class="course-info">
                                         <div class="course-title-wrap">
@@ -2305,6 +2622,7 @@
                                         </div>
                                     </div>
                                     <form th:action="@{/vendor/questions/{id}/reply(id=${question.id})}" method="post" style="display:flex; gap:10px;">
+                                        <input type="hidden" name="page" th:value="${questionsCurrentPage != null ? questionsCurrentPage : 1}" />
                                         <input type="text" name="content" placeholder="Type an answer..." style="flex:1; padding: 5px; border: 1px solid var(--border-color); border-radius: 4px;" required>
                                         <button type="submit" class="btn-new-course" style="padding: 5px 10px; font-size: 0.9rem;">Answer</button>
                                     </form>
@@ -2825,7 +3143,208 @@
                         }
 
                         // ── INITIALIZE ON LOAD ──
-                        document.addEventListener('DOMContentLoaded', function() {
+                        // ══ ENROLLED USERS MODAL LOGIC ══
+        function openEnrolledUsersModal(btn) {
+            const courseId = btn.getAttribute('data-course-id');
+            const courseTitle = btn.getAttribute('data-course-title');
+            const count = parseInt(btn.getAttribute('data-enrollment-count') || '0', 10);
+
+            const modal = document.getElementById('enrolledUsersModal');
+            const titleDisplay = document.getElementById('modalCourseTitleDisplay');
+            const badgeDisplay = document.getElementById('modalEnrollmentBadge');
+            const tableBody = document.getElementById('enrolledUsersTableBody');
+            const emptyState = document.getElementById('modalEmptyState');
+            const tableWrap = document.getElementById('modalTableWrap');
+            const spinner = document.getElementById('modalLoadingSpinner');
+
+            if (!modal) return;
+            titleDisplay.textContent = courseTitle || 'Course';
+            badgeDisplay.textContent = count + ' Enrolled';
+            tableBody.innerHTML = '';
+            modal.style.display = 'flex';
+
+            // 1. First check embedded payload in current row for instant display
+            const row = btn.closest('tr');
+            const items = row ? Array.from(row.querySelectorAll('.enrolled-students-payload .student-item')) : [];
+
+            function renderStudentsList(list) {
+                spinner.style.display = 'none';
+                if (!list || list.length === 0) {
+                    emptyState.style.display = 'block';
+                    tableWrap.style.display = 'none';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                tableWrap.style.display = 'block';
+
+                let htmlRows = '';
+                list.forEach(s => {
+                    const progressVal = parseInt(s.progress || 0, 10);
+                    const isPassed = s.examPassed === true || s.examPassed === 'true';
+                    htmlRows += `
+                        <tr style="border-bottom: 1px solid #F3F4F6;">
+                            <td style="padding: 0.9rem 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                        ${(s.name || 'U').charAt(0).toUpperCase()}
+                                    </div>
+                                    <span style="font-weight: 600; color: #1E1B4B;">${s.name || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 0.9rem 1rem; color: #4B5563; font-size: 0.88rem;">${s.email || 'N/A'}</td>
+                            <td style="padding: 0.9rem 1rem; color: #64748B; font-size: 0.85rem;">${s.enrolledAt || s.enrolled || 'N/A'}</td>
+                            <td style="padding: 0.9rem 1rem; min-width: 140px;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="flex: 1; height: 7px; background: #E5E7EB; border-radius: 999px; overflow: hidden;">
+                                        <div style="width: ${progressVal}%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #10B981); border-radius: 999px;"></div>
+                                    </div>
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #4B5563;">${progressVal}%</span>
+                                </div>
+                            </td>
+                            <td style="padding: 0.9rem 1rem;">
+                                ${isPassed ? 
+                                    '<span class="badge" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-check-circle me-1"></i> Passed</span>' : 
+                                    '<span class="badge" style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-spinner me-1"></i> In Progress</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                tableBody.innerHTML = htmlRows;
+            }
+
+            if (items.length > 0) {
+                const list = items.map(el => ({
+                    name: el.getAttribute('data-name'),
+                    email: el.getAttribute('data-email'),
+                    enrolled: el.getAttribute('data-enrolled'),
+                    progress: el.getAttribute('data-progress'),
+                    examPassed: el.getAttribute('data-passed')
+                }));
+                renderStudentsList(list);
+            } else if (count === 0) {
+                renderStudentsList([]);
+            } else {
+                spinner.style.display = 'block';
+                emptyState.style.display = 'none';
+                tableWrap.style.display = 'none';
+            }
+
+            // Always try fetching fresh data from backend
+            fetch('/vendor/api/courses/' + courseId + '/students')
+                .then(res => res.ok ? res.json() : Promise.reject())
+                .then(data => {
+                    renderStudentsList(data);
+                })
+                .catch(() => {
+                    if (items.length === 0 && count === 0) {
+                        renderStudentsList([]);
+                    }
+                });
+        }
+
+        function closeEnrolledUsersModal(event) {
+            if (event && event.target && event.target.id !== 'enrolledUsersModal' && !event.target.classList.contains('neat-popup-close-btn')) {
+                return;
+            }
+            const modal = document.getElementById('enrolledUsersModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // ══ COURSES TABLE PAGINATION (10, 20, 30 PER PAGE) ══
+        let coursesCurrentPage = 1;
+        let coursesPageSize = 10;
+
+        function changeCoursesPageSize(newSize) {
+            coursesPageSize = parseInt(newSize, 10) || 10;
+            renderCoursesPagination(1);
+        }
+
+        function renderCoursesPagination(targetPage) {
+            const table = document.getElementById('instructorCoursesTable');
+            const bar = document.getElementById('coursesPaginationBar');
+            if (!table || !bar) return;
+
+            // Get active status from filter buttons
+            const activeFilterBtn = document.querySelector('.course-filter-btn.active-all, .course-filter-btn.active-published, .course-filter-btn.active-pending, .course-filter-btn.active-draft, .course-filter-btn.active-rejected');
+            const activeStatus = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'ALL';
+
+            const allRows = Array.from(table.querySelectorAll('tbody tr.course-row'));
+            const matchingRows = allRows.filter(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                return (activeStatus === 'ALL' || rowStatus === activeStatus);
+            });
+
+            const total = matchingRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / coursesPageSize));
+            if (targetPage < 1) targetPage = 1;
+            if (targetPage > totalPages) targetPage = totalPages;
+            coursesCurrentPage = targetPage;
+
+            const start = (coursesCurrentPage - 1) * coursesPageSize;
+            const end = Math.min(start + coursesPageSize, total);
+
+            // Hide non-matching status rows completely
+            allRows.forEach(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                if (activeStatus !== 'ALL' && rowStatus !== activeStatus) {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Paginate matching rows
+            matchingRows.forEach((row, idx) => {
+                if (idx >= start && idx < end) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Update Info
+            const info = document.getElementById('coursesPaginationInfo');
+            if (info) {
+                info.innerHTML = 'Showing <span class="fw-bold">' + (total > 0 ? (start + 1) : 0) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + total + '</span> courses';
+            }
+
+            // Update Controls
+            const controls = document.getElementById('coursesPaginationControls');
+            if (controls) {
+                let html = '<button type="button" class="vendor-page-btn ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + '" ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + ' id="coursesPrevBtn"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
+                for (let i = 1; i <= totalPages; i++) {
+                    html += '<button type="button" class="vendor-page-num ' + (i === coursesCurrentPage ? 'active' : '') + '" data-p="' + i + '">' + i + '</button>';
+                }
+                html += '</div><button type="button" class="vendor-page-btn ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + '" ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + ' id="coursesNextBtn">Next <i class="fas fa-chevron-right ms-1"></i></button>';
+                controls.innerHTML = html;
+
+                const prevBtn = document.getElementById('coursesPrevBtn');
+                if (prevBtn && coursesCurrentPage > 1) {
+                    prevBtn.onclick = function(e) {
+                        e.preventDefault();
+                        renderCoursesPagination(coursesCurrentPage - 1);
+                    };
+                }
+
+                const nextBtn = document.getElementById('coursesNextBtn');
+                if (nextBtn && coursesCurrentPage < totalPages) {
+                    nextBtn.onclick = function(e) {
+                        e.preventDefault();
+                        renderCoursesPagination(coursesCurrentPage + 1);
+                    };
+                }
+
+                controls.querySelectorAll('.vendor-page-num').forEach(function(btn) {
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        const p = parseInt(btn.getAttribute('data-p'), 10);
+                        if (p !== coursesCurrentPage) {
+                            renderCoursesPagination(p);
+                        }
+                    };
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
                             loadStudentContacts();
                             connectInstructorWebSocket();
 
@@ -3742,6 +4261,11 @@
                 }
             });
 
+            // Re-run pagination with new filter
+            if (typeof renderCoursesPagination === 'function') {
+                renderCoursesPagination(1);
+            }
+
             // 3. Toggle empty state message
             const emptyRow = document.getElementById('noCoursesFilterRow');
             if (emptyRow) {
@@ -3887,6 +4411,91 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- Dynamic Table Pagination for Reviews & Questions (10 items per page) -->
+    <script>
+        function setupDynamicPagination(tableId, rowClass, barId, itemsLabel, defaultSize) {
+            defaultSize = defaultSize || 10;
+            const table = document.getElementById(tableId);
+            const bar = document.getElementById(barId);
+            if (!table || !bar) return;
+
+            const allRows = Array.from(table.querySelectorAll('tbody tr.' + rowClass));
+            if (allRows.length === 0) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            let curPage = parseInt(urlParams.get('page') || '1', 10);
+            const totalItems = allRows.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / defaultSize));
+            if (curPage < 1) curPage = 1;
+            if (curPage > totalPages) curPage = totalPages;
+
+            function renderPagination(p) {
+                curPage = p;
+                if (window.history && window.history.replaceState) {
+                    try {
+                        const u = new URL(window.location.href);
+                        u.searchParams.set("page", p);
+                        window.history.replaceState(null, "", u.toString());
+                    } catch(e) {}
+                }
+                const start = (p - 1) * defaultSize;
+                const end = Math.min(start + defaultSize, totalItems);
+
+                allRows.forEach((r, idx) => {
+                    r.style.display = (idx >= start && idx < end) ? '' : 'none';
+                });
+
+                const info = bar.querySelector('.vendor-pagination-info');
+                if (info) {
+                    info.innerHTML = 'Showing <span class="fw-bold">' + (totalItems > 0 ? (start + 1) : 0) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + totalItems + '</span> ' + itemsLabel;
+                }
+
+                const controls = bar.querySelector('.vendor-pagination-controls');
+                if (controls) {
+                    let html = '<button type="button" class="vendor-page-btn ' + (p <= 1 ? 'disabled' : '') + '" ' + (p <= 1 ? 'disabled' : '') + ' id="' + barId + '_prevBtn"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
+                    for (let i = 1; i <= totalPages; i++) {
+                        html += '<button type="button" class="vendor-page-num ' + (i === p ? 'active' : '') + '" data-page="' + i + '">' + i + '</button>';
+                    }
+                    html += '</div><button type="button" class="vendor-page-btn ' + (p >= totalPages ? 'disabled' : '') + '" ' + (p >= totalPages ? 'disabled' : '') + ' id="' + barId + '_nextBtn">Next <i class="fas fa-chevron-right ms-1"></i></button>';
+                    controls.innerHTML = html;
+
+                    const prevBtn = document.getElementById(barId + '_prevBtn');
+                    if (prevBtn && p > 1) {
+                        prevBtn.onclick = function(e) {
+                            e.preventDefault();
+                            renderPagination(curPage - 1);
+                        };
+                    }
+
+                    const nextBtn = document.getElementById(barId + '_nextBtn');
+                    if (nextBtn && p < totalPages) {
+                        nextBtn.onclick = function(e) {
+                            e.preventDefault();
+                            renderPagination(curPage + 1);
+                        };
+                    }
+
+                    controls.querySelectorAll('.vendor-page-num').forEach(function(btn) {
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            const target = parseInt(btn.getAttribute('data-page'), 10);
+                            if (target !== curPage) {
+                                renderPagination(target);
+                            }
+                        };
+                    });
+                }
+            }
+
+            renderPagination(curPage);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDynamicPagination('instructorReviewsTable', 'review-row', 'reviewsPaginationBar', 'reviews', 10);
+            setupDynamicPagination('instructorQuestionsTable', 'question-row', 'questionsPaginationBar', 'questions', 10);
         });
     </script>
 </body>

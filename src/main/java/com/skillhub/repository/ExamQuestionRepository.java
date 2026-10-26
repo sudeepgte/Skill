@@ -14,8 +14,15 @@ import java.util.List;
 public interface ExamQuestionRepository extends JpaRepository<ExamQuestion, Long> {
     List<ExamQuestion> findByCourseId(Long courseId);
 
+    List<ExamQuestion> findByExamId(Long examId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM ExamQuestion eq WHERE eq.course.id = :courseId")
     void deleteByCourseId(@Param("courseId") Long courseId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ExamQuestion eq WHERE eq.exam.id = :examId")
+    void deleteByExamId(@Param("examId") Long examId);
 }

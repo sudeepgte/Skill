@@ -669,6 +669,253 @@
             font-size: 1.85rem;
             margin-bottom: 1.25rem;
         }
+    
+        /* ══ VIEW ATTEMPTS & ADD EXAM BUTTONS ══ */
+        .btn-view-attempts {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.9rem;
+            background: #F5F3FF;
+            color: #6D28D9;
+            border: 1px solid #DDD6FE;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .btn-view-attempts:hover {
+            background: #8B5CF6;
+            border-color: #8B5CF6;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(139, 92, 246, 0.25);
+        }
+
+        .btn-add-exam-sm {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(109, 40, 217, 0.2);
+        }
+
+        .btn-add-exam-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.35);
+            color: #ffffff;
+        }
+
+        /* ══ UPSIDE PAGINATION BAR WITH 10, 20, 30 DROPDOWN ══ */
+        .vendor-pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(46, 16, 101, 0.04);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .vendor-pagination-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .vendor-pagination-info {
+            font-size: 0.92rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .vendor-pagination-info span {
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+
+        .page-size-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        .page-size-selector select {
+            width: auto;
+            min-width: 72px;
+            padding: 0.25rem 1.75rem 0.25rem 0.65rem;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #6d28d9;
+            background-color: #faf5ff;
+            cursor: pointer;
+        }
+
+        .vendor-pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .vendor-page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.42rem 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6d28d9;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .vendor-page-btn:hover:not(.disabled) {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+        }
+
+        .vendor-page-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .vendor-page-numbers {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .vendor-page-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 0.45rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4b5563;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .vendor-page-num:hover:not(.active) {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #c4b5fd;
+        }
+
+        .vendor-page-num.active {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #ffffff !important;
+            border-color: #7c3aed;
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+        }
+
+        /* ══ ADD EXAM MODAL ══ */
+        .add-exam-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 7, 34, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .add-exam-modal-dialog {
+            background: #ffffff;
+            border-radius: 18px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 16px 40px rgba(46, 16, 101, 0.25);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            overflow: hidden;
+            animation: modalSlideUp 0.25s ease-out;
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #EDE9FE;
+            background: #FAF5FF;
+        }
+
+        .btn-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.15rem;
+            color: #64748B;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .btn-modal-close:hover {
+            color: #EF4444;
+        }
+
+        .modal-body-custom {
+            padding: 1.5rem;
+        }
+
+        .modal-footer-custom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #EDE9FE;
+            background: #FAF5FF;
+        }
+
     </style>
 </head>
 
@@ -753,9 +1000,12 @@
                 <h1>Assessment Exams</h1>
                 <p>Manage final certification questions for your courses.</p>
             </div>
-            <div>
-                <a href="/vendor/courses/create" class="btn btn-primary" style="width: auto;">
-                    <i class="fas fa-plus"></i> New Course
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-primary" style="width: auto; background: linear-gradient(135deg, #8B5CF6, #6D28D9); border: none; font-weight: 700;" onclick="openAddExamModal()">
+                    <i class="fas fa-plus-circle me-1"></i> Add Exam
+                </button>
+                <a href="/vendor/courses/create" class="btn" style="width: auto; background: #ffffff; color: #6D28D9; border: 1px solid #DDD6FE; font-weight: 700;">
+                    <i class="fas fa-plus me-1"></i> New Course
                 </a>
             </div>
         </header>
@@ -776,9 +1026,12 @@
                     </div>
                 </div>
 
-                <div>
-                    <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Manage Questions
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button type="button" class="btn btn-primary" style="width: 100%; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6D28D9); border: none;" th:onclick="'openAddExamModal(' + ${course.id} + ')'">
+                        <i class="fas fa-plus-circle me-1"></i> Add New Exam
+                    </button>
+                    <a th:href="@{/vendor/courses/{id}/questions(id=${course.id})}" class="btn-view-attempts" style="justify-content: center; width: 100%;">
+                        <i class="fas fa-list-check me-1"></i> Manage Course Questions
                     </a>
                 </div>
             </div>
@@ -807,16 +1060,65 @@
                         </p>
                     </div>
                 </div>
-                <div class="badge-total-exams" th:if="${addedExams != null and !addedExams.empty}">
-                    <i class="fas fa-layer-group"></i>
-                    <span th:text="${addedExams.size()} + ' Configured Exam' + (${addedExams.size() > 1} ? 's' : '')">2 Configured Exams</span>
+                <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn-add-exam-sm" onclick="openAddExamModal()">
+                        <i class="fas fa-plus-circle me-1"></i> Add Exam
+                    </button>
+                    <div class="badge-total-exams" th:if="${totalExams != null ? totalExams > 0 : (addedExams != null and !addedExams.empty)}">
+                        <i class="fas fa-layer-group"></i>
+                        <span th:text="${totalExams != null ? totalExams : (addedExams != null ? addedExams.size() : 0)} + ' Configured Exam' + (${(totalExams != null ? totalExams : (addedExams != null ? addedExams.size() : 0)) > 1} ? 's' : '')">2 Configured Exams</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Table Card Container -->
             <div class="added-exams-card">
+                <!-- Upside Pagination Bar with 10, 20, 30 Dropdown -->
+                <div class="vendor-pagination-bar" id="examsPaginationBar" th:if="${addedExams != null and !#lists.isEmpty(addedExams)}">
+                    <div class="vendor-pagination-left">
+                        <span class="vendor-pagination-info" id="examsPaginationInfo">
+                            Showing <span class="fw-bold" id="examsStart" th:text="${startItem != null ? startItem : 1}">1</span> to 
+                            <span class="fw-bold" id="examsEnd" th:text="${endItem != null ? endItem : (addedExams != null ? #lists.size(addedExams) : 1)}">1</span> of 
+                            <span class="fw-bold" id="examsTotal" th:text="${totalExams != null ? totalExams : (addedExams != null ? #lists.size(addedExams) : 1)}">1</span> exams
+                        </span>
+                        <div class="page-size-selector">
+                            <label for="examsPageSizeSelect">Per page:</label>
+                            <select id="examsPageSizeSelect" class="form-select form-select-sm" onchange="changeExamsPageSize(this.value)">
+                                <option value="10" th:selected="${pageSize == 10}">10</option>
+                                <option value="20" th:selected="${pageSize == 20}">20</option>
+                                <option value="30" th:selected="${pageSize == 30}">30</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vendor-pagination-controls" id="examsPaginationControls">
+                        <a th:href="@{/vendor/exams(page=${(currentPage != null ? currentPage : 1) - 1}, size=${pageSize != null ? pageSize : 10})}"
+                           class="vendor-page-btn" id="examsPrevBtn"
+                           th:classappend="${(currentPage != null ? currentPage : 1) <= 1} ? ' disabled' : ''">
+                            <i class="fas fa-chevron-left me-1"></i> Prev
+                        </a>
+                        <div class="vendor-page-numbers" id="examsPageNumbers">
+                            <th:block th:if="${pageNumbers != null and #lists.size(pageNumbers) > 0}">
+                                <th:block th:each="p : ${pageNumbers}">
+                                    <a th:href="@{/vendor/exams(page=${p}, size=${pageSize != null ? pageSize : 10})}"
+                                       class="vendor-page-num"
+                                       th:classappend="${p == (currentPage != null ? currentPage : 1)} ? ' active' : ''"
+                                       th:text="${p}">1</a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${pageNumbers == null or #lists.size(pageNumbers) == 0}">
+                                <span class="vendor-page-num active">1</span>
+                            </th:block>
+                        </div>
+                        <a th:href="@{/vendor/exams(page=${(currentPage != null ? currentPage : 1) + 1}, size=${pageSize != null ? pageSize : 10})}"
+                           class="vendor-page-btn" id="examsNextBtn"
+                           th:classappend="${(currentPage != null ? currentPage : 1) >= (totalPages != null ? totalPages : 1)} ? ' disabled' : ''">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
                 <div th:if="${addedExams != null and !addedExams.empty}" class="table-responsive">
-                    <table class="added-exams-table">
+                    <table class="added-exams-table" id="addedExamsTable">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -825,20 +1127,25 @@
                                 <th>Questions</th>
                                 <th>Date & Time</th>
                                 <th>Status</th>
+                                <th style="text-align: center;">Student Attempts</th>
                                 <th style="text-align: right;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="exam, stat : ${addedExams}">
+                            <tr th:each="exam, stat : ${addedExams}" class="exam-table-row">
                                 <td style="font-weight: 700; color: var(--text-muted);" th:text="${stat.count}">1</td>
                                 <td>
                                     <div class="course-name-cell">
                                         <div class="course-avatar-icon">
-                                            <i class="fas fa-graduation-cap"></i>
+                                            <i class="fas fa-clipboard-check"></i>
                                         </div>
                                         <div>
-                                            <div class="course-cell-title" th:text="${exam.title}">Course Title</div>
-                                            <div class="course-cell-sub" th:text="'Course ID: #' + ${exam.id}">Course ID: #1</div>
+                                            <div class="course-cell-title" th:text="${exam.title}">Exam Title</div>
+                                            <div class="course-cell-sub">
+                                                <span style="color: var(--primary); font-weight: 600;" th:text="${exam.course != null ? exam.course.title : 'Course'}">Course Title</span>
+                                                <span style="color: #94A3B8;"> &bull; </span>
+                                                <span th:text="'Exam ID: #' + ${exam.id}">Exam ID: #1</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -870,10 +1177,22 @@
                                         <i class="fas fa-circle-check"></i> Active & Ready
                                     </span>
                                 </td>
-                                <td style="text-align: right;">
-                                    <a th:href="@{/vendor/courses/{id}/questions(id=${exam.id})}" class="btn-manage-sm">
-                                        <i class="fas fa-edit"></i> Edit Questions
+                                <td style="text-align: center;">
+                                    <a th:href="@{/vendor/exams/{id}/attempts(id=${exam.id})}" class="btn-view-attempts" title="View Exam Attempts & Marks">
+                                        <i class="fas fa-eye me-1"></i> View
                                     </a>
+                                </td>
+                                <td style="text-align: right;">
+                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                                        <a th:href="@{/vendor/exams/{id}/questions(id=${exam.id})}" class="btn-manage-sm" title="Manage & Add Questions">
+                                            <i class="fas fa-edit"></i> Edit Questions
+                                        </a>
+                                        <form th:action="@{/vendor/exams/{id}/delete(id=${exam.id})}" method="post" style="display: inline-block; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this exam?');">
+                                            <button type="submit" class="btn" style="padding: 0.45rem 0.65rem; color: #EF4444; background: #FEE2E2; border: 1px solid #FECACA; border-radius: 8px; font-size: 0.85rem;" title="Delete Exam">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -955,6 +1274,177 @@
             });
         });
     </script>
+
+    <!-- ══ ADD EXAM MODAL ══ -->
+    <div id="addExamModal" class="add-exam-modal-backdrop" style="display: none;" onclick="closeAddExamModal(event)">
+        <div class="add-exam-modal-dialog" onclick="event.stopPropagation()">
+            <div class="modal-header-custom">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background: #EDE9FE; color: #8B5CF6; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: #2E1065; margin: 0;">Create New Assessment Exam</h3>
+                        <p style="color: #64748B; font-size: 0.82rem; margin: 0;">Add a new exam for your course without replacing existing exams</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-modal-close" onclick="closeAddExamModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form th:action="@{/vendor/exams/create}" method="post">
+                <div class="modal-body-custom">
+                    <!-- Course Selection -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="selectCourseForExam" style="font-weight: 700; color: #2E1065; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">
+                            <i class="fas fa-book me-1" style="color: #8B5CF6;"></i> Select Course:
+                        </label>
+                        <select id="selectCourseForExam" name="courseId" class="form-select" style="border: 1px solid #DDD6FE; border-radius: 10px; padding: 0.65rem 1rem; font-weight: 600;" required>
+                            <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.title}">Course Title</option>
+                        </select>
+                    </div>
+                    <!-- Exam Title -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="newExamTitle" style="font-weight: 700; color: #2E1065; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">
+                            <i class="fas fa-pen-nib me-1" style="color: #8B5CF6;"></i> Exam Title / Name:
+                        </label>
+                        <input type="text" id="newExamTitle" name="title" class="form-control" placeholder="e.g. Midterm Assessment, Final Certification Exam, Practice Quiz 1" style="border: 1px solid #DDD6FE; border-radius: 10px; padding: 0.65rem 1rem;" required>
+                        <small style="color: #64748B; font-size: 0.8rem; margin-top: 0.35rem; display: block;">
+                            Give this exam a unique name so students know which assessment they are taking.
+                        </small>
+                    </div>
+                    <!-- Exam Settings (Passing score & Duration) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div>
+                            <label for="newExamPassingScore" style="font-weight: 700; color: #2E1065; font-size: 0.875rem; margin-bottom: 0.4rem; display: block;">
+                                <i class="fas fa-percent me-1" style="color: #10B981;"></i> Passing Score (%):
+                            </label>
+                            <input type="number" id="newExamPassingScore" name="passingScore" value="70" min="1" max="100" class="form-control" style="border: 1px solid #DDD6FE; border-radius: 10px; padding: 0.6rem 0.85rem;" required>
+                        </div>
+                        <div>
+                            <label for="newExamDuration" style="font-weight: 700; color: #2E1065; font-size: 0.875rem; margin-bottom: 0.4rem; display: block;">
+                                <i class="fas fa-clock me-1" style="color: #8B5CF6;"></i> Duration (Mins):
+                            </label>
+                            <input type="number" id="newExamDuration" name="durationMinutes" value="30" min="5" max="300" class="form-control" style="border: 1px solid #DDD6FE; border-radius: 10px; padding: 0.6rem 0.85rem;" required>
+                        </div>
+                    </div>
+                    <div style="padding: 0.85rem 1rem; background: #FAF5FF; border-radius: 10px; border: 1px solid #EDE9FE; font-size: 0.85rem; color: #6D28D9;">
+                        <i class="fas fa-shield-alt me-1"></i> <strong>Safe & Independent:</strong> Creating this exam will not replace or modify any existing exams or questions.
+                    </div>
+                </div>
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddExamModal()" style="border-radius: 10px; font-weight: 600; padding: 0.5rem 1.15rem;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="border-radius: 10px; font-weight: 700; background: linear-gradient(135deg, #8B5CF6, #6D28D9); border: none; padding: 0.5rem 1.25rem;">
+                        <i class="fas fa-plus-circle me-1"></i> Create Exam & Add Questions
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddExamModal(courseId) {
+            const modal = document.getElementById('addExamModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                if (courseId) {
+                    const select = document.getElementById('selectCourseForExam');
+                    if (select) select.value = courseId;
+                }
+                setTimeout(() => {
+                    const titleInput = document.getElementById('newExamTitle');
+                    if (titleInput) titleInput.focus();
+                }, 100);
+            }
+        }
+
+        function closeAddExamModal(e) {
+            if (!e || e.target.id === 'addExamModal' || e.target.closest('.btn-modal-close')) {
+                const modal = document.getElementById('addExamModal');
+                if (modal) modal.style.display = 'none';
+            }
+        }
+
+        function proceedToAddExam() {
+            const select = document.getElementById('selectCourseForExam');
+            if (select && select.value) {
+                window.location.href = '/vendor/courses/' + select.value + '/questions';
+            }
+        }
+
+        function changeExamsPageSize(newSize) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('size', newSize);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
+        // Dynamic Client-side pagination fallback for exams table
+        function setupExamsPagination(defaultSize) {
+            defaultSize = defaultSize || 10;
+            const table = document.getElementById('addedExamsTable');
+            const bar = document.getElementById('examsPaginationBar');
+            if (!table || !bar) return;
+
+            const allRows = Array.from(table.querySelectorAll('tbody tr.exam-table-row'));
+            if (allRows.length === 0) return;
+
+            if (allRows.length > defaultSize) {
+                const urlParams = new URLSearchParams(window.location.search);
+                let curPage = parseInt(urlParams.get('page') || '1', 10);
+                const totalItems = allRows.length;
+                const totalPages = Math.ceil(totalItems / defaultSize);
+                if (curPage < 1) curPage = 1;
+                if (curPage > totalPages) curPage = totalPages;
+
+                function renderPage(p) {
+                    curPage = p;
+                    const start = (p - 1) * defaultSize;
+                    const end = Math.min(start + defaultSize, totalItems);
+
+                    allRows.forEach((r, idx) => {
+                        r.style.display = (idx >= start && idx < end) ? '' : 'none';
+                    });
+
+                    const info = document.getElementById('examsPaginationInfo');
+                    if (info) {
+                        info.innerHTML = 'Showing <span class="fw-bold">' + (start + 1) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + totalItems + '</span> exams';
+                    }
+
+                    const controls = document.getElementById('examsPaginationControls');
+                    if (controls) {
+                        let h = '<button type="button" class="vendor-page-btn ' + (p <= 1 ? 'disabled' : '') + '" ' + (p <= 1 ? 'disabled' : '') + ' id="examsPrev"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
+                        for (let i = 1; i <= totalPages; i++) {
+                            h += '<button type="button" class="vendor-page-num ' + (i === p ? 'active' : '') + '" data-p="' + i + '">' + i + '</button>';
+                        }
+                        h += '</div><button type="button" class="vendor-page-btn ' + (p >= totalPages ? 'disabled' : '') + '" ' + (p >= totalPages ? 'disabled' : '') + ' id="examsNext">Next <i class="fas fa-chevron-right ms-1"></i></button>';
+                        controls.innerHTML = h;
+
+                        const prev = document.getElementById('examsPrev');
+                        if (prev && p > 1) {
+                            prev.onclick = function() { renderPage(p - 1); };
+                        }
+                        const next = document.getElementById('examsNext');
+                        if (next && p < totalPages) {
+                            next.onclick = function() { renderPage(p + 1); };
+                        }
+                        controls.querySelectorAll('.vendor-page-num').forEach(function(b) {
+                            b.onclick = function() {
+                                const target = parseInt(b.getAttribute('data-p'), 10);
+                                if (target !== curPage) renderPage(target);
+                            };
+                        });
+                    }
+                }
+                renderPage(curPage);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const size = parseInt(urlParams.get('size') || '10', 10);
+            setupExamsPagination(size);
+        });
+    </script>
+
 </body>
 
 </html>

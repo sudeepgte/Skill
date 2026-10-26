@@ -581,8 +581,11 @@
     <div class="main-content">
         <header>
             <div class="welcome-text">
-                <h1 th:text="'Exam questions: ' + ${course.title}">Exam Questions</h1>
-                <p>Manage assessment questions for final certification.</p>
+                <h1 th:text="${exam != null ? (exam.title + ' - Questions') : ('Exam questions: ' + course.title)}">Exam Questions</h1>
+                <p th:if="${exam != null}" style="color: var(--text-muted); font-size: 0.95rem;">
+                    Course: <strong th:text="${course.title}">Course Title</strong> &bull; Passing Score: <strong th:text="${exam.passingScore} + '%'">70%</strong> &bull; Duration: <strong th:text="${exam.durationMinutes} + ' mins'">30 mins</strong>
+                </p>
+                <p th:if="${exam == null}">Manage assessment questions for final certification.</p>
                 <div class="badge-category">
                     <i class="fas fa-layer-group"></i>
                     <span>Category: </span>
@@ -618,11 +621,11 @@
                 Real-Time Question Generator
             </h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Generate random multiple-choice questions (MCQs) strictly on the course topic/category registered in your instructor dashboard. Each generation replaces existing questions with a fresh assessment set.
+                Generate multiple-choice questions (MCQs) strictly on the course topic/category. Newly generated questions will be added to your exam questions without deleting or replacing existing ones.
             </p>
 
             <!-- Main Generator Form -->
-            <form id="aiGeneratorForm" th:action="@{/vendor/courses/{id}/questions/generate-ai-form(id=${course.id})}" method="post">
+            <form id="aiGeneratorForm" th:action="${exam != null ? ('/vendor/exams/' + exam.id + '/questions/generate-ai-form') : ('/vendor/courses/' + course.id + '/questions/generate-ai-form')}" method="post">
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
                     <!-- Registered Course Topic (Strictly NON-EDITABLE & Locked) -->
                     <div>
@@ -679,7 +682,7 @@
             </form>
 
             <!-- Separate Hidden Form for Non-JS / Fallback Clear All -->
-            <form id="clearAllForm" th:action="@{/vendor/courses/{id}/questions/clear-all(id=${course.id})}" method="post" style="display: none;">
+            <form id="clearAllForm" th:action="${exam != null ? ('/vendor/exams/' + exam.id + '/questions/clear-all') : ('/vendor/courses/' + course.id + '/questions/clear-all')}" method="post" style="display: none;">
                 <input type="hidden" th:name="${_csrf != null ? _csrf.parameterName : '_csrf'}" th:value="${_csrf != null ? _csrf.token : ''}" />
             </form>
 
@@ -707,7 +710,7 @@
                         <i class="far fa-circle"></i> <span>3. Validating 4 distinct options and answer keys...</span>
                     </div>
                     <div class="step-item" id="step4">
-                        <i class="far fa-circle"></i> <span>4. Replacing existing questions in Exam Database...</span>
+                        <i class="far fa-circle"></i> <span>4. Saving questions to Exam Database...</span>
                     </div>
                     <div class="step-item" id="step5">
                         <i class="far fa-circle"></i> <span>5. Updating questions list in real time!</span>
@@ -724,7 +727,7 @@
                 <h3 style="font-size: 1.15rem; font-weight: 700;">Manual Question Entry</h3>
                 <span style="font-size: 0.85rem; color: var(--text-muted);">Add single question manually if needed</span>
             </div>
-            <form th:action="@{/vendor/courses/{id}/questions/add(id=${course.id})}" method="post">
+            <form th:action="${exam != null ? ('/vendor/exams/' + exam.id + '/questions/add') : ('/vendor/courses/' + course.id + '/questions/add')}" method="post">
                 <textarea name="questionText" class="form-control" rows="2" placeholder="Enter Question Text..." required></textarea>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -770,7 +773,7 @@
                         <span class="q-number" th:text="${stat.count}" style="color: var(--primary);">1</span>. 
                         <span th:text="${q.questionText}">Question text</span>
                     </div>
-                    <form th:action="@{/vendor/courses/{id}/questions/delete/{qid}(id=${course.id}, qid=${q.id})}" method="post">
+                    <form th:action="${exam != null ? ('/vendor/exams/' + exam.id + '/questions/delete/' + q.id) : ('/vendor/courses/' + course.id + '/questions/delete/' + q.id)}" method="post">
                         <button type="submit" class="btn" style="padding: 0.5rem 0.75rem; color: var(--danger); background: #FEE2E2; border-radius: 8px;" title="Delete Question">
                             <i class="fas fa-trash-alt"></i>
                         </button>
@@ -833,6 +836,7 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         const courseId = /*[[${course.id}]]*/ 3;
+        const examId = /*[[${exam != null ? exam.id : null}]]*/ null;
 
         const btnRunAiRealtime = document.getElementById('btnRunAiRealtime');
         const btnConfirmClearAll = document.getElementById('btnConfirmClearAll');
@@ -1034,7 +1038,8 @@
                         headers[csrfHeader] = csrfToken;
                     }
 
-                    const response = await fetch('/vendor/courses/' + courseId + '/questions/clear-all-ajax', {
+                    const clearAjaxUrl = examId ? ('/vendor/exams/' + examId + '/questions/clear-all-ajax') : ('/vendor/courses/' + courseId + '/questions/clear-all-ajax');
+                    const response = await fetch(clearAjaxUrl, {
                         method: 'POST',
                         headers: headers
                     });
@@ -1125,7 +1130,8 @@
                         bodyParams.append('_csrf', csrfToken);
                     }
 
-                    const response = await fetch('/vendor/courses/' + courseId + '/questions/generate-ai', {
+                    const genUrl = examId ? ('/vendor/exams/' + examId + '/questions/generate-ai') : ('/vendor/courses/' + courseId + '/questions/generate-ai');
+                    const response = await fetch(genUrl, {
                         method: 'POST',
                         headers: headers,
                         body: bodyParams.toString()
@@ -1152,11 +1158,11 @@
                             noQuestionsNotice.style.display = 'none';
                         }
 
-                        // Clear existing cards completely
-                        questionsContainer.innerHTML = '';
-
-                        // Dynamically append the newly generated questions
+                        // Appending newly generated questions without wiping existing ones!
                         if (data.questions && data.questions.length > 0) {
+                            const existingCards = questionsContainer.querySelectorAll('.q-card');
+                            const startIndex = existingCards.length;
+
                             data.questions.forEach((q, index) => {
                                 const card = document.createElement('div');
                                 card.className = 'q-card newly-added';
@@ -1166,14 +1172,15 @@
                                 const optBClass = q.correctOption === 'B' ? 'correct-opt' : '';
                                 const optCClass = q.correctOption === 'C' ? 'correct-opt' : '';
                                 const optDClass = q.correctOption === 'D' ? 'correct-opt' : '';
+                                const delAction = examId ? ('/vendor/exams/' + examId + '/questions/delete/' + q.id) : ('/vendor/courses/' + courseId + '/questions/delete/' + q.id);
 
                                 card.innerHTML = `
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem;">
                                         <div style="font-weight: 700; font-size: 1.05rem; line-height: 1.5; color: #1E1B4B;">
-                                            <span class="q-number" style="color: var(--primary);">${index + 1}</span>. 
+                                            <span class="q-number" style="color: var(--primary);">${startIndex + index + 1}</span>. 
                                             <span>${escapeHtml(q.questionText)}</span>
                                         </div>
-                                        <form action="/vendor/courses/${courseId}/questions/delete/${q.id}" method="post">
+                                        <form action="${delAction}" method="post">
                                             <button type="submit" class="btn" style="padding: 0.5rem 0.75rem; color: var(--danger); background: #FEE2E2; border-radius: 8px;" title="Delete Question">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
@@ -1191,10 +1198,15 @@
                                 questionsContainer.appendChild(card);
                             });
 
-                            totalQuestionsCount.textContent = data.questions.length;
+                            const currentTotal = questionsContainer.querySelectorAll('.q-card').length;
+                            totalQuestionsCount.textContent = currentTotal;
                         }
 
+
+                        showToast('✨ Added ' + data.count + ' questions for ' + data.topic + '!');
+
                         showToast('✨ Replaced with ' + data.count + ' fresh questions for ' + data.topic + '!');
+
                     } else {
                         throw new Error(data.message || 'Failed to generate questions.');
                     }

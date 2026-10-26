@@ -16,6 +16,10 @@ public class ExamAttempt {
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exam_id")
+    private CourseExam exam;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -93,5 +97,13 @@ public class ExamAttempt {
 
     public void setSubmissionDetails(String submissionDetails) {
         this.submissionDetails = submissionDetails;
+    }
+
+    public CourseExam getExam() {
+        return exam;
+    }
+
+    public void setExam(CourseExam exam) {
+        this.exam = exam;
     }
 }

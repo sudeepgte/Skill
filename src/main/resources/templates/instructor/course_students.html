@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Enrolled Students - ' + ${course.title} + ' | SkillHub'">Enrolled Students | SkillHub</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-light: #EDE9FE;
+            --secondary: #6D28D9;
+            --background: #F5F3FF;
+            --sidebar-bg: #2E1065;
+            --sidebar-active: #8B5CF6;
+            --card-bg: #EDE9FE;
+            --text-main: #2E1065;
+            --text-muted: #64748B;
+            --border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+        }
+
+        /* ━━ SIDEBAR ━━ */
+        .vendor-sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1050;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            border-radius: 0 24px 24px 0;
+            box-shadow: 4px 0 24px rgba(46, 16, 101, 0.15);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vendor-sidebar::-webkit-scrollbar,
+        .vendor-nav::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .vendor-sidebar-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .vendor-sidebar-brand {
+            padding: 1.5rem 1.25rem 2rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            text-decoration: none;
+        }
+
+        .btn-sidebar-close {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-close:hover {
+            background: rgba(239, 68, 68, 0.7);
+            border-color: #EF4444;
+            color: #ffffff;
+        }
+
+        .vendor-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            padding: 0 1rem;
+            flex-grow: 1;
+        }
+
+        .vendor-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.85rem 1rem;
+            color: #E9D5FF;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .vendor-nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .vendor-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF;
+            transform: translateX(4px);
+        }
+
+        .vendor-nav-item.active {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+        }
+
+        .vendor-sidebar-footer {
+            padding: 1.25rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vendor-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 7, 34, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .vendor-sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* ━━ MAIN CONTENT ━━ */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2.25rem 2.5rem;
+            max-width: 1400px;
+            min-height: 100vh;
+        }
+
+        .vendor-mobile-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            box-shadow: 0 4px 16px rgba(46, 16, 101, 0.05);
+        }
+
+        .btn-sidebar-toggle {
+            background: #F5F3FF;
+            color: #7C3AED;
+            border: 1px solid #DDD6FE;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sidebar-toggle:hover {
+            background: #EDE9FE;
+            color: #5B21B6;
+            transform: scale(1.03);
+        }
+
+        /* ━━ PANEL & TABLE ━━ */
+        .vendor-panel {
+            background: var(--card-bg);
+            border-radius: 1.2rem;
+            padding: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+            min-height: calc(100vh - 180px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.15rem;
+            background: #ffffff;
+            color: #6D28D9;
+            border: 1px solid #DDD6FE;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            background: #7C3AED;
+            color: #ffffff;
+            border-color: #7C3AED;
+            transform: translateX(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+        }
+
+        .course-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            background: #FFFFFF;
+            color: #6D28D9;
+            border: 1px solid #DDD6FE;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        /* ━━ PAGINATION BAR (UPSIDE) ━━ */
+        .vendor-pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(46, 16, 101, 0.04);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .vendor-pagination-info {
+            font-size: 0.92rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .vendor-pagination-info span {
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+
+        .vendor-pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .vendor-page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.42rem 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6d28d9;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .vendor-page-btn:hover:not(.disabled) {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
+        }
+
+        .vendor-page-btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .vendor-page-numbers {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .vendor-page-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 0.45rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4b5563;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .vendor-page-num:hover:not(.active) {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #c4b5fd;
+        }
+
+        .vendor-page-num.active {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #ffffff !important;
+            border-color: #7c3aed;
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+        }
+
+        /* ━━ TABLE ━━ */
+        .vendor-table-wrap {
+            overflow-x: auto;
+            flex: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .vendor-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .vendor-table th {
+            text-align: left;
+            padding: 1rem 1.25rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #64748B;
+            border-bottom: 2px solid #EDE9FE;
+            background: #FAF5FF;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .vendor-table td {
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid #F3F4F6;
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+
+        .student-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 6px rgba(109, 40, 217, 0.25);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .status-badge.published {
+            background-color: #ECFDF5;
+            color: #059669;
+            border: 1px solid #A7F3D0;
+        }
+
+        .status-badge.in-progress {
+            background-color: #FFFBEB;
+            color: #D97706;
+            border: 1px solid #FDE68A;
+        }
+
+        @media (max-width: 991.98px) {
+            .vendor-sidebar {
+                transform: translateX(-100%);
+            }
+            .vendor-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .vendor-pagination-bar {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ══ MOBILE SIDEBAR BACKDROP ══ -->
+    <div class="vendor-sidebar-backdrop d-lg-none" id="sidebarBackdrop" onclick="toggleVendorMobileSidebar(false)"></div>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="vendor-sidebar" id="vendorSidebar">
+        <div class="vendor-sidebar-top-row">
+            <a th:href="@{/}" class="vendor-sidebar-brand">
+                <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon" style="height: 36px; width: auto; object-fit: contain;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: -1px;">
+                        <span style="color: #60A5FA;">Skill</span><span style="color: #34D399;">Hub</span>
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 8.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px;">Learn.Grow.Succeed</div>
+                </div>
+            </a>
+            <button type="button" class="btn-sidebar-close d-lg-none" onclick="toggleVendorMobileSidebar(false)" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="vendor-nav">
+            <a th:href="@{/vendor/dashboard(tab='courses')}" class="vendor-nav-item active">
+                <i class="fas fa-th-large"></i> My Courses
+            </a>
+            <a th:href="@{/vendor/courses/create}" class="vendor-nav-item">
+                <i class="fas fa-plus-circle"></i> Create New Course
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='students')}" class="vendor-nav-item">
+                <i class="fas fa-users"></i> Students
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='analytics')}" class="vendor-nav-item">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='reviews')}" class="vendor-nav-item">
+                <i class="fas fa-star"></i> Student Reviews
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='questions')}" class="vendor-nav-item">
+                <i class="fas fa-question-circle"></i> Student Questions
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='messages')}" class="vendor-nav-item">
+                <i class="fas fa-comment-dots"></i> Messages
+            </a>
+            <a th:href="@{/vendor/exams}" class="vendor-nav-item">
+                <i class="fas fa-file-signature"></i> Manage Exams
+            </a>
+            <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item">
+                <i class="fas fa-user-circle"></i> Profile Management
+            </a>
+        </nav>
+
+        <div class="vendor-sidebar-footer">
+            <a th:href="@{/logout}" class="vendor-nav-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <div class="main-content">
+        <!-- Mobile Topbar with Hamburger -->
+        <div class="vendor-mobile-topbar d-lg-none">
+            <button type="button" class="btn-sidebar-toggle" onclick="toggleVendorMobileSidebar(true)" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div style="font-weight: 800; font-size: 1.1rem; color: #2E1065;">
+                Enrolled Students
+            </div>
+            <div class="student-avatar" style="width: 36px; height: 36px; font-size: 0.85rem;" th:text="${instructor != null and instructor.name != null and !#strings.isEmpty(instructor.name) ? #strings.substring(instructor.name, 0, 1).toUpperCase() : 'U'}">
+                U
+            </div>
+        </div>
+
+        <div class="vendor-panel">
+            <!-- Header with Back Button & Course Details -->
+            <div class="panel-header">
+                <div>
+                    <div style="margin-bottom: 0.6rem;">
+                        <a th:href="@{/vendor/dashboard(tab='courses')}" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> Back to My Courses
+                        </a>
+                    </div>
+                    <h2 style="font-size: 1.75rem; font-weight: 800; color: #2E1065; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fas fa-users" style="color: #8B5CF6;"></i> Enrolled Students
+                    </h2>
+                    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                        <span style="font-weight: 700; color: #4B5563; font-size: 1.05rem;" th:text="${course.title}">Course Title</span>
+                        <span class="course-badge-pill" th:text="${course.category != null ? course.category.name : 'General'}">Category</span>
+                        <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-weight: 700; padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.85rem;">
+                            <i class="fas fa-user-graduate me-1"></i> <span th:text="${totalStudents}">0</span> Enrolled
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upside Pagination Bar -->
+            <div class="vendor-pagination-bar" id="studentsPaginationBar" th:if="${enrollments != null and !#lists.isEmpty(enrollments)}">
+                <div class="vendor-pagination-info" id="studentsPaginationInfo">
+                    Showing <span class="fw-bold" id="studentsStart" th:text="${startItem != null ? startItem : 1}">1</span> to 
+                    <span class="fw-bold" id="studentsEnd" th:text="${endItem != null ? endItem : (enrollments != null ? #lists.size(enrollments) : 1)}">1</span> of 
+                    <span class="fw-bold" id="studentsTotal" th:text="${totalStudents != null ? totalStudents : (enrollments != null ? #lists.size(enrollments) : 1)}">1</span> enrolled students
+                </div>
+                <div class="vendor-pagination-controls" id="studentsPaginationControls">
+                    <a th:href="@{/vendor/courses/{id}/students(id=${course.id}, page=${(currentPage != null ? currentPage : 1) - 1})}"
+                       class="vendor-page-btn" id="studentsPrevBtn"
+                       th:classappend="${(currentPage != null ? currentPage : 1) <= 1} ? ' disabled' : ''"
+                       th:aria-disabled="${(currentPage != null ? currentPage : 1) <= 1}">
+                        <i class="fas fa-chevron-left me-1"></i> Prev
+                    </a>
+                    
+                    <div class="vendor-page-numbers" id="studentsPageNumbers">
+                        <th:block th:if="${pageNumbers != null and #lists.size(pageNumbers) > 0}">
+                            <th:block th:each="p : ${pageNumbers}">
+                                <a th:href="@{/vendor/courses/{id}/students(id=${course.id}, page=${p})}"
+                                   class="vendor-page-num"
+                                   th:classappend="${p == (currentPage != null ? currentPage : 1)} ? ' active' : ''"
+                                   th:text="${p}">1</a>
+                            </th:block>
+                        </th:block>
+                        <th:block th:if="${pageNumbers == null or #lists.size(pageNumbers) == 0}">
+                            <span class="vendor-page-num active">1</span>
+                        </th:block>
+                    </div>
+
+                    <a th:href="@{/vendor/courses/{id}/students(id=${course.id}, page=${(currentPage != null ? currentPage : 1) + 1})}"
+                       class="vendor-page-btn" id="studentsNextBtn"
+                       th:classappend="${(currentPage != null ? currentPage : 1) >= (totalPages != null ? totalPages : 1)} ? ' disabled' : ''"
+                       th:aria-disabled="${(currentPage != null ? currentPage : 1) >= (totalPages != null ? totalPages : 1)}">
+                        Next <i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enrolled Students Table -->
+            <div class="vendor-table-wrap">
+                <table class="vendor-table" id="courseStudentsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Enrolled On</th>
+                            <th>Learning Progress</th>
+                            <th>Exam Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="enrollment : ${enrollments}" class="student-row">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div class="student-avatar" th:text="${enrollment.student != null and enrollment.student.name != null and !#strings.isEmpty(enrollment.student.name) ? #strings.substring(enrollment.student.name, 0, 1).toUpperCase() : 'U'}">
+                                        U
+                                    </div>
+                                    <span style="font-weight: 700; color: #1E1B4B;" th:text="${enrollment.student != null ? enrollment.student.name : 'Unknown Student'}">Student Name</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="color: #4B5563; font-size: 0.9rem;" th:text="${enrollment.student != null ? enrollment.student.email : 'N/A'}">student@example.com</span>
+                            </td>
+                            <td>
+                                <span style="color: #64748B; font-size: 0.88rem;" th:text="${enrollment.enrolledAt != null ? #temporals.format(enrollment.enrolledAt, 'MMM dd, yyyy') : 'N/A'}">Date</span>
+                            </td>
+                            <td style="min-width: 170px;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <div style="flex: 1; height: 8px; background: #E5E7EB; border-radius: 999px; overflow: hidden;">
+                                        <div th:style="'width: ' + ${enrollment.progressPercentage} + '%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #10B981); border-radius: 999px;'"></div>
+                                    </div>
+                                    <span style="font-size: 0.82rem; font-weight: 700; color: #4B5563;" th:text="${#numbers.formatDecimal(enrollment.progressPercentage, 0, 0) + '%'}">0%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge published" th:if="${enrollment.examPassed}">
+                                    <i class="fas fa-check-circle"></i> PASSED
+                                </span>
+                                <span class="status-badge in-progress" th:unless="${enrollment.examPassed}">
+                                    <i class="fas fa-clock"></i> IN PROGRESS
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(enrollments)}">
+                            <td colspan="5" style="text-align: center; padding: 4.5rem 1rem; color: #64748B;">
+                                <div style="width: 68px; height: 68px; border-radius: 50%; background: #F5F3FF; color: #8B5CF6; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h4 style="font-size: 1.2rem; font-weight: 800; color: #1E1B4B; margin-bottom: 0.35rem;">No Students Enrolled Yet</h4>
+                                <p style="font-size: 0.92rem; color: #64748B; max-width: 400px; margin: 0 auto;">No students have registered for this course yet. Once students take this course, they will appear here.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleVendorMobileSidebar(open) {
+            const sidebar = document.getElementById('vendorSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (!sidebar) return;
+            if (open) {
+                sidebar.classList.add('mobile-open');
+                if (backdrop) backdrop.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.remove('mobile-open');
+                if (backdrop) backdrop.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Dynamic 10-per-page Pagination
+        function setupStudentsPagination(defaultSize) {
+            defaultSize = defaultSize || 10;
+            const table = document.getElementById('courseStudentsTable');
+            const bar = document.getElementById('studentsPaginationBar');
+            if (!table || !bar) return;
+
+            const allRows = Array.from(table.querySelectorAll('tbody tr.student-row'));
+            if (allRows.length === 0) return;
+
+            // Handle client-side page slicing if rows > defaultSize
+            if (allRows.length > defaultSize) {
+                const urlParams = new URLSearchParams(window.location.search);
+                let curPage = parseInt(urlParams.get('page') || '1', 10);
+                const totalItems = allRows.length;
+                const totalPages = Math.ceil(totalItems / defaultSize);
+                if (curPage < 1) curPage = 1;
+                if (curPage > totalPages) curPage = totalPages;
+
+                function renderPage(p) {
+                    curPage = p;
+                    const start = (p - 1) * defaultSize;
+                    const end = Math.min(start + defaultSize, totalItems);
+
+                    allRows.forEach((r, idx) => {
+                        r.style.display = (idx >= start && idx < end) ? '' : 'none';
+                    });
+
+                    const info = document.getElementById('studentsPaginationInfo');
+                    if (info) {
+                        info.innerHTML = 'Showing <span class="fw-bold">' + (start + 1) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + totalItems + '</span> enrolled students';
+                    }
+
+                    const controls = document.getElementById('studentsPaginationControls');
+                    if (controls) {
+                        let html = '<button type="button" class="vendor-page-btn ' + (p <= 1 ? 'disabled' : '') + '" ' + (p <= 1 ? 'disabled' : '') + ' id="studentsPrev"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
+                        for (let i = 1; i <= totalPages; i++) {
+                            html += '<button type="button" class="vendor-page-num ' + (i === p ? 'active' : '') + '" data-p="' + i + '">' + i + '</button>';
+                        }
+                        html += '</div><button type="button" class="vendor-page-btn ' + (p >= totalPages ? 'disabled' : '') + '" ' + (p >= totalPages ? 'disabled' : '') + ' id="studentsNext">Next <i class="fas fa-chevron-right ms-1"></i></button>';
+                        controls.innerHTML = html;
+
+                        const prev = document.getElementById('studentsPrev');
+                        if (prev && p > 1) {
+                            prev.onclick = function() { renderPage(p - 1); };
+                        }
+                        const next = document.getElementById('studentsNext');
+                        if (next && p < totalPages) {
+                            next.onclick = function() { renderPage(p + 1); };
+                        }
+                        controls.querySelectorAll('.vendor-page-num').forEach(function(b) {
+                            b.onclick = function() {
+                                const target = parseInt(b.getAttribute('data-p'), 10);
+                                if (target !== curPage) renderPage(target);
+                            };
+                        });
+                    }
+                }
+                renderPage(curPage);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupStudentsPagination(10);
+        });
+    </script>
+</body>
+
+</html>
