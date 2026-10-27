@@ -875,10 +875,10 @@ public class AdminController {
         // Send System Notification to ALL users (Effective Broadcast)
         List<User> allUsers = userService.getAllUsers();
         for (User user : allUsers) {
-            notificationService.createAndSend(user, subject, message, "INFO");
+            notificationService.createAndSend(user, subject, message, "BROADCAST");
         }
 
-        redirectAttributes.addFlashAttribute("success", "broadcast email sent successfully");
+        redirectAttributes.addFlashAttribute("success", "Broadcast notification sent successfully to all users and instructors.");
         return "redirect:/admin/broadcast";
     }
 

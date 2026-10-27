@@ -156,7 +156,11 @@
                 stompClient.connect({}, function() {
                     stompClient.subscribe('/user/queue/notifications', function(msg) {
                         const notif = JSON.parse(msg.body);
-                        showGlobalNotification(notif.title, notif.message);
+                        if (notif.type === 'BROADCAST' && typeof window.showSkillHubBroadcast === 'function') {
+                            window.showSkillHubBroadcast(notif);
+                        } else {
+                            showGlobalNotification(notif.title, notif.message);
+                        }
                         updateNotificationBadge(window.currentUnreadCount + 1);
                     });
                 });
@@ -182,6 +186,8 @@
             }
         }
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 
 </html>
