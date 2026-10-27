@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports Management | SkillHub</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -58,6 +60,23 @@
             color: #6a6f73;
             font-size: 0.85rem;
         }
+    
+        .reports-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem !important;
+            }
+            .reports-table {
+                min-width: 600px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 
@@ -84,7 +103,7 @@
             <p>No reports currently pending review.</p>
         </div>
 
-        <table class="reports-table" th:unless="${#lists.isEmpty(reports)}">
+        <div class="reports-table-wrapper"><table class="reports-table" th:unless="${#lists.isEmpty(reports)}">
             <thead>
                 <tr>
                     <th>Reporter</th>
@@ -133,7 +152,7 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table></div>
     </div>
 
     <!-- SkillHub Global Broadcast Popup Notification -->

@@ -10,7 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", indexes = {
+    @Index(name = "idx_course_instructor", columnList = "instructor_id"),
+    @Index(name = "idx_course_category", columnList = "category_id"),
+    @Index(name = "idx_course_status", columnList = "status"),
+    @Index(name = "idx_course_published", columnList = "is_published"),
+    @Index(name = "idx_course_created", columnList = "created_at")
+})
 public class Course {
 
     @Id
@@ -115,10 +121,10 @@ public class Course {
     @Column(name = "viewed_user_ids", columnDefinition = "TEXT")
     private String viewedUserIds;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course")
     private List<Enrollment> enrollments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "course")
     private List<Wishlist> wishlist = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)

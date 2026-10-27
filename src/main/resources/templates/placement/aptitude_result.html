@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aptitude Result | SkillHub</title>
     <!-- Google Fonts: Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -112,6 +113,36 @@
 
         .btn-outline:hover {
             background: rgba(255,255,255,0.05);
+        }
+    
+        @media (max-width: 600px) {
+            .result-card {
+                padding: 2rem 1.25rem;
+                margin: 1.5rem auto;
+                width: 95%;
+            }
+            .score-circle {
+                width: 150px;
+                height: 150px;
+            }
+            .score-val {
+                font-size: 2.8rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            .feedback {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            .btn-group {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .btn {
+                width: 100%;
+                padding: 0.85rem 1rem;
+            }
         }
     </style>
 </head>

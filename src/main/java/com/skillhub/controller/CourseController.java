@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.skillhub.dto.CourseDTO;
 import com.skillhub.mapper.CourseMapper;
@@ -263,6 +264,9 @@ public class CourseController {
                 if (!enrollmentRepository.findByStudentAndCourse(user, course).isPresent()) {
                     enrollmentService.enrollUser(user, id);
                 }
+            } else if (!hasPaid) {
+                enrollmentRepository.findByStudentAndCourse(user, course).ifPresent(enrollmentRepository::delete);
+                return "redirect:/checkout/" + id;
             }
         }
 
@@ -360,22 +364,49 @@ public class CourseController {
     @org.springframework.beans.factory.annotation.Autowired
     private com.skillhub.repository.WishlistRepository wishlistRepository;
 
-    @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/add")
-    @org.springframework.web.bind.annotation.ResponseBody
-    public java.util.Map<String, Object> addToWishlist(@RequestParam("courseId") Long courseId, Principal principal) {
+    private Long parseCourseIdFromJson(java.util.Map<String, Object> bodyPayload) {
+        if (bodyPayload != null && bodyPayload.get("courseId") != null) {
+            Object raw = bodyPayload.get("courseId");
+            if (raw instanceof Number) {
+                return ((Number) raw).longValue();
+            } else {
+                try {
+                    return Long.parseLong(String.valueOf(raw).trim());
+                } catch (Exception ignored) {}
+            }
+        }
+        return null;
+    }
+
+    private java.util.Map<String, Object> processAddToWishlist(Long courseId, Principal principal) {
         java.util.Map<String, Object> response = new java.util.HashMap<>();
         if (principal == null) {
             response.put("success", false);
             response.put("redirect", "/login");
+            response.put("message", "User not logged in");
             return response;
         }
+
+        if (courseId == null) {
+            response.put("success", false);
+            response.put("message", "Course ID is required");
+            return response;
+        }
+
         String email = principal.getName();
         com.skillhub.model.User user = userService.findByEmail(email);
         com.skillhub.model.Course course = courseService.getCourseById(courseId);
 
         if (course != null) {
-            // Add to wishlist
-            if (wishlistRepository.findByUserAndCourse(user, course).isEmpty()) {
+            if (wishlistRepository.findByUserAndCourse(user, course).isPresent()) {
+                response.put("success", true);
+                response.put("alreadyAdded", true);
+                response.put("alreadyInWishlist", true);
+                response.put("message", "Course already in wishlist");
+                return response;
+            }
+
+            try {
                 com.skillhub.model.Wishlist wishlist = new com.skillhub.model.Wishlist(user, course);
                 wishlistRepository.save(wishlist);
                 
@@ -386,6 +417,12 @@ public class CourseController {
                     "Added '" + course.getTitle() + "' to your wishlist", 
                     "WISHLIST"
                 );
+            } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+                response.put("success", true);
+                response.put("alreadyAdded", true);
+                response.put("alreadyInWishlist", true);
+                response.put("message", "Course already in wishlist");
+                return response;
             }
             
             // Automatically add to learning (Enroll) if the course is free
@@ -394,6 +431,8 @@ public class CourseController {
             }
 
             response.put("success", true);
+            response.put("alreadyAdded", false);
+            response.put("alreadyInWishlist", false);
             response.put("message", "This item is added in your wishlist");
         } else {
             response.put("success", false);
@@ -401,6 +440,23 @@ public class CourseController {
         }
 
         return response;
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping(value = "/course/wishlist/add", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.Map<String, Object> addToWishlistJson(
+            @org.springframework.web.bind.annotation.RequestBody(required = false) java.util.Map<String, Object> bodyPayload,
+            Principal principal) {
+        Long courseId = parseCourseIdFromJson(bodyPayload);
+        return processAddToWishlist(courseId, principal);
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping(value = "/course/wishlist/add", consumes = "!application/json")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.Map<String, Object> addToWishlist(
+            @RequestParam(value = "courseId", required = false) Long courseId,
+            Principal principal) {
+        return processAddToWishlist(courseId, principal);
     }
 
     @org.springframework.web.bind.annotation.PostMapping("/course/wishlist/remove")
@@ -575,6 +631,14 @@ public class CourseController {
     public String generateSample(@PathVariable("id") Long id, Principal principal) {
         if (principal == null)
             return "redirect:/login";
+        com.skillhub.model.User user = userService.findByEmail(principal.getName());
+        com.skillhub.model.Course course = courseService.getCourseById(id);
+        if (course == null) return "redirect:/courses";
+        boolean isOwner = (course.getInstructor() != null && user != null && course.getInstructor().getEmail().equals(user.getEmail()));
+        boolean isAdmin = user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()));
+        if (!isOwner && !isAdmin) {
+            throw new org.springframework.security.access.AccessDeniedException("Unauthorized: Only course owner or admin can generate curriculum");
+        }
         courseService.generateSampleCurriculum(id);
         return "redirect:/user/course/" + id + "/learn";
     }

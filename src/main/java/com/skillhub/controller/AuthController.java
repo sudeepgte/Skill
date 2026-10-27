@@ -5,6 +5,7 @@ import com.skillhub.model.User;
 import com.skillhub.service.CategoryService;
 import com.skillhub.service.UserService;
 import com.skillhub.service.FileStorageService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,11 @@ public class AuthController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private com.skillhub.service.RateLimitingService rateLimitingService;
+
     @GetMapping("/login")
     public String login(Model model, HttpServletRequest request) {
-        // Force session creation to avoid "Cannot create a session after the response
-        // has been committed"
-        // during Thymeleaf rendering of CSRF token
         request.getSession(true);
         model.addAttribute("categories", categoryService.getAllCategories());
         return "login-page";
@@ -73,8 +74,14 @@ public class AuthController {
                            @RequestParam(value = "newCategoryName", required = false) String newCategoryName,
                            @RequestParam(value = "aadharCardFile", required = false) MultipartFile aadharCardFile,
                            @RequestParam(value = "proofDocFile", required = false) MultipartFile proofDocFile,
+                           HttpServletRequest request,
                            Authentication authentication) {
         try {
+            String clientIp = request != null ? request.getRemoteAddr() : "unknown";
+            if (!rateLimitingService.allowRequest("register:" + clientIp, 10, 300)) {
+                return "redirect:/register?error=ratelimit";
+            }
+
             // Server-side validation & sanitization
             if (user.getName() == null || user.getName().trim().length() < 3) {
                 return "redirect:/register?error=invalid_name";
@@ -90,7 +97,7 @@ public class AuthController {
             user.setEmail(user.getEmail().trim().toLowerCase());
 
             // Check if email exists
-            if (userService.findByEmail(user.getEmail()) != null) {
+            if (userService.existsByEmail(user.getEmail())) {
                 return "redirect:/register?error=exists";
             }
             
@@ -110,8 +117,8 @@ public class AuthController {
                     return "redirect:/register?error=missing_documents";
                 }
 
-                String aadharUrl = fileStorageService.store(aadharCardFile);
-                String proofUrl = fileStorageService.store(proofDocFile);
+                String aadharUrl = fileStorageService.storePrivateDocument(aadharCardFile, "aadhar");
+                String proofUrl = fileStorageService.storePrivateDocument(proofDocFile, "proof");
                 user.setAadharCardUrl(aadharUrl);
                 user.setProofDocUrl(proofUrl);
 
@@ -134,6 +141,8 @@ public class AuthController {
                 userService.saveUser(user);
                 return "redirect:/login?success";
             }
+        } catch (IllegalArgumentException | DataIntegrityViolationException e) {
+            return "redirect:/register?error=exists";
         } catch (Exception e) {
             return "redirect:/register?error=generic";
         }

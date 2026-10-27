@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interview Questions | SkillHub</title>
     <!-- Google Fonts: Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -179,6 +180,32 @@
             margin-bottom: 1rem;
         }
         .btn-back:hover { color:white; }
+    
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .question-card {
+                padding: 1.25rem;
+            }
+            .answer-box {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>

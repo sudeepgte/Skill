@@ -23,7 +23,7 @@ public class ProfessionalCertificate {
     private String certificateId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "result_id", nullable = false)
+    @JoinColumn(name = "result_id", nullable = false, unique = true)
     private ProfessionalExamResult result;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,9 +34,15 @@ public class CourseService {
     @Autowired
     private LectureRepository lectureRepository;
 
+    @Autowired
+    private com.skillhub.repository.UserRepository userRepository;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     public List<Course> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
     }
 
@@ -43,20 +50,20 @@ public class CourseService {
         List<Course> courses = courseRepository.findPublishedCourses(CourseStatus.PUBLISHED);
         if (courses != null) {
             courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
-            courses.forEach(this::populateCourseRatings);
+            populateCourseRatingsBatch(courses);
         }
         return courses != null ? courses : List.of();
     }
 
     public List<Course> getPendingReviewCourses() {
         List<Course> courses = courseRepository.findByStatus(CourseStatus.PENDING_REVIEW);
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
     }
 
     public List<Course> getCoursesByStatus(CourseStatus status) {
         List<Course> courses = courseRepository.findByStatus(status);
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
     }
 
@@ -72,13 +79,13 @@ public class CourseService {
 
     public List<Course> getCoursesByInstructor(String email) {
         List<Course> courses = courseRepository.findByInstructorEmail(email);
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
     }
 
     public List<Course> getCoursesByInstructorAndStatus(String email, CourseStatus status) {
         List<Course> courses = courseRepository.findByInstructorEmailAndStatus(email, status);
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
     }
 
@@ -86,7 +93,7 @@ public class CourseService {
         List<Course> courses = courseRepository.findPublishedByCategoryName(CourseStatus.PUBLISHED, categoryName);
         if (courses != null) {
             courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
-            courses.forEach(this::populateCourseRatings);
+            populateCourseRatingsBatch(courses);
         }
         return courses != null ? courses : List.of();
     }
@@ -99,7 +106,7 @@ public class CourseService {
         }
         if (courses != null) {
             courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
-            courses.forEach(this::populateCourseRatings);
+            populateCourseRatingsBatch(courses);
         }
         return courses != null ? courses : List.of();
     }
@@ -125,6 +132,12 @@ public class CourseService {
     }
 
     public void saveCourse(Course course) {
+        if (course != null && course.getId() == null && course.getInstructor() != null && course.getInstructor().getId() != null) {
+            userRepository.findByIdWithPessimisticLock(course.getInstructor().getId());
+            if (!subscriptionService.canCreateCourse(course.getInstructor())) {
+                throw new com.skillhub.exception.BusinessException("COURSE_QUOTA_EXCEEDED");
+            }
+        }
         courseRepository.save(course);
     }
 
@@ -137,14 +150,12 @@ public class CourseService {
 
     @org.springframework.transaction.annotation.Transactional
     public void deleteCourse(Long id) {
-        Course course = courseRepository.findById(id).orElse(null);
-        if (course != null) {
-            entityManager.createQuery("DELETE FROM Review e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+        if (id != null) {
             entityManager.createQuery("DELETE FROM Enrollment e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
-            entityManager.createQuery("DELETE FROM ExamAttempt e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
-            entityManager.createQuery("DELETE FROM ExamQuestion e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM CourseSection e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM CourseResource e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
             entityManager.createQuery("DELETE FROM CourseQuestion e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
-            entityManager.createQuery("DELETE FROM Note e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
+            entityManager.createQuery("DELETE FROM CourseExam e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
             entityManager.createQuery("DELETE FROM Payment e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
             entityManager.createQuery("DELETE FROM Report e WHERE e.reportedCourse.id = :id").setParameter("id", id).executeUpdate();
             entityManager.createQuery("DELETE FROM Wishlist e WHERE e.course.id = :id").setParameter("id", id).executeUpdate();
@@ -204,8 +215,52 @@ public class CourseService {
     public List<Course> searchCourses(String query) {
         List<Course> courses = courseRepository.findByTitleContainingIgnoreCase(query);
         courses.removeIf(c -> c.getStatus() != CourseStatus.PUBLISHED || !c.isPublished());
-        courses.forEach(this::populateCourseRatings);
+        populateCourseRatingsBatch(courses);
         return courses;
+    }
+
+    public void populateCourseRatingsBatch(List<Course> courses) {
+        if (courses == null || courses.isEmpty()) return;
+        List<Long> ids = courses.stream()
+                .map(Course::getId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (ids.isEmpty()) return;
+
+        Map<Long, Double> avgMap = new HashMap<>();
+        Map<Long, Integer> countMap = new HashMap<>();
+
+        try {
+            List<Object[]> stats = reviewRepository.getRatingStatsForCourseIds(ids);
+            if (stats != null) {
+                for (Object[] row : stats) {
+                    if (row != null && row.length >= 3) {
+                        Long courseId = (Long) row[0];
+                        Double avg = (Double) row[1];
+                        Long cnt = (Long) row[2];
+                        if (avg != null) {
+                            avg = Math.round(avg * 10.0) / 10.0;
+                        } else {
+                            avg = 0.0;
+                        }
+                        avgMap.put(courseId, avg);
+                        countMap.put(courseId, cnt != null ? cnt.intValue() : 0);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            // Fallback to individual population if batch aggregate is unsupported by in-memory dialect
+            courses.forEach(this::populateCourseRatings);
+            return;
+        }
+
+        for (Course course : courses) {
+            if (course != null && course.getId() != null) {
+                course.setAverageRating(avgMap.getOrDefault(course.getId(), 0.0));
+                course.setReviewCount(countMap.getOrDefault(course.getId(), 0));
+            }
+        }
     }
 
     private void populateCourseRatings(Course course) {
@@ -265,9 +320,6 @@ public class CourseService {
                 timeString += hours + "h ";
             }
             timeString += minutes + "m";
-
-            // Format: "X lectures Ã¢â‚¬Â¢ Yh Zm"
-            String finalContentLength = totalLectures + " lectures Ã¢â‚¬Â¢ " + timeString.trim();
 
             String finalContentLength1 = totalLectures + " lectures • " + timeString.trim();
             course.setContentLength(finalContentLength1);

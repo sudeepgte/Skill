@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
-    List<Enrollment> findByStudent(User student);
+    @org.springframework.data.jpa.repository.Query("SELECT e FROM Enrollment e JOIN FETCH e.course c LEFT JOIN FETCH c.instructor LEFT JOIN FETCH c.category WHERE e.student = :student ORDER BY e.enrolledAt DESC")
+    List<Enrollment> findByStudent(@org.springframework.data.repository.query.Param("student") User student);
     List<Enrollment> findByCourse(Course course);
 
     Optional<Enrollment> findByStudentAndCourse(User student, Course course);

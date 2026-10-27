@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface ProfessionalCertificateService {
     ProfessionalCertificate issueCertificate(Long resultId);
     Optional<PublicCertificateDTO> verifyPublicCertificate(String certificateId);
+    Optional<PublicCertificateDTO> verifyByToken(String token);
     void revokeCertificate(String certificateId, String reason, User admin);
     List<ProfessionalCertificate> getCertificatesForStudent(Long studentId);
     Page<ProfessionalCertificate> getAllCertificates(Pageable pageable);

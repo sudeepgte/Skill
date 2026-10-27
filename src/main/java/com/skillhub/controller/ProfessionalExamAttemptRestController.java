@@ -107,7 +107,7 @@ public class ProfessionalExamAttemptRestController {
 
         if (file != null && !file.isEmpty()) {
             try {
-                java.nio.file.Path rootDir = java.nio.file.Paths.get(uploadDir, "exam-recordings").toAbsolutePath().normalize();
+                java.nio.file.Path rootDir = java.nio.file.Paths.get(uploadDir, "private", "recordings").toAbsolutePath().normalize();
                 java.nio.file.Files.createDirectories(rootDir);
 
                 String ext = ".webm";
@@ -119,7 +119,7 @@ public class ProfessionalExamAttemptRestController {
                 java.nio.file.Path targetPath = rootDir.resolve(fileName);
                 java.nio.file.Files.copy(file.getInputStream(), targetPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-                String recordingUrl = "/uploads/exam-recordings/" + fileName;
+                String recordingUrl = "/private/recordings/" + fileName;
                 attempt.setRecordingUrl(recordingUrl);
                 attempt.setProctoringWarnings(warningsCount);
                 if (duration != null && duration > 0) {

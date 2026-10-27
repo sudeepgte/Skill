@@ -15,4 +15,5 @@ public interface ProfessionalExamAttemptRepository extends JpaRepository<Profess
     List<ProfessionalExamAttempt> findByStudentIdAndExamVersionProfessionalExamIdAndStatusIn(Long studentId, Long examId, List<com.skillhub.model.enums.AttemptStatus> statuses);
     List<ProfessionalExamAttempt> findByStudentId(Long studentId);
     Optional<ProfessionalExamAttempt> findTopByStudentIdAndExamVersionProfessionalExamIdOrderByStartedAtDesc(Long studentId, Long examId);
+    Optional<ProfessionalExamAttempt> findByRecordingUrl(String recordingUrl);
 }

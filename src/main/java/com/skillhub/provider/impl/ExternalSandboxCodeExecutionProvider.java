@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -57,10 +58,10 @@ public class ExternalSandboxCodeExecutionProvider implements CodeExecutionProvid
     private static final long CIRCUIT_COOLDOWN_MS = 30_000L;
 
     public ExternalSandboxCodeExecutionProvider() {
-        this.restTemplate = new RestTemplateBuilder()
-                .setConnectTimeout(Duration.ofMillis(3000))
-                .setReadTimeout(Duration.ofMillis(8000))
-                .build();
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(8000);
+        this.restTemplate = new RestTemplate(factory);
     }
 
     public ExternalSandboxCodeExecutionProvider(RestTemplate restTemplate, String runnerUrl, String runnerSecret) {

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig {
 
     @Autowired
@@ -49,41 +51,79 @@ public class SecurityConfig {
     }
 
     @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList(
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "https://*.skillhub.com"
+        ));
+        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(java.util.Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-CSRF-TOKEN",
+                "X-XSRF-TOKEN",
+                "X-Requested-With",
+                "Accept",
+                "Origin"
+        ));
+        configuration.setExposedHeaders(java.util.Arrays.asList("Authorization", "X-Request-ID"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserService userService, PasswordEncoder passwordEncoder)
             throws Exception {
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/logout", "/payment/**", "/course/wishlist/**", "/ws/**", "/vendor/courses/*/questions/**"))
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/**", "/ws/**", "/newsletter/**"))
                 .exceptionHandling(exception -> exception
                         .defaultAuthenticationEntryPointFor(
                                 unauthorizedHandler,
                                 new AntPathRequestMatcher("/api/**")))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionFixation(sessionFixation -> sessionFixation.changeSessionId()))
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Role-specific restricted routes (Must be declared before permitAll catch-alls)
+                        .requestMatchers("/register/admin", "/admin/register", "/admin/**", "/api/analytics/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers("/vendor/**", "/instructor/subscription/**", "/api/subscriptions/**", "/api/upload-video").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        
+                        // 2. Publicly accessible routes (specific matches, no overly broad wildcard)
                         .requestMatchers("/", "/register", "/saveUser",
                                 "/login", "/forgot-password", "/reset-password", "/verify-otp",
                                 "/api/auth/**", "/api/broadcast/**",
                                 "/css/**", "/js/**", "/images/**",
-                                "/course/**", "/courses", "/courses/**", "/pricing", "/library", "/error", "/uploads/**",
+                                "/course/**", "/courses", "/courses/**", "/pricing", "/library", "/error",
+                                "/uploads/public/**", "/uploads/*.jpg", "/uploads/*.jpeg", "/uploads/*.png", "/uploads/*.webp",
                                 "/about", "/contact", "/submit-contact-form",
                                 "/business", "/teaching", "/app", "/help", "/blog", "/faq", 
-                                "/instructors", "/instructor/**",
+                                "/instructors", "/instructor/*",
                                 "/terms", "/privacy", "/cookies", "/accessibility",
                                 "/sw.js", "/manifest.json", "/favicon.ico", "/.well-known/**", "/ws/**",
                                 "/certifications/verify/**",
-                                "/api/health",
+                                "/api/health", "/api/health/**",
+                                "/api/payment/webhook", "/api/razorpay/webhook",
                                 "/api/newsletter/**", "/newsletter/**")
                         .permitAll()
-                        .requestMatchers("/register/admin", "/admin/register", "/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                        .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
-                        .requestMatchers("/instructor/subscription/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
-                        .requestMatchers("/api/subscriptions/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
-                        .requestMatchers("/api/upload-video").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+
+                        // 3. Authenticated routes
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
                 .headers(headers -> headers
                         .contentTypeOptions(contentType -> {})
                         .frameOptions(frame -> frame.sameOrigin())
                         .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' ws: wss: https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';")))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';"))
+                        .permissionsPolicyHeader(permissions -> permissions.policy("camera=(self), microphone=(self), geolocation=()"))
+                        .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000)))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

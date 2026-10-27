@@ -54,6 +54,7 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
     @Autowired private CourseService courseService;
     @Autowired private UserService userService;
     @Autowired private EnrollmentService enrollmentService;
+    @Autowired private com.skillhub.repository.InstructorSubscriptionRepository subscriptionRepository;
 
     @org.springframework.boot.test.mock.mockito.MockBean(name = "initData")
     private org.springframework.boot.CommandLineRunner initData;
@@ -273,14 +274,14 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
         // 2. Admin opens pending queue & reviews course
         mockMvc.perform(get("/admin/courses")
                 .param("status", "PENDING_REVIEW")
-                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ADMIN"))))
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("pendingCount", greaterThanOrEqualTo(1L)))
                 .andExpect(model().attribute("courses", hasItem(hasProperty("id", is(course.getId())))));
 
         // Admin opens verification review page
         mockMvc.perform(get("/admin/courses/" + course.getId() + "/review")
-                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ADMIN"))))
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("categoryDataMap"))
                 .andExpect(model().attribute("categoryDataMap", hasEntry("musicInstrumentDiscipline", "Steel-string Acoustic Guitar")));
@@ -290,7 +291,7 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
         mockMvc.perform(post("/admin/courses/" + course.getId() + "/reject")
                 .with(csrf())
                 .param("reason", rejectionFeedback)
-                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").authorities(new org.springframework.security.core.authority.SimpleGrantedAuthority("ADMIN"))))
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@skillhub.com").roles("ADMIN")))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/courses"));
 
@@ -438,6 +439,17 @@ public class CourseLifecycleAndDynamicFieldsIntegrationTest {
     @DisplayName("Stage 10: Multi-Category Dynamic Fields Creation, Persistence & Retrieval across all remaining categories")
     @WithMockUser(username = "vendor1@skillhub.com", authorities = {"INSTRUCTOR"})
     void testMultipleCategoriesDynamicFieldPersistence() throws Exception {
+        com.skillhub.model.InstructorSubscription sub = new com.skillhub.model.InstructorSubscription();
+        sub.setInstructor(vendor1);
+        sub.setPlanName("Enterprise");
+        sub.setCourseLimit(50);
+        sub.setMonthlyPrice(0.0);
+        sub.setStatus(com.skillhub.model.SubscriptionStatus.ACTIVE);
+        sub.setBillingInterval("MONTHLY");
+        sub.setStartDate(java.time.LocalDateTime.now().minusDays(1));
+        sub.setEndDate(java.time.LocalDateTime.now().plusDays(30));
+        subscriptionRepository.save(sub);
+
         // Seed remaining categories
         Category bizCat = categoryRepository.save(new Category("Business and Marketing", "fa-briefcase"));
         Category officeCat = categoryRepository.save(new Category("Office Productivity and Design", "fa-desktop"));

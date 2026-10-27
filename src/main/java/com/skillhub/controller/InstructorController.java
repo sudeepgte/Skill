@@ -651,6 +651,27 @@ public class InstructorController {
         return ResponseEntity.ok(categoryService.getCategoryFieldDefinitions(name));
     }
 
+    /**
+     * Compatibility route: Redirects /vendor/courses to /vendor/dashboard?tab=courses
+     */
+    @GetMapping("/courses")
+    public String getInstructorCourses(
+            @RequestParam(value = "status", required = false) String statusFilter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        StringBuilder redirectUrl = new StringBuilder("redirect:/vendor/dashboard?tab=courses");
+        if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusFilter)) {
+            redirectUrl.append("&status=").append(statusFilter);
+        }
+        if (page > 1) {
+            redirectUrl.append("&page=").append(page);
+        }
+        if (size != 10 && size > 0) {
+            redirectUrl.append("&size=").append(size);
+        }
+        return redirectUrl.toString();
+    }
+
     @GetMapping("/courses/create")
     public String createCourseForm(Model model, Principal principal) {
         Course course = new Course();
@@ -1056,7 +1077,7 @@ public class InstructorController {
         courseService.updateCourseStats(section.getCourse().getId());
 
         redirectAttributes.addFlashAttribute("success", "Lecture added successfully!");
-        return (referer != null) ? "redirect:" + referer : "redirect:/vendor/dashboard";
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/vendor/dashboard");
     }
 
     @PostMapping("/profile/update")

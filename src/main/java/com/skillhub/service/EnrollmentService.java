@@ -1,10 +1,11 @@
 package com.skillhub.service;
 
+import com.skillhub.exception.BusinessException;
 import com.skillhub.model.*;
 import com.skillhub.repository.CourseRepository;
 import com.skillhub.repository.EnrollmentRepository;
 import com.skillhub.repository.LectureProgressRepository;
-import com.skillhub.repository.LectureRepository; // Assuming this exists or will be created/used
+import com.skillhub.repository.LectureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +36,20 @@ public class EnrollmentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
+        if (course.getStatus() != CourseStatus.PUBLISHED || !course.isPublished()) {
+            throw new BusinessException("Cannot enroll in an unpublished course");
+        }
+
         if (isEnrolled(user, course)) {
             return enrollmentRepository.findByStudentAndCourse(user, course).get();
         }
 
         Enrollment enrollment = new Enrollment(user, course);
-        return enrollmentRepository.save(enrollment);
+        try {
+            return enrollmentRepository.saveAndFlush(enrollment);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return enrollmentRepository.findByStudentAndCourse(user, course).orElseThrow(() -> e);
+        }
     }
 
     @Transactional

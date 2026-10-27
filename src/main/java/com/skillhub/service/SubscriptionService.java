@@ -5,6 +5,7 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 import com.skillhub.dto.CourseUsageDto;
+import com.skillhub.exception.BusinessException;
 import com.skillhub.model.*;
 import com.skillhub.repository.CourseRepository;
 import com.skillhub.repository.InstructorSubscriptionRepository;
@@ -34,6 +35,9 @@ public class SubscriptionService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private com.skillhub.repository.UserRepository userRepository;
 
     @Value("${razorpay.key.id:rzp_test_RIlD5bEKRjyn3h}")
     private String razorpayKeyId;
@@ -190,6 +194,9 @@ public class SubscriptionService {
      */
     @Transactional
     public InstructorSubscription subscribeFreePlan(User instructor) {
+        if (instructor != null && instructor.getId() != null) {
+            userRepository.findByIdWithPessimisticLock(instructor.getId());
+        }
         LocalDateTime now = LocalDateTime.now();
 
         // Deactivate any currently active subscriptions to avoid duplicates
@@ -322,11 +329,21 @@ public class SubscriptionService {
      */
     @Transactional
     public InstructorSubscription verifyAndActivateSubscription(String orderId, String paymentId, String signature, User instructor) {
+        if (instructor != null && instructor.getId() != null) {
+            userRepository.findByIdWithPessimisticLock(instructor.getId());
+        }
         SubscriptionPayment payment = paymentRepository.findByRazorpayOrderId(orderId)
                 .orElseThrow(() -> new RuntimeException("Subscription payment record not found for Razorpay order: " + orderId));
 
         if (!payment.getInstructor().getId().equals(instructor.getId())) {
             throw new RuntimeException("Unauthorized: Payment does not belong to the current authenticated instructor.");
+        }
+
+        // Idempotency: if already paid and active, return without duplicate operations
+        if (payment.getPaymentStatus() == PaymentStatus.SUCCESS &&
+            payment.getSubscription() != null &&
+            payment.getSubscription().getStatus() == SubscriptionStatus.ACTIVE) {
+            return payment.getSubscription();
         }
 
         // Verify Razorpay HMAC signature
@@ -520,5 +537,59 @@ public class SubscriptionService {
         metrics.put("pendingSubscriptions", pendingSubscriptions);
         metrics.put("totalPlans", totalPlans);
         return metrics;
+    }
+
+    /**
+     * Webhook activation for instructor subscription
+     */
+    @Transactional
+    public InstructorSubscription activateSubscriptionFromWebhook(String orderId, String paymentId, Integer amountPaise) {
+        SubscriptionPayment payment = paymentRepository.findByRazorpayOrderId(orderId)
+                .orElseThrow(() -> new BusinessException("Subscription payment record not found for Razorpay order: " + orderId));
+
+        if (payment.getPaymentStatus() == PaymentStatus.SUCCESS &&
+                payment.getSubscription() != null &&
+                payment.getSubscription().getStatus() == SubscriptionStatus.ACTIVE) {
+            return payment.getSubscription();
+        }
+
+        User instructor = payment.getInstructor();
+        if (instructor != null && instructor.getId() != null) {
+            userRepository.findByIdWithPessimisticLock(instructor.getId());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        payment.setPaymentStatus(PaymentStatus.SUCCESS);
+        payment.setRazorpayPaymentId(paymentId);
+        payment.setTransactionId(paymentId);
+        payment.setPaymentDate(now);
+        payment.setNotes("Payment confirmed via Razorpay Webhook.");
+        paymentRepository.save(payment);
+
+        List<InstructorSubscription> currentActive = subscriptionRepository.findActiveSubscriptions(instructor, SubscriptionStatus.ACTIVE, now);
+        for (InstructorSubscription oldSub : currentActive) {
+            if (!oldSub.getId().equals(payment.getSubscription().getId())) {
+                oldSub.setStatus(SubscriptionStatus.CANCELLED);
+                oldSub.setCancelledAt(now);
+                oldSub.setCancellationReason("Upgraded via webhook: " + payment.getSubscription().getPlanName());
+                subscriptionRepository.save(oldSub);
+            }
+        }
+
+        InstructorSubscription sub = payment.getSubscription();
+        sub.setStatus(SubscriptionStatus.ACTIVE);
+        sub.setStartDate(now);
+        sub.setEndDate(now.plusDays(30));
+        sub.setAutoRenew(true);
+        return subscriptionRepository.save(sub);
+    }
+
+    @Transactional
+    public void processWebhookSubscriptionFailed(String orderId, String reason) {
+        paymentRepository.findByRazorpayOrderId(orderId).ifPresent(p -> {
+            p.setPaymentStatus(PaymentStatus.FAILED);
+            p.setNotes("Failed via webhook: " + reason);
+            paymentRepository.save(p);
+        });
     }
 }

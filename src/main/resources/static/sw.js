@@ -1,4 +1,4 @@
-/* global self, caches, fetch, Response, URL */
+/* global self, caches, fetch, Response, URL, Headers */
 const CACHE_NAME = 'skillhub-v1';
 const MEDIA_CACHE_NAME = 'skillhub-media-v1';
 const STATIC_ASSETS = [
@@ -69,15 +69,15 @@ async function handleRangeRequest(event) {
                 const end = parts[1] ? parseInt(parts[1], 10) : fullBlob.size - 1;
                 
                 const slicedBlob = fullBlob.slice(start, end + 1);
+                const responseHeaders = new Headers(cachedResponse.headers);
+                responseHeaders.set('Content-Range', 'bytes ' + start + '-' + end + '/' + fullBlob.size);
+                responseHeaders.set('Content-Length', String(slicedBlob.size));
+                responseHeaders.set('Accept-Ranges', 'bytes');
+                
                 return new Response(slicedBlob, {
                     status: 206,
                     statusText: 'Partial Content',
-                    headers: {
-                        ...cachedResponse.headers,
-                        'Content-Range': 'bytes ' + start + '-' + end + '/' + fullBlob.size,
-                        'Content-Length': slicedBlob.size,
-                        'Accept-Ranges': 'bytes'
-                    }
+                    headers: responseHeaders
                 });
             }
             return cachedResponse;

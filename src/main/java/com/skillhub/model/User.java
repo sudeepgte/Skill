@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email", unique = true),
+    @Index(name = "idx_user_role", columnList = "role"),
+    @Index(name = "idx_user_status", columnList = "isBlocked, isApproved")
+})
 public class User {
 
     @Id
@@ -186,7 +190,7 @@ public class User {
 
     }
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "student")
     private java.util.List<Enrollment> enrollments = new java.util.ArrayList<>();
 
     public java.util.List<Enrollment> getEnrollments() {

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
+@org.springframework.context.annotation.Profile("!prod")
 public class DataInitializer {
 
     @Bean
@@ -29,33 +30,47 @@ public class DataInitializer {
         return args -> {
 
             // Remove mock vendors/instructors and their references from database completely
-            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
-            
-            String[] emails = {"vyshu@gmail.com", "nchakore467@gmail.com", "ikram@gmail.com"};
-            for (String email : emails) {
-                jdbcTemplate.update("DELETE FROM chat_messages WHERE sender_id IN (SELECT id FROM users WHERE email = ?) OR recipient_id IN (SELECT id FROM users WHERE email = ?)", email, email);
-                jdbcTemplate.update("DELETE FROM enrollments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM reviews WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM course_answers WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR question_id IN (SELECT id FROM course_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)))", email, email);
-                jdbcTemplate.update("DELETE FROM course_questions WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM exam_attempts WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM exam_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
-                jdbcTemplate.update("DELETE FROM lecture_progress WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR lecture_id IN (SELECT l.id FROM lectures l JOIN course_sections s ON l.section_id = s.id JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM lectures WHERE section_id IN (SELECT s.id FROM course_sections s JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
-                jdbcTemplate.update("DELETE FROM course_sections WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
-                jdbcTemplate.update("DELETE FROM lesson_notes WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM password_reset_token WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM payments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM reports WHERE reporter_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM user_resumes WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM wishlist WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
-                jdbcTemplate.update("DELETE FROM creations WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)", email);
-                jdbcTemplate.update("DELETE FROM users WHERE email = ?", email);
+            try {
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0;");
+            } catch (Exception ex) {
+                try {
+                    jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY FALSE;");
+                } catch (Exception ignored) {}
             }
             
-            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+            try {
+                String[] emails = {"vyshu@gmail.com", "nchakore467@gmail.com", "ikram@gmail.com"};
+                for (String email : emails) {
+                    jdbcTemplate.update("DELETE FROM chat_messages WHERE sender_id IN (SELECT id FROM users WHERE email = ?) OR recipient_id IN (SELECT id FROM users WHERE email = ?)", email, email);
+                    jdbcTemplate.update("DELETE FROM enrollments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM reviews WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM course_answers WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR question_id IN (SELECT id FROM course_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)))", email, email);
+                    jdbcTemplate.update("DELETE FROM course_questions WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM exam_attempts WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM exam_questions WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                    jdbcTemplate.update("DELETE FROM lecture_progress WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR lecture_id IN (SELECT l.id FROM lectures l JOIN course_sections s ON l.section_id = s.id JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM lectures WHERE section_id IN (SELECT s.id FROM course_sections s JOIN courses c ON s.course_id = c.id WHERE c.instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                    jdbcTemplate.update("DELETE FROM course_sections WHERE course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email);
+                    jdbcTemplate.update("DELETE FROM lesson_notes WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM password_reset_token WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM payments WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM reports WHERE reporter_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM user_resumes WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM wishlist WHERE user_id IN (SELECT id FROM users WHERE email = ?) OR course_id IN (SELECT id FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?))", email, email);
+                    jdbcTemplate.update("DELETE FROM creations WHERE user_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM courses WHERE instructor_id IN (SELECT id FROM users WHERE email = ?)", email);
+                    jdbcTemplate.update("DELETE FROM users WHERE email = ?", email);
+                }
+            } catch (Exception ignored) {}
+            
+            try {
+                jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1;");
+            } catch (Exception ex) {
+                try {
+                    jdbcTemplate.execute("SET REFERENTIAL_INTEGRITY TRUE;");
+                } catch (Exception ignored) {}
+            }
             try {
                 jdbcTemplate.execute("ALTER TABLE professional_exam_attempts DROP INDEX UKo976hbu37ifoet5pt7w8fbrcb;");
             } catch (Exception ignored) {}
@@ -67,13 +82,11 @@ public class DataInitializer {
                 userRepository.save(admin);
             }
 
-            // Verify and reset yogu@123 password
+            // Verify and ensure instructor accounts are seeded
             User yogu = userRepository.findByEmail("yogu@123");
             if (yogu != null) {
                 boolean match = passwordEncoder.matches("yogu@123", yogu.getPassword());
-                System.out.println("DEBUG: yogu@123 password match = " + match);
                 if (!match) {
-                    System.out.println("DEBUG: Resetting yogu@123 password to yogu@123");
                     yogu.setPassword(passwordEncoder.encode("yogu@123"));
                     userRepository.save(yogu);
                 }
@@ -81,19 +94,16 @@ public class DataInitializer {
                 yogu.setBlocked(false);
                 userRepository.save(yogu);
             } else {
-                System.out.println("DEBUG: yogu@123 not found in DB! Seeding...");
                 yogu = newUser("Yogita", "yogu@123", "yogu@123", "INSTRUCTOR", passwordEncoder);
                 yogu.setApproved(true);
                 userRepository.save(yogu);
             }
 
-            // Verify and reset neha@123 password
+            // Verify and ensure neha@123 account is seeded
             User neha = userRepository.findByEmail("neha@123");
             if (neha != null) {
                 boolean match = passwordEncoder.matches("neha@123", neha.getPassword());
-                System.out.println("DEBUG: neha@123 password match = " + match);
                 if (!match) {
-                    System.out.println("DEBUG: Resetting neha@123 password to neha@123");
                     neha.setPassword(passwordEncoder.encode("neha@123"));
                     userRepository.save(neha);
                 }

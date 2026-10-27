@@ -391,22 +391,25 @@
         // Mobile sidebar toggle
         const sidebar = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
+        if (sidebar && toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
         }
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
 
-        // Global Chart.js Font & Theme Defaults
-        Chart.defaults.font.family = "'Poppins', sans-serif";
-        Chart.defaults.font.size = 12;
-        Chart.defaults.color = '#2E1065';
+        if (typeof Chart !== 'undefined') {
+            // Global Chart.js Font & Theme Defaults
+            Chart.defaults.font.family = "'Poppins', sans-serif";
+            Chart.defaults.font.size = 12;
+            Chart.defaults.color = '#2E1065';
 
-        // 1. Enrollment Line Chart
-        const enrollCtx = document.getElementById('enrollmentChart').getContext('2d');
+            // 1. Enrollment Line Chart
+            const enrollCanvas = document.getElementById('enrollmentChart');
+            if (enrollCanvas) {
+                const enrollCtx = enrollCanvas.getContext('2d');
         const enrollLabels = /*[[${enrollmentLabels}]]*/ [];
         const enrollValues = /*[[${enrollmentValues}]]*/ [];
 
@@ -468,8 +471,12 @@
             }
         });
 
-        // 2. User Activity Doughnut Chart
-        const activeCtx = document.getElementById('activityChart').getContext('2d');
+            }
+
+            // 2. User Activity Doughnut Chart
+            const activeCanvas = document.getElementById('activityChart');
+            if (activeCanvas) {
+                const activeCtx = activeCanvas.getContext('2d');
         const activeCount = /*[[${activeUsers}]]*/ 0;
         const inactiveCount = /*[[${inactiveUsers}]]*/ 0;
 
@@ -503,8 +510,12 @@
             }
         });
 
-        // 3. Category Bar Chart
-        const catCtx = document.getElementById('categoryChart').getContext('2d');
+            }
+
+            // 3. Category Bar Chart
+            const catCanvas = document.getElementById('categoryChart');
+            if (catCanvas) {
+                const catCtx = catCanvas.getContext('2d');
         const catLabels = /*[[${categoryLabels}]]*/ [];
         const catValues = /*[[${categoryValues}]]*/ [];
 
@@ -555,6 +566,8 @@
                 }
             }
         });
+            }
+        }
 
         /*]]>*/
     </script>

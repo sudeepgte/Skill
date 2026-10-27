@@ -36,6 +36,6 @@ public class NotificationController {
     public String markRead(@RequestParam("id") Long id,
             @org.springframework.web.bind.annotation.RequestHeader(value = "Referer", required = false) String referer) {
         notificationService.markAsRead(id);
-        return "redirect:" + (referer != null ? referer : "/notifications");
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/notifications");
     }
 }

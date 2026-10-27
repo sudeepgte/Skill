@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "wishlist")
+@Table(name = "wishlist", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_wishlist_user_course", columnNames = {"user_id", "course_id"})
+}, indexes = {
+    @Index(name = "idx_wishlist_user", columnList = "user_id"),
+    @Index(name = "idx_wishlist_course", columnList = "course_id")
+})
 public class Wishlist {
 
     @Id

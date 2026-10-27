@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placement Preparation | SkillHub</title>
     <!-- Google Fonts: Playfair Display -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -183,6 +184,30 @@
 
         .btn-outline:hover {
             background: var(--border);
+        }
+    
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-card {
+                padding: 1.5rem;
+            }
+            header {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
         }
     </style>
 </head>

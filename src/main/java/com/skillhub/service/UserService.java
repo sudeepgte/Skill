@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +26,20 @@ public class UserService implements UserDetailsService {
     private EmailService emailService;
 
     public void saveUser(User user) {
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        String cleanEmail = user.getEmail().trim().toLowerCase();
+        user.setEmail(cleanEmail);
+
+        if (userRepository.existsByEmail(cleanEmail)) {
+            throw new IllegalArgumentException("Email is already registered: " + cleanEmail);
+        }
+
+        if (user.getPassword() == null || user.getPassword().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Default role if not set
         if (user.getRole() == null || user.getRole().isEmpty()) {
@@ -40,6 +54,11 @@ public class UserService implements UserDetailsService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public boolean existsByEmail(String email) {
+        if (email == null) return false;
+        return userRepository.existsByEmail(email.trim().toLowerCase());
     }
 
     public User getUserById(Long id) {
@@ -111,15 +130,31 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found: " + email);
         }
+
+        String role = user.getRole();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        if (role != null && !role.trim().isEmpty()) {
+            String cleanRole = role.trim().toUpperCase();
+            authorities.add(new SimpleGrantedAuthority(cleanRole));
+            if (!cleanRole.startsWith("ROLE_")) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + cleanRole));
+            } else {
+                authorities.add(new SimpleGrantedAuthority(cleanRole.substring(5)));
+            }
+        }
+
+        boolean enabled = Boolean.TRUE.equals(user.isApproved()) && !user.isBlocked();
+        boolean accountNonLocked = !user.isBlocked();
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.isApproved() && !user.isBlocked(), // enabled status
+                enabled,
                 true,
                 true,
-                true,
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
+                accountNonLocked,
+                authorities);
     }
 }

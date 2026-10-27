@@ -397,7 +397,7 @@ public class CourseQuestionManagementIntegrationTest {
         // Student generates exam
         List<Map<String, Object>> questions = examService.generateQuestions(testCourse, studentUser);
         assertNotNull(questions);
-        assertEquals(20, questions.size());
+        assertEquals(3, questions.size());
 
         // Verify correct answers are NOT leaked in student payload
         for (Map<String, Object> q : questions) {

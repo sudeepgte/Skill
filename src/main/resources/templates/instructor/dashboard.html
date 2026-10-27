@@ -2897,7 +2897,7 @@
                         const myEmail = /*[[${user != null ? user.email : (instructor != null ? instructor.email : null)}]]*/ null;
 
                         // ── LOAD CONTACTS ──
-                        async function loadStudentContacts() {
+                        window.loadStudentContacts = async function loadStudentContacts() {
                             const listEl = document.getElementById('chatContactsList');
                             const countEl = document.getElementById('chatContactsCount');
                             if (!listEl) return;
@@ -3284,224 +3284,7 @@
                         }
 
                         // ── INITIALIZE ON LOAD ──
-                        // ══ ENROLLED USERS MODAL LOGIC ══
-        function openEnrolledUsersModal(btn) {
-            const courseId = btn.getAttribute('data-course-id');
-            const courseTitle = btn.getAttribute('data-course-title');
-            const count = parseInt(btn.getAttribute('data-enrollment-count') || '0', 10);
-
-            const modal = document.getElementById('enrolledUsersModal');
-            const titleDisplay = document.getElementById('modalCourseTitleDisplay');
-            const badgeDisplay = document.getElementById('modalEnrollmentBadge');
-            const tableBody = document.getElementById('enrolledUsersTableBody');
-            const emptyState = document.getElementById('modalEmptyState');
-            const tableWrap = document.getElementById('modalTableWrap');
-            const spinner = document.getElementById('modalLoadingSpinner');
-
-            if (!modal) return;
-            titleDisplay.textContent = courseTitle || 'Course';
-            badgeDisplay.textContent = count + ' Enrolled';
-            tableBody.innerHTML = '';
-            modal.style.display = 'flex';
-
-            // 1. First check embedded payload in current row for instant display
-            const row = btn.closest('tr');
-            const items = row ? Array.from(row.querySelectorAll('.enrolled-students-payload .student-item')) : [];
-
-            function renderStudentsList(list) {
-                spinner.style.display = 'none';
-                if (!list || list.length === 0) {
-                    emptyState.style.display = 'block';
-                    tableWrap.style.display = 'none';
-                    return;
-                }
-                emptyState.style.display = 'none';
-                tableWrap.style.display = 'block';
-
-                let htmlRows = '';
-                list.forEach(s => {
-                    const progressVal = parseInt(s.progress || 0, 10);
-                    const isPassed = s.examPassed === true || s.examPassed === 'true';
-                    htmlRows += `
-                        <tr style="border-bottom: 1px solid #F3F4F6;">
-                            <td style="padding: 0.9rem 1rem;">
-                                <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
-                                        ${(s.name || 'U').charAt(0).toUpperCase()}
-                                    </div>
-                                    <span style="font-weight: 600; color: #1E1B4B;">${s.name || 'Unknown'}</span>
-                                </div>
-                            </td>
-                            <td style="padding: 0.9rem 1rem; color: #4B5563; font-size: 0.88rem;">${s.email || 'N/A'}</td>
-                            <td style="padding: 0.9rem 1rem; color: #64748B; font-size: 0.85rem;">${s.enrolledAt || s.enrolled || 'N/A'}</td>
-                            <td style="padding: 0.9rem 1rem; min-width: 140px;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <div style="flex: 1; height: 7px; background: #E5E7EB; border-radius: 999px; overflow: hidden;">
-                                        <div style="width: ${progressVal}%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #10B981); border-radius: 999px;"></div>
-                                    </div>
-                                    <span style="font-size: 0.78rem; font-weight: 700; color: #4B5563;">${progressVal}%</span>
-                                </div>
-                            </td>
-                            <td style="padding: 0.9rem 1rem;">
-                                ${isPassed ? 
-                                    '<span class="badge" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-check-circle me-1"></i> Passed</span>' : 
-                                    '<span class="badge" style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-spinner me-1"></i> In Progress</span>'}
-                            </td>
-                        </tr>
-                    `;
-                });
-                tableBody.innerHTML = htmlRows;
-            }
-
-            if (items.length > 0) {
-                const list = items.map(el => ({
-                    name: el.getAttribute('data-name'),
-                    email: el.getAttribute('data-email'),
-                    enrolled: el.getAttribute('data-enrolled'),
-                    progress: el.getAttribute('data-progress'),
-                    examPassed: el.getAttribute('data-passed')
-                }));
-                renderStudentsList(list);
-            } else if (count === 0) {
-                renderStudentsList([]);
-            } else {
-                spinner.style.display = 'block';
-                emptyState.style.display = 'none';
-                tableWrap.style.display = 'none';
-            }
-
-            // Always try fetching fresh data from backend
-            fetch('/vendor/api/courses/' + courseId + '/students')
-                .then(res => res.ok ? res.json() : Promise.reject())
-                .then(data => {
-                    renderStudentsList(data);
-                })
-                .catch(() => {
-                    if (items.length === 0 && count === 0) {
-                        renderStudentsList([]);
-                    }
-                });
-        }
-
-        function closeEnrolledUsersModal(event) {
-            if (event && event.target && event.target.id !== 'enrolledUsersModal' && !event.target.classList.contains('neat-popup-close-btn')) {
-                return;
-            }
-            const modal = document.getElementById('enrolledUsersModal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        // ══ COURSES TABLE PAGINATION (10, 20, 30 PER PAGE) ══
-        let coursesCurrentPage = 1;
-        let coursesPageSize = 10;
-
-        let studentsPageSize = 10;
-        function changeStudentsPageSize(newSize) {
-            studentsPageSize = parseInt(newSize, 10) || 10;
-            const url = new URL(window.location.href);
-            url.searchParams.set('tab', 'students');
-            url.searchParams.set('size', studentsPageSize);
-            url.searchParams.set('page', '1');
-            window.location.href = url.toString();
-        }
-
-        function changeCoursesPageSize(newSize) {
-            coursesPageSize = parseInt(newSize, 10) || 10;
-            renderCoursesPagination(1);
-        }
-
-        function renderCoursesPagination(targetPage) {
-            const table = document.getElementById('instructorCoursesTable');
-            const bar = document.getElementById('coursesPaginationBar');
-            if (!table || !bar) return;
-
-            // Get active status from filter buttons
-            const activeFilterBtn = document.querySelector('.course-filter-btn.active-all, .course-filter-btn.active-published, .course-filter-btn.active-pending, .course-filter-btn.active-draft, .course-filter-btn.active-rejected');
-            const activeStatus = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'ALL';
-
-            const allRows = Array.from(table.querySelectorAll('tbody tr.course-row'));
-            const matchingRows = allRows.filter(row => {
-                const rowStatus = row.getAttribute('data-course-status');
-                return (activeStatus === 'ALL' || rowStatus === activeStatus);
-            });
-
-            const total = matchingRows.length;
-            const totalPages = Math.max(1, Math.ceil(total / coursesPageSize));
-            if (targetPage < 1) targetPage = 1;
-            if (targetPage > totalPages) targetPage = totalPages;
-            coursesCurrentPage = targetPage;
-
-            const start = (coursesCurrentPage - 1) * coursesPageSize;
-            const end = Math.min(start + coursesPageSize, total);
-
-            // Hide non-matching status rows completely
-            allRows.forEach(row => {
-                const rowStatus = row.getAttribute('data-course-status');
-                if (activeStatus !== 'ALL' && rowStatus !== activeStatus) {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Paginate matching rows
-            matchingRows.forEach((row, idx) => {
-                if (idx >= start && idx < end) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            // Toggle empty state message
-            const emptyRow = document.getElementById('noCoursesFilterRow');
-            if (emptyRow) {
-                emptyRow.style.display = (total === 0) ? '' : 'none';
-            }
-
-            // Update Info
-            const info = document.getElementById('coursesPaginationInfo');
-            if (info) {
-                info.innerHTML = 'Showing <span class="fw-bold">' + (total > 0 ? (start + 1) : 0) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + total + '</span> courses';
-            }
-
-            // Update Controls
-            const controls = document.getElementById('coursesPaginationControls');
-            if (controls) {
-                let html = '<button type="button" class="vendor-page-btn ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + '" ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + ' id="coursesPrevBtn"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
-                for (let i = 1; i <= totalPages; i++) {
-                    html += '<button type="button" class="vendor-page-num ' + (i === coursesCurrentPage ? 'active' : '') + '" data-p="' + i + '">' + i + '</button>';
-                }
-                html += '</div><button type="button" class="vendor-page-btn ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + '" ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + ' id="coursesNextBtn">Next <i class="fas fa-chevron-right ms-1"></i></button>';
-                controls.innerHTML = html;
-
-                const prevBtn = document.getElementById('coursesPrevBtn');
-                if (prevBtn && coursesCurrentPage > 1) {
-                    prevBtn.onclick = function(e) {
-                        e.preventDefault();
-                        renderCoursesPagination(coursesCurrentPage - 1);
-                    };
-                }
-
-                const nextBtn = document.getElementById('coursesNextBtn');
-                if (nextBtn && coursesCurrentPage < totalPages) {
-                    nextBtn.onclick = function(e) {
-                        e.preventDefault();
-                        renderCoursesPagination(coursesCurrentPage + 1);
-                    };
-                }
-
-                controls.querySelectorAll('.vendor-page-num').forEach(function(btn) {
-                    btn.onclick = function(e) {
-                        e.preventDefault();
-                        const p = parseInt(btn.getAttribute('data-p'), 10);
-                        if (p !== coursesCurrentPage) {
-                            renderCoursesPagination(p);
-                        }
-                    };
-                });
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function() {
                             loadStudentContacts();
                             connectInstructorWebSocket();
 
@@ -4360,20 +4143,226 @@
         }
     </script>
 
-    <!-- Course Filter Script -->
+    <!-- Enrolled Users Modal & Courses Pagination Scripts -->
     <script>
-        function filterCourses() {
-            var filter = document.getElementById('courseFilter').value;
-            var rows = document.querySelectorAll('.course-row');
-            rows.forEach(function(row) {
-                var status = row.getAttribute('data-status');
-                if (filter === 'all' || status === filter) {
+                        // ══ ENROLLED USERS MODAL LOGIC ══
+        function openEnrolledUsersModal(btn) {
+            const courseId = btn.getAttribute('data-course-id');
+            const courseTitle = btn.getAttribute('data-course-title');
+            const count = parseInt(btn.getAttribute('data-enrollment-count') || '0', 10);
+
+            const modal = document.getElementById('enrolledUsersModal');
+            const titleDisplay = document.getElementById('modalCourseTitleDisplay');
+            const badgeDisplay = document.getElementById('modalEnrollmentBadge');
+            const tableBody = document.getElementById('enrolledUsersTableBody');
+            const emptyState = document.getElementById('modalEmptyState');
+            const tableWrap = document.getElementById('modalTableWrap');
+            const spinner = document.getElementById('modalLoadingSpinner');
+
+            if (!modal) return;
+            titleDisplay.textContent = courseTitle || 'Course';
+            badgeDisplay.textContent = count + ' Enrolled';
+            tableBody.innerHTML = '';
+            modal.style.display = 'flex';
+
+            // 1. First check embedded payload in current row for instant display
+            const row = btn.closest('tr');
+            const items = row ? Array.from(row.querySelectorAll('.enrolled-students-payload .student-item')) : [];
+
+            function renderStudentsList(list) {
+                spinner.style.display = 'none';
+                if (!list || list.length === 0) {
+                    emptyState.style.display = 'block';
+                    tableWrap.style.display = 'none';
+                    return;
+                }
+                emptyState.style.display = 'none';
+                tableWrap.style.display = 'block';
+
+                let htmlRows = '';
+                list.forEach(s => {
+                    const progressVal = parseInt(s.progress || 0, 10);
+                    const isPassed = s.examPassed === true || s.examPassed === 'true';
+                    htmlRows += `
+                        <tr style="border-bottom: 1px solid #F3F4F6;">
+                            <td style="padding: 0.9rem 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                        ${(s.name || 'U').charAt(0).toUpperCase()}
+                                    </div>
+                                    <span style="font-weight: 600; color: #1E1B4B;">${s.name || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 0.9rem 1rem; color: #4B5563; font-size: 0.88rem;">${s.email || 'N/A'}</td>
+                            <td style="padding: 0.9rem 1rem; color: #64748B; font-size: 0.85rem;">${s.enrolledAt || s.enrolled || 'N/A'}</td>
+                            <td style="padding: 0.9rem 1rem; min-width: 140px;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="flex: 1; height: 7px; background: #E5E7EB; border-radius: 999px; overflow: hidden;">
+                                        <div style="width: ${progressVal}%; height: 100%; background: linear-gradient(90deg, #8B5CF6, #10B981); border-radius: 999px;"></div>
+                                    </div>
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #4B5563;">${progressVal}%</span>
+                                </div>
+                            </td>
+                            <td style="padding: 0.9rem 1rem;">
+                                ${isPassed ? 
+                                    '<span class="badge" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-check-circle me-1"></i> Passed</span>' : 
+                                    '<span class="badge" style="background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.78rem;"><i class="fas fa-spinner me-1"></i> In Progress</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                tableBody.innerHTML = htmlRows;
+            }
+
+            if (items.length > 0) {
+                const list = items.map(el => ({
+                    name: el.getAttribute('data-name'),
+                    email: el.getAttribute('data-email'),
+                    enrolled: el.getAttribute('data-enrolled'),
+                    progress: el.getAttribute('data-progress'),
+                    examPassed: el.getAttribute('data-passed')
+                }));
+                renderStudentsList(list);
+            } else if (count === 0) {
+                renderStudentsList([]);
+            } else {
+                spinner.style.display = 'block';
+                emptyState.style.display = 'none';
+                tableWrap.style.display = 'none';
+            }
+
+            // Always try fetching fresh data from backend
+            fetch('/vendor/api/courses/' + courseId + '/students')
+                .then(res => res.ok ? res.json() : Promise.reject())
+                .then(data => {
+                    renderStudentsList(data);
+                })
+                .catch(() => {
+                    if (items.length === 0 && count === 0) {
+                        renderStudentsList([]);
+                    }
+                });
+        }
+
+        function closeEnrolledUsersModal(event) {
+            if (event && event.target && event.target.id !== 'enrolledUsersModal' && !event.target.classList.contains('neat-popup-close-btn')) {
+                return;
+            }
+            const modal = document.getElementById('enrolledUsersModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // ══ COURSES TABLE PAGINATION (10, 20, 30 PER PAGE) ══
+        let coursesCurrentPage = 1;
+        let coursesPageSize = 10;
+
+        let studentsPageSize = 10;
+        function changeStudentsPageSize(newSize) {
+            studentsPageSize = parseInt(newSize, 10) || 10;
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', 'students');
+            url.searchParams.set('size', studentsPageSize);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
+        function changeCoursesPageSize(newSize) {
+            coursesPageSize = parseInt(newSize, 10) || 10;
+            renderCoursesPagination(1);
+        }
+
+        function renderCoursesPagination(targetPage) {
+            const table = document.getElementById('instructorCoursesTable');
+            const bar = document.getElementById('coursesPaginationBar');
+            if (!table || !bar) return;
+
+            // Get active status from filter buttons
+            const activeFilterBtn = document.querySelector('.course-filter-btn.active-all, .course-filter-btn.active-published, .course-filter-btn.active-pending, .course-filter-btn.active-draft, .course-filter-btn.active-rejected');
+            const activeStatus = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'ALL';
+
+            const allRows = Array.from(table.querySelectorAll('tbody tr.course-row'));
+            const matchingRows = allRows.filter(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                return (activeStatus === 'ALL' || rowStatus === activeStatus);
+            });
+
+            const total = matchingRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / coursesPageSize));
+            if (targetPage < 1) targetPage = 1;
+            if (targetPage > totalPages) targetPage = totalPages;
+            coursesCurrentPage = targetPage;
+
+            const start = (coursesCurrentPage - 1) * coursesPageSize;
+            const end = Math.min(start + coursesPageSize, total);
+
+            // Hide non-matching status rows completely
+            allRows.forEach(row => {
+                const rowStatus = row.getAttribute('data-course-status');
+                if (activeStatus !== 'ALL' && rowStatus !== activeStatus) {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Paginate matching rows
+            matchingRows.forEach((row, idx) => {
+                if (idx >= start && idx < end) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
+
+            // Toggle empty state message
+            const emptyRow = document.getElementById('noCoursesFilterRow');
+            if (emptyRow) {
+                emptyRow.style.display = (total === 0) ? '' : 'none';
+            }
+
+            // Update Info
+            const info = document.getElementById('coursesPaginationInfo');
+            if (info) {
+                info.innerHTML = 'Showing <span class="fw-bold">' + (total > 0 ? (start + 1) : 0) + '</span> to <span class="fw-bold">' + end + '</span> of <span class="fw-bold">' + total + '</span> courses';
+            }
+
+            // Update Controls
+            const controls = document.getElementById('coursesPaginationControls');
+            if (controls) {
+                let html = '<button type="button" class="vendor-page-btn ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + '" ' + (coursesCurrentPage <= 1 ? 'disabled' : '') + ' id="coursesPrevBtn"><i class="fas fa-chevron-left me-1"></i> Prev</button><div class="vendor-page-numbers">';
+                for (let i = 1; i <= totalPages; i++) {
+                    html += '<button type="button" class="vendor-page-num ' + (i === coursesCurrentPage ? 'active' : '') + '" data-p="' + i + '">' + i + '</button>';
+                }
+                html += '</div><button type="button" class="vendor-page-btn ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + '" ' + (coursesCurrentPage >= totalPages ? 'disabled' : '') + ' id="coursesNextBtn">Next <i class="fas fa-chevron-right ms-1"></i></button>';
+                controls.innerHTML = html;
+
+                const prevBtn = document.getElementById('coursesPrevBtn');
+                if (prevBtn && coursesCurrentPage > 1) {
+                    prevBtn.onclick = function(e) {
+                        e.preventDefault();
+                        renderCoursesPagination(coursesCurrentPage - 1);
+                    };
+                }
+
+                const nextBtn = document.getElementById('coursesNextBtn');
+                if (nextBtn && coursesCurrentPage < totalPages) {
+                    nextBtn.onclick = function(e) {
+                        e.preventDefault();
+                        renderCoursesPagination(coursesCurrentPage + 1);
+                    };
+                }
+
+                controls.querySelectorAll('.vendor-page-num').forEach(function(btn) {
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        const p = parseInt(btn.getAttribute('data-p'), 10);
+                        if (p !== coursesCurrentPage) {
+                            renderCoursesPagination(p);
+                        }
+                    };
+                });
+            }
         }
+
+
     </script>
 
     <!-- Exam Submission Details Modal -->

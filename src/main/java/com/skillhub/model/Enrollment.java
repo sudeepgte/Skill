@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "enrollments")
+@Table(name = "enrollments", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_enrollment_student_course", columnNames = {"user_id", "course_id"})
+}, indexes = {
+    @Index(name = "idx_enrollment_student", columnList = "user_id"),
+    @Index(name = "idx_enrollment_course", columnList = "course_id"),
+    @Index(name = "idx_enrollment_date", columnList = "enrolledAt")
+})
 public class Enrollment {
 
     @Id

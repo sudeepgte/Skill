@@ -492,83 +492,102 @@
         // Mobile sidebar toggle
         const sidebar  = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
+        if (sidebar && toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+            // Close sidebar on overlay click (mobile)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
         }
-        // Close sidebar on overlay click (mobile)
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
 
         // Revenue Analytics Implementation
         async function loadRevenueAnalytics() {
             try {
                 const response = await fetch('/api/analytics/admin/revenue');
+                if (!response.ok) return;
                 const data = await response.json();
 
                 // 1. Update Stat Card
-                document.getElementById('totalRevenueVal').innerText = Number(data.totalRevenue).toLocaleString();
+                const totalRevEl = document.getElementById('totalRevenueVal');
+                if (totalRevEl && data && data.totalRevenue !== undefined) {
+                    totalRevEl.innerText = Number(data.totalRevenue).toLocaleString();
+                }
+
+                if (typeof Chart === 'undefined') {
+                    console.warn('Chart.js library is not available');
+                    return;
+                }
 
                 // 2. Monthly Revenue Chart (Gradient Line)
-                const monthlyCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
-                const monthlyGradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
-                monthlyGradient.addColorStop(0, 'rgba(108, 92, 231, 0.4)');
-                monthlyGradient.addColorStop(1, 'rgba(108, 92, 231, 0)');
+                const monthlyCanvas = document.getElementById('monthlyRevenueChart');
+                if (monthlyCanvas && data && data.monthlyRevenue && data.monthlyRevenue.labels) {
+                    const monthlyCtx = monthlyCanvas.getContext('2d');
+                    if (monthlyCtx) {
+                        const monthlyGradient = monthlyCtx.createLinearGradient(0, 0, 0, 400);
+                        monthlyGradient.addColorStop(0, 'rgba(108, 92, 231, 0.4)');
+                        monthlyGradient.addColorStop(1, 'rgba(108, 92, 231, 0)');
 
-                new Chart(monthlyCtx, {
-                    type: 'line',
-                    data: {
-                        labels: data.monthlyRevenue.labels,
-                        datasets: [{
-                            label: 'Revenue (₹)',
-                            data: data.monthlyRevenue.data,
-                            borderColor: '#A78BFA',
-                            backgroundColor: monthlyGradient,
-                            fill: true,
-                            tension: 0.4,
-                            borderWidth: 3,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#A78BFA',
-                            pointHoverRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { display: true, color: 'rgba(0,0,0,0.05)' } },
-                            x: { grid: { display: false } }
-                        }
+                        new Chart(monthlyCtx, {
+                            type: 'line',
+                            data: {
+                                labels: data.monthlyRevenue.labels,
+                                datasets: [{
+                                    label: 'Revenue (₹)',
+                                    data: data.monthlyRevenue.data || [],
+                                    borderColor: '#A78BFA',
+                                    backgroundColor: monthlyGradient,
+                                    fill: true,
+                                    tension: 0.4,
+                                    borderWidth: 3,
+                                    pointBackgroundColor: '#fff',
+                                    pointBorderColor: '#A78BFA',
+                                    pointHoverRadius: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { beginAtZero: true, grid: { display: true, color: 'rgba(0,0,0,0.05)' } },
+                                    x: { grid: { display: false } }
+                                }
+                            }
+                        });
                     }
-                });
+                }
 
                 // 3. Yearly Revenue Chart (Glow Bar)
-                const yearlyCtx = document.getElementById('yearlyRevenueChart').getContext('2d');
-                new Chart(yearlyCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.yearlyRevenue.labels,
-                        datasets: [{
-                            label: 'Annual Revenue (₹)',
-                            data: data.yearlyRevenue.data,
-                            backgroundColor: '#f39c12',
-                            borderRadius: 8,
-                            barThickness: 40
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                            x: { grid: { display: false } }
-                        }
+                const yearlyCanvas = document.getElementById('yearlyRevenueChart');
+                if (yearlyCanvas && data && data.yearlyRevenue && data.yearlyRevenue.labels) {
+                    const yearlyCtx = yearlyCanvas.getContext('2d');
+                    if (yearlyCtx) {
+                        new Chart(yearlyCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.yearlyRevenue.labels,
+                                datasets: [{
+                                    label: 'Annual Revenue (₹)',
+                                    data: data.yearlyRevenue.data || [],
+                                    backgroundColor: '#f39c12',
+                                    borderRadius: 8,
+                                    barThickness: 40
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                                    x: { grid: { display: false } }
+                                }
+                            }
+                        });
                     }
-                });
+                }
 
             } catch (error) {
                 console.error('Error loading revenue analytics:', error);

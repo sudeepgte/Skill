@@ -10,10 +10,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(name = "payments", indexes = {
+    @Index(name = "idx_payment_user", columnList = "user_id"),
+    @Index(name = "idx_payment_course", columnList = "course_id"),
+    @Index(name = "idx_payment_status", columnList = "status"),
+    @Index(name = "idx_payment_date", columnList = "paymentDate"),
+    @Index(name = "idx_payment_razorpay_order", columnList = "razorpayOrderId"),
+    @Index(name = "idx_payment_razorpay_pay", columnList = "razorpayPaymentId")
+})
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

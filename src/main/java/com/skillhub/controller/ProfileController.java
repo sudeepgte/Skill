@@ -198,7 +198,18 @@ public class ProfileController {
         }
 
         user.setName(name);
-        user.setEmail(email);
+        if (email != null && !email.trim().equalsIgnoreCase(user.getEmail())) {
+            String newEmail = email.trim().toLowerCase();
+            if (!newEmail.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}$")) {
+                redirectAttributes.addFlashAttribute("error", "Invalid email format.");
+                return "redirect:/profile?tab=profile";
+            }
+            if (userService.existsByEmail(newEmail)) {
+                redirectAttributes.addFlashAttribute("error", "Email is already in use by another account.");
+                return "redirect:/profile?tab=profile";
+            }
+            user.setEmail(newEmail);
+        }
         user.setPhone(phone);
         user.setSkills(skills);
         user.setBio(bio);

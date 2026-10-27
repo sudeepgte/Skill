@@ -73,7 +73,13 @@ public class ProfessionalCertificateServiceImpl implements ProfessionalCertifica
         cert.setVerificationToken(token);
         cert.setVerificationUrl("/certifications/verify/" + certId);
 
-        ProfessionalCertificate saved = certificateRepository.save(cert);
+        ProfessionalCertificate saved;
+        try {
+            saved = certificateRepository.saveAndFlush(cert);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Concurrent duplicate certificate issuance detected for resultId {}. Returning existing record.", resultId);
+            return certificateRepository.findByResultId(resultId).orElseThrow(() -> e);
+        }
         log.info("Issued professional certificate {} for user {} on exam {}", certId, student.getId(), exam.getTitle());
         return saved;
     }
@@ -86,25 +92,38 @@ public class ProfessionalCertificateServiceImpl implements ProfessionalCertifica
         }
 
         return certificateRepository.findByCertificateId(certificateId.trim().toUpperCase())
-                .map(cert -> {
-                    boolean isValid = cert.getStatus() == CertificateStatus.ACTIVE
-                            && (cert.getExpiryDate() == null || cert.getExpiryDate().isAfter(LocalDate.now()));
+                .map(this::mapToDTO);
+    }
 
-                    // Sanitized candidate name (First Name + Last Initial for privacy)
-                    String rawName = cert.getStudent().getName() != null ? cert.getStudent().getName() : "SkillHub Candidate";
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<PublicCertificateDTO> verifyByToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return Optional.empty();
+        }
 
-                    return new PublicCertificateDTO(
-                            cert.getCertificateId(),
-                            rawName,
-                            cert.getExam().getTitle(),
-                            cert.getTrack().name(),
-                            cert.getResult().getGrade(),
-                            cert.getIssueDate(),
-                            cert.getExpiryDate(),
-                            cert.getStatus().name(),
-                            isValid
-                    );
-                });
+        return certificateRepository.findByVerificationToken(token.trim())
+                .map(this::mapToDTO);
+    }
+
+    private PublicCertificateDTO mapToDTO(ProfessionalCertificate cert) {
+        boolean isValid = cert.getStatus() == CertificateStatus.ACTIVE
+                && (cert.getExpiryDate() == null || cert.getExpiryDate().isAfter(LocalDate.now()));
+
+        // Sanitized candidate name (First Name + Last Initial for privacy)
+        String rawName = cert.getStudent().getName() != null ? cert.getStudent().getName() : "SkillHub Candidate";
+
+        return new PublicCertificateDTO(
+                cert.getCertificateId(),
+                rawName,
+                cert.getExam().getTitle(),
+                cert.getTrack().name(),
+                cert.getResult().getGrade(),
+                cert.getIssueDate(),
+                cert.getExpiryDate(),
+                cert.getStatus().name(),
+                isValid
+        );
     }
 
     @Override

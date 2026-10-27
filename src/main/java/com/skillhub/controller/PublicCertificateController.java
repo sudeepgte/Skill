@@ -36,6 +36,9 @@ public class PublicCertificateController {
         // Clean input
         String cleanId = id != null ? id.trim() : "";
         Optional<PublicCertificateDTO> certOpt = certificateService.verifyPublicCertificate(cleanId);
+        if (certOpt.isEmpty()) {
+            certOpt = certificateService.verifyByToken(cleanId);
+        }
 
         if (certOpt.isPresent()) {
             model.addAttribute("certificate", certOpt.get());

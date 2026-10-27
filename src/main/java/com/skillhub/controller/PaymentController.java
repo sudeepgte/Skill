@@ -12,9 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PaymentController {
@@ -109,7 +108,8 @@ public class PaymentController {
             String paymentId = data.get("razorpay_payment_id");
             String signature = data.get("razorpay_signature");
 
-            boolean isValid = paymentService.verifyPayment(orderId, paymentId, signature);
+            User user = userService.findByEmail(principal.getName());
+            boolean isValid = paymentService.verifyPayment(orderId, paymentId, signature, user);
             
             if (isValid) {
                 response.put("status", "success");
@@ -142,6 +142,13 @@ public class PaymentController {
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);
         if (payment == null) return "redirect:/";
+
+        User user = userService.findByEmail(principal.getName());
+        boolean isOwner = payment.getUser() != null && user != null && payment.getUser().getId().equals(user.getId());
+        boolean isAdmin = user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()));
+        if (!isOwner && !isAdmin) {
+            return "redirect:/?error=Unauthorized";
+        }
         
         model.addAttribute("payment", payment);
         return "course/payment_success";
@@ -153,6 +160,13 @@ public class PaymentController {
         
         Payment payment = paymentService.getPaymentByTransactionId(txnId);
         if (payment == null) return "redirect:/";
+
+        User user = userService.findByEmail(principal.getName());
+        boolean isOwner = payment.getUser() != null && user != null && payment.getUser().getId().equals(user.getId());
+        boolean isAdmin = user != null && ("ADMIN".equalsIgnoreCase(user.getRole()) || "ROLE_ADMIN".equalsIgnoreCase(user.getRole()));
+        if (!isOwner && !isAdmin) {
+            return "redirect:/?error=Unauthorized";
+        }
         
         model.addAttribute("payment", payment);
         return "course/payment_receipt";

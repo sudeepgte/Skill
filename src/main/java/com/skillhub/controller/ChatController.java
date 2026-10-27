@@ -40,7 +40,8 @@ public class ChatController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload java.util.Map<String, String> payload, java.security.Principal principal) {
-        String senderEmail = (principal != null) ? principal.getName() : payload.get("senderEmail");
+        if (principal == null) return;
+        String senderEmail = principal.getName();
         if (senderEmail != null) {
             processMessage(payload, senderEmail);
         }
@@ -51,7 +52,8 @@ public class ChatController {
     public org.springframework.http.ResponseEntity<?> sendMessageRest(
             @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> payload, 
             java.security.Principal principal) {
-        String senderEmail = (principal != null) ? principal.getName() : payload.get("senderEmail");
+        if (principal == null) return org.springframework.http.ResponseEntity.status(401).body(java.util.Map.of("error", "Unauthorized"));
+        String senderEmail = principal.getName();
         if (senderEmail == null || senderEmail.trim().isEmpty()) {
             return org.springframework.http.ResponseEntity.status(401).body(java.util.Map.of("error", "Unauthorized: Sender required"));
         }
@@ -182,6 +184,7 @@ public class ChatController {
     @GetMapping("/api/chat/contacts")
     @ResponseBody
     public List<com.skillhub.dto.UserDTO> getContacts(java.security.Principal principal) {
+        if (principal == null) return List.of();
         User currentUser = userService.findByEmail(principal.getName());
         if (currentUser == null) return List.of();
         

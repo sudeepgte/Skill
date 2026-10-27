@@ -245,16 +245,16 @@
 
     <script>
         // Mobile sidebar toggle
-        const sidebar  = document.getElementById('adminSidebar');
+        const sidebar = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
+        if (sidebar && toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
         }
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
 
         // â•â• CATEGORY EDIT MODAL LOGIC â•â•
         const editModal = document.getElementById('editModal');

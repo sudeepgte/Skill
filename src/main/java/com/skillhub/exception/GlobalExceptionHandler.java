@@ -1,5 +1,7 @@
 package com.skillhub.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -10,10 +12,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleResourceNotFound(ResourceNotFoundException ex, Model model) {
-        model.addAttribute("error", ex.getMessage());
+        model.addAttribute("error", "The requested resource was not found.");
         return "error/404";
     }
 
@@ -26,22 +30,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<String> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: " + ex.getMessage());
+        log.warn("Access denied: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not have permission to access this resource.");
     }
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<String> handleGeneralException(Throwable ex) {
-        try {
-            java.io.PrintWriter pw = new java.io.PrintWriter(new java.io.FileWriter("error_debug.txt", true));
-            pw.println("--- Error at " + java.time.LocalDateTime.now() + " ---");
-            ex.printStackTrace(pw);
-            pw.println("--------------------------------------------------");
-            pw.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        
+        log.error("Unhandled application exception", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred: " + ex.getMessage());
+                .body("An unexpected error occurred. Please try again later.");
     }
 }

@@ -12,6 +12,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.security.core.AuthenticationException;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,22 +29,41 @@ public class AuthRestController {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private com.skillhub.service.RateLimitingService rateLimitingService;
+
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        String clientIp = request != null ? request.getRemoteAddr() : "unknown";
+        if (!rateLimitingService.allowRequest("api-login:" + clientIp, 10, 60)) {
+            return ResponseEntity.status(429).body(Map.of(
+                    "status", 429,
+                    "error", "Too Many Requests",
+                    "message", "Rate limit exceeded. Please wait a minute before retrying."
+            ));
+        }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getUsername(),
-                roles));
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getUsername(),
+                    roles));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", 401,
+                    "error", "Unauthorized",
+                    "message", "Invalid email or password."
+            ));
+        }
     }
 }

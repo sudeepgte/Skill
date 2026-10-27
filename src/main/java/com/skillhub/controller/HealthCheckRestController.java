@@ -64,7 +64,7 @@ public class HealthCheckRestController {
                 components.put("database", Map.of("status", "DOWN", "error", "No DataSource configured"));
             }
         } catch (Exception ex) {
-            components.put("database", Map.of("status", "DOWN", "error", ex.getMessage()));
+            components.put("database", Map.of("status", "DOWN", "error", "Database connection unavailable"));
             health.put("status", "DEGRADED");
         }
 
@@ -100,18 +100,82 @@ public class HealthCheckRestController {
                     "sandboxType", "EPHEMERAL_IN_MEMORY_H2"
             ));
         } catch (Exception ex) {
-            components.put("sqlEvaluation", Map.of("status", "DEGRADED", "error", ex.getMessage()));
+            components.put("sqlEvaluation", Map.of("status", "DEGRADED", "error", "SQL sandbox check failed"));
         }
 
         // 4. Storage Health Check
         File uploadDirFile = new File(uploadDir);
         components.put("storage", Map.of(
-                "status", uploadDirFile.canWrite() ? "UP" : "READ_ONLY",
-                "uploadDirectory", uploadDirFile.getAbsolutePath()
+                "status", uploadDirFile.canWrite() ? "UP" : "READ_ONLY"
         ));
+
+        // 5. JVM Runtime Telemetry
+        Runtime runtime = Runtime.getRuntime();
+        long heapUsedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+        long heapMaxMb = runtime.maxMemory() / (1024 * 1024);
+        components.put("jvm", Map.of(
+                "heapUsedMb", heapUsedMb,
+                "heapMaxMb", heapMaxMb,
+                "availableProcessors", runtime.availableProcessors(),
+                "activeThreads", Thread.activeCount()
+        ));
+
+        // 6. HikariCP Connection Pool Telemetry
+        if (dataSource instanceof com.zaxxer.hikari.HikariDataSource hikari) {
+            var poolBean = hikari.getHikariPoolMXBean();
+            if (poolBean != null) {
+                components.put("connectionPool", Map.of(
+                        "activeConnections", poolBean.getActiveConnections(),
+                        "idleConnections", poolBean.getIdleConnections(),
+                        "totalConnections", poolBean.getTotalConnections(),
+                        "threadsAwaitingConnection", poolBean.getThreadsAwaitingConnection()
+                ));
+            }
+        }
 
         health.put("components", components);
         health.put("metrics", observabilityService.getAllMetrics());
         return ResponseEntity.ok(health);
+    }
+
+    @GetMapping("/liveness")
+    public ResponseEntity<Map<String, String>> checkLiveness() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "timestamp", LocalDateTime.now().toString()
+        ));
+    }
+
+    @GetMapping("/readiness")
+    public ResponseEntity<Map<String, Object>> checkReadiness() {
+        boolean dbOk = false;
+        try {
+            if (dataSource != null) {
+                try (Connection conn = dataSource.getConnection()) {
+                    dbOk = conn.isValid(3);
+                }
+            }
+        } catch (Exception ex) {
+            dbOk = false;
+        }
+
+        File uploadDirFile = new File(uploadDir);
+        boolean storageOk = uploadDirFile.exists() && uploadDirFile.canWrite();
+
+        if (dbOk && storageOk) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "UP",
+                    "database", "UP",
+                    "storage", "UP",
+                    "timestamp", LocalDateTime.now().toString()
+            ));
+        } else {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                    "status", "OUT_OF_SERVICE",
+                    "database", dbOk ? "UP" : "DOWN",
+                    "storage", storageOk ? "UP" : "DOWN",
+                    "timestamp", LocalDateTime.now().toString()
+            ));
+        }
     }
 }

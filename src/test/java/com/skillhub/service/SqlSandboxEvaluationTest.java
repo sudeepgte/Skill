@@ -27,10 +27,10 @@ public class SqlSandboxEvaluationTest {
     @Test
     @DisplayName("SQL Sandbox: Detects data and row count mismatches")
     void testDetectsDataMismatch() {
-        String setupDdl = "CREATE TABLE users (id INT, role VARCHAR(20));" +
-                "INSERT INTO users VALUES (1, 'ADMIN'), (2, 'STUDENT');";
-        String candidateSql = "SELECT id, role FROM users WHERE role = 'STUDENT'";
-        String expectedSql = "SELECT id, role FROM users WHERE role = 'ADMIN'";
+        String setupDdl = "CREATE TABLE departments (id INT, dept_name VARCHAR(20));" +
+                "INSERT INTO departments VALUES (1, 'ENGINEERING'), (2, 'MARKETING');";
+        String candidateSql = "SELECT id, dept_name FROM departments WHERE dept_name = 'MARKETING'";
+        String expectedSql = "SELECT id, dept_name FROM departments WHERE dept_name = 'ENGINEERING'";
 
         var result = sqlService.evaluate(candidateSql, expectedSql, setupDdl);
         assertFalse(result.isPassed());

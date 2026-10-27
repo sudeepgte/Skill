@@ -68,6 +68,11 @@ public class SubscriptionRestController {
 
         try {
             User instructor = userService.findByEmail(principal.getName());
+            if (instructor == null || instructor.isBlocked() || !Boolean.TRUE.equals(instructor.isApproved())) {
+                response.put("status", "error");
+                response.put("message", "Instructor account is not approved or is blocked.");
+                return ResponseEntity.status(403).body(response);
+            }
             InstructorSubscription sub = subscriptionService.subscribeFreePlan(instructor);
 
             response.put("status", "success");
@@ -100,6 +105,11 @@ public class SubscriptionRestController {
 
         try {
             User instructor = userService.findByEmail(principal.getName());
+            if (instructor == null || instructor.isBlocked() || !Boolean.TRUE.equals(instructor.isApproved())) {
+                response.put("status", "error");
+                response.put("message", "Instructor account is not approved or is blocked.");
+                return ResponseEntity.status(403).body(response);
+            }
             Map<String, Object> orderData = subscriptionService.createSubscriptionOrder(instructor, planId, customCourses);
             orderData.put("status", "success");
             return ResponseEntity.ok(orderData);
@@ -137,6 +147,11 @@ public class SubscriptionRestController {
             }
 
             User instructor = userService.findByEmail(principal.getName());
+            if (instructor == null || instructor.isBlocked() || !Boolean.TRUE.equals(instructor.isApproved())) {
+                response.put("status", "error");
+                response.put("message", "Instructor account is not approved or is blocked.");
+                return ResponseEntity.status(403).body(response);
+            }
             InstructorSubscription sub = subscriptionService.verifyAndActivateSubscription(orderId, paymentId, signature, instructor);
 
             response.put("status", "success");
@@ -168,6 +183,11 @@ public class SubscriptionRestController {
 
         try {
             User instructor = userService.findByEmail(principal.getName());
+            if (instructor == null || instructor.isBlocked() || !Boolean.TRUE.equals(instructor.isApproved())) {
+                response.put("status", "error");
+                response.put("message", "Instructor account is not approved or is blocked.");
+                return ResponseEntity.status(403).body(response);
+            }
             subscriptionService.cancelSubscription(subscriptionId, instructor, reason);
 
             response.put("status", "success");

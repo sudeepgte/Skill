@@ -205,12 +205,16 @@ public class ProfessionalExamEvaluationServiceImpl {
         result.setUnansweredAnswers(unanswered);
 
         boolean isTerminatedForViolations = attempt.getProctoringWarnings() != null && attempt.getProctoringWarnings() >= 3;
-        if (isTerminatedForViolations) {
-            passed = false;
-            result.setStatus("TERMINATED");
-            result.setGrade("TERMINATED");
-            result.setRiskScore(100);
-            attempt.setRiskScore(100);
+        boolean hasExcessiveRisk = attempt.getRiskScore() >= 80;
+
+        if (isTerminatedForViolations || hasExcessiveRisk) {
+            // Signal rather than instant termination: Flag for administrative review
+            result.setStatus("FLAGGED_FOR_REVIEW");
+            result.setGrade("UNDER_REVIEW");
+            result.setRiskScore(Math.max(attempt.getRiskScore(), 80));
+            attempt.setRiskScore(result.getRiskScore());
+            log.warn("Attempt {} flagged for administrative proctoring review: warnings={}, riskScore={}",
+                    attemptId, attempt.getProctoringWarnings(), attempt.getRiskScore());
         } else {
             result.setStatus(passed ? "PASS" : "FAIL");
             if (passed) {
@@ -235,7 +239,11 @@ public class ProfessionalExamEvaluationServiceImpl {
 
         ProfessionalExamApplication app = attempt.getApplication();
         if (app != null) {
-            app.setStatus(passed ? ApplicationStatus.PASSED : ApplicationStatus.FAILED);
+            if ("FLAGGED_FOR_REVIEW".equalsIgnoreCase(result.getStatus())) {
+                app.setStatus(ApplicationStatus.UNDER_REVIEW);
+            } else {
+                app.setStatus(passed ? ApplicationStatus.PASSED : ApplicationStatus.FAILED);
+            }
             applicationRepository.save(app);
         }
 
@@ -243,7 +251,8 @@ public class ProfessionalExamEvaluationServiceImpl {
             observabilityService.increment("exam_submission_count");
         }
 
-        if (passed && certificateService != null) {
+        // Only issue certificate if passed AND not flagged for review
+        if (passed && !"FLAGGED_FOR_REVIEW".equalsIgnoreCase(result.getStatus()) && certificateService != null) {
             try {
                 certificateService.issueCertificate(savedResult.getId());
                 if (observabilityService != null) {
@@ -319,9 +328,11 @@ public class ProfessionalExamEvaluationServiceImpl {
             }
 
             case SQL: {
-                String candidateSql = ans.getTextAnswer() != null && !ans.getTextAnswer().trim().isEmpty()
-                        ? ans.getTextAnswer()
-                        : ans.getSelectedOption();
+                String candidateSql = (ans.getCodeAnswer() != null && !ans.getCodeAnswer().trim().isEmpty())
+                        ? ans.getCodeAnswer()
+                        : (ans.getTextAnswer() != null && !ans.getTextAnswer().trim().isEmpty()
+                                ? ans.getTextAnswer()
+                                : ans.getSelectedOption());
 
                 if (candidateSql != null && !candidateSql.trim().isEmpty() && sqlSandboxService != null) {
                     var sqlResult = sqlSandboxService.evaluate(candidateSql, q.getCorrectAnswer(), null);

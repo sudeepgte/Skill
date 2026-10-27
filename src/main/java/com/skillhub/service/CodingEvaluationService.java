@@ -8,6 +8,7 @@ import com.skillhub.model.ProfessionalExamAttempt;
 import com.skillhub.model.ProfessionalExamQuestion;
 import com.skillhub.model.enums.AttemptStatus;
 import com.skillhub.model.enums.QuestionType;
+import com.skillhub.model.enums.SubmissionStatus;
 import com.skillhub.provider.CodeExecutionProvider;
 import com.skillhub.repository.ProfessionalCodingSubmissionRepository;
 import org.slf4j.Logger;
@@ -32,6 +33,9 @@ public class CodingEvaluationService {
 
     @Autowired
     private RateLimitingService rateLimitingService;
+
+    @Autowired(required = false)
+    private SqlEvaluationSandboxService sqlSandboxService;
 
     @Value("${skillhub.code-execution.max-submissions-per-question:10}")
     private int maxSubmissionsPerQuestion;
@@ -67,13 +71,30 @@ public class CodingEvaluationService {
             throw new BusinessException("SUBMISSION_COOLDOWN_ACTIVE");
         }
 
-        CodeSubmission sub = new CodeSubmission();
-        sub.setLanguage(language);
-        sub.setSourceCode(sourceCode);
-        sub.setTimeLimit(question.getTimeLimit() != null ? question.getTimeLimit() : 2000);
-        sub.setMemoryLimit(question.getMemoryLimit() != null ? question.getMemoryLimit() : 256);
+        CodeExecutionResult result = new CodeExecutionResult();
 
-        CodeExecutionResult result = executionProvider.execute(sub);
+        if (question.getQuestionType() == QuestionType.SQL && sqlSandboxService != null) {
+            // Dedicated, ephemeral, isolated SQL sandbox execution
+            var sqlResult = sqlSandboxService.evaluate(sourceCode, question.getCorrectAnswer(), null);
+            result.setStatus(sqlResult.isPassed() ? SubmissionStatus.PASSED : SubmissionStatus.FAILED);
+            result.setExecutionTimeMs(sqlResult.getExecutionTimeMs());
+            result.setMemoryUsedMb(15L);
+            result.setTestsPassed(sqlResult.isPassed() ? 1 : 0);
+            result.setTestsTotal(1);
+            result.setOutputLogs(sqlResult.getMessage());
+            if (!sqlResult.isPassed()) {
+                result.setErrorMessage(sqlResult.getMessage());
+            }
+        } else {
+            // Programming language execution via isolated provider abstraction
+            CodeSubmission sub = new CodeSubmission();
+            sub.setLanguage(language);
+            sub.setSourceCode(sourceCode);
+            sub.setTimeLimit(question.getTimeLimit() != null ? question.getTimeLimit() : 2000);
+            sub.setMemoryLimit(question.getMemoryLimit() != null ? question.getMemoryLimit() : 256);
+
+            result = executionProvider.execute(sub);
+        }
 
         ProfessionalCodingSubmission record = new ProfessionalCodingSubmission();
         record.setAttempt(attempt);

@@ -187,16 +187,16 @@
 
     <script th:inline="javascript">
         // Mobile sidebar toggle
-        const sidebar  = document.getElementById('adminSidebar');
+        const sidebar = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
+        if (sidebar && toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
         }
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
 
         /*[# th:if="${success}"]*/
         alert(/*[[${success}]]*/ 'broadcast email sent successfully');

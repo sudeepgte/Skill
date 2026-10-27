@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "subscription_payments")
+@Table(name = "subscription_payments", indexes = {
+    @Index(name = "idx_sub_payment_sub", columnList = "subscription_id"),
+    @Index(name = "idx_sub_payment_ins", columnList = "instructor_id"),
+    @Index(name = "idx_sub_payment_status", columnList = "paymentStatus"),
+    @Index(name = "idx_sub_payment_order", columnList = "razorpayOrderId"),
+    @Index(name = "idx_sub_payment_date", columnList = "paymentDate")
+})
 public class SubscriptionPayment {
 
     @Id

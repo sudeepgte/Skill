@@ -328,6 +328,54 @@ public class AdminProfessionalExamController {
         return "redirect:/admin/professional-exams/recordings/" + attemptId;
     }
 
+    @PostMapping("/results/{resultId}/review")
+    public String reviewFlaggedResult(@PathVariable("resultId") Long resultId,
+                                      @RequestParam("decision") String decision,
+                                      @RequestParam(name = "notes", defaultValue = "") String notes,
+                                      Principal p) {
+        ProfessionalExamResult result = resultRepo.findById(resultId)
+                .orElseThrow(() -> new ResourceNotFoundException("Exam result not found with ID: " + resultId));
+
+        User admin = getAdmin(p);
+        ProfessionalExamAttempt attempt = result.getAttempt();
+
+        if ("APPROVE".equalsIgnoreCase(decision)) {
+            // Restore result status based on earned score
+            double passPct = (attempt.getExamVersion() != null && attempt.getExamVersion().getTotalMarks() > 0)
+                    ? ((double) attempt.getExamVersion().getPassingMarks() / attempt.getExamVersion().getTotalMarks()) * 100.0
+                    : 60.0;
+            boolean passed = result.getPercentage() >= passPct;
+            result.setStatus(passed ? "PASS" : "FAIL");
+            resultRepo.save(result);
+
+            if (attempt.getApplication() != null) {
+                attempt.getApplication().setStatus(passed ? ApplicationStatus.PASSED : ApplicationStatus.FAILED);
+                appRepo.save(attempt.getApplication());
+            }
+
+            if (passed) {
+                certificateService.issueCertificate(resultId);
+            }
+
+            adminLogRepo.save(new AdminLog(admin, "PROCTORING_REVIEW_APPROVED",
+                    "Cleared proctoring flag for attempt " + attempt.getId() + " (Result " + resultId + "). Notes: " + notes));
+        } else if ("TERMINATE".equalsIgnoreCase(decision)) {
+            result.setStatus("TERMINATED");
+            result.setGrade("TERMINATED");
+            resultRepo.save(result);
+
+            if (attempt.getApplication() != null) {
+                attempt.getApplication().setStatus(ApplicationStatus.FAILED);
+                appRepo.save(attempt.getApplication());
+            }
+
+            adminLogRepo.save(new AdminLog(admin, "PROCTORING_REVIEW_TERMINATED",
+                    "Confirmed proctoring violation for attempt " + attempt.getId() + " (Result " + resultId + "). Reason: " + notes));
+        }
+
+        return "redirect:/admin/professional-exams/recordings/" + (attempt != null ? attempt.getId() : resultId);
+    }
+
     @PostMapping("/certificates/{certificateId}/revoke")
     public String revokeCertificate(@PathVariable("certificateId") String certificateId,
                                     @RequestParam("reason") String reason,

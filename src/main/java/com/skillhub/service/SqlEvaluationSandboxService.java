@@ -15,8 +15,9 @@ import java.util.regex.Pattern;
  * 1. NEVER executes candidate SQL against production MySQL databases.
  * 2. Runs exclusively inside an ephemeral, in-memory H2 sandbox with strict isolation.
  * 3. Enforces static security checks: rejects DROP, ALTER, TRUNCATE, UPDATE, DELETE, INSERT,
- *    stored procedures, file operations, sleep, and schema introspection.
- * 4. Resource bounds: 2-second query execution timeout, max 50 rows, zero disk persistence.
+ *    stored procedures, file operations, sleep, multiple statements, and schema introspection.
+ * 4. Engine-level enforcement: sets connection to read-only before candidate execution.
+ * 5. Resource bounds: 2-second query execution timeout, max 50 rows, zero disk persistence.
  */
 @Service
 public class SqlEvaluationSandboxService {
@@ -27,7 +28,7 @@ public class SqlEvaluationSandboxService {
     private static final int MAX_RESULT_ROWS = 50;
 
     private static final Pattern DANGEROUS_SQL_PATTERN = Pattern.compile(
-            "\\b(DROP|ALTER|TRUNCATE|DELETE|UPDATE|INSERT|CREATE|GRANT|REVOKE|SHUTDOWN|EXEC|EXECUTE|CALL|INFORMATION_SCHEMA|INTO\\s+OUTFILE|LOAD_FILE|BENCHMARK|SLEEP)\\b",
+            "\\b(DROP|ALTER|TRUNCATE|DELETE|UPDATE|INSERT|CREATE|GRANT|REVOKE|SHUTDOWN|EXEC|EXECUTE|CALL|INFORMATION_SCHEMA|INTO\\s+OUTFILE|LOAD_FILE|BENCHMARK|SLEEP|RUNSCRIPT|CSVWRITE|CSVREAD|FILE_READ|FILE_WRITE|LINK_SCHEMA|SCRIPT|USER|ROLE|DATABASE_PATH)\\b",
             Pattern.CASE_INSENSITIVE
     );
 
@@ -60,7 +61,13 @@ public class SqlEvaluationSandboxService {
 
         String cleanCandidate = candidateSql.trim();
 
-        // 1. Static Security Validation - Read-only query enforcement
+        // 1. Static Security Validation - Multi-statement prevention
+        if (cleanCandidate.replaceAll(";\\s*$", "").contains(";")) {
+            log.warn("SQL Sandbox: Multiple SQL statements detected in candidate query: {}", cleanCandidate);
+            return new SqlEvaluationResult(false, 0, 0, "Query rejected: Multiple statements or semicolon injection prohibited.");
+        }
+
+        // 2. Prohibited keywords check
         if (DANGEROUS_SQL_PATTERN.matcher(cleanCandidate).find()) {
             log.warn("SQL Sandbox: Prohibited keyword detected in candidate query: {}", cleanCandidate);
             return new SqlEvaluationResult(false, 0, 0, "Query rejected: Only read-only SELECT queries are permitted in this sandbox.");
@@ -70,7 +77,7 @@ public class SqlEvaluationSandboxService {
             return new SqlEvaluationResult(false, 0, 0, "Query rejected: Query must begin with SELECT or WITH.");
         }
 
-        // 2. Ephemeral In-Memory Sandbox Connection
+        // 3. Ephemeral In-Memory Sandbox Connection
         String sandboxUrl = "jdbc:h2:mem:sql_sandbox_" + UUID.randomUUID().toString().replace("-", "") + ";MODE=MySQL";
         long startTime = System.currentTimeMillis();
 
@@ -106,6 +113,9 @@ public class SqlEvaluationSandboxService {
                 }
             }
 
+            // Engine-Level Enforcement: Set connection to read-only before running untrusted student SQL
+            conn.setReadOnly(true);
+
             // Execute Candidate Query
             List<List<String>> candidateRows = new ArrayList<>();
             List<String> candidateCols = new ArrayList<>();
@@ -130,9 +140,8 @@ public class SqlEvaluationSandboxService {
 
             long elapsed = System.currentTimeMillis() - startTime;
 
-            // 3. Comparison
+            // 4. Comparison
             if (expectedRows.isEmpty()) {
-                // If no expected query is specified, successful execution without error passes
                 return new SqlEvaluationResult(true, candidateRows.size(), elapsed, "Query executed successfully.");
             }
 
@@ -158,7 +167,7 @@ public class SqlEvaluationSandboxService {
         } catch (Exception ex) {
             long elapsed = System.currentTimeMillis() - startTime;
             log.error("SQL sandbox evaluation error: {}", ex.getMessage(), ex);
-            return new SqlEvaluationResult(false, 0, elapsed, "Evaluation failed: Internal sandbox error");
+            return new SqlEvaluationResult(false, 0, elapsed, "SQL execution error: " + ex.getMessage());
         }
     }
 }

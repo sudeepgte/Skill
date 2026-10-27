@@ -49,6 +49,14 @@ public class SubscriptionController {
             return "redirect:/login";
         }
 
+        if (!"INSTRUCTOR".equalsIgnoreCase(instructor.getRole()) && !"ROLE_INSTRUCTOR".equalsIgnoreCase(instructor.getRole())
+                && !"ADMIN".equalsIgnoreCase(instructor.getRole()) && !"ROLE_ADMIN".equalsIgnoreCase(instructor.getRole())) {
+            throw new org.springframework.security.access.AccessDeniedException("Access denied: Only instructors can access subscription management");
+        }
+        if (instructor.isBlocked() || !Boolean.TRUE.equals(instructor.isApproved())) {
+            throw new org.springframework.security.access.AccessDeniedException("Access denied: Instructor account is not approved or is blocked");
+        }
+
         List<SubscriptionPlan> plans = subscriptionService.getAllActivePlans();
         Optional<InstructorSubscription> activeSubOpt = subscriptionService.getActiveSubscription(instructor);
         CourseUsageDto usage = subscriptionService.getCourseUsage(instructor);

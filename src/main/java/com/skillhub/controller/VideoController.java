@@ -34,6 +34,12 @@ public class VideoController {
                     .body(Map.of("success", false, "error", "Unauthorized: Authentication required"));
         }
 
+        User currentUser = userService.findByEmail(principal.getName());
+        if (currentUser == null || currentUser.isBlocked() || !Boolean.TRUE.equals(currentUser.isApproved())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "error", "Forbidden: Account is not approved or is blocked"));
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAuthorized = false;
         if (auth != null) {
@@ -45,8 +51,7 @@ public class VideoController {
         }
 
         if (!isAuthorized) {
-            User user = userService.findByEmail(principal.getName());
-            if (user != null && ("INSTRUCTOR".equalsIgnoreCase(user.getRole()) || "ADMIN".equalsIgnoreCase(user.getRole()))) {
+            if ("INSTRUCTOR".equalsIgnoreCase(currentUser.getRole()) || "ADMIN".equalsIgnoreCase(currentUser.getRole())) {
                 isAuthorized = true;
             }
         }
@@ -59,56 +64,44 @@ public class VideoController {
         // 2. File Verification (Extension and Media Whitelist - BUG-018)
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "error", "File is required and cannot be empty"));
+                    .body(Map.of("success", false, "error", "File is empty or missing"));
         }
 
-        String rawOriginal = file.getOriginalFilename() != null ? file.getOriginalFilename() : "";
-        String cleanName = StringUtils.cleanPath(rawOriginal);
-        if (cleanName.contains("..") || cleanName.contains("/") || cleanName.contains("\\")) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "error", "Invalid file name"));
+        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "");
+        String extension = "";
+        int dotIndex = originalFilename.lastIndexOf('.');
+        if (dotIndex > 0) {
+            extension = originalFilename.substring(dotIndex).toLowerCase();
         }
 
-        int dotIndex = cleanName.lastIndexOf('.');
-        if (dotIndex == -1) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "error", "File must have a valid extension (.mp4, .webm)"));
-        }
-
-        String extension = cleanName.substring(dotIndex).toLowerCase();
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "error", "Invalid file type. Only verified media files (.mp4, .webm) are allowed"));
+                    .body(Map.of("success", false, "error", "Unsupported file type. Only MP4 and WebM videos are permitted."));
         }
 
         String contentType = file.getContentType();
-        if (contentType != null && !contentType.trim().isEmpty()) {
-            String lowerContentType = contentType.toLowerCase().trim();
-            if (!lowerContentType.startsWith("video/") && !ALLOWED_CONTENT_TYPES.contains(lowerContentType)) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("success", false, "error", "Invalid media content type: " + contentType));
-            }
+        if (contentType != null && !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "error", "Invalid video MIME type. Only MP4 and WebM are allowed."));
         }
 
         try {
-            String uploadDir = "uploads/videos/";
-            File directory = new File(uploadDir);
-            if (!directory.exists()) {
-                directory.mkdirs();
+            // 3. Secure Storage
+            String uploadDir = "uploads/videos";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
             }
 
-            String sanitized = cleanName.replaceAll("[^a-zA-Z0-9._-]", "_");
-            String fileName = System.currentTimeMillis() + "_" + sanitized;
-            file.transferTo(new File(directory.getAbsolutePath() + File.separator + fileName));
+            String uniqueName = System.currentTimeMillis() + "_" + originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_");
+            File destination = new File(dir, uniqueName);
+            file.transferTo(destination.toPath());
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "fileName", fileName,
-                    "fileUrl", "/uploads/videos/" + fileName
-            ));
+            String videoUrl = "/uploads/videos/" + uniqueName;
+            return ResponseEntity.ok(Map.of("success", true, "url", videoUrl, "fileName", uniqueName));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "error", "File upload failed: " + e.getMessage()));
+                    .body(Map.of("success", false, "error", "Failed to upload video: " + e.getMessage()));
         }
     }
 }

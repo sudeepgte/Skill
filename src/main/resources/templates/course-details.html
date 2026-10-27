@@ -944,7 +944,7 @@
             <div class="course-section">
                 <h2>Description</h2>
                 <div class="description-content"
-                    th:utext="${course.longDescription != null ? course.longDescription : course.description}">
+                    th:text="${course.longDescription != null ? course.longDescription : course.description}">
                     Description goes here.
                 </div>
             </div>
@@ -1461,7 +1461,9 @@
         }
         // Wishlist Logic
         document.getElementById('addToWishlistBtn')?.addEventListener('click', function () {
-            const courseId = this.getAttribute('data-course-id');
+            const btn = this;
+            if (btn.disabled) return;
+            const courseId = btn.getAttribute('data-course-id');
             const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
             
@@ -1470,19 +1472,23 @@
                 headers[csrfHeader] = csrfToken;
             }
 
+            btn.disabled = true;
+
             fetch('/course/wishlist/add', {
                 method: 'POST',
                 headers: headers,
-                body: 'courseId=' + courseId
+                body: 'courseId=' + encodeURIComponent(courseId)
             })
             .then(response => {
                 if (response.status === 403) {
+                    btn.disabled = false;
                     alert("Security session expired. Please refresh the page.");
                     return;
                 }
                 return response.json();
             })
             .then(data => {
+                if (!data) return;
                 if (data.redirect) {
                     window.location.href = data.redirect;
                 } else if (data.success) {
@@ -1491,10 +1497,12 @@
                     } else {
                         alert(data.message || 'Added to favorites!');
                     }
-                    this.innerHTML = '<i class="fas fa-heart" style="color:#ff4757"></i> In Favorites';
-                    this.style.borderColor = '#ff4757';
-                    this.style.color = '#ff4757';
+                    btn.innerHTML = '<i class="fas fa-heart" style="color:#ff4757"></i> In Favorites';
+                    btn.style.borderColor = '#ff4757';
+                    btn.style.color = '#ff4757';
+                    btn.disabled = false;
                 } else {
+                    btn.disabled = false;
                     if (window.showGlobalNotification) {
                         window.showGlobalNotification("Wishlist Error", data.message || 'Unknown error');
                     } else {
@@ -1503,6 +1511,7 @@
                 }
             })
             .catch(err => {
+                btn.disabled = false;
                 console.error("Wishlist error:", err);
                 if (window.showGlobalNotification) {
                     window.showGlobalNotification("Wishlist Error", "An error occurred. Please make sure you are logged in.");

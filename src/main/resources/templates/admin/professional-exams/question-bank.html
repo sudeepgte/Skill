@@ -242,16 +242,16 @@
     </div>
 
     <script>
-        const sidebar  = document.getElementById('adminSidebar');
+        const sidebar = document.getElementById('adminSidebar');
         const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
+        if (sidebar && toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
         }
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
     </script>
     <!-- SkillHub Global Broadcast Popup Notification -->
     <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>

@@ -53,7 +53,7 @@ public class ProfessionalExamAttemptServiceImpl implements ProfessionalExamAttem
             throw new BusinessException("RATE_LIMIT_EXCEEDED");
         }
 
-        ProfessionalExamApplication app = applicationRepository.findById(request.getApplicationId())
+        ProfessionalExamApplication app = applicationRepository.findByIdWithLock(request.getApplicationId())
                 .orElseThrow(() -> new BusinessException("APPLICATION_NOT_FOUND"));
 
         if (!app.getUser().getId().equals(user.getId())) {

@@ -109,6 +109,12 @@ public class PlacementController {
     public String saveResume(@ModelAttribute UserResume resume, Principal principal) {
         if (principal == null) return "redirect:/login";
         User user = userService.findByEmail(principal.getName());
+        UserResume existing = placementService.getResumeByUser(user);
+        if (existing != null) {
+            resume.setId(existing.getId());
+        } else {
+            resume.setId(null);
+        }
         resume.setUser(user);
         placementService.saveResume(resume);
         return "redirect:/user/placement/resume?success=true";

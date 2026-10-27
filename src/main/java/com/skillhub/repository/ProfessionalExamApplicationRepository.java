@@ -16,4 +16,8 @@ public interface ProfessionalExamApplicationRepository extends JpaRepository<Pro
     Optional<ProfessionalExamApplication> findByUserIdAndProfessionalExamId(Long userId, Long examId);
     Optional<ProfessionalExamApplication> findFirstByUserIdAndProfessionalExamIdOrderByIdDesc(Long userId, Long examId);
     List<ProfessionalExamApplication> findAllByUserIdAndProfessionalExamId(Long userId, Long examId);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM ProfessionalExamApplication a WHERE a.id = :id")
+    Optional<ProfessionalExamApplication> findByIdWithLock(@org.springframework.data.repository.query.Param("id") Long id);
 }

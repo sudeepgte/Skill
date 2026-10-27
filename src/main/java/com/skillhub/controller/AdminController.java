@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN') or hasAuthority('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -331,48 +331,48 @@ public class AdminController {
     public String blockUser(@RequestParam("id") Long id, HttpServletRequest request) {
         userService.blockUser(id);
         String referer = request.getHeader("Referer");
-        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/admin/users");
     }
 
     @PostMapping("/users/unblock")
     public String unblockUser(@RequestParam("id") Long id, HttpServletRequest request) {
         userService.unblockUser(id);
         String referer = request.getHeader("Referer");
-        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/admin/users");
     }
 
     @PostMapping("/users/approve")
     public String approveUser(@RequestParam("id") Long id, HttpServletRequest request) {
         userService.approveUser(id);
         String referer = request.getHeader("Referer");
-        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/admin/users");
     }
 
     @PostMapping("/users/delete")
     public String deleteUser(@RequestParam("id") Long id, HttpServletRequest request) {
         userService.deleteUser(id);
         String referer = request.getHeader("Referer");
-        return referer != null ? "redirect:" + referer : "redirect:/admin/users";
+        return "redirect:" + com.skillhub.security.SecurityUtils.sanitizeRedirect(referer, "/admin/users");
     }
 
     @GetMapping("/courses")
     public String listCourses(@RequestParam(value = "status", required = false) String statusFilter, Model model) {
-        List<Course> allCourses = courseService.getAllCourses();
-        List<Course> displayedCourses = allCourses;
+        List<Course> displayedCourses;
 
         if (statusFilter != null && !statusFilter.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusFilter)) {
             try {
                 CourseStatus cs = CourseStatus.valueOf(statusFilter.toUpperCase());
-                displayedCourses = allCourses.stream()
-                        .filter(c -> c.getStatus() == cs)
-                        .collect(Collectors.toList());
+                displayedCourses = courseService.getCoursesByStatus(cs);
             } catch (Exception ignored) {
+                displayedCourses = courseService.getAllCourses();
             }
+        } else {
+            displayedCourses = courseService.getAllCourses();
         }
 
         long pendingCount = courseService.countPendingCourses();
         model.addAttribute("courses", displayedCourses);
-        model.addAttribute("allCourses", allCourses);
+        model.addAttribute("allCourses", displayedCourses);
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("statusFilter", statusFilter != null ? statusFilter : "ALL");
         return "admin/courses";
@@ -905,6 +905,11 @@ public class AdminController {
 
         if (!passwordEncoder.matches(oldPassword, admin.getPassword())) {
             redirectAttributes.addFlashAttribute("error", "Incorrect current password.");
+            return "redirect:/admin/profile";
+        }
+
+        if (newPassword == null || newPassword.length() < 8) {
+            redirectAttributes.addFlashAttribute("error", "New password must be at least 8 characters.");
             return "redirect:/admin/profile";
         }
 

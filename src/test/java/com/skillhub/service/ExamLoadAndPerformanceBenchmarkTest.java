@@ -122,6 +122,7 @@ public class ExamLoadAndPerformanceBenchmarkTest {
 
         // Dynamic Map-based Mocking to prevent thread cross-talk
         when(applicationRepo.findById(anyLong())).thenAnswer(inv -> Optional.ofNullable(appMap.get(inv.getArgument(0))));
+        when(applicationRepo.findByIdWithLock(anyLong())).thenAnswer(inv -> Optional.ofNullable(appMap.get(inv.getArgument(0))));
         when(attemptRepo.findById(anyLong())).thenAnswer(inv -> Optional.ofNullable(attemptMap.get(inv.getArgument(0))));
         when(attemptRepo.save(any(ProfessionalExamAttempt.class))).thenAnswer(inv -> {
             ProfessionalExamAttempt a = inv.getArgument(0);

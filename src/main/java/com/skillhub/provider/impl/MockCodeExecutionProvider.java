@@ -35,7 +35,7 @@ public class MockCodeExecutionProvider implements CodeExecutionProvider {
 
     @jakarta.annotation.PostConstruct
     public void validateNotProduction() {
-        if ("production".equalsIgnoreCase(activeProfile) || "prod".equalsIgnoreCase(activeProfile)) {
+        if ((executionMode == null || "mock".equalsIgnoreCase(executionMode)) && ("production".equalsIgnoreCase(activeProfile) || "prod".equalsIgnoreCase(activeProfile))) {
             throw new IllegalStateException("CRITICAL SECURITY VIOLATION: MockCodeExecutionProvider cannot be activated in production profile!");
         }
         if ("production".equalsIgnoreCase(executionMode)) {

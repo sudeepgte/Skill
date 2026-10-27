@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", indexes = {
+    @Index(name = "idx_review_course", columnList = "course_id"),
+    @Index(name = "idx_review_user", columnList = "user_id"),
+    @Index(name = "idx_review_created", columnList = "createdAt")
+})
 public class Review {
 
     @Id
@@ -41,7 +45,6 @@ public class Review {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -90,9 +93,19 @@ public class Review {
         this.createdAt = createdAt;
     }
 
-    public String getReply() { return reply; }
-    public void setReply(String reply) { this.reply = reply; }
+    public String getReply() {
+        return reply;
+    }
 
-    public LocalDateTime getReplyDate() { return replyDate; }
-    public void setReplyDate(LocalDateTime replyDate) { this.replyDate = replyDate; }
+    public void setReply(String reply) {
+        this.reply = reply;
+    }
+
+    public LocalDateTime getReplyDate() {
+        return replyDate;
+    }
+
+    public void setReplyDate(LocalDateTime replyDate) {
+        this.replyDate = replyDate;
+    }
 }

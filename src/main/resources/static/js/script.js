@@ -7,23 +7,40 @@ document.addEventListener('DOMContentLoaded', function () {
     let cur = 0, timer;
 
     function goTo(n) {
+        if (!slides.length || !track) return;
         cur = (n + slides.length) % slides.length;
         track.style.transform = `translateX(-${cur * 100}%)`;
         document.querySelectorAll('.hero-dot').forEach((d, i) =>
             d.classList.toggle('active', i === cur));
     }
-    function resetTimer() { clearInterval(timer); timer = setInterval(() => goTo(cur + 1), 5500); }
+    function resetTimer() { 
+        clearInterval(timer); 
+        if (slides.length > 1) {
+            timer = setInterval(() => goTo(cur + 1), 5500); 
+        }
+    }
 
     if (slides.length) {
         slides.forEach((_, i) => {
             const d = document.createElement('button');
             d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+            d.setAttribute('type', 'button');
+            d.setAttribute('aria-label', 'Slide ' + (i + 1));
             d.onclick = () => { goTo(i); resetTimer(); };
-            dotsWrap.appendChild(d);
+            if (dotsWrap) {
+                dotsWrap.appendChild(d);
+            }
         });
-        document.getElementById('heroPrev').onclick = () => { goTo(cur - 1); resetTimer(); };
-        document.getElementById('heroNext').onclick = () => { goTo(cur + 1); resetTimer(); };
-        goTo(0); resetTimer();
+        const prevBtn = document.getElementById('heroPrev');
+        if (prevBtn) {
+            prevBtn.onclick = () => { goTo(cur - 1); resetTimer(); };
+        }
+        const nextBtn = document.getElementById('heroNext');
+        if (nextBtn) {
+            nextBtn.onclick = () => { goTo(cur + 1); resetTimer(); };
+        }
+        goTo(0); 
+        resetTimer();
     }
 
     /* ── AUTO-SCROLL TO COURSES SECTION ── */
