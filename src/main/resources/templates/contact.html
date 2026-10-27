@@ -368,10 +368,10 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
     <!-- Success Message Alert -->
-    <div th:if="${successMessage}" class="success-alert">
+    <div id="contactSuccessAlert" th:if="${successMessage != null or param.success != null}" class="success-alert" style="display: block;">
         <div class="alert-content">
             <i class="fas fa-check-circle"></i>
-            <span th:text="${successMessage}">Your message has been sent!</span>
+            <span id="contactSuccessText" th:text="${successMessage != null ? successMessage : 'Your message has been sent successfully! A confirmation email has been dispatched to your email.'}">Your message has been sent!</span>
         </div>
     </div>
 
@@ -429,23 +429,19 @@
                     <p>Tell us more about your needs and we'll get back to you within 24 hours.</p>
                 </div>
 
-                <form th:action="@{/submit-contact-form}" method="POST">
+                <form th:action="@{/submit-contact-form}" method="POST" id="contactPageForm">
                     <!-- CSRF Token -->
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <div class="form-row">
                         <div class="input-group">
                             <label for="full-name">Full Name</label>
-                            <input type="text" id="full-name" name="name" placeholder="John Doe" required
-                                pattern="[A-Za-z .'-]+" title="Only letters, spaces, dots, hyphens and apostrophes allowed"
-                                oninput="var v=this.value; if(/[0-9]/.test(v)){this.value=v.replace(/[0-9]/g,''); document.getElementById('nameErr').style.display='block'; this.style.borderColor='#d32f2f'; setTimeout(function(){document.getElementById('nameErr').style.display='none';},3000);}">
-                            <small id="nameErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Numbers are not allowed in Full Name</small>
+                            <input type="text" id="full-name" name="name" placeholder="Your Name" required>
+                            <small id="nameErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Please enter your name</small>
                         </div>
                         <div class="input-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="john@example.com" required
-                                pattern="[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}" 
-                                title="Email must start with a letter (e.g. john@example.com)">
-                            <small id="emailErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Email must start with a letter, not a number</small>
+                            <input type="email" id="email" name="email" placeholder="name@example.com" required>
+                            <small id="emailErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Please enter a valid email</small>
                         </div>
                     </div>
 
@@ -453,18 +449,16 @@
                         <div class="input-group">
                             <label for="subject">Inquiry Type</label>
                             <select id="subject" name="subject">
-                                <option value="general">General Support</option>
-                                <option value="billing">Billing & Payments</option>
-                                <option value="corporate">Corporate Training</option>
-                                <option value="technical">Technical Issue</option>
+                                <option value="General Support">General Support</option>
+                                <option value="Billing & Payments">Billing & Payments</option>
+                                <option value="Corporate Training">Corporate Training</option>
+                                <option value="Technical Issue">Technical Issue</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label for="phone">Phone (Optional)</label>
-                            <input type="tel" id="phone" name="phone" placeholder="10-digit number"
-                                maxlength="10" pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number"
-                                oninput="this.value=this.value.replace(/[^0-9]/g,'');">
-                            <small id="phoneErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Phone must be exactly 10 digits</small>
+                            <input type="tel" id="phone" name="phone" placeholder="Contact Number (Optional)">
+                            <small id="phoneErr" style="color:#d32f2f; font-size:1.2rem; display:none;">Please enter a valid phone number</small>
                         </div>
                     </div>
 
@@ -473,41 +467,62 @@
                         <textarea id="message" name="message" rows="6" placeholder="How can we empower you today?" required></textarea>
                     </div>
 
-                    <button type="submit" class="submit-btn">Send Message <i class="fas fa-paper-plane" style="margin-left: 1rem;"></i></button>
+                    <button type="submit" id="contactSubmitBtn" class="submit-btn">Send Message <i class="fas fa-paper-plane" style="margin-left: 1rem;"></i></button>
                 </form>
 
                 <script>
-                    document.querySelector('.form-panel form').addEventListener('submit', function(e) {
-                        var valid = true;
-                        var nameEl = document.getElementById('full-name');
-                        var emailEl = document.getElementById('email');
-                        var phoneEl = document.getElementById('phone');
-
-                        // Validate name: no numbers
-                        if (/[0-9]/.test(nameEl.value)) {
-                            document.getElementById('nameErr').style.display = 'block';
-                            nameEl.style.borderColor = '#d32f2f';
-                            valid = false;
-                        }
-
-                        // Validate email: must start with a letter
-                        if (/^[0-9]/.test(emailEl.value)) {
-                            document.getElementById('emailErr').style.display = 'block';
-                            emailEl.style.borderColor = '#d32f2f';
-                            valid = false;
-                        }
-
-                        // Validate phone: if filled, must be exactly 10 digits
-                        if (phoneEl.value.length > 0 && phoneEl.value.length !== 10) {
-                            document.getElementById('phoneErr').style.display = 'block';
-                            phoneEl.style.borderColor = '#d32f2f';
-                            valid = false;
-                        }
-
-                        if (!valid) {
+                    const pageContactForm = document.getElementById('contactPageForm');
+                    if (pageContactForm) {
+                        pageContactForm.addEventListener('submit', function(e) {
                             e.preventDefault();
-                        }
-                    });
+                            const btn = document.getElementById('contactSubmitBtn');
+                            const origHtml = btn ? btn.innerHTML : 'Send Message';
+                            if (btn) {
+                                btn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin" style="margin-left: 1rem;"></i>';
+                                btn.disabled = true;
+                            }
+
+                            const formData = new FormData(pageContactForm);
+                            const params = new URLSearchParams(formData);
+
+                            fetch('/submit-contact-form', {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: params
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                let alertEl = document.getElementById('contactSuccessAlert');
+                                if (!alertEl) {
+                                    alertEl = document.createElement('div');
+                                    alertEl.id = 'contactSuccessAlert';
+                                    alertEl.className = 'success-alert';
+                                    alertEl.innerHTML = '<div class="alert-content"><i class="fas fa-check-circle"></i> <span id="contactSuccessText"></span></div>';
+                                    document.body.prepend(alertEl);
+                                }
+                                alertEl.style.display = 'block';
+                                const txtEl = document.getElementById('contactSuccessText');
+                                if (txtEl) {
+                                    txtEl.textContent = data.message || "Your message has been sent successfully! A confirmation email has been dispatched.";
+                                }
+                                alertEl.scrollIntoView({ behavior: 'smooth' });
+                                pageContactForm.reset();
+                                if (btn) {
+                                    btn.innerHTML = 'Message Sent! <i class="fas fa-check" style="margin-left: 1rem;"></i>';
+                                    setTimeout(() => {
+                                        btn.innerHTML = origHtml;
+                                        btn.disabled = false;
+                                    }, 4000);
+                                }
+                            })
+                            .catch(() => {
+                                pageContactForm.submit();
+                            });
+                        });
+                    }
                 </script>
 
             </div>

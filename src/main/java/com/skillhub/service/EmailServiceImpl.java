@@ -11,7 +11,7 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:support@skillhub.com}")
     private String fromEmail;
 
     @Override

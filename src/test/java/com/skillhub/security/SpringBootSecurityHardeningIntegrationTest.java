@@ -143,6 +143,7 @@ public class SpringBootSecurityHardeningIntegrationTest {
                 .andExpect(header().string("Referrer-Policy", "strict-origin-when-cross-origin"))
                 .andExpect(header().exists("Content-Security-Policy"))
                 .andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com")))
+                .andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:")))
                 .andExpect(header().string("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()"));
     }
 

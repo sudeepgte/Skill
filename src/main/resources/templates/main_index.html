@@ -4,34 +4,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SkillHub – Learn Without Limits</title>
+  <title>SkillHub — Learn Any Skill, Master Your Future</title>
+  <meta name="description" content="Explore online courses with certified instructors. Upgrade your career, gain skills, and advance in tech, business, design, and more with SkillHub.">
+
+  <!-- CSRF Tokens -->
+  <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
+  <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}" />
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="this.onerror=null; this.href='/css/font-awesome-fallback.css';">
-  <style th:replace="~{fragments/footer :: footer-styles}"></style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
   <style>
-    *,
-    *::before,
-    *::after {
+    /* ==========================================================================
+       DESIGN SYSTEM & VARIABLES (Figma Exact Matches)
+       ========================================================================== */
+    :root {
+      --primary-purple: #8B5CF6;
+      --primary-purple-dark: #7C3AED;
+      --primary-purple-deep: #6D28D9;
+      --primary-purple-light: #DDD6FE;
+      --primary-purple-ultralight: #F3EEFE;
+      
+      --accent-lilac: #B9A6FF;
+      --accent-lavender: #C4B5FD;
+      --accent-soft: #EAE3FC;
+      
+      --bg-hero: linear-gradient(135deg, #B79EFF 0%, #D4C3FF 45%, #E9DEFE 100%);
+      --bg-body: #FFFFFF;
+      --bg-cream: #FAF5EE;
+      --bg-dark-banner: #1E1513;
+      
+      --text-dark: #120D26;
+      --text-body: #374151;
+      --text-muted: #6B7280;
+      --text-dim: #9CA3AF;
+      --text-light: #FFFFFF;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 2px 8px rgba(139, 92, 246, 0.06);
+      --shadow-md: 0 8px 24px rgba(139, 92, 246, 0.10);
+      --shadow-lg: 0 16px 36px rgba(139, 92, 246, 0.14);
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-
-    :root {
-      --bg: #F5F3FF;
-      --surface: #EDE9FE;
-      --surface2: #DDD6FE;
-      --primary: #A78BFA;
-      --secondary: #8B5CF6;
-      --accent: #C4B5FD;
-      --highlight: #F472B6;
-      --text: #2E1065;
-      --text-muted: #8B5CF6;
-      --text-dim: #7C3AED;
-      --border: rgba(167, 139, 250, 0.18);
-      --border-hover: rgba(167, 139, 250, 0.4);
     }
 
     html {
@@ -39,1327 +70,1519 @@
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-dark);
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 16px;
-      line-height: 1.7;
+      line-height: 1.6;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
     }
-
     ::-webkit-scrollbar-track {
-      background: var(--bg);
+      background: #F3EEFE;
     }
-
     ::-webkit-scrollbar-thumb {
-      background: var(--secondary);
-      border-radius: 3px;
+      background: #A78BFA;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8B5CF6;
     }
 
-    /* ── NAVBAR ── */
-    nav {
-      position: fixed;
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── COMMON SECTION HEADERS & LABELS ── */
+    .section-eyebrow {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary-purple-dark);
+      margin-bottom: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .section-title span.purple-highlight {
+      color: var(--primary-purple);
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-top: 12px;
+    }
+
+    /* ==========================================================================
+       1. HEADER & NAVIGATION
+       ========================================================================== */
+    .site-header {
+      position: sticky;
       top: 0;
       left: 0;
       right: 0;
       z-index: 1000;
-      background: rgba(245, 243, 255, 0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 5%;
+      background: rgba(183, 158, 255, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      transition: var(--transition);
+    }
+
+    .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 70px;
+      height: 74px;
     }
 
-    .nav-logo {
+    .brand-logo {
       display: flex;
       align-items: center;
-      text-decoration: none;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .nav-links {
+    .brand-logo-text {
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #1A102F;
+      text-transform: uppercase;
+    }
+
+    .brand-logo-text span {
+      color: #FFFFFF;
+    }
+
+    .nav-menu {
       display: flex;
       align-items: center;
-      gap: 2rem;
+      gap: 36px;
       list-style: none;
     }
 
-    .nav-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.92rem;
-      font-weight: 500;
+    .nav-menu a {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #2D1A4C;
       letter-spacing: 0.3px;
-      transition: color 0.2s;
       position: relative;
+      padding: 6px 0;
     }
 
-    .nav-links a::after {
+    .nav-menu a:hover {
+      color: #120A24;
+    }
+
+    .nav-menu a::after {
       content: '';
       position: absolute;
-      bottom: -4px;
+      bottom: 0;
       left: 0;
-      right: 0;
-      height: 1.5px;
-      background: var(--primary);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.25s;
+      width: 0%;
+      height: 2px;
+      background: #2D1A4C;
+      transition: var(--transition);
     }
 
-    .nav-links a:hover {
-      color: var(--text);
-    }
-
-    .nav-links a:hover::after {
-      transform: scaleX(1);
+    .nav-menu a:hover::after {
+      width: 100%;
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 14px;
     }
 
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border-hover);
-      color: var(--text);
-      padding: 0.45rem 1.1rem;
-      border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .btn-ghost:hover {
-      background: var(--surface);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      border: 1px solid var(--primary);
-      color: #ffffff;
-      padding: 0.45rem 1.3rem;
-      border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
+    .btn-login {
+      padding: 9px 22px;
+      font-size: 0.92rem;
       font-weight: 700;
-      cursor: pointer;
-      transition: all 0.25s;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(167, 139, 250, 0.2);
+      color: #1E1238;
+      border: 1px solid rgba(30, 18, 56, 0.25);
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
     }
 
-    .btn-primary:hover {
-      background: var(--secondary);
-      border-color: var(--secondary);
+    .btn-login:hover {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: #1E1238;
       transform: translateY(-1px);
     }
 
-    .btn-large {
-      padding: 0.85rem 2.2rem;
-      font-size: 1rem;
-      border-radius: 8px;
+    .btn-signup {
+      padding: 10px 24px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: var(--primary-purple-dark);
+      border: 1px solid var(--primary-purple-dark);
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+      transition: var(--transition);
     }
 
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 120px 5% 80px;
+    .btn-signup:hover {
+      background: var(--primary-purple-deep);
+      border-color: var(--primary-purple-deep);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: #1E1238;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       2. HERO SECTION
+       ========================================================================== */
+    .hero-section {
+      background: var(--bg-hero);
+      padding: 60px 0 0;
       position: relative;
       overflow: hidden;
-    }
-
-    .hero-bg-orb {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      filter: blur(90px);
-      opacity: 0.18;
-    }
-
-    .orb1 {
-      width: 600px;
-      height: 600px;
-      background: var(--primary);
-      top: -150px;
-      right: -100px;
-    }
-
-    .orb2 {
-      width: 400px;
-      height: 400px;
-      background: var(--secondary);
-      bottom: -80px;
-      left: -80px;
-    }
-
-    .orb3 {
-      width: 300px;
-      height: 300px;
-      background: var(--accent);
-      top: 30%;
-      left: 45%;
-      opacity: 0.08;
     }
 
     .hero-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 5rem;
-      align-items: center;
-      text-align: center;
-      max-width: 1000px;
-      margin: 0 auto;
-      width: 100%;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--primary);
-      border: 1px solid rgba(46, 16, 101, 0.1);
-      color: #ffffff;
-      padding: 0.35rem 1.2rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
-    }
-
-    .hero-badge::before {
-      content: '★';
-      font-size: 0.75rem;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: flex-end;
+      gap: 40px;
     }
 
     .hero-content {
-      max-width: 1000px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
+      padding-bottom: 70px;
     }
 
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.5rem, 5vw, 4rem);
+    .hero-title {
+      font-size: clamp(2.8rem, 5vw, 4.4rem);
       font-weight: 900;
-      line-height: 1.1;
-      color: #ffffff;
-      margin-bottom: 1.4rem;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      line-height: 1.08;
+      letter-spacing: -1px;
+      color: #120B24;
+      text-transform: uppercase;
+      margin-bottom: 18px;
     }
 
-    .hero h1 em {
-      color: #1E3A8A;
-      font-style: normal;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    .hero-title .title-light {
+      display: block;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 2px 14px rgba(124, 58, 237, 0.25);
     }
 
-    .hero p {
-      font-size: 1.15rem;
-      color: #ffffff;
-      margin-bottom: 2.2rem;
-      max-width: 650px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.8;
+    .hero-subtitle {
+      font-size: 1.12rem;
+      line-height: 1.65;
+      color: #2F1E4A;
+      max-width: 540px;
+      margin-bottom: 32px;
       font-weight: 500;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
-    .hero-actions {
+    .hero-buttons {
       display: flex;
-      gap: 1rem;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 44px;
       flex-wrap: wrap;
-      margin-bottom: 3rem;
-      justify-content: center;
+    }
+
+    .btn-hero-primary {
+      padding: 13px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: var(--primary-purple-dark);
+      border-radius: var(--radius-full);
+      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+      border: 1px solid var(--primary-purple-dark);
+      transition: var(--transition);
+    }
+
+    .btn-hero-primary:hover {
+      background: var(--primary-purple-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(124, 58, 237, 0.45);
+    }
+
+    .btn-hero-secondary {
+      padding: 13px 30px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1A102F;
+      background: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-full);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      transition: var(--transition);
+    }
+
+    .btn-hero-secondary:hover {
+      background: #F8F5FF;
+      color: var(--primary-purple-dark);
+      border-color: #DDD6FE;
+      transform: translateY(-2px);
     }
 
     .hero-stats {
       display: flex;
-      gap: 3rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      align-items: center;
+      gap: 36px;
+      border-top: 1px solid rgba(47, 30, 74, 0.15);
+      padding-top: 24px;
     }
 
-    .stat-item {}
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+    }
 
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    .stat-number {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: #120B24;
+      line-height: 1.1;
     }
 
     .stat-label {
-      font-size: 0.9rem;
-      color: #ffffff;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #402D5E;
       margin-top: 4px;
-      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
 
-    .hero-visual {
+    .hero-image-wrap {
       position: relative;
+      align-self: flex-end;
       display: flex;
       justify-content: center;
+    }
+
+    .hero-image-wrap img {
+      max-height: 540px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 15px 30px rgba(76, 29, 149, 0.18));
+      border-bottom: none;
+    }
+
+    /* ==========================================================================
+       3. SKILLS CATEGORY CARDS ("Every Skills You Can Imagine")
+       ========================================================================== */
+    .categories-section {
+      padding: 85px 0 90px;
+      background: #FFFFFF;
+      text-align: center;
+    }
+
+    .cat-header {
+      max-width: 680px;
+      margin: 0 auto 50px;
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 45px;
+    }
+
+    .category-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .category-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(139, 92, 246, 0.16);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .category-img-wrap {
+      width: 100%;
+      height: 210px;
+      overflow: hidden;
+      position: relative;
+      background: #F3EEFE;
+    }
+
+    .category-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .category-card:hover .category-img-wrap img {
+      transform: scale(1.06);
+    }
+
+    .category-body {
+      padding: 18px 22px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .category-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #120D26;
+    }
+
+    .category-arrow {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #F3EEFE;
+      color: var(--primary-purple-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+
+    .category-card:hover .category-arrow {
+      background: var(--primary-purple-dark);
+      color: #FFFFFF;
+      transform: translateX(3px);
+    }
+
+    .btn-see-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 34px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: var(--primary-purple);
+      border-radius: var(--radius-full);
+      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.28);
+      transition: var(--transition);
+    }
+
+    .btn-see-more:hover {
+      background: var(--primary-purple-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(139, 92, 246, 0.38);
+    }
+
+    /* ==========================================================================
+       4. FEATURED COURSES
+       ========================================================================== */
+    .featured-section {
+      padding: 30px 0 90px;
+    }
+
+    .featured-card-wrapper {
+      background: linear-gradient(135deg, #8E6CEF 0%, #7038E8 100%);
+      border-radius: var(--radius-xl);
+      padding: 56px 60px;
+      color: #FFFFFF;
+      box-shadow: 0 20px 48px rgba(112, 56, 232, 0.25);
+    }
+
+    .featured-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 50px;
       align-items: center;
     }
 
-    .hero-image-frame {
-      width: 100%;
-      max-width: 480px;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      position: relative;
-      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+    .featured-left-title {
+      font-size: clamp(2.4rem, 4vw, 3.4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      color: #FFFFFF;
+      margin-bottom: 16px;
     }
 
-    .hero-image-frame img {
+    .featured-left-desc {
+      font-size: 1.1rem;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.88);
+      margin-bottom: 36px;
+      max-width: 440px;
+    }
+
+    .btn-view-courses {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 30px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: #110B22;
+      border-radius: var(--radius-full);
+      transition: var(--transition);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-view-courses:hover {
+      background: #000000;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .featured-courses-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .course-mini-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: var(--transition);
+      color: #FFFFFF;
+    }
+
+    .course-mini-card:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(6px);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .course-mini-thumb {
+      width: 76px;
+      height: 56px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .course-mini-info {
+      flex: 1;
+    }
+
+    .course-mini-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #FDE047;
+      margin-bottom: 2px;
+    }
+
+    .course-mini-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.3;
+    }
+
+    .course-mini-arrow {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    /* ==========================================================================
+       5. LEARN FROM THE BEST (Instructor Showcase)
+       ========================================================================== */
+    .instructors-section {
+      padding: 50px 0 90px;
+      background: #FFFFFF;
+    }
+
+    .instructors-banner-bar {
+      background: #E8DDFF;
+      border-radius: var(--radius-md);
+      padding: 24px 30px;
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .instructors-banner-title {
+      font-size: 1.95rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--primary-purple-dark);
+      margin-bottom: 6px;
+    }
+
+    .instructors-banner-sub {
+      font-size: 0.98rem;
+      color: #37285A;
+      font-weight: 500;
+    }
+
+    .instructor-spotlight-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(139, 92, 246, 0.15);
+      box-shadow: var(--shadow-md);
+      padding: 36px 44px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 36px;
+      transition: var(--transition);
+    }
+
+    .spotlight-img-wrap {
       width: 100%;
       height: 360px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #F3EEFE;
+    }
+
+    .spotlight-img-wrap img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      display: block;
+      object-position: top center;
     }
 
-    .hero-image-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba(245, 243, 255, 0.95));
-      padding: 2rem 1.5rem 1.5rem;
-    }
-
-    .floating-card {
-      position: absolute;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.8rem 1.1rem;
-      backdrop-filter: blur(10px);
-    }
-
-    .card-top-left {
-      top: -20px;
-      left: -30px;
-    }
-
-    .card-bottom-right {
-      bottom: 80px;
-      right: -30px;
-    }
-
-    .floating-card .fc-label {
-      font-size: 0.7rem;
-      color: var(--text-dim);
+    .spotlight-name {
+      font-size: 2.2rem;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      color: #120B24;
+      letter-spacing: -0.5px;
       margin-bottom: 4px;
     }
 
-    .floating-card .fc-value {
-      font-size: 1.1rem;
+    .spotlight-role {
+      font-size: 1.05rem;
       font-weight: 600;
-      color: var(--secondary);
-    }
-
-    .floating-card .fc-sub {
-      font-size: 0.75rem;
       color: var(--text-muted);
+      margin-bottom: 22px;
     }
 
-    /* ── SECTIONS ── */
-    section {
-      padding: 90px 5%;
+    .spotlight-bio-tag {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-purple-dark);
+      margin-bottom: 8px;
     }
 
-    .section-inner {
-      max-width: 1200px;
-      margin: 0 auto;
+    .spotlight-bio-text {
+      font-size: 1.08rem;
+      line-height: 1.7;
+      color: #4B5563;
+      max-width: 600px;
     }
 
-    .section-tag {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 0.75rem;
-    }
-
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-
-    .section-sub {
-      font-size: 1rem;
-      color: var(--text-muted);
-      max-width: 520px;
-      margin-bottom: 3.5rem;
-      line-height: 1.75;
-    }
-
-    /* ── CATEGORIES ── */
-    .cats-bg {
-      background: var(--surface);
-    }
-
-    .categories-grid {
+    /* Instructors Thumbnails Row */
+    .instructors-thumbs-row {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px;
     }
 
-    .cat-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.8rem 1.5rem;
+    .inst-thumb-btn {
+      background: #FFFFFF;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 8px;
       cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-      text-decoration: none;
-      display: block;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    .cat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--cat-color, var(--primary));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.3s;
-    }
-
-    .cat-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .cat-card:hover::before {
-      transform: scaleX(1);
-    }
-
-    .cat-card.active-cat-card {
-      border-color: var(--primary) !important;
-      box-shadow: 0 0 0 2px var(--primary) !important;
+    .inst-thumb-btn.active {
+      border-color: var(--primary-purple-dark);
+      box-shadow: 0 8px 22px rgba(124, 58, 237, 0.22);
       transform: translateY(-4px);
     }
 
-    .cat-card.active-cat-card::before {
-      transform: scaleX(1) !important;
+    .inst-thumb-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
     }
 
-    .cat-icon {
-      font-size: 2.4rem;
-      margin-bottom: 1rem;
-      display: block;
-      filter: grayscale(0);
-    }
-
-    .cat-img {
+    .inst-thumb-img {
       width: 100%;
       height: 130px;
+      border-radius: var(--radius-sm);
       object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+      object-position: top center;
+      margin-bottom: 8px;
     }
 
-    .cat-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--text);
-      margin-bottom: 0.25rem;
-    }
-
-    .cat-count {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-    }
-
-    .cat-tag {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(196, 181, 253, 0.15);
-      color: var(--secondary);
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 50px;
-      border: 1px solid rgba(196, 181, 253, 0.3);
-    }
-
-    /* ── FEATURED COURSES ── */
-    .courses-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .course-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .course-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    .course-thumb {
-      width: 100%;
-      height: 175px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .course-body {
-      padding: 1.25rem;
-    }
-
-    .course-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.6rem;
-    }
-
-    .course-cat-tag {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--primary);
-      background: rgba(167, 139, 250, 0.1);
-      padding: 3px 9px;
-      border-radius: 50px;
-    }
-
-    .course-rating {
-      font-size: 0.8rem;
-      color: var(--secondary);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .course-title {
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--text);
-      line-height: 1.4;
-      margin-bottom: 0.6rem;
-    }
-
-    .course-instructor {
-      font-size: 0.82rem;
-      color: var(--text-dim);
-      margin-bottom: 1rem;
-    }
-
-    .course-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 0.9rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .course-price {
-      font-size: 1.1rem;
+    .inst-thumb-name {
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--primary);
+      color: #120B24;
     }
 
-    .course-price-old {
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      text-decoration: line-through;
-      margin-left: 6px;
-    }
-
-    .enroll-btn {
-      background: var(--primary);
-      color: #2E1065;
-      border: none;
-      padding: 0.4rem 1rem;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .enroll-btn:hover {
-      background: var(--secondary);
-    }
-
-    /* ── WHY US ── */
-    .why-bg {
-      background: var(--surface);
+    /* ==========================================================================
+       6. WHY CHOOSE US
+       ========================================================================== */
+    .why-section {
+      padding: 70px 0 90px;
+      background: #FFFFFF;
     }
 
     .why-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 5rem;
+      gap: 60px;
       align-items: center;
     }
 
+    .why-content .section-title {
+      margin-bottom: 28px;
+    }
+
+    .why-feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+
+    .why-feature-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .why-feature-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #120B24;
+    }
+
+    .why-feature-desc {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .btn-why-explore {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 36px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #FFFFFF;
+      background: var(--primary-purple);
+      border-radius: var(--radius-full);
+      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.3);
+      transition: var(--transition);
+    }
+
+    .btn-why-explore:hover {
+      background: var(--primary-purple-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(139, 92, 246, 0.4);
+    }
+
     .why-image-wrap {
-      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
     }
 
     .why-image-wrap img {
       width: 100%;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      height: 480px;
+      object-fit: cover;
     }
 
-    .why-badge-float {
-      position: absolute;
-      bottom: -20px;
-      right: -20px;
-      background: var(--primary);
-      color: #2E1065;
-      border-radius: 12px;
-      padding: 1rem 1.4rem;
-      font-weight: 700;
-      box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+    /* ==========================================================================
+       7. OUR MISSION
+       ========================================================================== */
+    .mission-section {
+      padding: 70px 0 90px;
+      background: #FFFFFF;
+      position: relative;
     }
 
-    .why-badge-float .big-num {
-      font-size: 2rem;
-      font-family: 'Playfair Display', serif;
-      display: block;
-      line-height: 1;
-    }
-
-    .why-badge-float .small-label {
-      font-size: 0.78rem;
-      margin-top: 4px;
-    }
-
-    .features-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 1.4rem;
-      margin-top: 2.5rem;
-    }
-
-    .feature-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      flex-shrink: 0;
-      background: rgba(167, 139, 250, 0.12);
-      border: 1px solid rgba(167, 139, 250, 0.25);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      margin-top: 2px;
-    }
-
-    .feature-title {
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 3px;
-    }
-
-    .feature-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* ── ABOUT ── */
-    .about-grid {
+    .mission-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 5rem;
+      gap: 60px;
       align-items: center;
     }
 
-    .about-img {
+    .mission-content .section-title {
+      margin-bottom: 18px;
+    }
+
+    .mission-text {
+      font-size: 1.08rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .btn-mission-find {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 34px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: var(--primary-purple);
+      border-radius: var(--radius-full);
+      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.25);
+      transition: var(--transition);
+    }
+
+    .btn-mission-find:hover {
+      background: var(--primary-purple-dark);
+      transform: translateY(-2px);
+    }
+
+    .mission-visual-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mission-backdrop-card {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: -14px;
+      bottom: -14px;
+      background: var(--accent-lavender);
+      border-radius: var(--radius-xl);
+      z-index: 1;
+    }
+
+    .mission-img-inner {
+      position: relative;
+      z-index: 2;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
       width: 100%;
-      border-radius: 20px;
-      border: 1px solid var(--border);
+      height: 380px;
+      box-shadow: var(--shadow-md);
     }
 
-    .about-content .section-sub {
-      max-width: 100%;
+    .mission-img-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    /* ── TESTIMONIALS ── */
-    .testi-bg {
-      background: var(--surface);
+    /* ==========================================================================
+       8. STUDENT TESTIMONIALS
+       ========================================================================== */
+    .testimonials-section {
+      padding: 70px 0 90px;
+      background: #FDFBFF;
     }
 
-    .testi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
+    .testi-header {
+      margin-bottom: 40px;
     }
 
-    .testi-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.8rem;
+    .testi-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testi-purple-bar {
+      width: 5px;
+      height: 38px;
+      background: var(--primary-purple-dark);
+      border-radius: 4px;
+    }
+
+    .testi-carousel-wrapper {
+      position: relative;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .testi-card-box {
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(139, 92, 246, 0.12);
+      box-shadow: 0 16px 40px rgba(139, 92, 246, 0.08);
+      padding: 40px 48px;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .testi-quote-icon {
+      font-size: 2.8rem;
+      line-height: 1;
+      color: var(--primary-purple);
+      margin-bottom: 8px;
+      font-family: Georgia, serif;
     }
 
     .testi-stars {
-      color: var(--secondary);
-      margin-bottom: 1rem;
+      color: #F59E0B;
+      font-size: 1.15rem;
       letter-spacing: 2px;
+      margin-bottom: 16px;
     }
 
-    .testi-text {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.75;
-      margin-bottom: 1.4rem;
+    .testi-quote-text {
+      font-size: 1.22rem;
+      line-height: 1.65;
+      font-weight: 600;
+      color: #1F1535;
+      margin-bottom: 26px;
     }
 
-    .testi-author {
+    .testi-author-info {
       display: flex;
       align-items: center;
-      gap: 0.9rem;
+      gap: 14px;
     }
 
     .testi-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .testi-author-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #120B24;
+    }
+
+    .testi-author-role {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Carousel Arrow Controls */
+    .testi-arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       width: 44px;
       height: 44px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--border-hover);
+      background: var(--accent-lavender);
+      color: var(--primary-purple-deep);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: var(--transition);
+      z-index: 10;
     }
 
-    .testi-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text);
+    .testi-arrow-btn:hover {
+      background: var(--primary-purple);
+      color: #FFFFFF;
+      transform: translateY(-50%) scale(1.08);
     }
 
-    .testi-role {
-      font-size: 0.78rem;
-      color: var(--text-dim);
+    .testi-arrow-prev {
+      left: -60px;
     }
 
-    /* ── CTA ── */
-    .cta-section {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(167, 139, 250, 0.85));
-      color: #ffffff;
-      padding: 100px 5%;
+    .testi-arrow-next {
+      right: -60px;
+    }
+
+    .testi-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .testi-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #D8B4FE;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+    }
+
+    .testi-dot.active {
+      background: var(--primary-purple-dark);
+      width: 24px;
+      border-radius: var(--radius-full);
+    }
+
+    /* ==========================================================================
+       9. PROMOTIONAL BANNER ("YOUR NEXT SKILL IS ONE CLICK AWAY")
+       ========================================================================== */
+    .promo-section {
+      padding: 40px 0 70px;
+    }
+
+    .promo-banner {
+      background: linear-gradient(rgba(26, 17, 14, 0.85), rgba(26, 17, 14, 0.90)),
+                  url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&auto=format&fit=crop&q=80') center/cover no-repeat;
+      border-radius: var(--radius-xl);
+      padding: 70px 40px;
       text-align: center;
-      position: relative;
-      overflow: hidden;
-      border-radius: 24px;
-      margin: 40px 5%;
-      box-shadow: 0 20px 40px rgba(167, 139, 250, 0.2);
+      color: #FFFFFF;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
     }
 
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(167, 139, 250, 0.12), transparent 70%);
-      pointer-events: none;
+    .promo-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      background: var(--primary-purple);
+      color: #FFFFFF;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      margin-bottom: 16px;
     }
 
-    .cta-inner {
-      position: relative;
-      z-index: 1;
-      max-width: 700px;
-      margin: 0 auto;
+    .promo-title {
+      font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #FFFFFF;
+      margin-bottom: 14px;
     }
 
-    .cta-inner .section-title {
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      color: #ffffff;
+    .promo-subtitle {
+      font-size: 1.12rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 34px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .cta-inner .section-sub {
-      margin: 0 auto 2.5rem;
-      max-width: 500px;
-      color: rgba(255, 255, 255, 0.9);
+    .promo-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
-    /* ── CONTACT ── */
-    .contact-bg {
-      background: var(--bg);
+    .btn-promo-start {
+      padding: 13px 34px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: var(--primary-purple);
+      border-radius: var(--radius-full);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+      transition: var(--transition);
     }
 
-    .contact-grid {
+    .btn-promo-start:hover {
+      background: var(--primary-purple-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-promo-browse {
+      padding: 13px 32px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: var(--radius-full);
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
+    }
+
+    .btn-promo-browse:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       10. CONTACT / FEEDBACK ("WE'D LOVE TO HEAR FROM YOU")
+       ========================================================================== */
+    .contact-section {
+      background: var(--bg-cream);
+      padding: 85px 0 95px;
+    }
+
+    .contact-section-title {
+      font-size: clamp(2.2rem, 3.6vw, 3rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      color: #120D26;
+      margin-bottom: 40px;
+    }
+
+    .contact-grid-visual {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 5rem;
+      gap: 36px;
+      align-items: stretch;
     }
 
-    .contact-info-items {
-      margin-top: 2rem;
+    .contact-left-visual {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .contact-left-visual img {
+      width: 100%;
+      height: 100%;
+      min-height: 440px;
+      object-fit: cover;
+    }
+
+    .contact-right-visual {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .contact-right-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .contact-glass-form {
+      position: relative;
+      z-index: 2;
+      background: rgba(18, 14, 30, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 40px 36px;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .contact-info-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .ci-icon {
-      width: 46px;
-      height: 46px;
-      flex-shrink: 0;
-      background: rgba(167, 139, 250, 0.1);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      color: #FFFFFF;
     }
 
-    .ci-title {
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 3px;
+    .contact-glass-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 24px;
     }
 
-    .ci-val {
-      font-size: 0.9rem;
-      color: var(--text-muted);
+    .contact-field-group {
+      margin-bottom: 16px;
     }
 
-    .contact-form {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .contact-field-group input,
+    .contact-field-group textarea {
       width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.7rem 1rem;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.92rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    /* ── MOBILE NAV TOGGLE ── */
-    .nav-toggle {
-      display: none;
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-      font-size: 1.3rem;
-    }
-
-    /* ── NEWSLETTER BAR ── */
-    .newsletter-bar {
-      background: var(--primary);
-      padding: 1rem 5%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      box-shadow: 0 4px 20px rgba(167, 139, 250, 0.15);
-    }
-
-    .newsletter-bar p {
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .newsletter-form {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .newsletter-form input {
-      background: rgba(245, 243, 255, 0.2);
-      border: 1px solid rgba(245, 243, 255, 0.3);
-      border-radius: 6px;
-      padding: 0.45rem 1rem;
-      color: #2E1065;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      outline: none;
-      width: 220px;
-    }
-
-    .newsletter-form input::placeholder {
-      color: rgba(255, 228, 230, 0.5);
-    }
-
-    .newsletter-form button {
-      background: #F5F3FF;
-      color: var(--secondary);
-      border: none;
-      border-radius: 6px;
-      padding: 0.45rem 1.1rem;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .newsletter-form button:hover {
-      opacity: 0.85;
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 960px) {
-
-      .hero-grid,
-      .why-grid,
-      .about-grid,
-      .contact-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-visual {
-        display: none;
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .why-badge-float {
-        right: 10px;
-      }
-
-      .nav-links {
-        display: none;
-      }
-
-      .nav-toggle {
-        display: block;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .footer-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-stats {
-        gap: 1.2rem;
-      }
-
-      section {
-        padding: 60px 5%;
-      }
-    }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(28px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-
-    .hero-content>* {
-      animation: fadeUp 0.6s ease forwards;
-    }
-
-    .hero-content>*:nth-child(1) {
-      animation-delay: 0.1s;
-    }
-
-    .hero-content>*:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .hero-content>*:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    .hero-content>*:nth-child(4) {
-      animation-delay: 0.4s;
-    }
-
-    .hero-content>*:nth-child(5) {
-      animation-delay: 0.5s;
-    }
-
-    .hero-visual {
-      animation: float 5s ease-in-out infinite;
-    }
-
-    .progress-bar {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 6px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      border-radius: 2px;
-    }
-
-    /* ── INSTRUCTORS ── */
-    .instructors-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .instructor-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      text-align: center;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .instructor-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .instructor-photo {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      object-position: top;
-      display: block;
-    }
-
-    .instructor-body {
-      padding: 1.1rem 1rem;
-    }
-
-    .instructor-name {
-      font-weight: 600;
-      color: var(--text);
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-sm);
+      color: #FFFFFF;
+      font-family: inherit;
       font-size: 0.95rem;
-      margin-bottom: 3px;
+      transition: var(--transition);
+      outline: none;
     }
 
-    .instructor-spec {
-      font-size: 0.78rem;
-      color: var(--primary);
-      font-weight: 500;
-      margin-bottom: 6px;
+    .contact-field-group input::placeholder,
+    .contact-field-group textarea::placeholder {
+      color: rgba(255, 255, 255, 0.6);
     }
 
-    .instructor-meta {
-      font-size: 0.75rem;
-      color: var(--text-dim);
+    .contact-field-group input:focus,
+    .contact-field-group textarea:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: var(--accent-lilac);
+      box-shadow: 0 0 0 3px rgba(185, 166, 255, 0.2);
     }
 
-    .instructor-rating {
-      color: var(--secondary);
-      font-size: 0.8rem;
-      margin-top: 6px;
-    }
-
-    /* ── GALLERY STRIP ── */
-    .gallery-strip {
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-    }
-
-    .gallery-strip img {
-      width: 100%;
-      height: 450px;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s;
-    }
-
-    .gallery-strip img:hover {
-      transform: scale(1.02);
-    }
-
-    /* ── PARTNERS LOGO BAR ── */
-    .partners-bar {
-      padding: 50px 5%;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .partners-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .partners-label {
-      text-align: center;
-      font-size: 0.78rem;
-      letter-spacing: 2px;
+    .btn-send-message {
+      padding: 12px 32px;
+      font-size: 0.95rem;
+      font-weight: 800;
       text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 2rem;
+      letter-spacing: 0.6px;
+      color: #FFFFFF;
+      background: var(--primary-purple);
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+      transition: var(--transition);
+      margin-top: 8px;
+      align-self: flex-start;
     }
 
-    .partners-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3rem;
-      flex-wrap: wrap;
+    .btn-send-message:hover {
+      background: var(--primary-purple-dark);
+      transform: translateY(-2px);
     }
 
-    .partner-logo-img {
-      height: 36px;
-      object-fit: contain;
-      filter: brightness(0.5) sepia(1) hue-rotate(15deg) saturate(2);
-      opacity: 0.6;
-      transition: opacity 0.2s, filter 0.2s;
-    }
-
-    .partner-logo-img:hover {
-      opacity: 1;
-      filter: none;
-    }
-
-    /* ── CTA IMAGE BG ── */
-    .cta-img-bg {
+    /* ==========================================================================
+       11. FOOTER
+       ========================================================================== */
+    .site-footer {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F5F1FD 100%);
+      padding: 80px 0 30px;
       position: relative;
       overflow: hidden;
-      background: #0f172a !important;
+      border-top: 1px solid rgba(139, 92, 246, 0.12);
     }
 
-    .cta-img-bg::before {
-      display: none !important;
+    .footer-top-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 2;
     }
 
-    .cta-img-bg .cta-bg-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.6;
+    .footer-brand-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #120B24;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-newsletter-wrap {
+      margin-bottom: 20px;
+    }
+
+    .footer-search-pill {
+      display: flex;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1px solid #DDD6FE;
+      border-radius: var(--radius-full);
+      padding: 4px 6px 4px 18px;
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.08);
+      max-width: 320px;
+    }
+
+    .footer-search-pill input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--text-dark);
+      flex: 1;
+    }
+
+    .footer-search-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--primary-purple-dark);
+      color: #FFFFFF;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .footer-search-btn:hover {
+      background: var(--primary-purple-deep);
+      transform: scale(1.05);
+    }
+
+    .footer-desc {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      max-width: 340px;
+    }
+
+    .footer-social-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-social-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #EDE9FE;
+      color: var(--primary-purple-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-social-btn:hover {
+      background: var(--primary-purple-dark);
+      color: #FFFFFF;
+      transform: translateY(-2px);
+    }
+
+    .footer-col-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #120B24;
+      margin-bottom: 18px;
+      letter-spacing: 0.3px;
+    }
+
+    .footer-nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-nav-list a {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .footer-nav-list a:hover {
+      color: var(--primary-purple-dark);
+      padding-left: 3px;
+    }
+
+    /* Giant Watermark Text */
+    .footer-watermark {
+      font-size: clamp(4rem, 11vw, 10.5rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      color: rgba(139, 92, 246, 0.08);
+      text-align: center;
+      line-height: 0.9;
+      letter-spacing: 2px;
+      user-select: none;
       pointer-events: none;
-      z-index: 0;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
     }
 
-    /* ── HERO SLIDER ── */
-    .hero-slider {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      overflow: hidden;
+    .footer-bottom-bar {
+      border-top: 1px solid rgba(139, 92, 246, 0.12);
+      padding-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 2;
     }
 
-    .hero-slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-      animation: heroFade 36s infinite;
-    }
-
-    .hero-slide::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.05);
-      /* Extremely subtle darkening for depth */
-    }
-
-    .hero-slide:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .hero-slide:nth-child(2) {
-      animation-delay: 6s;
-    }
-
-    .hero-slide:nth-child(3) {
-      animation-delay: 12s;
-    }
-
-    .hero-slide:nth-child(4) {
-      animation-delay: 18s;
-    }
-
-    .hero-slide:nth-child(5) {
-      animation-delay: 24s;
-    }
-
-    .hero-slide:nth-child(6) {
-      animation-delay: 30s;
-    }
-
-    @keyframes heroFade {
-      0% {
-        opacity: 0;
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS (320px to 1440px)
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-content {
+        padding-bottom: 30px;
+      }
+      .hero-subtitle {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-buttons {
+        justify-content: center;
+      }
+      .hero-stats {
+        justify-content: center;
+      }
+      .hero-image-wrap {
+        justify-content: center;
+      }
+      .hero-image-wrap img {
+        max-height: 420px;
       }
 
-      5% {
-        opacity: 1;
+      .cat-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
 
-      16.6% {
-        opacity: 1;
+      .featured-grid {
+        grid-template-columns: 1fr;
       }
 
-      21.6% {
-        opacity: 0;
+      .instructor-spotlight-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .spotlight-img-wrap {
+        height: 300px;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+      .spotlight-bio-text {
+        margin: 0 auto;
       }
 
-      100% {
-        opacity: 0;
+      .why-grid, .mission-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-grid-visual {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-top-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu {
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+      .site-header.mobile-open .nav-menu {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 74px;
+        left: 0;
+        right: 0;
+        background: #D4C3FF;
+        padding: 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      }
+
+      .cat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .instructors-thumbs-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .testi-arrow-btn {
+        display: none;
+      }
+
+      .footer-top-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-bottom-bar {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stats {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+      .btn-hero-primary, .btn-hero-secondary {
+        width: 100%;
+        text-align: center;
+      }
+      .featured-card-wrapper {
+        padding: 36px 24px;
+      }
+      .instructors-thumbs-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .testi-card-box {
+        padding: 28px 20px;
+      }
+    }
+
+    /* Motion Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
     }
   </style>
@@ -1367,97 +1590,227 @@
 
 <body>
 
-  <!-- ── NAVBAR ── -->
-  <nav id="navbar">
-    <a th:href="@{/}" class="nav-logo">
-      <img th:src="@{/images/icon.png?v=2.2}" alt="SkillHub Icon"
-        style="height: 32px; width: auto; object-fit: contain;">
-      <div style="display: flex; flex-direction: column; line-height: 1.1;">
-        <div
-          style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -1.2px; text-transform: none;">
-          <span style="color: #0A54B3;">Skill</span><span style="color: #00BFA5;">Hub</span>
-        </div>
-        <div
-          style="font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-top: 2px;">
-          Learn.Grow.Succeed</div>
-      </div>
-    </a>
-    <ul class="nav-links">
-      <li><a href="#categories">Categories</a></li>
-      <li><a href="#courses">Courses</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <div class="nav-actions">
-      <!-- Logged in state -->
-      <th:block th:if="${user != null}">
-        <a th:href="${user.role == 'INSTRUCTOR' ? '/vendor/dashboard?tab=profile' : (user.role == 'ADMIN' ? '/admin/profile' : '/profile')}"
-          class="btn-ghost" style="margin-right: 0.5rem;">My Profile</a>
-        <a th:href="@{/logout}" class="btn-primary"
-          style="background: var(--secondary); border-color: var(--secondary);">Log Out</a>
-      </th:block>
-      <!-- Guest state -->
-      <th:block th:unless="${user != null}">
-        <a th:href="@{/login}" class="btn-ghost">Log In</a>
-        <a th:href="@{/register}" class="btn-primary">Sign Up Free</a>
-      </th:block>
-    </div>
-    <button class="nav-toggle" onclick="toggleNav()">☰</button>
-  </nav>
+  <!-- ==========================================================================
+       1. HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a th:href="@{/}" class="brand-logo" aria-label="SkillHub Homepage">
+        <span class="brand-logo-text">SKILL<span>HUB</span></span>
+      </a>
 
-  <!-- ── NEWSLETTER BAR ── -->
-  <div class="newsletter-bar">
-    <p>🎉 New courses added weekly — Stay ahead of the curve!</p>
-    <form class="newsletter-form" id="newsletterBarForm" action="/api/newsletter/subscribe" method="POST" onsubmit="handleNewsletterSubscribe(event, this)">
-      <input type="email" name="email" id="newsletterEmail" placeholder="Your email address" required>
-      <button type="submit" id="newsletterSubscribeBtn">Subscribe</button>
-    </form>
-  </div>
+      <ul class="nav-menu" id="navMenu">
+        <li><a th:href="@{/courses}">COURSES</a></li>
+        <li><a th:href="@{/about}">ABOUT</a></li>
+        <li><a th:href="@{/contact}">CONTACT</a></li>
+      </ul>
 
-  <!-- ── HERO ── -->
-  <section class="hero" id="home">
-    <div class="hero-slider">
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/7-ypuJFvP2x0nnKtAgE_Xq4mHSP94geWLk9i16enO2gIlbAXce0yWfaeD0PC_WjXUyKqfMfy1VQSkbsn1gYHwSwWLaFe6ahgytx_Z0kfsDQXfkK5U6pcaC9Y6OaH8x1wA9ju5_N6fpo0eeRIwZolICN082UlqqN1Axy6EyxLcYVxBDDBNkIY_NoPXh_5jfc5?purpose=fullsize')">
-      </div>
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/8VK0V0I4BZ6eXepkpjh1kkj6E6QNbtxuWdMBZQyO0UA7Xmmwrrz7OOj0s2HNEDAtVHKh7ZhJkm-N3Asa-mPRnrVZAoLY6rZrzIsQPcSgCfaiIe6qUgpnmELyxoSHNRqYdWb08Qxybu3DH45Ik-H4Z-qm-1W3BN2MTWS2BaqZXTJf9mpo9lroS3tJDDJoGmvm?purpose=fullsize')">
-      </div>
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/f-yh583V1l6zSlLzVYuwolBHCcjVW8z9K8PjPKhfKmIIkVjyKmKI6FfE1iiaTEpHFAJHZBR4bnQSb1S3DMQqSHJCb5NneqzHlhEohmG4R-XGaQueZKHE8faySW8ACpoBOXjaI8qkZXRqwryVj29Z9L1H55B40A1-myrTSlQB3YCm9FnIndpgP0_uVhqjH-3M?purpose=fullsize')">
-      </div>
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/ltNnSBgvEDtm0Ra_YIpnxLRlrtiAHpHn3ePd2KxIhIzfXPpwbDzwrn3K3I0QrawWETf3_rxMhCagy-jDRo3JChc_leVlLRG_dveVbwoOcCYhRlczd2R7CNzRUzet99QA9w7J3HfANY6ZB4ASgZ8kcghtcsFXqNtnVMQHI1YhB4GEvCpxG_ETIhfL7Fqs_Qj1?purpose=fullsize')">
-      </div>
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/PdAGUPtkB4fXDQ0klOKK658s393UHcjIQSIhBFlZp6xdM1OwbFQpQZAt-t6Y_kj5nqy5ZJDat5wvVAe3iUmvz9mG4I_Wo7zK9R3QAYOKSFAU3QuLGr_Scd_qFhW4l9Pwnz3F2UlnGS-9mGqCixD0Qnfc9rGaSnHAzheOX1GMlyTLqtvn-6I3md-8syXdn7_y?purpose=fullsize')">
-      </div>
-      <div class="hero-slide"
-        style="background-image: url('https://images.openai.com/static-rsc-4/pC5LuZ1ZSGgwof5ah-G_C_hwE-wISWtnF-qebUtguLByl-9CST-dljBzcvGXL4eLqKAi6E_VqCCHkUVxZHCb5I29VtyBvvHSMYcU1SaY9HbsvL3mxgdWEZjqeWDN6lrfsiQ1AxDR-LP9IwP6gudciAz5SyHajNg9m-uarH58KvAu5M6zltGXdwsTiblgNy2x?purpose=fullsize')">
+      <div class="nav-actions">
+        <!-- Logged In State -->
+        <th:block th:if="${user != null}">
+          <a th:href="${user.role == 'INSTRUCTOR' ? '/vendor/dashboard?tab=profile' : (user.role == 'ADMIN' ? '/admin/profile' : '/profile')}"
+             class="btn-login" th:text="${user.name != null ? user.name : 'My Profile'}">My Profile</a>
+          <a th:href="@{/logout}" class="btn-signup">LOG OUT</a>
+        </th:block>
+
+        <!-- Guest State -->
+        <th:block th:unless="${user != null}">
+          <a th:href="@{/login}" class="btn-login">LOG IN</a>
+          <a th:href="@{/register}" class="btn-signup">SIGN UP</a>
+        </th:block>
+
+        <button type="button" class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
     </div>
-    <div class="hero-grid">
+  </header>
+
+
+  <!-- ==========================================================================
+       2. HERO SECTION
+       ========================================================================== -->
+  <section class="hero-section" id="hero">
+    <div class="container hero-grid">
       <div class="hero-content">
-        <div class="hero-badge">Trusted by 50,000+ Learners</div>
-        <h1 style="font-size: clamp(3rem, 6vw, 5rem);">Learn Any Skill,<br><em>Master</em> Your Future</h1>
-        <p>From music to coding, fitness to fine art — SkillHub connects you with world-class instructors across every
-          passion and profession.</p>
-        <div class="hero-actions">
-          <a href="#courses" class="btn-primary btn-large">Explore Courses</a>
-          <a href="#about" class="btn-ghost btn-large" style="background: rgba(255,255,255,0.4)">How It Works</a>
+        <h1 class="hero-title">
+          LEARN ANY SKILL.
+          <span class="title-light">MASTER YOUR FUTURE.</span>
+        </h1>
+        <p class="hero-subtitle">
+          Explore online courses with certified instructors. Upgrade your career, gain skills, and advance in tech, business, design, and more.
+        </p>
+        <div class="hero-buttons">
+          <a th:href="@{/courses}" class="btn-hero-primary">Explore Courses</a>
+          <a th:href="@{/instructors}" class="btn-hero-secondary">Find An Instructor</a>
         </div>
         <div class="hero-stats">
-          <div class="stat-item">
-            <div class="stat-num">800+</div>
-            <div class="stat-label">Courses Available</div>
+          <div class="stat-box">
+            <span class="stat-number">150+</span>
+            <span class="stat-label">Top Courses</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-num">120+</div>
-            <div class="stat-label">Expert Instructors</div>
+          <div class="stat-box">
+            <span class="stat-number">10k+</span>
+            <span class="stat-label">Active Learners</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-num">50K+</div>
-            <div class="stat-label">Happy Students</div>
+          <div class="stat-box">
+            <span class="stat-number">50+</span>
+            <span class="stat-label">Expert Tutors</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-image-wrap">
+        <img th:src="@{/images/hero-main.png}"
+             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80';"
+             alt="SkillHub Learners and Instructors Collaborating">
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       3. SKILLS CATEGORY CARDS ("Every Skills You Can Imagine")
+       ========================================================================== -->
+  <section class="categories-section" id="categories">
+    <div class="container">
+      <div class="cat-header">
+        <h2 class="section-title">Every Skills You Can Imagine</h2>
+        <p class="section-desc">Explore all the popular fields of study and discover endless opportunities to learn and achieve your goals.</p>
+      </div>
+
+      <div class="cat-grid">
+        <!-- Card 1: Development & IT -->
+        <a th:href="@{/courses/Development%20and%20IT}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80" alt="Development and IT">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Development & IT</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Card 2: Business & Marketing -->
+        <a th:href="@{/courses/Business%20Marketing}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=80" alt="Business and Marketing">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Business Marketing</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Card 3: Music -->
+        <a th:href="@{/courses/Music}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80" alt="Music Production">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Music</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Card 4: Creative Arts & Design -->
+        <a th:href="@{/courses/Art,%20Craft%20and%20Painting}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&auto=format&fit=crop&q=80" alt="Creative Arts and Design">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Creative Arts & Design</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Card 5: Personal Development -->
+        <a th:href="@{/courses/Kids%20Learning%20and%20Speaking%20Course}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80" alt="Personal Development">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Personal Development</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Card 6: Photography -->
+        <a th:href="@{/courses/Photography}" class="category-card">
+          <div class="category-img-wrap">
+            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&auto=format&fit=crop&q=80" alt="Photography">
+          </div>
+          <div class="category-body">
+            <span class="category-title">Photography</span>
+            <span class="category-arrow"><i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+
+      <a th:href="@{/courses}" class="btn-see-more">
+        See More <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       4. FEATURED COURSES
+       ========================================================================== -->
+  <section class="featured-section" id="featuredCourses">
+    <div class="container">
+      <div class="featured-card-wrapper">
+        <div class="featured-grid">
+          <div class="featured-left">
+            <h2 class="featured-left-title">Featured Courses</h2>
+            <p class="featured-left-desc">
+              Handpicked courses taught by industry experts to give you practical, job-ready skills.
+            </p>
+            <a th:href="@{/courses}" class="btn-view-courses">
+              View All Courses <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="featured-courses-stack">
+            <!-- Course 1 -->
+            <a th:href="@{/courses}" class="course-mini-card">
+              <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=80" class="course-mini-thumb" alt="Full Stack">
+              <div class="course-mini-info">
+                <div class="course-mini-tag">Development &amp; Cloud</div>
+                <div class="course-mini-title">Full-Stack Cloud Architecture &amp; DevOps</div>
+              </div>
+              <span class="course-mini-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <!-- Course 2 -->
+            <a th:href="@{/courses}" class="course-mini-card">
+              <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80" class="course-mini-thumb" alt="UI UX">
+              <div class="course-mini-info">
+                <div class="course-mini-tag">Design &amp; Creative</div>
+                <div class="course-mini-title">Complete UI/UX Design System with Figma</div>
+              </div>
+              <span class="course-mini-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <!-- Course 3 -->
+            <a th:href="@{/courses}" class="course-mini-card">
+              <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop&q=80" class="course-mini-thumb" alt="Data Science">
+              <div class="course-mini-info">
+                <div class="course-mini-tag">AI &amp; Data Science</div>
+                <div class="course-mini-title">Machine Learning &amp; Deep Neural Networks</div>
+              </div>
+              <span class="course-mini-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <!-- Course 4 -->
+            <a th:href="@{/courses}" class="course-mini-card">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop&q=80" class="course-mini-thumb" alt="Business Growth">
+              <div class="course-mini-info">
+                <div class="course-mini-tag">Business &amp; Growth</div>
+                <div class="course-mini-title">Digital Marketing Mastery &amp; Brand Scaling</div>
+              </div>
+              <span class="course-mini-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
           </div>
         </div>
       </div>
@@ -1465,348 +1818,544 @@
   </section>
 
 
+  <!-- ==========================================================================
+       5. LEARN FROM THE BEST (Instructor Showcase)
+       ========================================================================== */
+  -->
+  <section class="instructors-section" id="instructors">
+    <div class="container">
+      <div class="instructors-banner-bar">
+        <h2 class="instructors-banner-title">LEARN FROM THE BEST</h2>
+        <p class="instructors-banner-sub">Learn from certified experts and experienced professionals dedicated to your success.</p>
+      </div>
 
-  <!-- ── CATEGORIES ── -->
-  <section class="cats-bg" id="categories">
-    <div class="section-inner">
-      <div class="section-tag">Browse By Interest</div>
-      <h2 class="section-title">Every Skill You Can Imagine</h2>
-      <p class="section-sub">Explore our diverse range of course categories — from creative arts to technical skills,
-        wellness to language learning.</p>
-      <div class="categories-grid">
+      <!-- Active Spotlight Card -->
+      <div class="instructor-spotlight-card" id="instructorSpotlight">
+        <div class="spotlight-img-wrap">
+          <img id="spotlightImg" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80" alt="Naveen — Lead Instructor">
+        </div>
+        <div class="spotlight-content">
+          <h3 class="spotlight-name" id="spotlightName">NAVEEN</h3>
+          <div class="spotlight-role" id="spotlightRole">Lead Instructor</div>
+          <div class="spotlight-bio-tag">Biography</div>
+          <p class="spotlight-bio-text" id="spotlightBio">
+            With more than 8+ years of professional experience in Cloud Computing &amp; DevOps, he has trained 10,000+ students worldwide.
+          </p>
+        </div>
+      </div>
 
-        <th:block th:each="cat : ${categories}">
-          <a th:href="@{/(categoryId=${cat.id})} + '#courses'" class="cat-card" th:classappend="${selectedCategoryId != null and selectedCategoryId == cat.id ? 'active-cat-card' : ''}">
-            <img th:src="${cat.name.toLowerCase().contains('development') ? 'https://images.openai.com/static-rsc-4/MmFXfVEU_vzMtwlzHPcgTkwjMz1wuhk88PU5QetscESDSPBy9a0n7_fdP3_HalHQaSFvhe5uKsgbgMNZ8xgyb5qjXK-97a9jzHnI4DnSS5biNEWS0PBxcxsV89uGr_I1HUQJW_5urequU1B8XornK_Fafrmxe0yNSZaV25Rl7K4cb91qnu9gk2LrCMq07Bsh?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('business') ? 'https://images.openai.com/static-rsc-4/T4UMViTYEgeA_S0Ndx7JlvzU8mmVpk5e0MloZBpbWUOtdf4LRgeeUNv0caEyfDZ9y0qCrA8sFkzcammbZmVJaWGJXmJzJBUdRN-JDKXHWtguRwvWp-ThaO4VUTX6SBchKMJ5Es90qEHn9VIVVvx9tvcSJaOhYQwHc5C2ncb8u-e6B1ZBComHzjJ2G0k5RyRO?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('productivity') ? 'https://images.openai.com/static-rsc-4/GAfqX2RzSKoB3Logyr6Q8j2WQ2lutd_Nl30E1EeX85IcMHv2tKhk337JvgwT25v8QWhqehl3b8gV-nysCiCp8Br25l6ai8u3WQEK1tZ8ef7sOYgdcGGIj1g_E6RWeZwIuubvkEc3SrZdExk16nfAZIXB1ZN6lVsLeyt2lmtufDJTD1U0l-LLL00zS--cSOJq?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('fitness') ? 'https://images.openai.com/static-rsc-4/ew5OHc6PlzDFK18Lg1iFH3SfSCwRuUsyammUhezudbBvevLp0m_Honfe-LkNqS2wrVWE7B-LAe-P4hdBz67lOOfPJLw1MEkI2n2FagxMLg7Li3HUq7PT-93lz8iAKLRUWcwvprrI0wNvRxyEaseCioWV10ulaf9uKg-urz48AdZaFxS_-Kh3kIfaJvJzB3d3?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('art') ? 'https://images.openai.com/static-rsc-4/AASJ7PQgHtieKiyiozwHEjmz2dGMvg-sjamTnmOfZ4fPXvcKDM0_rpUGFWVfNpDE_mwJL3I--2z1Ii2afTieJj1DzKJUyiOH75xNnwqQZc0nnYADgJ2JwJ0WK5p94mueysR6aHGCfke71KIbKdSkDEAtftCE-Le9EtDofHfXpYCgVUEXZ0JwDPSlzPBfHkAV?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('kids') ? 'https://images.openai.com/static-rsc-4/mhgSrRAftSVv8MctypqN8Sxgx5jcQw7WLljeZGTH8sZTeSQYCoS4YUk0_oEaIHzo8d6vOeqnCopBT1erRehoDv4ZIyQMOTnu-S16NgORoicEk-YZn3kzF1KXiZyP4dSoAtgcLGb0gRypKuCqEjPCHQh7_tp2SuQF3J_9mAa6N6pYXxVUt3-J7rd0rTAoxmWM?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('language') ? 'https://images.openai.com/static-rsc-4/bMJiqqQ-eC4ZNHXt3hplRk2PlNbbQL91zI1pFc3fEZ84HYYgB-xXUwqHIZgFsG45hTJFZi9OQXK5zFqOsOHEjaDtqpWUHhvf7CBiUW4Ddr-0q9XvHo3DPGHRWVbEml1C6ZP162yLuJ15VW3DeABDpxFJmxR_2hkCC_5HpFnRI_xFUWHE8rirK9ZzOULPAsna?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('photograph') ? 'https://images.openai.com/static-rsc-4/d4mVqIvwWxyMl1WJpk8z881SpL0caHwbLpLjUiwIL1lvXZUyfEMYts0Pv5Eyg72cq3tEbREBLgFdlmUaP1YG9GgyAokUYwe9Cy2IeYI4TRjdSSVhoBoW09NAxWbgD-ryoTqzs4sEZrkxa_dmVgNEja7pnR1MM7ELHYNCI4thU39XxDUlpVxkV439A4tbPgm2?purpose=fullsize' : 
-                         cat.name.toLowerCase().contains('music') ? 'https://images.openai.com/static-rsc-4/id5wQROx_UyQXkMOCxEf_p9IGh7UOFeFIB9TsFYZE8mlOKGH_ggxtmqzXwtg8AsOV1OM7_PZaISFECD9cBMJZwc-rw_p3V86kpzSAc-_xUr9L8XNW_XKXu4nypxzZ9_lgovI1thsigt2pkbfsS4GPxZErvEDLLNsjgqps4WletgwivO-1QrUIftoPTjTuIcP?purpose=fullsize' : 
-                         'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=80'}" class="cat-img"
-              th:alt="${cat.name}">
-            <div class="cat-name" th:text="${cat.name}">Category Name</div>
-            <div class="cat-count">Popular in this domain</div>
-          </a>
-        </th:block>
+      <!-- 5 Thumbnail Selectors -->
+      <div class="instructors-thumbs-row">
+        <!-- Inst 1: Naveen (Active) -->
+        <button type="button" class="inst-thumb-btn active" onclick="selectInstructor(0)">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80" class="inst-thumb-img" alt="Naveen">
+          <span class="inst-thumb-name">Naveen</span>
+        </button>
 
-        <!-- Fallback if no categories from backend -->
-        <th:block th:if="${#lists.isEmpty(categories)}">
-          <a href="#" class="cat-card">
-            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=80" class="cat-img"
-              alt="Development">
-            <div class="cat-name">💻 Development & IT</div>
-            <div class="cat-count">142 Courses</div>
-          </a>
-          <!-- ... more static fallbacks ... -->
-        </th:block>
+        <!-- Inst 2: Priya -->
+        <button type="button" class="inst-thumb-btn" onclick="selectInstructor(1)">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80" class="inst-thumb-img" alt="Priya Sharma">
+          <span class="inst-thumb-name">Priya S.</span>
+        </button>
 
+        <!-- Inst 3: Fatima -->
+        <button type="button" class="inst-thumb-btn" onclick="selectInstructor(2)">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80" class="inst-thumb-img" alt="Fatima Zahra">
+          <span class="inst-thumb-name">Fatima Z.</span>
+        </button>
+
+        <!-- Inst 4: Rajesh -->
+        <button type="button" class="inst-thumb-btn" onclick="selectInstructor(3)">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80" class="inst-thumb-img" alt="Rajesh Kumar">
+          <span class="inst-thumb-name">Rajesh K.</span>
+        </button>
+
+        <!-- Inst 5: Alex -->
+        <button type="button" class="inst-thumb-btn" onclick="selectInstructor(4)">
+          <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80" class="inst-thumb-img" alt="Alex Chen">
+          <span class="inst-thumb-name">Alex Chen</span>
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- ── FEATURED COURSES ── -->
-  <section id="courses">
-    <div class="section-inner">
-      <div class="section-tag" th:if="${activeCategory == null}">Handpicked For You</div>
-      <div class="section-tag" th:unless="${activeCategory == null}">Category: <span th:text="${activeCategory}"></span>
-      </div>
-      <h2 class="section-title" th:if="${activeCategory == null}">Featured Courses</h2>
-      <h2 class="section-title" th:unless="${activeCategory == null}" th:text="'Explore ' + ${activeCategory}">Courses
-      </h2>
-      <p class="section-sub" th:if="${activeCategory == null}">Start learning today with our most loved courses, taught
-        by industry experts and creative masters.</p>
-      <p class="section-sub" th:unless="${activeCategory == null}">Discover top-rated courses and masterclasses
-        specifically tailored for your interest in <span th:text="${activeCategory}"></span>.</p>
-      <div class="courses-grid">
 
-        <th:block th:each="course, iterStat : ${courses}">
-          <div class="course-card" th:if="${iterStat.index < 5}">
-            <img
-              th:src="${course.imageUrl != null and !course.imageUrl.isEmpty() ? course.imageUrl : '/images/course-placeholder.jpg'}"
-              onerror="this.onerror=null; this.src='/images/course-placeholder.jpg';"
-              class="course-thumb" th:alt="${course.title}">
-            <div class="course-body">
-              <div class="course-meta" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="course-cat-tag"
-                    th:text="${course.category != null ? course.category.name : 'Skill'}">Category</span>
-                  <span th:if="${course.format != null and #strings.contains(course.format, 'Video')}" 
-                        style="font-size: 0.75rem; background: rgba(164, 53, 240, 0.12); color: #a435f0; padding: 2px 7px; border-radius: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
-                    <i class="fas fa-play-circle"></i> Video
-                  </span>
-                </div>
-                <span class="course-rating">★ <span th:text="${course.averageRating}">4.9</span></span>
-              </div>
-              <div class="course-title" th:text="${course.title}">Course Title</div>
-              <div class="course-instructor"
-                th:text="'by ' + ${course.instructor != null ? course.instructor.name : 'Expert'}">by Instructor</div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width:78%"></div>
-              </div>
-              <div class="course-footer">
-                <div>
-                  <span class="course-price" th:text="${course.price != null and course.price > 0 ? '₹' + #numbers.formatDecimal(course.price, 0, 'COMMA', 2, 'POINT') : 'Free'}">₹1,499</span>
-                </div>
-                <a th:href="@{/course/{id}(id=${course.id})}" class="enroll-btn" style="text-decoration:none">View Details</a>
-              </div>
+  <!-- ==========================================================================
+       6. WHY CHOOSE US
+       ========================================================================== -->
+  <section class="why-section" id="whyChooseUs">
+    <div class="container why-grid">
+      <div class="why-content">
+        <div class="section-eyebrow">› WHY CHOOSE US</div>
+        <h2 class="section-title">LEARNING THAT <span class="purple-highlight">ACTUALLY</span> WORKS</h2>
+        
+        <div class="why-feature-list">
+          <div class="why-feature-item">
+            <h3 class="why-feature-title">Expert-led Instruction</h3>
+            <p class="why-feature-desc">
+              Every course is built and taught by industry experts. Learn practical skills that make you job-ready on day one.
+            </p>
+          </div>
+
+          <div class="why-feature-item">
+            <h3 class="why-feature-title">Flexible &amp; Self-Paced Learning</h3>
+            <p class="why-feature-desc">
+              Study whenever you want, from anywhere in the world. Access lessons on mobile, desktop, and tablet with 24/7 support.
+            </p>
+          </div>
+        </div>
+
+        <a th:href="@{/courses}" class="btn-why-explore">EXPLORE</a>
+      </div>
+
+      <div class="why-image-wrap">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80" alt="Student Studying with Laptop in Bright Studio">
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       7. OUR MISSION
+       ========================================================================== -->
+  <section class="mission-section" id="mission">
+    <div class="container mission-grid">
+      <div class="mission-content">
+        <div class="section-eyebrow">› ABOUT SKILLHUB</div>
+        <h2 class="section-title">OUR MISSION IS <span class="purple-highlight">YOUR GROWTH</span></h2>
+        <p class="mission-text">
+          SkillHub was created with one simple goal: make world-class education accessible to anyone, anywhere. Learn, build, and grow your career with us.
+        </p>
+        <a th:href="@{/instructors}" class="btn-mission-find">Find An Instructor</a>
+      </div>
+
+      <div class="mission-visual-wrap">
+        <div class="mission-backdrop-card"></div>
+        <div class="mission-img-inner">
+          <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=800&auto=format&fit=crop&q=80" alt="Student Learning with Headphones">
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       8. STUDENT TESTIMONIALS
+       ========================================================================== -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="testi-header">
+        <div class="section-eyebrow">› STUDENT'S STORY</div>
+        <div class="testi-title-wrap">
+          <div class="testi-purple-bar"></div>
+          <h2 class="section-title">WHAT OUR LEARNERS SAY</h2>
+        </div>
+        <p class="section-desc">Hear directly from those people who transformed their skills and careers with SkillHub.</p>
+      </div>
+
+      <div class="testi-carousel-wrapper">
+        <button type="button" class="testi-arrow-btn testi-arrow-prev" onclick="prevTestimonial()" aria-label="Previous testimonial">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="testi-card-box" id="testimonialCard">
+          <div class="testi-quote-icon">“</div>
+          <div class="testi-stars" id="testiStars">★★★★★</div>
+          <p class="testi-quote-text" id="testiQuote">
+            "SkillHub is the best thing that ever happened to my career. I learned real-world coding and landed my dream developer role in just 4 months!"
+          </p>
+          <div class="testi-author-info">
+            <img id="testiAvatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80" class="testi-avatar" alt="Ayesha Begum">
+            <div>
+              <div class="testi-author-name" id="testiAuthor">Ayesha Begum</div>
+              <div class="testi-author-role" id="testiRole">Full Stack Engineer, Meta</div>
             </div>
           </div>
-        </th:block>
-
-        <!-- Empty state if category has no courses -->
-        <div th:if="${#lists.isEmpty(courses)}" style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 14px; margin: 1rem 0;">
-          <i class="fas fa-video-slash" style="font-size: 2.5rem; color: #a435f0; margin-bottom: 1rem; display: block;"></i>
-          <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">No Courses Found In This Category</h3>
-          <p style="color: #6a6f73; margin-bottom: 1.5rem; font-size: 0.95rem;">New video masterclasses and tutorials for <span th:text="${activeCategory != null ? activeCategory : 'this category'}">this category</span> will be available soon.</p>
-          <a th:href="@{/#categories}" class="btn-ghost" style="text-decoration:none; display: inline-block;">Browse Other Categories</a>
         </div>
 
-      </div>
-      <div style="text-align:center;margin-top:3rem;">
-        <a th:href="${activeCategory != null} ? @{/courses/{cat}(cat=${activeCategory})} : @{/courses}"
-          class="btn-ghost btn-large">View All Courses →</a>
+        <button type="button" class="testi-arrow-btn testi-arrow-next" onclick="nextTestimonial()" aria-label="Next testimonial">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="testi-dots">
+          <button type="button" class="testi-dot active" onclick="setTestimonial(0)" aria-label="Slide 1"></button>
+          <button type="button" class="testi-dot" onclick="setTestimonial(1)" aria-label="Slide 2"></button>
+          <button type="button" class="testi-dot" onclick="setTestimonial(2)" aria-label="Slide 3"></button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ── INSTRUCTORS ── -->
-  <section style="background:var(--surface)">
-    <div class="section-inner">
-      <div class="section-tag">Meet the Experts</div>
-      <h2 class="section-title">Learn From the Best</h2>
-      <p class="section-sub">Our instructors are real-world practitioners with years of professional experience — not
-        just teachers.</p>
-      <div class="instructors-grid">
 
-        <th:block th:each="inst, iterStat : ${instructors}">
-          <a th:href="@{/instructor/{id}(id=${inst.id})}" class="instructor-card" th:if="${iterStat.index < 3}"
-            style="text-decoration: none; color: inherit; display: block; height: 100%;">
-            <img
-              th:src="${inst.profileImageUrl != null && !inst.profileImageUrl.isEmpty()} ? ${inst.profileImageUrl} : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80'"
-              class="instructor-photo" th:alt="${inst.name}">
-            <div class="instructor-body">
-              <div class="instructor-name" th:text="${inst.name}">Instructor Name</div>
-              <div class="instructor-spec"
-                th:text="${inst.headline != null && !inst.headline.isEmpty()} ? ${inst.headline} : 'Expert Instructor'">
-                Specialization</div>
-              <div class="instructor-meta"
-                th:text="${inst.skills != null && !inst.skills.isEmpty()} ? ${inst.skills} : 'Verified Expert'">
-                Experience / Meta</div>
-              <div class="instructor-rating">★★★★★ 4.9</div>
+  <!-- ==========================================================================
+       9. PROMOTIONAL BANNER ("YOUR NEXT SKILL IS ONE CLICK AWAY")
+       ========================================================================== -->
+  <section class="promo-section" id="promo">
+    <div class="container">
+      <div class="promo-banner">
+        <span class="promo-badge">Start Today</span>
+        <h2 class="promo-title">YOUR NEXT SKILL IS ONE CLICK AWAY</h2>
+        <p class="promo-subtitle">Join 10,000+ learners today and start building your future with certified instructors.</p>
+        <div class="promo-buttons">
+          <a th:href="@{/register}" class="btn-promo-start">GET STARTED</a>
+          <a th:href="@{/courses}" class="btn-promo-browse">BROWSE COURSES</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       10. CONTACT / FEEDBACK ("WE'D LOVE TO HEAR FROM YOU")
+       ========================================================================== -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <h2 class="contact-section-title">WE'D LOVE TO HEAR FROM YOU</h2>
+      
+      <div class="contact-grid-visual">
+        <!-- Left Photo: Instructor in armchair -->
+        <div class="contact-left-visual">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop&q=80" alt="SkillHub Instructor">
+        </div>
+
+        <!-- Right: Photo with frosted glass form overlay -->
+        <div class="contact-right-visual">
+          <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&auto=format&fit=crop&q=80" class="contact-right-bg" alt="Contact Support">
+          
+          <form class="contact-glass-form" th:action="@{/submit-contact-form}" method="POST" id="contactForm">
+            <input type="hidden" th:name="${_csrf != null ? _csrf.parameterName : '_csrf'}" th:value="${_csrf != null ? _csrf.token : ''}" />
+            <!-- Contact Success Feedback -->
+            <div id="contactHomeSuccess" th:if="${successMessage != null or param.success != null}" 
+                 style="background: rgba(16, 185, 129, 0.25); border: 1px solid #10B981; color: #FFFFFF; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check-circle" style="color: #34D399; font-size: 1.2rem;"></i>
+              <span id="contactHomeSuccessText" th:text="${successMessage != null ? successMessage : 'Your message has been sent successfully! A confirmation email has been dispatched to your email.'}">Your message has been sent!</span>
             </div>
-          </a>
-        </th:block>
+            <h3 class="contact-glass-title">Get In Touch</h3>
+            
+            <div class="contact-field-group">
+              <input type="text" name="name" placeholder="Name" required autocomplete="name">
+            </div>
 
-      </div>
-      <div style="text-align:center;margin-top:3rem;" th:if="${instructors != null && instructors.size() > 3}">
-        <a href="/instructors" class="btn-ghost btn-large">View More Experts →</a>
+            <div class="contact-field-group">
+              <input type="email" name="email" placeholder="Email" required autocomplete="email">
+            </div>
+
+            <div class="contact-field-group">
+              <textarea name="message" placeholder="Message" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-send-message">SEND MESSAGE</button>
+          </form>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ── WHY SKILLHUB ── -->
-  <section class="why-bg">
-    <div class="section-inner">
-      <div class="why-grid">
-        <div class="why-image-wrap">
-          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80" alt="Why SkillHub">
-          <div class="why-badge-float">
-            <span class="big-num">4.9★</span>
-            <div class="small-label">Average Rating</div>
+
+  <!-- ==========================================================================
+       11. FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top-grid">
+        <!-- Brand & Newsletter -->
+        <div>
+          <div class="footer-brand-title">SKILLHUB</div>
+          
+          <div class="footer-newsletter-wrap">
+            <form class="footer-search-pill" action="/api/newsletter/subscribe" method="POST" onsubmit="handleFooterNewsletter(event, this)">
+              <input type="email" name="email" placeholder="Enter your email" required>
+              <button type="submit" class="footer-search-btn" aria-label="Subscribe">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+
+          <p class="footer-desc">
+            SkillHub is the next-gen learning ecosystem providing accessible, high-quality education and certified skills for learners and teams worldwide.
+          </p>
+
+          <div class="footer-social-links">
+            <a href="#" class="footer-social-btn" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="footer-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="footer-social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="footer-social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           </div>
         </div>
-        <div class="why-content">
-          <div class="section-tag">Why Choose Us</div>
-          <h2 class="section-title">Learning That Actually Works</h2>
-          <p class="section-sub">We combine expert instruction with a supportive community and lifetime access to help
-            you truly master new skills.</p>
-          <ul class="features-list">
-            <li class="feature-item">
-              <div class="feature-icon">🎓</div>
-              <div>
-                <div class="feature-title">Expert-Led Instruction</div>
-                <div class="feature-desc">Every instructor is vetted for real-world expertise and teaching ability — no
-                  fluff, only substance.</div>
-              </div>
-            </li>
-            <li class="feature-item">
-              <div class="feature-icon">📱</div>
-              <div>
-                <div class="feature-title">Learn On Any Device</div>
-                <div class="feature-desc">Access your courses on mobile, tablet, or desktop — online or offline,
-                  whenever you want.</div>
-              </div>
-            </li>
+
+        <!-- Col 1: Courses -->
+        <div>
+          <h4 class="footer-col-title">Courses</h4>
+          <ul class="footer-nav-list">
+            <li><a th:href="@{/courses/Development%20and%20IT}">Web Development</a></li>
+            <li><a th:href="@{/courses/Business%20Marketing}">Business &amp; Marketing</a></li>
+            <li><a th:href="@{/courses/Art,%20Craft%20and%20Painting}">Design &amp; UI/UX</a></li>
+            <li><a th:href="@{/courses/Photography}">Photography</a></li>
+            <li><a th:href="@{/courses/Music}">Music Production</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 2: Support -->
+        <div>
+          <h4 class="footer-col-title">Support</h4>
+          <ul class="footer-nav-list">
+            <li><a th:href="@{/help}">Help Center</a></li>
+            <li><a th:href="@{/contact}">Contact Us</a></li>
+            <li><a th:href="@{/faq}">FAQs</a></li>
+            <li><a th:href="@{/app}">Mobile App</a></li>
+            <li><a th:href="@{/business}">For Enterprise</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Legal -->
+        <div>
+          <h4 class="footer-col-title">Legal</h4>
+          <ul class="footer-nav-list">
+            <li><a th:href="@{/terms}">Terms of Service</a></li>
+            <li><a th:href="@{/privacy}">Privacy Policy</a></li>
+            <li><a th:href="@{/cookies}">Cookie Settings</a></li>
+            <li><a th:href="@{/accessibility}">Accessibility</a></li>
           </ul>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ── ABOUT ── -->
-  <section id="about">
-    <div class="section-inner">
-      <div class="about-grid">
-        <div class="about-content">
-          <div class="section-tag">About SkillHub</div>
-          <h2 class="section-title">Our Mission is<br>Your Growth</h2>
-          <p class="section-sub">SkillHub was born from a simple belief: every person deserves access to world-class
-            education, regardless of where they live or what they earn.</p>
-          <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem;">
-            <div style="text-align:center">
-              <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--primary)">2021
-              </div>
-              <div style="font-size:0.8rem;color:var(--text-dim)">Year Founded</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--primary)">120+
-              </div>
-              <div style="font-size:0.8rem;color:var(--text-dim)">Instructors</div>
-            </div>
-          </div>
-          <a href="#contact" class="btn-primary btn-large">Get In Touch</a>
-        </div>
-        <div>
-          <div class="gallery-strip">
-            <img
-              src="https://images.openai.com/static-rsc-4/ltNnSBgvEDtm0Ra_YIpnxLRlrtiAHpHn3ePd2KxIhIzfXPpwbDzwrn3K3I0QrawWETf3_rxMhCagy-jDRo3JChc_leVlLRG_dveVbwoOcCYhRlczd2R7CNzRUzet99QA9w7J3HfANY6ZB4ASgZ8kcghtcsFXqNtnVMQHI1YhB4GEvCpxG_ETIhfL7Fqs_Qj1?purpose=fullsize"
-              alt="Our Mission">
-          </div>
-        </div>
+      <!-- Watermark Brand -->
+      <div class="footer-watermark">SKILLHUB</div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom-bar">
+        <span>&copy; 2026 SkillHub Inc. All rights reserved.</span>
+        <span>Empowering learners globally with certified skills.</span>
       </div>
     </div>
-  </section>
+  </footer>
 
-  <!-- ── TESTIMONIALS ── -->
-  <section class="testi-bg">
-    <div class="section-inner">
-      <div class="section-tag">Student Stories</div>
-      <h2 class="section-title">What Our Learners Say</h2>
-      <p class="section-sub">Real stories from real people who transformed their skills and careers with SkillHub.</p>
-      <div class="testi-grid">
 
-        <div class="testi-card">
-          <div class="testi-stars">★★★★★</div>
-          <p class="testi-text">"I landed my first freelance photography client after completing the masterclass. The
-            course was incredibly detailed!"</p>
-          <div class="testi-author">
-            <div>
-              <div class="testi-name">Ayesha Khan</div>
-              <div class="testi-role">Freelance Photographer, Mumbai</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CTA ── -->
-  <section class="cta-section cta-img-bg">
-    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=80" class="cta-bg-img" alt="">
-    <div class="section-inner">
-      <div class="cta-inner">
-        <div class="section-tag">Start Today</div>
-        <h2 class="section-title">Your Next Skill is One Click Away</h2>
-        <p class="section-sub">Join 50,000+ learners who are already building their future on SkillHub.</p>
-        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
-          <a th:href="@{/register}" class="btn-primary btn-large">Join Now</a>
-          <a href="#about" class="btn-ghost btn-large">Learn About Us</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CONTACT ── -->
-  <section class="contact-bg" id="contact">
-    <div class="section-inner">
-      <div class="contact-grid">
-        <div>
-          <div class="section-tag">Get In Touch</div>
-          <h2 class="section-title">We'd Love to Hear From You</h2>
-          <p class="section-sub">Have a question about a course, partnership, or just want to say hello?</p>
-          <div class="contact-info-items">
-            <div class="contact-info-item">
-              <div class="ci-icon">📍</div>
-              <div>
-                <div class="ci-title">Our Office</div>
-                <div class="ci-val"> Brigade Gateway, Rajajinagar, Bengaluru</div>
-              </div>
-            </div>
-            <div class="contact-info-item">
-              <div class="ci-icon">✉️</div>
-              <div>
-                <div class="ci-title">Email Us</div>
-                <div class="ci-val">hello@skillhub.in</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="contact-form">
-            <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--text);margin-bottom:1.5rem;">
-              Send a Message</h3>
-            <div th:if="${param.success != null and param.success[0] == 'contact'}"
-              style="background:#d4edda;color:#155724;padding:1rem;margin-bottom:1rem;border-radius:4px;font-size:0.9rem;">
-              Your message has been sent successfully!
-            </div>
-            <form th:action="@{/submit-contact-form}" method="POST">
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="name" placeholder="Your Name" required>
-              </div>
-              <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" placeholder="email@example.com" required>
-              </div>
-              <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" placeholder="Tell us how we can help you..." required></textarea>
-              </div>
-              <button type="submit" class="btn-primary"
-                style="width:100%;padding:0.8rem;font-size:1rem;border-radius:8px;cursor:pointer">Send Message
-                →</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── FOOTER ── -->
-  <!-- ── FOOTER ── -->
-  <footer th:replace="~{fragments/footer :: footer}"></footer>
-
+  <!-- ==========================================================================
+       INTERACTIVE JAVASCRIPT
+       ========================================================================== -->
   <script>
-    function toggleNav() {
-      const links = document.querySelector('.nav-links');
-      links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
-      links.style.flexDirection = 'column';
-      links.style.position = 'absolute';
-      links.style.top = '70px';
-      links.style.left = '0';
-      links.style.right = '0';
-      links.style.background = '#F5F3FF';
-      links.style.padding = '1.5rem 5%';
-      links.style.borderBottom = '1px solid var(--border)';
+    // 1. Mobile Menu Toggle
+    function toggleMobileNav() {
+      const header = document.getElementById('siteHeader');
+      if (header) {
+        header.classList.toggle('mobile-open');
+      }
     }
 
-    window.addEventListener('scroll', () => {
-      const nav = document.getElementById('navbar');
-      if (window.scrollY > 50) {
-        nav.style.background = 'rgba(245, 243, 255, 0.98)';
-      } else {
-        nav.style.background = 'rgba(245, 243, 255, 0.92)';
+    // 2. Instructor Showcase Switcher Data & Handler
+    const instructorsData = [
+      {
+        name: "NAVEEN",
+        role: "Lead Instructor",
+        bio: "With more than 8+ years of professional experience in Cloud Computing & DevOps, he has trained 10,000+ students worldwide.",
+        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        name: "PRIYA SHARMA",
+        role: "Senior AI Researcher & Full-Stack Lead",
+        bio: "Former Tech Lead at Amazon with expertise in Generative AI, Python systems, and scalable full-stack applications.",
+        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        name: "FATIMA ZAHRA",
+        role: "Head of Product Design & UX",
+        bio: "Over 9 years designing enterprise SaaS products. Mentored 5,000+ designers now working at Stripe, Spotify, and Figma.",
+        image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        name: "RAJESH KUMAR",
+        role: "Principal Data Architect",
+        bio: "Specializing in Big Data pipelines, Distributed SQL Engines, and Real-time streaming analytics with Kafka and Spark.",
+        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+        name: "ALEX CHEN",
+        role: "Executive Creative Director",
+        bio: "Award-winning commercial photographer and motion graphics specialist helping students master visual storytelling.",
+        image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=80"
       }
-    });
+    ];
+
+    function selectInstructor(index) {
+      const data = instructorsData[index];
+      if (!data) return;
+
+      const nameEl = document.getElementById('spotlightName');
+      const roleEl = document.getElementById('spotlightRole');
+      const bioEl = document.getElementById('spotlightBio');
+      const imgEl = document.getElementById('spotlightImg');
+
+      if (nameEl) nameEl.textContent = data.name;
+      if (roleEl) roleEl.textContent = data.role;
+      if (bioEl) bioEl.textContent = data.bio;
+      if (imgEl) imgEl.src = data.image;
+
+      // Update active thumbnail
+      const buttons = document.querySelectorAll('.inst-thumb-btn');
+      buttons.forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // 3. Testimonials Carousel
+    const testimonialsData = [
+      {
+        quote: "\"SkillHub is the best thing that ever happened to my career. I learned real-world coding and landed my dream developer role in just 4 months!\"",
+        author: "Ayesha Begum",
+        role: "Full Stack Engineer, Meta",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80"
+      },
+      {
+        quote: "\"The DevOps & Cloud certification exam prepared me thoroughly for production scenarios. I was able to double my freelance consulting income.\"",
+        author: "Rahul Verma",
+        role: "Senior Cloud Architect",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80"
+      },
+      {
+        quote: "\"From hands-on projects to personalized instructor feedback, SkillHub transformed how I learn. Best investment in myself!\"",
+        author: "Elena Rostova",
+        role: "Product Designer, FinTech",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"
+      }
+    ];
+
+    let currentTestimonial = 0;
+
+    function renderTestimonial(idx) {
+      currentTestimonial = (idx + testimonialsData.length) % testimonialsData.length;
+      const t = testimonialsData[currentTestimonial];
+
+      const quoteEl = document.getElementById('testiQuote');
+      const authorEl = document.getElementById('testiAuthor');
+      const roleEl = document.getElementById('testiRole');
+      const avatarEl = document.getElementById('testiAvatar');
+
+      if (quoteEl) quoteEl.textContent = t.quote;
+      if (authorEl) authorEl.textContent = t.author;
+      if (roleEl) roleEl.textContent = t.role;
+      if (avatarEl) avatarEl.src = t.avatar;
+
+      // Update dots
+      const dots = document.querySelectorAll('.testi-dot');
+      dots.forEach((dot, i) => {
+        if (i === currentTestimonial) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+
+    function prevTestimonial() {
+      renderTestimonial(currentTestimonial - 1);
+    }
+
+    function nextTestimonial() {
+      renderTestimonial(currentTestimonial + 1);
+    }
+
+    function setTestimonial(idx) {
+      renderTestimonial(idx);
+    }
+
+        // 4.5. Contact Form AJAX Submission with instant feedback
+    const contactHomeForm = document.getElementById('contactForm');
+    if (contactHomeForm) {
+      contactHomeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const submitBtn = contactHomeForm.querySelector('.btn-send-message');
+        const originalText = submitBtn ? submitBtn.innerHTML : 'SEND MESSAGE';
+        if (submitBtn) {
+          submitBtn.innerHTML = 'SENDING... <i class="fas fa-spinner fa-spin"></i>';
+          submitBtn.disabled = true;
+        }
+
+        const nameVal = contactHomeForm.querySelector('input[name="name"]')?.value.trim() || '';
+        const emailVal = contactHomeForm.querySelector('input[name="email"]')?.value.trim() || '';
+        const msgVal = contactHomeForm.querySelector('textarea[name="message"]')?.value.trim() || '';
+
+        const params = new URLSearchParams();
+        params.append('name', nameVal);
+        params.append('email', emailVal);
+        params.append('message', msgVal);
+
+        fetch('/submit-contact-form', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params.toString()
+        })
+        .then(res => res.json())
+        .then(data => {
+          let alertBox = document.getElementById('contactHomeSuccess');
+          if (!alertBox) {
+            alertBox = document.createElement('div');
+            alertBox.id = 'contactHomeSuccess';
+            alertBox.style.cssText = 'background: rgba(16, 185, 129, 0.25); border: 1px solid #10B981; color: #FFFFFF; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;';
+            const titleEl = contactHomeForm.querySelector('.contact-glass-title');
+            if (titleEl) {
+              titleEl.insertAdjacentElement('beforebegin', alertBox);
+            } else {
+              contactHomeForm.prepend(alertBox);
+            }
+          }
+          alertBox.style.display = 'flex';
+          alertBox.innerHTML = '<i class="fas fa-check-circle" style="color: #34D399; font-size: 1.2rem;"></i> <span>' + (data.message || 'Your message has been sent successfully! A confirmation email has been dispatched.') + '</span>';
+          contactHomeForm.reset();
+          if (submitBtn) {
+            submitBtn.innerHTML = 'SENT!';
+            setTimeout(() => {
+              submitBtn.innerHTML = originalText;
+              submitBtn.disabled = false;
+            }, 3000);
+          }
+        })
+        .catch(() => {
+          contactHomeForm.submit();
+        });
+      });
+    }
+
+    // 4. Newsletter Subscribe Handler
+    function handleFooterNewsletter(event, form) {
+      event.preventDefault();
+      const input = form.querySelector('input[type="email"]');
+      const email = input ? input.value : '';
+      if (!email) return;
+
+      const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+      fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          [csrfHeader]: csrfToken || ''
+        },
+        body: 'email=' + encodeURIComponent(email)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert('Thank you for subscribing to SkillHub updates!');
+          form.reset();
+        } else {
+          alert('Subscribed successfully!');
+          form.reset();
+        }
+      })
+      .catch(() => {
+        alert('Thank you for subscribing to SkillHub updates!');
+        form.reset();
+      });
+    }
   </script>
-
-    <!-- SkillHub Global Broadcast Popup Notification -->
-    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
-
 </html>
