@@ -55,6 +55,9 @@ public class Course {
     private LocalDateTime submittedAt;
     private LocalDateTime reviewedAt;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
     private String lastUpdated;
 
     @Column(name = "exam_updated_at")
@@ -353,6 +356,21 @@ public class Course {
 
     public void setSubmittedAt(LocalDateTime submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getReviewedAt() {

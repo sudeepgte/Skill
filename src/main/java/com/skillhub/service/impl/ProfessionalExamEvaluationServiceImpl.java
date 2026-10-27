@@ -203,14 +203,23 @@ public class ProfessionalExamEvaluationServiceImpl {
         result.setCorrectAnswers(correct);
         result.setWrongAnswers(wrong);
         result.setUnansweredAnswers(unanswered);
-        result.setStatus(passed ? "PASS" : "FAIL");
 
-        if (passed) {
-            if (percentage >= 90.0) result.setGrade("DISTINCTION");
-            else if (percentage >= 75.0) result.setGrade("MERIT");
-            else result.setGrade("PASS");
+        boolean isTerminatedForViolations = attempt.getProctoringWarnings() != null && attempt.getProctoringWarnings() >= 3;
+        if (isTerminatedForViolations) {
+            passed = false;
+            result.setStatus("TERMINATED");
+            result.setGrade("TERMINATED");
+            result.setRiskScore(100);
+            attempt.setRiskScore(100);
         } else {
-            result.setGrade("FAIL");
+            result.setStatus(passed ? "PASS" : "FAIL");
+            if (passed) {
+                if (percentage >= 90.0) result.setGrade("DISTINCTION");
+                else if (percentage >= 75.0) result.setGrade("MERIT");
+                else result.setGrade("PASS");
+            } else {
+                result.setGrade("FAIL");
+            }
         }
 
         result.setEvaluatedAt(LocalDateTime.now());

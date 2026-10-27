@@ -421,6 +421,18 @@
                 <i class="fas fa-check-circle" style="font-size: 16px; flex-shrink: 0;"></i>
                 <span>Registration successful! Welcome aboard.</span>
             </div>
+            <div th:if="${param.pending_approval}" class="auth-alert" style="background:#eff6ff; border: 1px solid #bfdbfe; color:#1e40af;" role="alert">
+                <i class="fas fa-clock" style="font-size: 16px; flex-shrink: 0; color: #2563eb;"></i>
+                <span><strong>Registration Submitted!</strong> Your instructor registration and documents have been submitted to the admin for verification. You will be able to log in once your account has been approved.</span>
+            </div>
+            <div th:if="${param.unapproved}" class="auth-alert" style="background:#fffbeb; border: 1px solid #fde68a; color:#92400e;" role="alert">
+                <i class="fas fa-hourglass-half" style="font-size: 16px; flex-shrink: 0; color: #d97706;"></i>
+                <span><strong>Account Pending Approval!</strong> Your instructor account has not been approved yet. Our administrator is reviewing your uploaded documents. Please wait for admin approval before logging in.</span>
+            </div>
+            <div th:if="${param.blocked}" class="auth-alert auth-alert-error" role="alert">
+                <i class="fas fa-ban" style="font-size: 16px; flex-shrink: 0;"></i>
+                <span><strong>Account Suspended!</strong> Your account has been suspended or blocked by an administrator. Please contact support.</span>
+            </div>
 
             <form th:action="@{/login}" method="post" id="loginForm" novalidate>
                 
@@ -564,5 +576,7 @@
             // Natural form submission proceeds to /login (Spring Security)
         });
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 </html>

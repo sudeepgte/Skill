@@ -47,6 +47,15 @@ public class ProfessionalExamAttempt {
 
     private int riskScore;
 
+    @Column(name = "recording_url", length = 1000)
+    private String recordingUrl;
+
+    @Column(name = "proctoring_warnings")
+    private Integer proctoringWarnings = 0;
+
+    @Column(name = "recording_duration_seconds")
+    private Long recordingDurationSeconds;
+
     @Version
     private Long version;
 
@@ -101,6 +110,12 @@ public class ProfessionalExamAttempt {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public User getUser() { return student; }
+    public String getRecordingUrl() { return recordingUrl; }
+    public void setRecordingUrl(String recordingUrl) { this.recordingUrl = recordingUrl; }
+    public Integer getProctoringWarnings() { return proctoringWarnings != null ? proctoringWarnings : 0; }
+    public void setProctoringWarnings(Integer proctoringWarnings) { this.proctoringWarnings = proctoringWarnings != null ? proctoringWarnings : 0; }
+    public Long getRecordingDurationSeconds() { return recordingDurationSeconds; }
+    public void setRecordingDurationSeconds(Long recordingDurationSeconds) { this.recordingDurationSeconds = recordingDurationSeconds; }
     public ProfessionalExam getProfessionalExam() {
         return examVersion != null ? examVersion.getProfessionalExam() : null;
     }

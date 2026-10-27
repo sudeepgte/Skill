@@ -4,6 +4,8 @@ import com.skillhub.model.Category;
 import com.skillhub.model.User;
 import com.skillhub.service.CategoryService;
 import com.skillhub.service.UserService;
+import com.skillhub.service.FileStorageService;
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,9 @@ public class AuthController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @GetMapping("/login")
     public String login(Model model, HttpServletRequest request) {
@@ -66,6 +71,8 @@ public class AuthController {
                            @RequestParam(value = "role", defaultValue = "STUDENT") String role,
                            @RequestParam(value = "categoryName", required = false) String categoryName,
                            @RequestParam(value = "newCategoryName", required = false) String newCategoryName,
+                           @RequestParam(value = "aadharCardFile", required = false) MultipartFile aadharCardFile,
+                           @RequestParam(value = "proofDocFile", required = false) MultipartFile proofDocFile,
                            Authentication authentication) {
         try {
             // Server-side validation & sanitization
@@ -96,9 +103,21 @@ public class AuthController {
 
             user.setRole(role);
             
-            // Handling Vendor specific selections
-            if ("INSTRUCTOR".equals(role)) {
-                user.setApproved(true); // Auto-approved for immediate access as requested
+            // Handling Vendor/Instructor specific selections & document requirements
+            if ("INSTRUCTOR".equalsIgnoreCase(role)) {
+                // Must provide Aadhar card photo & proof document
+                if (aadharCardFile == null || aadharCardFile.isEmpty() || proofDocFile == null || proofDocFile.isEmpty()) {
+                    return "redirect:/register?error=missing_documents";
+                }
+
+                String aadharUrl = fileStorageService.store(aadharCardFile);
+                String proofUrl = fileStorageService.store(proofDocFile);
+                user.setAadharCardUrl(aadharUrl);
+                user.setProofDocUrl(proofUrl);
+
+                // Instructor accounts require manual approval by the administrator
+                user.setApproved(false);
+
                 if ("Other".equals(categoryName) && newCategoryName != null && !newCategoryName.isBlank()) {
                     Category category = new Category(newCategoryName.trim(), "fas fa-star text-warning");
                     categoryService.saveCategory(category);
@@ -106,10 +125,15 @@ public class AuthController {
                 } else if (categoryName != null && !categoryName.isEmpty()) {
                     user.setSkills(categoryName.trim());
                 }
+
+                userService.saveUser(user);
+                return "redirect:/login?pending_approval=true";
+            } else {
+                // Students and Admins auto-approved
+                user.setApproved(true);
+                userService.saveUser(user);
+                return "redirect:/login?success";
             }
-            
-            userService.saveUser(user);
-            return "redirect:/login?success";
         } catch (Exception e) {
             return "redirect:/register?error=generic";
         }

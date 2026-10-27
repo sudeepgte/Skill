@@ -46,6 +46,9 @@ public class EnrollmentController {
         if (course == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Course not found"));
         }
+        if (course.getStatus() != com.skillhub.model.CourseStatus.PUBLISHED || !course.isPublished()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "This course is currently undergoing revisions and is not open for enrollment."));
+        }
 
         boolean isFree = course.getPrice() == null || course.getPrice() <= 0;
         if (!isFree) {

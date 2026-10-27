@@ -9,8 +9,7 @@
 
     <!-- Copying standard imports from main_index -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
-    <style th:replace="~{fragments/footer :: footer-styles}"></style>
+    <style th:replace="~{fragments/student_sidebar :: student-sidebar-styles}"></style>
 
     <style>
         *,
@@ -26,53 +25,16 @@
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
             font-size: 1.4rem;
-            color: #2E1065;
-            background: #F5F3FF;
-        }
-
-        /* NAVBAR (simplified structure if needed, or rely on external css if it has one. Will use basic nav) */
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            height: 6rem;
-            padding: 0 1.6rem;
-            background: #fff;
-            border-bottom: 1px solid #d1d7dc;
-        }
-
-        .nav-logo {
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: #5624d0;
-            text-decoration: none;
-            margin-right: 2rem;
-        }
-
-        .nav-right {
-            margin-left: auto;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            font-size: 1.4rem;
-            color: #1c1d1f;
-            text-decoration: none;
-            font-weight: 500;
         }
 
         /* CERTIFICATIONS DASHBOARD */
         .cert-dashboard {
-            max-width: 1200px;
-            margin: 4rem auto;
-            padding: 0 2.4rem;
-            min-height: 60vh;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            min-height: auto;
         }
 
         .cert-header {
@@ -319,10 +281,10 @@
 </head>
 
 <body>
-    <!-- Basic Navbar fallback -->
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
-
-    <div class="cert-dashboard">
+    <div class="student-layout">
+        <aside th:replace="~{fragments/student_sidebar :: student-sidebar('exams')}"></aside>
+        <main class="student-main-content">
+            <div class="cert-dashboard">
         <!-- Elite Certification Challenge Banner -->
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 2.2rem 2.5rem; margin-bottom: 3rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;">
             <div>
@@ -374,7 +336,7 @@
             <i class="fa-solid fa-award"></i>
             <h3>No courses enrolled</h3>
             <p>Enroll in a course and complete all lectures to earn your certification.</p>
-            <a href="/">Browse Courses</a>
+            <a th:href="@{/#courses}" href="/#courses">Browse Courses</a>
         </div>
 
         <!-- Courses Grid -->
@@ -509,10 +471,9 @@
                 </div>
             </div>
         </div>
-</div>
-
-    <!-- FOOTER -->
-    <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+        </main>
+    </div>
 
     <!-- CSRF needed for sync API -->
     <meta name="_csrf" th:content="${_csrf.token}" />
@@ -572,6 +533,8 @@
             });
         }
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 
 </html>

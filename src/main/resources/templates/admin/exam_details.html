@@ -153,6 +153,9 @@
             <a href="/admin/courses" class="nav-item"><i class="fas fa-graduation-cap"></i> Courses</a>
             <a href="/admin/categories" class="nav-item"><i class="fas fa-tags"></i> Categories</a>
             <a href="/admin/exams" class="nav-item active"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="/admin/subscriptions" class="nav-item">
+                <i class="fas fa-credit-card"></i> Subscriptions
+            </a>
         </nav>
         <div class="sidebar-footer">
             <form th:action="@{/logout}" method="post">
@@ -333,5 +336,7 @@
             toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
         }
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 </html>

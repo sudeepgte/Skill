@@ -1582,6 +1582,9 @@
                 <a th:href="@{/vendor/dashboard(tab='profile')}" class="vendor-nav-item">
                     <i class="fas fa-user-circle"></i> Profile Management
                 </a>
+                <a th:href="@{/vendor/subscription}" class="vendor-nav-item" th:classappend="${activeTab == 'subscription'} ? 'active'">
+                    <i class="fas fa-crown"></i> Subscriptions
+                </a>
             </nav>
 
             <div class="vendor-sidebar-footer">
@@ -2060,16 +2063,29 @@
                                                     <div class="field-error-text" th:id="'lecTitleError-' + ${secStat.index} + '-' + ${lecStat.index}"></div>
                                                 </div>
                                                 <div>
-                                                    <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
-                                                    <input type="number" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].durationSeconds'" th:value="${lec.durationSeconds}" class="input-number"
-                                                           min="0" oninput="recalculateCurriculum();">
+                                                    <label class="field-label" style="font-size: 0.8rem;">
+                                                        Estimated Duration (Seconds)
+                                                        <span class="duration-auto-badge" style="font-size: 0.72rem; color: var(--primary); font-weight: 600; margin-left: 4px;">
+                                                            <i class="fas fa-wand-magic-sparkles"></i> Auto-calculated
+                                                        </span>
+                                                    </label>
+                                                    <input type="number" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].durationSeconds'" th:value="${lec.durationSeconds}" class="input-number duration-seconds-input"
+                                                           min="0" placeholder="Auto-calculated from video" oninput="recalculateCurriculum();">
                                                 </div>
                                             </div>
                                             <div class="form-row" style="margin-bottom: 0;">
-                                                <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4)</label>
-                                                <input type="file" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoFile'" accept="video/*" class="input-text" style="padding-top: 8px;">
-                                                <div th:if="${lec.videoUrl != null and !#strings.isEmpty(lec.videoUrl)}" style="font-size: 0.75rem; color: var(--success); margin-top: 4px;">
-                                                    <i class="fas fa-check-circle"></i> Video uploaded
+                                                <label class="field-label" style="font-size: 0.8rem;">
+                                                    Video File Upload (.mp4) <span class="field-required">*</span>
+                                                </label>
+                                                <input type="file" th:name="'sections[' + ${secStat.index} + '].lectures[' + ${lecStat.index} + '].videoFile'" 
+                                                       accept="video/mp4,video/*" class="input-text lecture-video-file" style="padding-top: 8px;"
+                                                       th:attr="data-has-existing=${lec.videoUrl != null and !#strings.isEmpty(lec.videoUrl)}"
+                                                       th:required="${lec.videoUrl == null or #strings.isEmpty(lec.videoUrl)}"
+                                                       onchange="handleLectureVideoSelect(this)">
+                                                <div class="field-error-text" th:id="'lecVideoError-' + ${secStat.index} + '-' + ${lecStat.index}"></div>
+                                                <div class="video-duration-status" style="font-size: 0.78rem; margin-top: 4px;"></div>
+                                                <div th:if="${lec.videoUrl != null and !#strings.isEmpty(lec.videoUrl)}" style="font-size: 0.75rem; color: var(--success); margin-top: 4px; font-weight: 600;">
+                                                    <i class="fas fa-check-circle"></i> Video uploaded (select file to replace)
                                                 </div>
                                             </div>
                                         </div>
@@ -2861,6 +2877,50 @@
                                 } else {
                                     clearFieldError(lecTitleInput);
                                 }
+
+                                // Required Video File Upload (.mp4) check
+                                const vidInput = lec.querySelector('input[type="file"]');
+                                const hasExisting = vidInput && (vidInput.getAttribute('data-has-existing') === 'true' || vidInput.getAttribute('data-has-existing') === true);
+                                const hasFile = vidInput && vidInput.files && vidInput.files.length > 0;
+                                const vidErrDiv = lec.querySelector('[id^="lecVideoError-"]');
+
+                                if (!hasExisting && !hasFile) {
+                                    isValid = false;
+                                    if (vidInput) vidInput.classList.add('input-error');
+                                    if (vidErrDiv) {
+                                        vidErrDiv.textContent = 'Video File Upload (.mp4) is required for each lecture.';
+                                        vidErrDiv.classList.add('visible');
+                                        vidErrDiv.style.display = 'flex';
+                                    }
+                                    if (!firstErrorElement) firstErrorElement = vidInput;
+                                } else if (hasFile) {
+                                    const vf = vidInput.files[0];
+                                    const isVid = (vf.type && vf.type.startsWith('video/')) || vf.name.toLowerCase().endsWith('.mp4');
+                                    if (!isVid) {
+                                        isValid = false;
+                                        if (vidInput) vidInput.classList.add('input-error');
+                                        if (vidErrDiv) {
+                                            vidErrDiv.textContent = 'Please select a valid video file (.mp4 format recommended).';
+                                            vidErrDiv.classList.add('visible');
+                                            vidErrDiv.style.display = 'flex';
+                                        }
+                                        if (!firstErrorElement) firstErrorElement = vidInput;
+                                    } else {
+                                        if (vidInput) vidInput.classList.remove('input-error');
+                                        if (vidErrDiv) {
+                                            vidErrDiv.textContent = '';
+                                            vidErrDiv.classList.remove('visible');
+                                            vidErrDiv.style.display = 'none';
+                                        }
+                                    }
+                                } else {
+                                    if (vidInput) vidInput.classList.remove('input-error');
+                                    if (vidErrDiv) {
+                                        vidErrDiv.textContent = '';
+                                        vidErrDiv.classList.remove('visible');
+                                        vidErrDiv.style.display = 'none';
+                                    }
+                                }
                             });
                         }
                     });
@@ -3472,7 +3532,7 @@
             }
         }
 
-        function addLecture(secId, title = '', duration = 300) {
+        function addLecture(secId, title = '', duration = '') {
             const container = document.getElementById(`lectures-${secId}`);
             if (!container) return;
             const existingLectures = container.querySelectorAll('.lecture-card');
@@ -3503,20 +3563,99 @@
                         <div class="field-error-text" id="lecTitleError-${secId}-${lecId}"></div>
                     </div>
                     <div>
-                        <label class="field-label" style="font-size: 0.8rem;">Estimated Duration (Seconds)</label>
-                        <input type="number" name="sections[${secId}].lectures[${lecId}].durationSeconds" value="${duration}" class="input-number"
-                               min="0" oninput="recalculateCurriculum();">
+                        <label class="field-label" style="font-size: 0.8rem;">
+                            Estimated Duration (Seconds)
+                            <span class="duration-auto-badge" style="font-size: 0.72rem; color: var(--primary); font-weight: 600; margin-left: 4px;">
+                                <i class="fas fa-wand-magic-sparkles"></i> Auto-calculated
+                            </span>
+                        </label>
+                        <input type="number" name="sections[${secId}].lectures[${lecId}].durationSeconds" value="${duration || ''}" class="input-number duration-seconds-input"
+                               min="0" placeholder="Auto-calculated from video" oninput="recalculateCurriculum();">
                     </div>
                 </div>
 
                 <div class="form-row" style="margin-bottom: 0;">
-                    <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4)</label>
-                    <input type="file" name="sections[${secId}].lectures[${lecId}].videoFile" accept="video/*" class="input-text" style="padding-top: 8px;">
+                    <label class="field-label" style="font-size: 0.8rem;">Video File Upload (.mp4) <span class="field-required">*</span></label>
+                    <input type="file" name="sections[${secId}].lectures[${lecId}].videoFile" accept="video/mp4,video/*" required class="input-text lecture-video-file" style="padding-top: 8px;" onchange="handleLectureVideoSelect(this)">
+                    <div class="field-error-text" id="lecVideoError-${secId}-${lecId}"></div>
+                    <div class="video-duration-status" style="font-size: 0.78rem; margin-top: 4px;"></div>
                 </div>
             `;
 
             container.appendChild(lecDiv);
             recalculateCurriculum();
+        }
+
+        // ── AUTO-CALCULATE VIDEO DURATION FROM UPLOADED VIDEO (.mp4) ──
+        function handleLectureVideoSelect(input) {
+            const lectureCard = input.closest('.lecture-card');
+            if (!lectureCard) return;
+
+            const durInput = lectureCard.querySelector('input[name*="durationSeconds"]');
+            const statusDiv = lectureCard.querySelector('.video-duration-status');
+            const errDiv = lectureCard.querySelector('[id^="lecVideoError-"]');
+
+            input.classList.remove('input-error');
+            if (errDiv) {
+                errDiv.textContent = '';
+                errDiv.classList.remove('visible');
+                errDiv.style.display = 'none';
+            }
+
+            if (!input.files || input.files.length === 0) {
+                if (statusDiv) statusDiv.innerHTML = '';
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Validate video mime type or extension
+            const isVideo = (file.type && file.type.startsWith('video/')) || file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.mov') || file.name.toLowerCase().endsWith('.webm');
+            if (!isVideo) {
+                input.classList.add('input-error');
+                if (errDiv) {
+                    errDiv.textContent = 'Please select a valid video file (.mp4 format recommended).';
+                    errDiv.classList.add('visible');
+                    errDiv.style.display = 'flex';
+                }
+                if (statusDiv) statusDiv.innerHTML = '';
+                return;
+            }
+
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: var(--primary); display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-spinner fa-spin"></i> Calculating video duration...</span>';
+            }
+
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+
+            const objUrl = URL.createObjectURL(file);
+            video.src = objUrl;
+
+            video.onloadedmetadata = function() {
+                window.URL.revokeObjectURL(objUrl);
+                const sec = Math.round(video.duration);
+                if (!isNaN(sec) && sec >= 0) {
+                    if (durInput) {
+                        durInput.value = sec;
+                    }
+                    const mins = Math.floor(sec / 60);
+                    const remainSec = sec % 60;
+                    const timeFormatted = mins > 0 ? `${mins}m ${remainSec}s (${sec} seconds)` : `${sec} seconds`;
+
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<span style="color: var(--success, #10b981); font-weight: 600; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-check-circle"></i> Duration auto-calculated: <strong>${timeFormatted}</strong></span>`;
+                    }
+                    recalculateCurriculum();
+                }
+            };
+
+            video.onerror = function() {
+                window.URL.revokeObjectURL(objUrl);
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<span style="color: var(--text-muted); font-size: 0.75rem;"><i class="fas fa-info-circle"></i> Could not auto-detect video metadata. Please enter duration manually.</span>';
+                }
+            };
         }
 
         function recalculateCurriculum() {
@@ -3678,6 +3817,13 @@
                     const vidFile = lec.querySelector('input[type="file"]');
                     if (vidFile) {
                         vidFile.name = `sections[${secIdx}].lectures[${lecIdx}].videoFile`;
+                        vidFile.setAttribute('onchange', 'handleLectureVideoSelect(this)');
+                    }
+
+                    // Video error div
+                    const vidErr = lec.querySelector('[id^="lecVideoError-"]');
+                    if (vidErr) {
+                        vidErr.id = `lecVideoError-${secIdx}-${lecIdx}`;
                     }
                 });
             });
@@ -4096,7 +4242,7 @@
             const existingCards = sectionsContainer.querySelectorAll('.section-card');
             if (existingCards.length === 0) {
                 const s0 = addSection('');
-                addLecture(s0, '', 300);
+                addLecture(s0, '', '');
             } else {
                 recalculateCurriculum();
             }
@@ -4153,5 +4299,7 @@
             });
         });
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 </html>

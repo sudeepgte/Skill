@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Proctoring Session Recording | SkillHub Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .subnav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.4rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.2rem;
+        }
+        .subnav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.6rem;
+            border-radius: 0.8rem;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-decoration: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        .subnav-tab:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(167, 139, 250, 0.08);
+        }
+        .subnav-tab.active {
+            color: #fff;
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .recording-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2.4rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1080px) {
+            .recording-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-cinema-box {
+            background: #0f172a;
+            border-radius: 1.4rem;
+            overflow: hidden;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+
+        .video-header-bar {
+            padding: 1.2rem 1.8rem;
+            background: rgba(30, 41, 59, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .rec-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .video-player-container {
+            width: 100%;
+            min-height: 380px;
+            background: #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-player-container video {
+            width: 100%;
+            max-height: 520px;
+            display: block;
+            outline: none;
+        }
+
+        .video-footer-bar {
+            padding: 1.4rem 1.8rem;
+            background: rgba(30, 41, 59, 0.85);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card h4 {
+            margin: 0 0 1.4rem 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 1.3rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .detail-val {
+            font-weight: 600;
+            color: var(--text);
+            text-align: right;
+        }
+
+        .telemetry-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.25rem;
+        }
+
+        .telemetry-table th {
+            text-align: left;
+            padding: 1rem 1.2rem;
+            background: var(--background);
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .telemetry-table td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ SIDEBAR ══ -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div>
+                <div class="sidebar-brand-name">SkillHub</div>
+                <div class="sidebar-brand-sub">Admin Console</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="/admin/courses" class="nav-item">
+                <i class="fas fa-book-open"></i> Courses
+            </a>
+            <a href="/admin/categories" class="nav-item">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+            <a href="/admin/exams" class="nav-item">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+
+            <div class="nav-section-label" style="margin-top: 0.8rem;">Certifications</div>
+            <a href="/admin/professional-exams" class="nav-item">
+                <i class="fas fa-award"></i> Professional Exams
+            </a>
+            <a href="/admin/professional-exams/applications" class="nav-item">
+                <i class="fas fa-id-card"></i> Exam Applications
+            </a>
+            <a href="/admin/professional-exams/question-bank" class="nav-item">
+                <i class="fas fa-database"></i> Question Bank
+            </a>
+            <a href="/admin/professional-exams/results" class="nav-item active">
+                <i class="fas fa-certificate"></i> Results & Certs
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- ══ MAIN BODY ══ -->
+    <div class="admin-body">
+
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title">Candidate Proctoring Recording</div>
+            <div class="topbar-actions">
+                <a href="/admin/profile" class="admin-avatar" title="My Profile">
+                    <span th:text="${user != null and user.name != null ? #strings.substring(user.name,0,1) : 'A'}">A</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+
+            <!-- Subnav Tabs -->
+            <div class="subnav-tabs">
+                <a href="/admin/professional-exams" class="subnav-tab">
+                    <i class="fas fa-award"></i> All Exams
+                </a>
+                <a href="/admin/professional-exams/applications" class="subnav-tab">
+                    <i class="fas fa-id-card"></i> Candidate Applications
+                </a>
+                <a href="/admin/professional-exams/question-bank" class="subnav-tab">
+                    <i class="fas fa-database"></i> Question Bank
+                </a>
+                <a href="/admin/professional-exams/results" class="subnav-tab">
+                    <i class="fas fa-certificate"></i> Results & Certs
+                </a>
+                <a href="javascript:void(0)" class="subnav-tab active">
+                    <i class="fas fa-video"></i> Session Recording #<span th:text="${attempt?.id}">1</span>
+                </a>
+            </div>
+
+            <!-- Page Title Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.4rem; flex-wrap: wrap; gap: 1.2rem;">
+                <div>
+                    <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text); margin: 0;">
+                        Proctoring Audit: <span th:text="${candidate != null ? candidate.name : 'Candidate'}">Student</span>
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.4rem; margin-top: 0.4rem;">
+                        Synchronized audio & video stream recorded during examination attempt #<span th:text="${attempt?.id}">1</span>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/admin/professional-exams/results" class="btn-primary-admin" style="background: var(--surface); color: var(--text); border: 1px solid var(--border); text-decoration: none; display: inline-flex; align-items: center; gap: 0.6rem;">
+                        <i class="fas fa-arrow-left"></i> Back to Results
+                    </a>
+                    <a th:if="${attempt?.recordingUrl != null and !#strings.isEmpty(attempt?.recordingUrl)}"
+                       th:href="${attempt?.recordingUrl}" download class="btn-primary-admin" style="background: var(--secondary); color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 0.6rem;">
+                        <i class="fas fa-download"></i> Download Video
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Layout Grid -->
+            <div class="recording-layout">
+
+                <!-- Left Column: Video Player & Incident Log -->
+                <div>
+                    <!-- Video Box -->
+                    <div class="video-cinema-box">
+                        <div class="video-header-bar">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="rec-live-badge">
+                                    <span class="rec-dot"></span>
+                                    <span>PROCTORING RECORDING</span>
+                                </div>
+                                <span style="font-size: 1.3rem; color: #94a3b8;" th:text="${exam != null ? exam.title : 'Professional Exam'}">Exam Track</span>
+                            </div>
+                            <span class="pill pill-green" style="font-size: 1.2rem;">
+                                <i class="fas fa-shield-alt"></i> WebRTC Stream
+                            </span>
+                        </div>
+
+                        <div class="video-player-container">
+                            <div th:if="${attempt?.recordingUrl != null and !#strings.isEmpty(attempt?.recordingUrl)}" style="width: 100%;">
+                                <video id="proctorVideoPlayer" controls playsinline preload="auto">
+                                    <source th:src="${attempt?.recordingUrl}" type="video/webm">
+                                    <source th:src="${attempt?.recordingUrl}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                            <div th:unless="${attempt?.recordingUrl != null and !#strings.isEmpty(attempt?.recordingUrl)}" 
+                                 style="text-align: center; padding: 6rem 2rem; color: #94a3b8;">
+                                <i class="fas fa-video-slash" style="font-size: 5rem; color: #f59e0b; margin-bottom: 1.6rem; display: block;"></i>
+                                <h3 style="font-size: 2rem; font-weight: 700; color: #f8fafc; margin-bottom: 0.8rem;">No Recording File Uploaded</h3>
+                                <p style="font-size: 1.4rem; max-width: 480px; margin: 0 auto; line-height: 1.6;">
+                                    This exam attempt was either taken before proctoring recording was configured, or camera permission was not granted by the student.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="video-footer-bar">
+                            <div style="display: flex; gap: 1.6rem; align-items: center;">
+                                <span style="font-size: 1.3rem; color: #cbd5e1;">
+                                    <i class="fas fa-video" style="color: #818cf8; margin-right: 0.4rem;"></i> Video Feed: Active
+                                </span>
+                                <span style="font-size: 1.3rem; color: #cbd5e1;">
+                                    <i class="fas fa-microphone" style="color: #34d399; margin-right: 0.4rem;"></i> Audio Feed: Synchronized
+                                </span>
+                            </div>
+                            <div th:if="${attempt?.recordingDurationSeconds != null}" style="font-size: 1.3rem; color: #94a3b8;">
+                                Duration: <strong style="color: #f8fafc;" th:text="${attempt.recordingDurationSeconds / 60} + 'm ' + ${attempt.recordingDurationSeconds % 60} + 's'">15m 0s</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Proctoring Incident Telemetry Card -->
+                    <div class="info-card" style="margin-top: 2.4rem;">
+                        <h4>
+                            <i class="fas fa-user-secret" style="color: #6366f1;"></i>
+                            Proctoring Events & Cheating Detection Log
+                        </h4>
+
+                        <div th:if="${securityEvents != null and !securityEvents.empty}" style="overflow-x: auto;">
+                            <table class="telemetry-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Incident / Event</th>
+                                        <th>Details</th>
+                                        <th>Client IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="ev : ${securityEvents}">
+                                        <td style="white-space: nowrap; font-family: monospace; color: var(--text-muted);"
+                                            th:text="${ev.eventTimestamp != null ? #temporals.format(ev.eventTimestamp, 'HH:mm:ss (dd MMM)') : '-'}">
+                                            12:34:56
+                                        </td>
+                                        <td>
+                                            <span th:if="${ev.eventType == 'FACE_NOT_DETECTED' or ev.eventType == 'FACE_ABSENT'}" class="pill pill-red">
+                                                <i class="fas fa-exclamation-triangle"></i> Face Not In Frame
+                                            </span>
+                                            <span th:if="${ev.eventType == 'PROCTORING_RECORDING_UPLOADED'}" class="pill pill-green">
+                                                <i class="fas fa-file-video"></i> Video Uploaded
+                                            </span>
+                                            <span th:unless="${ev.eventType == 'FACE_NOT_DETECTED' or ev.eventType == 'FACE_ABSENT' or ev.eventType == 'PROCTORING_RECORDING_UPLOADED'}" class="pill pill-blue"
+                                                  th:text="${ev.eventType}">
+                                                Event
+                                            </span>
+                                        </td>
+                                        <td th:text="${ev.metadata}">Details</td>
+                                        <td style="font-family: monospace; font-size: 1.2rem; color: var(--text-muted);" th:text="${ev.ipAddress != null ? ev.ipAddress : 'Local'}">127.0.0.1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div th:if="${securityEvents == null or securityEvents.empty}" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                            <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem; display: block;"></i>
+                            <strong style="color: var(--text); font-size: 1.4rem;">Clean Session</strong>
+                            <p style="margin-top: 0.4rem; font-size: 1.3rem;">No unauthorized face absences or proctoring warnings occurred during this exam session.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Candidate, Exam & Proctoring Details -->
+                <div>
+
+                    <!-- Candidate Details Card -->
+                    <div class="info-card">
+                        <h4><i class="fas fa-user-circle" style="color: var(--primary);"></i> Candidate Details</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">Full Name</span>
+                            <span class="detail-val" th:text="${candidate != null ? candidate.name : 'Student'}">John Doe</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email Address</span>
+                            <span class="detail-val" th:text="${candidate != null ? candidate.email : '-'}">student@example.com</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Role</span>
+                            <span class="detail-val" th:text="${candidate != null ? candidate.role : 'STUDENT'}">STUDENT</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Candidate ID</span>
+                            <span class="detail-val" th:text="'#' + ${candidate != null ? candidate.id : '-'}">#1</span>
+                        </div>
+                    </div>
+
+                    <!-- Proctoring Risk & Warnings Card -->
+                    <div class="info-card">
+                        <h4><i class="fas fa-shield-alt" style="color: #ef4444;"></i> Proctoring Telemetry</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">Face Absences</span>
+                            <span class="detail-val">
+                                <span th:if="${attempt?.proctoringWarnings > 0}" class="pill pill-red" th:text="${attempt.proctoringWarnings} + ' Warnings'">1 Warnings</span>
+                                <span th:unless="${attempt?.proctoringWarnings > 0}" class="pill pill-green">0 (Clean)</span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Risk Score</span>
+                            <span class="detail-val">
+                                <span class="pill" th:classappend="${attempt?.riskScore > 30 ? 'pill-red' : (attempt?.riskScore > 10 ? 'pill-amber' : 'pill-green')}"
+                                      th:text="${attempt?.riskScore ?: 0} + ' / 100'">0 / 100</span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Proctoring Status</span>
+                            <span class="detail-val">
+                                <span th:if="${attempt?.proctoringWarnings == null or attempt?.proctoringWarnings == 0}" style="color: #10b981; font-weight: 700;">
+                                    <i class="fas fa-check-circle"></i> Compliant
+                                </span>
+                                <span th:if="${attempt?.proctoringWarnings != null and attempt?.proctoringWarnings > 0}" style="color: #f59e0b; font-weight: 700;">
+                                    <i class="fas fa-exclamation-circle"></i> Flagged Incidents
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Recording Storage</span>
+                            <span class="detail-val">
+                                <span th:if="${attempt?.recordingUrl != null and !#strings.isEmpty(attempt?.recordingUrl)}" style="color: #10b981;">
+                                    <i class="fas fa-cloud-check"></i> Stored on Server
+                                </span>
+                                <span th:unless="${attempt?.recordingUrl != null and !#strings.isEmpty(attempt?.recordingUrl)}" style="color: #94a3b8;">
+                                    Not Uploaded
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Examination Details Card -->
+                    <div class="info-card">
+                        <h4><i class="fas fa-award" style="color: #f59e0b;"></i> Examination Info</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">Exam Title</span>
+                            <span class="detail-val" th:text="${exam != null ? exam.title : 'Professional Exam'}">Exam Title</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Track</span>
+                            <span class="detail-val" th:text="${exam != null and exam.track != null ? exam.track : 'FULL_STACK'}">FULL_STACK</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Attempt ID</span>
+                            <span class="detail-val" th:text="'#' + ${attempt?.id}">#7</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Started At</span>
+                            <span class="detail-val" th:text="${attempt?.startedAt != null ? #temporals.format(attempt.startedAt, 'dd MMM, HH:mm') : '-'}">Started</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Submitted At</span>
+                            <span class="detail-val" th:text="${attempt?.submittedAt != null ? #temporals.format(attempt.submittedAt, 'dd MMM, HH:mm') : 'In Progress'}">Submitted</span>
+                        </div>
+                    </div>
+
+                    <!-- Performance & Results Card -->
+                    <div class="info-card">
+                        <h4><i class="fas fa-chart-line" style="color: #10b981;"></i> Result & Grade</h4>
+                        <div class="detail-row">
+                            <span class="detail-label">Score</span>
+                            <span class="detail-val" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
+                                <span th:text="${result != null ? result.obtainedMarks : attempt?.obtainedMarks}">85</span> / <span th:text="${result != null ? result.totalMarks : attempt?.totalMarks}">100</span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Percentage</span>
+                            <span class="detail-val" th:text="${result != null ? #numbers.formatDecimal(result.percentage, 1, 1) + '%' : '-'}">85.0%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Grade</span>
+                            <span class="detail-val">
+                                <span class="pill pill-blue" th:text="${result != null ? result.grade : '-'}">A</span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-val">
+                                <span th:if="${result != null and (result.status == 'PASS' or result.status == 'PASSED')}" class="pill pill-green">
+                                    <i class="fas fa-check-circle"></i> Passed
+                                </span>
+                                <span th:unless="${result != null and (result.status == 'PASS' or result.status == 'PASSED')}" class="pill pill-red">
+                                    <i class="fas fa-times-circle"></i> Failed
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
+</body>
+</html>

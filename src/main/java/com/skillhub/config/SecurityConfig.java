@@ -27,6 +27,9 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private CustomAuthenticationFailureHandler failureHandler;
+
     @Bean
     public JwtAuthenticationFilter authenticationJwtTokenFilter() {
         return new JwtAuthenticationFilter();
@@ -57,7 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/saveUser",
                                 "/login", "/forgot-password", "/reset-password", "/verify-otp",
-                                "/api/auth/**",
+                                "/api/auth/**", "/api/broadcast/**",
                                 "/css/**", "/js/**", "/images/**",
                                 "/course/**", "/courses", "/courses/**", "/pricing", "/library", "/error", "/uploads/**",
                                 "/about", "/contact", "/submit-contact-form",
@@ -71,6 +74,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/register/admin", "/admin/register", "/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                         .requestMatchers("/vendor/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/instructor/subscription/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
+                        .requestMatchers("/api/subscriptions/**").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
                         .requestMatchers("/api/upload-video").hasAnyAuthority("INSTRUCTOR", "ADMIN", "ROLE_INSTRUCTOR", "ROLE_ADMIN")
                         .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated())
@@ -78,11 +83,12 @@ public class SecurityConfig {
                         .contentTypeOptions(contentType -> {})
                         .frameOptions(frame -> frame.sameOrigin())
                         .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' ws: wss: https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';")))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' ws: wss: https://api.razorpay.com https://lumberjack.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; frame-ancestors 'self';")))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Proctoring Face Detection Library (Viola-Jones Haar Cascade) -->
+    <script th:src="@{/js/tracking-min.js(v=2)}" src="/js/tracking-min.js?v=2"></script>
+    <script th:src="@{/js/face-min.js(v=2)}" src="/js/face-min.js?v=2"></script>
 
     <style>
         :root {
@@ -653,6 +657,229 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* ══ PROCTORING CAMERA WIDGET ══ */
+        .proctor-widget {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .proctor-widget.warning-active {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        .proctor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 0.9rem;
+            background: rgba(30, 41, 59, 0.85);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .proctor-rec-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .proctor-rec-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse-dot 1.2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.85); }
+        }
+
+        .proctor-rec-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ef4444;
+            letter-spacing: 0.5px;
+        }
+
+        .proctor-status-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
+        }
+
+        .proctor-status-pill.in-frame {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .proctor-status-pill.out-frame {
+            background: rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            animation: pulse-warn 1s infinite;
+        }
+
+        .proctor-cam-box {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: #020617;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .proctor-cam-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .proctor-cam-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(239, 68, 68, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            gap: 0.5rem;
+            font-weight: 800;
+            font-size: 0.9rem;
+            z-index: 10;
+            animation: pulse-warn 1s infinite;
+        }
+
+        .proctor-cam-watermark {
+            position: absolute;
+            bottom: 6px;
+            left: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 5;
+        }
+
+        .proctor-metrics-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 0.6rem;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+        }
+
+        .proctor-metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .proctor-metric-item .metric-lbl {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .proctor-metric-item .metric-val {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* ══ FLOATING PROCTORING WARNING BANNER ══ */
+        .proctor-alert-banner {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 650px;
+            background: linear-gradient(135deg, #7f1d1d, #991b1b);
+            border: 2px solid #ef4444;
+            border-radius: 14px;
+            padding: 1.2rem 1.6rem;
+            box-shadow: 0 12px 32px rgba(239, 68, 68, 0.5), 0 0 0 6px rgba(239, 68, 68, 0.2);
+            animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounce-in {
+            from { opacity: 0; transform: translate(-50%, -30px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        @keyframes pulse-warn {
+            0%, 100% { opacity: 0.95; }
+            50% { opacity: 0.65; }
+        }
+
+        .proctor-alert-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            color: #fff;
+        }
+
+        .proctor-alert-icon {
+            color: #fca5a5;
+            flex-shrink: 0;
+            margin-top: 2px;
+            animation: pulse-warn 0.8s infinite;
+        }
+
+        .proctor-alert-body h4 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.35rem;
+            letter-spacing: 0.3px;
+        }
+
+        .proctor-alert-body p {
+            font-size: 0.9rem;
+            color: #fee2e2;
+            line-height: 1.45;
+            margin-bottom: 0.6rem;
+        }
+
+        .proctor-alert-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .proctor-warning-pill {
+            background: #dc2626;
+            color: #fff;
+            padding: 0.2rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -690,6 +917,38 @@
 
         <!-- Question Palette Sidebar Container -->
         <aside id="palette-container">
+            <!-- 📹 Live Proctoring Feed Widget -->
+            <div class="proctor-widget" id="proctor-widget">
+                <div class="proctor-header">
+                    <div class="proctor-rec-indicator">
+                        <span class="proctor-rec-dot"></span>
+                        <span class="proctor-rec-label">REC • LIVE PROCTOR</span>
+                    </div>
+                    <span id="proctor-face-status" class="proctor-status-pill in-frame">
+                        <i class="fas fa-check-circle"></i> In Frame
+                    </span>
+                </div>
+                <div class="proctor-cam-box" id="proctor-cam-box">
+                    <video id="proctor-video" autoplay muted playsinline></video>
+                    <div id="proctor-cam-overlay" class="proctor-cam-overlay" style="display:none;">
+                        <i class="fas fa-user-slash fa-2x"></i>
+                        <span>FACE NOT IN FRAME</span>
+                    </div>
+                    <div class="proctor-cam-watermark">
+                        <span th:text="${attempt?.student != null ? attempt.student.name : 'Candidate'}">Candidate</span> • Attempt #<span th:text="${attempt?.id}">1</span>
+                    </div>
+                </div>
+                <div class="proctor-metrics-bar">
+                    <div class="proctor-metric-item">
+                        <span class="metric-lbl">Audio & Video</span>
+                        <span class="metric-val" style="color:#10b981;"><i class="fas fa-microphone"></i> Sync</span>
+                    </div>
+                    <div class="proctor-metric-item">
+                        <span class="metric-lbl">Warnings</span>
+                        <span class="metric-val" id="proctor-warnings-count" style="color:#f59e0b;">0</span>
+                    </div>
+                </div>
+            </div>
             <div class="palette-header">
                 <h3><i class="fas fa-th"></i> Question Palette</h3>
             </div>
@@ -761,6 +1020,62 @@
         </div>
     </div>
 
+    <!-- ⚠️ Proctoring Warning Alert Banner -->
+    <div id="proctor-alert-banner" class="proctor-alert-banner" style="display: none;">
+        <div class="proctor-alert-content">
+            <div class="proctor-alert-icon">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+            </div>
+            <div class="proctor-alert-body">
+                <h4 id="proctor-alert-title">⚠️ PROCTORING WARNING: FACE NOT IN FRAME!</h4>
+                <p id="proctor-alert-desc">You are not detected within the camera frame. Please look directly into your webcam and remain centered. Absence incidents are recorded and sent to exam administrators.</p>
+                <div class="proctor-alert-meta">
+                    <span id="proctor-alert-num" class="proctor-warning-pill">Warning #1 of 3</span>
+                    <span style="font-size: 0.85rem; color: #fca5a5;"><i class="fas fa-shield-alt"></i> Incident logged to exam proctor</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🚫 Exam Auto-Termination Modal (Triggered after 3 warnings) -->
+    <div class="modal-backdrop" id="proctorTerminationModal">
+        <div class="modal-card" style="text-align: center; max-width: 580px; border: 2px solid #ef4444; box-shadow: 0 0 35px rgba(239, 68, 68, 0.45); animation: bounce-in 0.4s ease-out;">
+            <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(239, 68, 68, 0.18); color: #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; font-size: 2.3rem; border: 2px solid #ef4444;">
+                <i class="fas fa-ban"></i>
+            </div>
+            <h2 style="font-size: 1.65rem; color: #ef4444; margin-bottom: 0.6rem; font-weight: 800; letter-spacing: -0.3px;">Examination Terminated</h2>
+            <p style="color: #f8fafc; font-size: 1rem; line-height: 1.6; margin-bottom: 1.25rem;">
+                Your examination has been automatically stopped and terminated due to exceeding the maximum permitted limit of <strong>3 proctoring warnings</strong>.
+            </p>
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #334155; border-radius: 12px; padding: 1.1rem 1.4rem; margin-bottom: 1.5rem; text-align: left;">
+                <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-shield-alt" style="color: #ef4444;"></i> Violations Recorded:
+                </div>
+                <ul id="terminationViolationsList" style="color: #fca5a5; font-size: 0.85rem; padding-left: 1.2rem; margin: 0; line-height: 1.65;">
+                    <li>Warning 1: Candidate out of camera frame</li>
+                    <li>Warning 2: Candidate out of camera frame</li>
+                    <li>Warning 3: Unauthorized face / person mismatch</li>
+                </ul>
+            </div>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                Audio & video recordings and incident telemetry logs are being submitted to exam administrators for review.
+            </p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; color: #f59e0b; font-weight: 600; font-size: 0.92rem;">
+                <div class="loading-spinner" style="width: 22px; height: 22px; border-width: 3px;"></div>
+                <span id="terminationStatusText">Uploading proctoring session recording...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔄 Submitting & Uploading Recording Overlay -->
+    <div class="modal-backdrop" id="uploadingModal">
+        <div class="modal-card" style="text-align: center;">
+            <div class="loading-spinner" style="width: 44px; height: 44px; border-width: 4px; margin: 0 auto 1.5rem auto;"></div>
+            <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem;">Uploading Proctoring Session...</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Saving audio & video recordings to server and finalizing exam results.</p>
+        </div>
+    </div>
+
     <!-- ══ CLIENT-SIDE EXAM ENGINE LOGIC ══ -->
     <script th:inline="javascript">
         // ── STATE VARIABLES ──
@@ -805,6 +1120,7 @@
 
             // Start loading overview and first question
             initExamSession();
+            initProctoring();
         });
 
         // ── LOAD OVERVIEW & START TIMER ──
@@ -1297,6 +1613,769 @@
             modal.classList.add('open');
         }
 
+        // ══════════════════════════════════════════════════════════════
+        // 📹 PROCTORING CAMERA & AUDIO/VIDEO RECORDING ENGINE
+        // ══════════════════════════════════════════════════════════════
+        let mediaStream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let proctorWarningsCount = 0;
+        let recordingStartTime = Date.now();
+        let faceMissingFrames = 0;
+        let isFaceWarningActive = false;
+        let proctorCheckInterval = null;
+        let faceDetectorInstance = null;
+
+        if (typeof window.FaceDetector === 'function') {
+            try {
+                faceDetectorInstance = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 5 });
+            } catch(e) {
+                console.log('Native FaceDetector init failed, using canvas fallback');
+            }
+        }
+
+        async function initProctoring() {
+            const videoElem = document.getElementById('proctor-video');
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 24, max: 30 } },
+                    audio: true
+                });
+
+                if (videoElem) {
+                    videoElem.srcObject = mediaStream;
+                    videoElem.play().catch(e => console.warn('Video play error:', e));
+                }
+
+                // Setup MediaRecorder for audio + video recording
+                setupMediaRecorder();
+
+                // Start Face Detection Loop
+                startFaceDetectionLoop();
+
+            } catch (err) {
+                console.warn('Proctoring camera access error:', err);
+                const camBox = document.getElementById('proctor-cam-box');
+                if (camBox) {
+                    camBox.innerHTML = `
+                        <div style="padding: 1rem; text-align: center; color: #f59e0b; font-size: 0.8rem;">
+                            <i class="fas fa-exclamation-triangle fa-2x" style="margin-bottom: 0.5rem; display:block;"></i>
+                            <strong>Camera / Mic Required</strong>
+                            <p style="margin-top: 0.3rem; color: #94a3b8; font-size: 0.72rem;">Please allow camera & microphone access in your browser to maintain proctoring compliance.</p>
+                            <button onclick="initProctoring()" style="margin-top: 0.6rem; background: #6366f1; color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">Retry Camera</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function setupMediaRecorder() {
+            if (!mediaStream) return;
+            recordedChunks = [];
+            let options = { mimeType: 'video/webm;codecs=vp8,opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/mp4' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        options = {};
+                    }
+                }
+            }
+
+            try {
+                mediaRecorder = new MediaRecorder(mediaStream, options);
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data && event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+                mediaRecorder.start(1000); // 1-second chunks
+                recordingStartTime = Date.now();
+                console.log('Proctoring MediaRecorder active with type:', mediaRecorder.mimeType);
+            } catch(e) {
+                console.warn('MediaRecorder init failed:', e);
+            }
+        }
+
+        // ── CANDIDATE BIOMETRIC PROFILE & IDENTITY TRACKING ──
+        let candidateBaselineSignature = null;
+        let isCandidateEnrolled = false;
+        let enrollmentSamples = [];
+        let proctorViolationsHistory = [];
+        let isExamAutoTerminated = false;
+        let mismatchFrames = 0;
+        let multiFaceFrames = 0;
+        let consecutivePresentCount = 0;
+
+        let proctorFaceTracker = null;
+        try {
+            if (typeof tracking !== 'undefined' && tracking.ObjectTracker) {
+                proctorFaceTracker = new tracking.ObjectTracker('face');
+                proctorFaceTracker.setInitialScale(1.5);
+                proctorFaceTracker.setScaleFactor(1.15);
+                proctorFaceTracker.setStepSize(1.5);
+                proctorFaceTracker.setEdgesDensity(0.1);
+                console.log('Viola-Jones Proctor FaceTracker successfully initialized');
+            }
+        } catch(e) {
+            console.warn('Proctor FaceTracker init warning:', e);
+        }
+
+        // Extract 27-dimensional spatial chromatic & luminance facial feature vector
+        function extractFaceSignature(ctx, rect) {
+            if (!rect) return null;
+            const rx = Math.max(0, Math.floor(rect.x));
+            const ry = Math.max(0, Math.floor(rect.y));
+            const rw = Math.min(160 - rx, Math.floor(rect.width));
+            const rh = Math.min(120 - ry, Math.floor(rect.height));
+            if (rw < 14 || rh < 14) return null;
+
+            let imgData;
+            try {
+                imgData = ctx.getImageData(rx, ry, rw, rh);
+            } catch(e) {
+                return null;
+            }
+            const data = imgData.data;
+
+            let totalY = 0, totalCb = 0, totalCr = 0, totalR = 0, totalG = 0, totalB = 0;
+            let count = 0;
+
+            const gridY = 3, gridX = 3;
+            const blockW = Math.max(1, Math.floor(rw / gridX));
+            const blockH = Math.max(1, Math.floor(rh / gridY));
+            const spatialGrid = [];
+
+            for (let gy = 0; gy < gridY; gy++) {
+                for (let gx = 0; gx < gridX; gx++) {
+                    let bY = 0, bCb = 0, bCr = 0, bCount = 0;
+                    const startX = gx * blockW;
+                    const endX = Math.min(rw, startX + blockW);
+                    const startY = gy * blockH;
+                    const endY = Math.min(rh, startY + blockH);
+
+                    for (let py = startY; py < endY; py += 2) {
+                        for (let px = startX; px < endX; px += 2) {
+                            const idx = (py * rw + px) * 4;
+                            const r = data[idx], g = data[idx+1], b = data[idx+2];
+                            const Y = 0.299 * r + 0.587 * g + 0.114 * b;
+                            const Cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                            const Cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                            bY += Y; bCb += Cb; bCr += Cr; bCount++;
+                            totalY += Y; totalCb += Cb; totalCr += Cr;
+                            totalR += r; totalG += g; totalB += b;
+                            count++;
+                        }
+                    }
+                    if (bCount > 0) {
+                        spatialGrid.push(bY / bCount, bCb / bCount, bCr / bCount);
+                    } else {
+                        spatialGrid.push(128, 128, 128);
+                    }
+                }
+            }
+
+            if (count < 20) return null;
+
+            return {
+                avgY: totalY / count,
+                avgCb: totalCb / count,
+                avgCr: totalCr / count,
+                rgRatio: totalR / Math.max(1, totalG),
+                rbRatio: totalR / Math.max(1, totalB),
+                spatialGrid: spatialGrid,
+                aspectRatio: rh / rw
+            };
+        }
+
+        // Average multiple baseline face samples to form the verified candidate profile
+        function averageFaceSignatures(samples) {
+            if (!samples || samples.length === 0) return null;
+            let avgY = 0, avgCb = 0, avgCr = 0, rgRatio = 0, rbRatio = 0, aspectRatio = 0;
+            const gridLen = samples[0].spatialGrid.length;
+            const avgGrid = new Array(gridLen).fill(0);
+
+            for (let s of samples) {
+                avgY += s.avgY; avgCb += s.avgCb; avgCr += s.avgCr;
+                rgRatio += s.rgRatio; rbRatio += s.rbRatio; aspectRatio += s.aspectRatio;
+                for (let i = 0; i < gridLen; i++) {
+                    avgGrid[i] += s.spatialGrid[i];
+                }
+            }
+
+            const n = samples.length;
+            return {
+                avgY: avgY / n, avgCb: avgCb / n, avgCr: avgCr / n,
+                rgRatio: rgRatio / n, rbRatio: rbRatio / n, aspectRatio: aspectRatio / n,
+                spatialGrid: avgGrid.map(v => v / n)
+            };
+        }
+
+        // Biometric Face Similarity Matching (Detects face substitution / unauthorized person)
+        function compareFaceSignatures(current, baseline) {
+            if (!current || !baseline) return { isMatch: true, mismatchScore: 0 };
+
+            const dCb = Math.abs(current.avgCb - baseline.avgCb);
+            const dCr = Math.abs(current.avgCr - baseline.avgCr);
+            const deltaChroma = Math.sqrt(dCb * dCb + dCr * dCr);
+
+            const dRatio = Math.abs(current.rgRatio - baseline.rgRatio) + Math.abs(current.rbRatio - baseline.rbRatio);
+
+            let blockDistSum = 0;
+            let dot = 0, norm1 = 0, norm2 = 0;
+            const g1 = current.spatialGrid;
+            const g2 = baseline.spatialGrid;
+            for (let i = 0; i < g1.length; i += 3) {
+                dot += g1[i]*g2[i] + g1[i+1]*g2[i+1] + g1[i+2]*g2[i+2];
+                norm1 += g1[i]**2 + g1[i+1]**2 + g1[i+2]**2;
+                norm2 += g2[i]**2 + g2[i+1]**2 + g2[i+2]**2;
+
+                const bCb = g1[i+1] - g2[i+1];
+                const bCr = g1[i+2] - g2[i+2];
+                blockDistSum += Math.sqrt(bCb*bCb + bCr*bCr);
+            }
+            const cosine = (norm1 > 0 && norm2 > 0) ? (dot / (Math.sqrt(norm1) * Math.sqrt(norm2))) : 1;
+            const avgBlockChromaDist = blockDistSum / (g1.length / 3);
+
+            // Composite biometric mismatch score (Same person typically < 15, different person > 35)
+            const mismatchScore = (deltaChroma * 1.5) + (avgBlockChromaDist * 1.2) + (dRatio * 20) + ((1 - cosine) * 100);
+            const isMatch = mismatchScore < 26.0;
+            return { isMatch, mismatchScore };
+        }
+
+        // Secondary strict anthropometric biometric analyzer (rejects flat walls, doors, or furniture)
+        function checkBiometricFaceStructure(data, width, height) {
+            let totalSkin = 0;
+            let sumX = 0, sumY = 0;
+            let minX = width, maxX = 0, minY = height, maxY = 0;
+
+            for (let y = 10; y < height - 10; y += 2) {
+                for (let x = 15; x < width - 15; x += 2) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+
+                    // Standard YCbCr chrominance skin formula
+                    const Cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                    const Cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                    if (Cb >= 80 && Cb <= 125 && Cr >= 135 && Cr <= 170 && r > g && g > b && (r - g) >= 12 && (r - b) >= 20) {
+                        totalSkin++;
+                        sumX += x;
+                        sumY += y;
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+
+            if (totalSkin < 450) return null;
+
+            const boxW = maxX - minX;
+            const boxH = maxY - minY;
+            if (boxW < 30 || boxH < 35 || boxW > 125 || boxH > 110) return null;
+
+            const ratio = boxH / boxW;
+            if (ratio < 0.8 || ratio > 1.85) return null;
+
+            const eyeY = Math.floor(minY + boxH * 0.35);
+            const cheekY = Math.floor(minY + boxH * 0.70);
+            const midX = Math.floor(sumX / totalSkin);
+
+            let eyeLum = 0, cheekLum = 0;
+            let count = 0;
+            for (let dx = -10; dx <= 10; dx += 2) {
+                const x = midX + dx;
+                if (x >= 0 && x < width) {
+                    const eyeIdx = (eyeY * width + x) * 4;
+                    const cheekIdx = (cheekY * width + x) * 4;
+                    eyeLum += 0.299 * data[eyeIdx] + 0.587 * data[eyeIdx+1] + 0.114 * data[eyeIdx+2];
+                    cheekLum += 0.299 * data[cheekIdx] + 0.587 * data[cheekIdx+1] + 0.114 * data[cheekIdx+2];
+                    count++;
+                }
+            }
+            if (count === 0) return null;
+            eyeLum /= count;
+            cheekLum /= count;
+
+            const contrast = cheekLum - eyeLum;
+            if (contrast < 14) return null;
+
+            return { x: minX, y: minY, width: boxW, height: boxH };
+        }
+
+        // Detects additional secondary face or skin clusters outside already-detected face boxes
+        function detectAdditionalFaceClusters(data, width, height, existingFaces) {
+            let leftSkin = 0, rightSkin = 0;
+            let minLX = 75, maxLX = 0, minLY = height, maxLY = 0;
+            let minRX = width, maxRX = 85, minRY = height, maxRY = 0;
+
+            for (let y = 10; y < height - 10; y += 2) {
+                for (let x = 12; x < width - 12; x += 2) {
+                    let inside = false;
+                    for (let f = 0; f < existingFaces.length; f++) {
+                        const ef = existingFaces[f];
+                        if (x >= ef.x - 8 && x <= ef.x + ef.width + 8 && y >= ef.y - 8 && y <= ef.y + ef.height + 8) {
+                            inside = true;
+                            break;
+                        }
+                    }
+                    if (inside) continue;
+
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    const Cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                    const Cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                    if (Cb >= 80 && Cb <= 125 && Cr >= 135 && Cr <= 170 && r > g && g > b && (r - g) >= 12 && (r - b) >= 18) {
+                        if (x < 75) {
+                            leftSkin++;
+                            if (x < minLX) minLX = x;
+                            if (x > maxLX) maxLX = x;
+                            if (y < minLY) minLY = y;
+                            if (y > maxLY) maxLY = y;
+                        } else if (x > 85) {
+                            rightSkin++;
+                            if (x < minRX) minRX = x;
+                            if (x > maxRX) maxRX = x;
+                            if (y < minRY) minRY = y;
+                            if (y > maxRY) maxRY = y;
+                        }
+                    }
+                }
+            }
+
+            const additional = [];
+            if (leftSkin >= 220) {
+                const w = maxLX - minLX;
+                const h = maxLY - minLY;
+                if (w >= 22 && h >= 26 && (h / w) >= 0.70 && (h / w) <= 2.3) {
+                    additional.push({ x: minLX, y: minLY, width: w, height: h });
+                }
+            }
+            if (rightSkin >= 220) {
+                const w = maxRX - minRX;
+                const h = maxRY - minRY;
+                if (w >= 22 && h >= 26 && (h / w) >= 0.70 && (h / w) <= 2.3) {
+                    additional.push({ x: minRX, y: minRY, width: w, height: h });
+                }
+            }
+            return additional;
+        }
+
+        function startFaceDetectionLoop() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 120;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const videoElem = document.getElementById('proctor-video');
+
+            if (proctorCheckInterval) clearInterval(proctorCheckInterval);
+
+            proctorCheckInterval = setInterval(async () => {
+                if (isExamAutoTerminated || isSubmitting) return;
+                if (!videoElem || videoElem.videoWidth === 0 || videoElem.readyState < 2) return;
+
+                let detectedFaces = [];
+
+                // 1. Native browser FaceDetector (multi-face aware)
+                if (faceDetectorInstance) {
+                    try {
+                        const faces = await faceDetectorInstance.detect(videoElem);
+                        if (faces && faces.length > 0) {
+                            detectedFaces = faces
+                                .filter(f => !f.boundingBox || (f.boundingBox.width >= 24 && f.boundingBox.height >= 24))
+                                .map(f => f.boundingBox ? { x: f.boundingBox.x, y: f.boundingBox.y, width: f.boundingBox.width, height: f.boundingBox.height } : { x: 40, y: 30, width: 80, height: 60 });
+                        }
+                    } catch (e) {}
+                }
+
+                // 2. Viola-Jones Haar Cascade (tracking.js)
+                ctx.drawImage(videoElem, 0, 0, 160, 120);
+                const frame = ctx.getImageData(0, 0, 160, 120);
+
+                // Run Viola-Jones whenever detectedFaces is <= 1 to check for additional faces in frame
+                if (detectedFaces.length <= 1) {
+                    try {
+                        if (!proctorFaceTracker && typeof tracking !== 'undefined' && tracking.ObjectTracker) {
+                            proctorFaceTracker = new tracking.ObjectTracker('face');
+                            proctorFaceTracker.setInitialScale(1.4);
+                            proctorFaceTracker.setScaleFactor(1.15);
+                            proctorFaceTracker.setStepSize(1.5);
+                            proctorFaceTracker.setEdgesDensity(0.1);
+                        }
+
+                        if (proctorFaceTracker) {
+                            let trackerResults = [];
+                            proctorFaceTracker.once('track', (e) => {
+                                trackerResults = e.data || [];
+                            });
+                            proctorFaceTracker.track(frame.data, 160, 120);
+
+                            const validTrackerFaces = trackerResults.filter(r => r.width >= 24 && r.height >= 24);
+                            if (validTrackerFaces.length > detectedFaces.length) {
+                                detectedFaces = validTrackerFaces;
+                            } else if (detectedFaces.length === 0 && validTrackerFaces.length > 0) {
+                                detectedFaces = validTrackerFaces;
+                            }
+                        }
+                    } catch(err) {
+                        console.warn('Viola-Jones error:', err);
+                    }
+                }
+
+                // 3. Strict Biometric Anthropometric Fallback & Cluster Analysis
+                if (detectedFaces.length === 0) {
+                    const structFace = checkBiometricFaceStructure(frame.data, 160, 120);
+                    if (structFace) {
+                        detectedFaces = [structFace];
+                    }
+                }
+                if (detectedFaces.length <= 1) {
+                    const extraClusters = detectAdditionalFaceClusters(frame.data, 160, 120, detectedFaces);
+                    if (extraClusters.length > 0) {
+                        detectedFaces = detectedFaces.concat(extraClusters);
+                    }
+                }
+
+                // Presence & Identity Evaluation
+                if (detectedFaces.length === 0) {
+                    // Zero faces: Candidate is missing/absent
+                    handleCandidatePresence({ status: 'ABSENT' });
+                } else if (detectedFaces.length > 1) {
+                    // Multiple people in frame (2 or more faces detected)
+                    handleCandidatePresence({ status: 'MULTIPLE_FACES', count: detectedFaces.length });
+                } else {
+                    // Exactly 1 face detected
+                    const primaryFace = detectedFaces[0];
+                    const currentSig = extractFaceSignature(ctx, primaryFace);
+
+                    if (!isCandidateEnrolled) {
+                        if (currentSig) {
+                            enrollmentSamples.push(currentSig);
+                            if (enrollmentSamples.length >= 4) {
+                                candidateBaselineSignature = averageFaceSignatures(enrollmentSamples);
+                                isCandidateEnrolled = true;
+                                console.log('Proctor: Candidate baseline face signature established.', candidateBaselineSignature);
+                            }
+                        }
+                        handleCandidatePresence({ status: 'PRESENT_ENROLLING' });
+                    } else {
+                        // Candidate is enrolled: perform identity verification
+                        const matchResult = compareFaceSignatures(currentSig, candidateBaselineSignature);
+                        if (matchResult.isMatch) {
+                            // Verified candidate in frame
+                            handleCandidatePresence({ status: 'VERIFIED_CANDIDATE' });
+                        } else {
+                            // Face does NOT match candidate! Unauthorized person detected / face switch!
+                            handleCandidatePresence({ status: 'UNAUTHORIZED_FACE', mismatchScore: matchResult.mismatchScore });
+                        }
+                    }
+                }
+
+            }, 650);
+        }
+
+        function handleCandidatePresence(event) {
+            if (isExamAutoTerminated) return;
+
+            const statusPill = document.getElementById('proctor-face-status');
+            const camOverlay = document.getElementById('proctor-cam-overlay');
+            const proctorWidget = document.getElementById('proctor-widget');
+            const alertBanner = document.getElementById('proctor-alert-banner');
+
+            if (event.status === 'VERIFIED_CANDIDATE' || event.status === 'PRESENT_ENROLLING') {
+                consecutivePresentCount++;
+                faceMissingFrames = 0;
+                mismatchFrames = 0;
+                multiFaceFrames = 0;
+
+                if (consecutivePresentCount >= 2) {
+                    if (statusPill) {
+                        statusPill.className = 'proctor-status-pill in-frame';
+                        statusPill.innerHTML = event.status === 'PRESENT_ENROLLING'
+                            ? '<i class="fas fa-spinner fa-spin"></i> Enrolling...'
+                            : '<i class="fas fa-check-circle"></i> In Frame';
+                    }
+                    if (camOverlay) camOverlay.style.display = 'none';
+                    if (proctorWidget) proctorWidget.classList.remove('warning-active');
+
+                    if (isFaceWarningActive) {
+                        isFaceWarningActive = false;
+                        lastWarningTimestamp = 0;
+                        if (alertBanner) {
+                            alertBanner.style.background = 'linear-gradient(135deg, #065f46, #047857)';
+                            alertBanner.style.borderColor = '#10b981';
+                            const title = document.getElementById('proctor-alert-title');
+                            const desc = document.getElementById('proctor-alert-desc');
+                            if (title) title.innerHTML = '🟢 Verified Candidate - Proctoring Restored';
+                            if (desc) desc.innerHTML = 'Identity confirmed. You may continue your examination.';
+                            setTimeout(() => {
+                                if (!isFaceWarningActive && alertBanner) alertBanner.style.display = 'none';
+                            }, 2000);
+                        }
+                    }
+                }
+            } else if (event.status === 'ABSENT') {
+                consecutivePresentCount = 0;
+                mismatchFrames = 0;
+                multiFaceFrames = 0;
+                faceMissingFrames++;
+
+                if (statusPill) {
+                    statusPill.className = 'proctor-status-pill out-frame';
+                    statusPill.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Not in Frame!';
+                }
+
+                if (faceMissingFrames >= 2) {
+                    if (camOverlay) {
+                        camOverlay.innerHTML = '<i class="fas fa-user-slash fa-2x"></i><span>FACE NOT IN FRAME</span>';
+                        camOverlay.style.display = 'flex';
+                    }
+                    if (proctorWidget) proctorWidget.classList.add('warning-active');
+                }
+
+                if (faceMissingFrames >= 3) {
+                    triggerProctorWarning('FACE_NOT_DETECTED', 'Candidate not visible in camera frame');
+                }
+            } else if (event.status === 'UNAUTHORIZED_FACE') {
+                consecutivePresentCount = 0;
+                faceMissingFrames = 0;
+                multiFaceFrames = 0;
+                mismatchFrames++;
+
+                if (statusPill) {
+                    statusPill.className = 'proctor-status-pill out-frame';
+                    statusPill.innerHTML = '<i class="fas fa-user-times"></i> Unauthorized Face!';
+                }
+
+                if (mismatchFrames >= 2) {
+                    if (camOverlay) {
+                        camOverlay.innerHTML = '<i class="fas fa-user-times fa-2x"></i><span>UNAUTHORIZED PERSON DETECTED</span>';
+                        camOverlay.style.display = 'flex';
+                    }
+                    if (proctorWidget) proctorWidget.classList.add('warning-active');
+                }
+
+                if (mismatchFrames >= 3) {
+                    triggerProctorWarning('UNAUTHORIZED_FACE_DETECTED', 'Unverified person detected (Candidate face switch)');
+                }
+            } else if (event.status === 'MULTIPLE_FACES') {
+                consecutivePresentCount = 0;
+                faceMissingFrames = 0;
+                mismatchFrames = 0;
+                multiFaceFrames++;
+
+                if (statusPill) {
+                    statusPill.className = 'proctor-status-pill out-frame';
+                    statusPill.innerHTML = `<i class="fas fa-users-slash"></i> ${event.count} Faces Detected!`;
+                }
+
+                if (camOverlay) {
+                    camOverlay.innerHTML = `<i class="fas fa-users-slash fa-2x"></i><span>MULTIPLE FACES DETECTED (${event.count})</span>`;
+                    camOverlay.style.display = 'flex';
+                }
+                if (proctorWidget) proctorWidget.classList.add('warning-active');
+
+                if (multiFaceFrames >= 2) {
+                    triggerProctorWarning('MULTIPLE_FACES_DETECTED', `${event.count} faces detected in frame (Only 1 candidate allowed)`);
+                }
+            }
+        }
+
+        let lastWarningTimestamp = 0;
+
+        function triggerProctorWarning(violationType, reason) {
+            if (isExamAutoTerminated) return;
+            const now = Date.now();
+            if (isFaceWarningActive && (now - lastWarningTimestamp < 3500)) {
+                return;
+            }
+            lastWarningTimestamp = now;
+            isFaceWarningActive = true;
+            proctorWarningsCount++;
+
+            const timeStr = new Date().toTimeString().split(' ')[0];
+            const logItem = `Warning #${proctorWarningsCount} (${timeStr}): ${reason}`;
+            proctorViolationsHistory.push(logItem);
+
+            const warnVal = document.getElementById('proctor-warnings-val') || document.getElementById('proctor-warnings-count');
+            if (warnVal) warnVal.textContent = proctorWarningsCount;
+
+            const alertBanner = document.getElementById('proctor-alert-banner');
+            if (alertBanner) {
+                alertBanner.style.display = 'block';
+                alertBanner.style.background = 'linear-gradient(135deg, #7f1d1d, #991b1b)';
+                alertBanner.style.borderColor = '#ef4444';
+                const title = document.getElementById('proctor-alert-title');
+                const desc = document.getElementById('proctor-alert-desc');
+                const numBadge = document.getElementById('proctor-alert-num');
+
+                if (title) title.innerHTML = `⚠️ PROCTORING WARNING #${proctorWarningsCount} OF 3!`;
+                if (numBadge) numBadge.textContent = `Warning #${proctorWarningsCount} of 3`;
+                if (desc) desc.innerHTML = `${reason}. After 3 warnings, the examination will terminate automatically!`;
+            }
+
+            // Play alert sound beep
+            playProctorWarningBeep();
+
+            // Log security incident to backend
+            logProctorSecurityEvent(violationType, logItem);
+
+            // AUTO-TERMINATE IF 3 WARNINGS REACHED
+            if (proctorWarningsCount >= 3) {
+                triggerExamAutoTermination(reason);
+            }
+        }
+
+        async function triggerExamAutoTermination(reason) {
+            if (isExamAutoTerminated) return;
+            isExamAutoTerminated = true;
+            isSubmitting = true;
+
+            console.warn('TERMINATION: 3 proctoring warnings reached. Terminating exam attempt.');
+
+            if (proctorCheckInterval) clearInterval(proctorCheckInterval);
+            if (timerInterval) clearInterval(timerInterval);
+
+            playProctorTerminationTone();
+            disableAllExamInteractions();
+
+            const termModal = document.getElementById('proctorTerminationModal');
+            if (termModal) {
+                const listElem = document.getElementById('terminationViolationsList');
+                if (listElem) {
+                    listElem.innerHTML = proctorViolationsHistory.map(v => `<li><i class="fas fa-exclamation-triangle" style="margin-right:6px; color:#ef4444;"></i>${v}</li>`).join('');
+                }
+                termModal.classList.add('open');
+            }
+
+            try {
+                await uploadRecordedSession();
+                await logProctorSecurityEvent('EXAM_AUTO_TERMINATED', `Terminated automatically after reaching ${proctorWarningsCount} warnings: ${reason}`);
+                await fetch(`/api/professional-exams/attempts/${attemptId}/submit`, {
+                    method: 'POST'
+                });
+            } catch (e) {
+                console.warn('Termination submit error:', e);
+            }
+
+            setTimeout(() => {
+                window.location.href = `/student/professional-exams/results/${attemptId}`;
+            }, 2200);
+        }
+
+        function disableAllExamInteractions() {
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(el => el.disabled = true);
+            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            if (window.codeEditor && typeof window.codeEditor.updateOptions === 'function') {
+                window.codeEditor.updateOptions({ readOnly: true });
+            }
+        }
+
+        function playProctorWarningBeep() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.32);
+            } catch(e) {
+                console.warn('Audio warning beep failed:', e);
+            }
+        }
+
+        function playProctorTerminationTone() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') ctx.resume();
+
+                [840, 560, 340].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    const startTime = ctx.currentTime + (idx * 0.22);
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    gain.gain.setValueAtTime(0.35, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.18);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.20);
+                });
+            } catch(e) {}
+        }
+
+        async function logProctorSecurityEvent(eventType, metadata) {
+            try {
+                await fetch(`/api/professional-exams/attempts/${attemptId}/security-events`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventType, metadata })
+                });
+            } catch(e) {
+                console.warn('Proctoring log error:', e);
+            }
+        }
+
+        async function uploadRecordedSession() {
+            if (!mediaRecorder) {
+                return;
+            }
+            try {
+                if (mediaRecorder.state !== 'inactive') {
+                    await new Promise(resolve => {
+                        mediaRecorder.onstop = () => resolve();
+                        mediaRecorder.stop();
+                        setTimeout(resolve, 800);
+                    });
+                } else {
+                    await new Promise(r => setTimeout(r, 200));
+                }
+
+                if (recordedChunks.length === 0) {
+                    return;
+                }
+
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+                const formData = new FormData();
+                formData.append('recording', blob, `recording_${attemptId}.webm`);
+                formData.append('warningsCount', proctorWarningsCount);
+                const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+                formData.append('duration', duration);
+
+                console.log(`Uploading proctoring recording (${(blob.size / 1024 / 1024).toFixed(2)} MB)...`);
+                await fetch(`/api/professional-exams/attempts/${attemptId}/recording`, {
+                    method: 'POST',
+                    body: formData
+                });
+                console.log('Proctoring recording successfully sent to admin.');
+            } catch(err) {
+                console.warn('Failed to upload proctoring recording:', err);
+            }
+        }
+
         function closeSubmitModal() {
             const modal = document.getElementById('submitModal');
             if (modal) modal.classList.remove('open');
@@ -1306,6 +2385,9 @@
             isSubmitting = true;
             closeSubmitModal();
 
+            const uploadingModal = document.getElementById('uploadingModal');
+            if (uploadingModal) uploadingModal.classList.add('open');
+
             const confirmBtn = document.getElementById('btn-confirm-submit');
             if (confirmBtn) {
                 confirmBtn.disabled = true;
@@ -1313,6 +2395,9 @@
             }
 
             try {
+                // Finalize and upload audio/video recording to server
+                await uploadRecordedSession();
+
                 const res = await fetch(`/api/professional-exams/attempts/${attemptId}/submit`, {
                     method: 'POST'
                 });
@@ -1326,6 +2411,7 @@
 
             } catch (err) {
                 isSubmitting = false;
+                if (uploadingModal) uploadingModal.classList.remove('open');
                 alert('Submission error: ' + err.message);
                 if (confirmBtn) {
                     confirmBtn.disabled = false;
@@ -1341,6 +2427,7 @@
             if (autoModal) autoModal.classList.add('open');
 
             try {
+                await uploadRecordedSession();
                 await fetch(`/api/professional-exams/attempts/${attemptId}/submit`, {
                     method: 'POST'
                 });
@@ -1390,5 +2477,7 @@
             setTimeout(() => toast.remove(), 2000);
         }
     </script>
+    <!-- SkillHub Global Broadcast Popup Notification -->
+    <script th:src="@{/js/broadcast-popup.js}" src="/js/broadcast-popup.js" defer></script>
 </body>
 </html>
